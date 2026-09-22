@@ -188,8 +188,28 @@
     padding-bottom: 0.75rem;
     border-bottom: 1px solid var(--border-default-grey);
   }
+  .cand-modal-dialog__identity { min-width: 0; }
   .cand-modal-dialog__title { margin: 0.3rem 0 0; font-size: 1.15em; font-weight: 700; }
+  .cand-modal-dialog__email { margin: 0.2rem 0 0; font-size: 0.85em; }
+  .cand-modal-dialog__email a.fr-link { color: inherit; }
+  .cand-modal-dialog__header-actions { display: flex; align-items: center; gap: 0.5rem; flex: none; }
   .cand-modal-dialog__close { flex: none; margin: -0.25rem -0.25rem 0 0; }
+  /* Pastille "mineur", affichée en haut à droite de la modale quand la
+     case Mineur (réglée dans le backoffice Grist) est cochée pour ce
+     candidat — voir renderModalContent. Ton ambre plutôt que rouge : une
+     information de vigilance, pas une erreur. */
+  .cand-modal-dialog__minor-flag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    background: var(--statut-pastel-attente);
+    color: #716200;
+    font-size: 1.05rem;
+  }
+  .cand-modal-dialog__minor-flag[hidden] { display: none; }
 
   @media (max-width: 40rem) {
     .cand-modal-overlay { padding: 0; align-items: flex-end; }
@@ -328,8 +348,19 @@
     padding: 0.3rem 0;
     font-size: 0.92em;
   }
-  .cand-field__label { color: var(--text-mention-grey); }
+  .cand-field__label { color: var(--text-mention-grey); flex: 1 1 auto; }
   .cand-field__value { font-weight: 500; text-align: right; }
+  /* Champs éditables (Inscription bande, Qté bandes, Dû, Encaissé) :
+     saisie directe dans la fiche, enregistrée au blur (voir saveFieldEdit)
+     plutôt qu'à chaque frappe. */
+  .cand-field--editable .cand-field__label { flex: 0 0 auto; padding-top: 0.35rem; }
+  .cand-field__input {
+    flex: 0 0 9rem;
+    max-width: 9rem;
+    text-align: right;
+    margin: 0 !important;
+  }
+  .cand-field__input:disabled { opacity: 0.6; }
 
   .cand-pill {
     display: inline-block;
@@ -351,6 +382,13 @@
     font-size: 0.85em;
   }
   .cand-blocages strong { display: block; font-size: 0.85em; margin-bottom: 0.15rem; }
+  .cand-blocages__textarea {
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+    font: inherit;
+    margin: 0 !important;
+  }
 
   .cand-empty-state {
     padding: 2rem 1rem;
@@ -402,6 +440,7 @@
     gap: 0.75rem;
   }
   .widget-footer__credit { margin: 0; font-size: 0.8em; color: var(--text-mention-grey); }
+  .widget-footer a.fr-link { font-size: 0.8em; }
 </style>
 </head>
 <body>
@@ -413,12 +452,12 @@
         <div class="fr-header__brand fr-enlarge-link" id="brandGesture">
           <div class="fr-header__brand-top">
             <div class="fr-header__logo">
-              <p class="fr-logo">Stage<br>Admission</p>
+              <p class="fr-logo">Ministère<br>de l'Intérieur</p>
             </div>
           </div>
           <div class="fr-header__service">
-            <p class="fr-header__service-title">Administration des candidats</p>
-            <p class="fr-header__service-tagline">eTuteur — Suivi des dossiers de stage</p>
+            <p class="fr-header__service-title">Division réserves jeunesse</p>
+            <p class="fr-header__service-tagline">Gestion des personnels</p>
           </div>
         </div>
       </div>
@@ -484,7 +523,13 @@
       <p>Associez la table Grist des candidats et le rôle de chacune de ses colonnes, d'après les libellés
       de la fiche candidat (NID, Stagiaire, Usage RS…). « Validation admin » pilote les boutons
       Accepter/Refuser des pièces jointes « Usage RS » et « Form. image » ; « Validation EAD » pilote ceux
-      de la pièce jointe « EAD ». Ces réglages sont mémorisés avec le widget.</p>
+      de la pièce jointe « EAD ». Un refus ouvre automatiquement un e-mail pré-rempli vers l'adresse « E-mail »
+      du candidat : sans cette colonne, le refus reste enregistré mais aucun e-mail ne s'ouvre. « Mineur »
+      est une case à cocher que vous renseignez vous-même dans Grist (backoffice) pour chaque candidat qui
+      sera mineur au premier jour de la formation ; le widget se contente de l'afficher. « Inscription bande »,
+      « Qté bandes », « Dû » et « Encaissé » sont modifiables directement depuis la fiche candidat — préférez
+      des colonnes Texte ou Numérique (pas une colonne Référence) pour que l'enregistrement fonctionne. Ces
+      réglages sont mémorisés avec le widget.</p>
     </div>
 
     <div id="settingsStatusZone" class="fr-mb-2w"></div>
@@ -510,6 +555,14 @@
           <div class="fr-select-group">
             <label class="fr-label" for="cand_col_stagiaire">Stagiaire</label>
             <select class="fr-select" id="cand_col_stagiaire" data-role="stagiaire"></select>
+          </div>
+          <div class="fr-select-group">
+            <label class="fr-label" for="cand_col_email">E-mail du stagiaire (optionnel)</label>
+            <select class="fr-select" id="cand_col_email" data-role="email"></select>
+          </div>
+          <div class="fr-select-group">
+            <label class="fr-label" for="cand_col_mineur">Mineur au 1er jour de formation (optionnel, case à cocher)</label>
+            <select class="fr-select" id="cand_col_mineur" data-role="mineur"></select>
           </div>
         </div>
       </div>
@@ -586,11 +639,17 @@
 <div class="cand-modal-overlay" id="candModalOverlay" hidden>
   <div class="cand-modal-dialog" id="candModalDialog" role="dialog" aria-modal="true" aria-labelledby="candModalTitle">
     <div class="cand-modal-dialog__header">
-      <div>
+      <div class="cand-modal-dialog__identity">
         <span class="cand-badge-nid" id="candModalNid"></span>
         <h3 class="cand-modal-dialog__title" id="candModalTitle"></h3>
+        <p class="cand-modal-dialog__email" id="candModalEmail" hidden></p>
       </div>
-      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-line cand-modal-dialog__close" id="candModalCloseBtn" type="button">Fermer</button>
+      <div class="cand-modal-dialog__header-actions">
+        <span class="cand-modal-dialog__minor-flag" id="candModalMinorFlag" hidden title="Sera mineur au premier jour de la formation">
+          <span class="fr-icon-alert-line" aria-hidden="true"></span>
+        </span>
+        <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-line cand-modal-dialog__close" id="candModalCloseBtn" type="button">Fermer</button>
+      </div>
     </div>
     <div id="candModalBody"></div>
   </div>
@@ -601,9 +660,10 @@
      réutilisé pour toutes les vignettes plutôt qu'un par pièce jointe. -->
 <div class="attach-preview" id="attachPreview" hidden></div>
 
-<div class="widget-footer">
-  <p class="widget-footer__credit">Conçu avec ❤️ par G. Leclercq — Bloom Social Analytics — 2026</p>
-</div>
+<footer class="widget-footer" role="contentinfo">
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026</p>
+  <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
+</footer>
 
 <script>
 (function () {
@@ -611,16 +671,25 @@
 
   // ---- Rôles de colonnes de la table candidats, d'après les libellés
   // visibles sur la fiche candidat (capture d'écran) --------------------
-  var ROLES = ['nid', 'stagiaire', 'usageRS', 'formImage', 'photos', 'validationAdmin',
+  var ROLES = ['nid', 'stagiaire', 'email', 'mineur', 'usageRS', 'formImage', 'photos', 'validationAdmin',
     'ead', 'validationEAD', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
   var REQUIRED_ROLES = ['nid', 'stagiaire'];
   var OPTIONAL_ROLES = ROLES.filter(function (r) { return REQUIRED_ROLES.indexOf(r) === -1; });
   var ROLE_LABELS = {
-    nid: 'NID', stagiaire: 'Stagiaire', usageRS: 'Usage RS', formImage: 'Form. image',
+    nid: 'NID', stagiaire: 'Stagiaire', email: 'E-mail', mineur: 'Mineur au 1er jour de formation',
+    usageRS: 'Usage RS', formImage: 'Form. image',
     photos: 'Photos', validationAdmin: 'Validation admin', ead: 'EAD', validationEAD: 'Validation EAD',
     inscriptionBande: 'Inscription bande', qteBandes: 'Qté bandes', du: 'Dû', encaisse: 'Encaissé',
     blocagesInfos: 'Blocages / Infos'
   };
+  // Rôles rendus éditables directement depuis la fiche candidat (voir
+  // buildEditableFieldRow / buildBlocagesEditor) : 'text' pour un simple
+  // <input type="text">, 'number'/'currency' pour un <input type="number">
+  // (le pas 0.01 de 'currency' colle aux montants en euros). Les autres
+  // rôles (NID, Stagiaire, Photos, pièces jointes…) restent en lecture
+  // seule dans la fiche : ils se modifient depuis Grist ou via les
+  // boutons Accepter/Refuser dédiés.
+  var EDITABLE_ROLE_KIND = { inscriptionBande: 'text', qteBandes: 'number', du: 'currency', encaisse: 'currency' };
   // Champs "pièce jointe" et colonne de validation (case à cocher) qui
   // porte leurs boutons Accepter/Refuser — voir le texte d'aide du panneau
   // Configuration : Usage RS et Form. image partagent "Validation admin"
@@ -690,6 +759,8 @@
   var candModalCloseBtn = document.getElementById('candModalCloseBtn');
   var candModalNid = document.getElementById('candModalNid');
   var candModalTitle = document.getElementById('candModalTitle');
+  var candModalEmail = document.getElementById('candModalEmail');
+  var candModalMinorFlag = document.getElementById('candModalMinorFlag');
   var candModalBody = document.getElementById('candModalBody');
   var currentModalRowId = null; // id de la ligne actuellement affichée dans la modale, ou null si fermée
 
@@ -982,6 +1053,19 @@
     if (!row) { closeCandidateModal(); return; }
     candModalNid.textContent = 'NID · ' + (textOf(row.nid) || '—');
     candModalTitle.textContent = textOfRef(row.stagiaire) || '(Stagiaire non renseigné)';
+
+    var emailText = settings.col.email ? textOf(row.email) : '';
+    if (emailText) {
+      candModalEmail.innerHTML = '<a class="fr-link" href="mailto:' + escapeAttr(emailText) + '">' + escapeHtml(emailText) + '</a>';
+      candModalEmail.hidden = false;
+    } else {
+      candModalEmail.innerHTML = '';
+      candModalEmail.hidden = true;
+    }
+
+    var isMinor = !!settings.col.mineur && (row.mineur === true || row.mineur === 1);
+    candModalMinorFlag.hidden = !isMinor;
+
     candModalBody.innerHTML = '';
     buildCandidateDetails(row).forEach(function (el) { candModalBody.appendChild(el); });
   }
@@ -1013,30 +1097,19 @@
     infoTitle.className = 'section-title';
     infoTitle.textContent = 'Informations complémentaires';
     var infoRows = [];
-    var infoRoles = ['photos', 'inscriptionBande', 'qteBandes', 'du', 'encaisse'];
-    infoRoles.forEach(function (role) {
-      if (settings.col[role]) infoRows.push(buildFieldRow(row, role));
+    if (settings.col.photos) infoRows.push(buildFieldRow(row, 'photos')); // lecture seule : réglée depuis Grist
+    ['inscriptionBande', 'qteBandes', 'du', 'encaisse'].forEach(function (role) {
+      if (settings.col[role]) infoRows.push(buildEditableFieldRow(row, role));
     });
     if (infoRows.length) {
       sections.push(infoTitle);
       sections = sections.concat(infoRows);
     }
 
-    if (settings.col.blocagesInfos) {
-      var blocagesText = textOf(row.blocagesInfos);
-      if (blocagesText) {
-        var box = document.createElement('div');
-        box.className = 'cand-blocages';
-        var strong = document.createElement('strong');
-        strong.textContent = ROLE_LABELS.blocagesInfos;
-        var p = document.createElement('p');
-        p.style.margin = '0';
-        p.textContent = blocagesText;
-        box.appendChild(strong);
-        box.appendChild(p);
-        sections.push(box);
-      }
-    }
+    // Contrairement aux autres champs, la case "Blocages / Infos" reste
+    // affichée même vide dès que la colonne est réglée : c'est justement
+    // là qu'on saisit un blocage, pas seulement là où on le consulte.
+    if (settings.col.blocagesInfos) sections.push(buildBlocagesEditor(row));
 
     return sections;
   }
@@ -1071,6 +1144,154 @@
     return t ? escapeHtml(t) : '<span class="cand-pill cand-pill--unknown">—</span>';
   }
 
+  // ---- Champs éditables (Inscription bande, Qté bandes, Dû, Encaissé,
+  // Blocages / Infos) : saisie directe dans la fiche, enregistrée au blur
+  // (pas à chaque frappe) — voir saveFieldEdit. ----------------------------
+
+  function buildEditableFieldRow(row, role) {
+    var kind = EDITABLE_ROLE_KIND[role] || 'text';
+    var line = document.createElement('div');
+    line.className = 'cand-field cand-field--editable';
+    var inputId = 'candEdit_' + role + '_' + row.id;
+
+    var label = document.createElement('label');
+    label.className = 'cand-field__label';
+    label.setAttribute('for', inputId);
+    label.textContent = ROLE_LABELS[role];
+
+    var input = document.createElement('input');
+    input.id = inputId;
+    input.className = 'fr-input fr-input--sm cand-field__input';
+    if (kind === 'number' || kind === 'currency') {
+      input.type = 'number';
+      input.step = kind === 'currency' ? '0.01' : '1';
+      var n = numOf(row[role]);
+      input.value = isNaN(n) ? '' : n;
+    } else {
+      input.type = 'text';
+      // textOfRef() plutôt que textOf() : si "Inscription bande" est une
+      // Référence simple non résolue, on évite d'afficher/écraser avec le
+      // "0" qui représente une référence vide côté Grist.
+      input.value = textOfRef(row[role]) || '';
+    }
+    var initialValue = input.value;
+    input.addEventListener('blur', function () {
+      if (input.value === initialValue) return;
+      saveFieldEdit(role, row.id, input, kind, initialValue);
+    });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') input.blur();
+    });
+
+    line.appendChild(label);
+    line.appendChild(input);
+    return line;
+  }
+
+  function buildBlocagesEditor(row) {
+    var box = document.createElement('div');
+    box.className = 'cand-blocages cand-blocages--editable';
+    var inputId = 'candEdit_blocagesInfos_' + row.id;
+
+    var strong = document.createElement('label');
+    strong.setAttribute('for', inputId);
+    strong.textContent = ROLE_LABELS.blocagesInfos;
+    box.appendChild(strong);
+
+    var textarea = document.createElement('textarea');
+    textarea.id = inputId;
+    textarea.className = 'fr-input cand-blocages__textarea';
+    textarea.rows = 3;
+    textarea.placeholder = 'Aucun blocage renseigné.';
+    textarea.value = textOf(row.blocagesInfos);
+    var initialValue = textarea.value;
+    textarea.addEventListener('blur', function () {
+      if (textarea.value === initialValue) return;
+      saveFieldEdit('blocagesInfos', row.id, textarea, 'text', initialValue);
+    });
+    box.appendChild(textarea);
+    return box;
+  }
+
+  // Enregistre un champ édité dans la fiche : valeurs numériques
+  // converties et validées (Number()), texte envoyé tel quel. En cas
+  // d'échec (droits insuffisants, colonne Référence qui refuse le texte
+  // saisi…), le champ est restauré à sa valeur d'origine en rechargeant la
+  // modale, plutôt que de laisser affiché un texte qui n'a en réalité pas
+  // été enregistré.
+  function saveFieldEdit(role, rowId, inputEl, kind, previousValue) {
+    var colId = settings.col[role];
+    if (!isWritableColId(colId)) {
+      window.alert('Le champ « ' + ROLE_LABELS[role] + ' » pointe vers une colonne technique de Grist, qui ne peut pas être modifiée. ' +
+        'Ouvrez la Configuration (5 clics sur le bloc marque du header) et choisissez la vraie colonne, puis enregistrez.');
+      inputEl.value = previousValue;
+      return;
+    }
+    var rawValue = inputEl.value;
+    var newValue;
+    if (kind === 'number' || kind === 'currency') {
+      if (rawValue.trim() === '') {
+        newValue = null;
+      } else {
+        var n = Number(rawValue);
+        if (isNaN(n)) {
+          window.alert('Valeur numérique invalide pour « ' + ROLE_LABELS[role] + ' ».');
+          inputEl.value = previousValue;
+          return;
+        }
+        newValue = n;
+      }
+    } else {
+      newValue = rawValue;
+    }
+    var fields = {};
+    fields[colId] = newValue;
+    inputEl.disabled = true;
+    grist.docApi.applyUserActions([['UpdateRecord', settings.table, rowId, fields]]).then(function () {
+      candidates.rows.forEach(function (r) { if (r.id === rowId) r[role] = newValue; });
+      inputEl.disabled = false;
+      renderCandidates();
+      if (currentModalRowId === rowId) renderModalContent();
+    }).catch(function (e) {
+      window.alert('Impossible d’enregistrer « ' + ROLE_LABELS[role] + ' » : ' + friendlyErrorMessage(e));
+      inputEl.disabled = false;
+      inputEl.value = previousValue;
+    });
+  }
+
+  // Compose et ouvre un e-mail (client de messagerie par défaut du
+  // navigateur) adressé au stagiaire, précisant quelle pièce refusée doit
+  // être renvoyée — déclenché par updateValidation() après un refus réussi
+  // sur une pièce jointe. Un élément <a href="mailto:…"> cliqué
+  // programmatiquement est plus fiable que window.open()/location.href
+  // dans le contexte d'un widget en iframe.
+  function openRefusalEmail(row, docLabel) {
+    var email = settings.col.email ? textOf(row.email) : '';
+    if (!email) {
+      window.alert('Le document « ' + docLabel + ' » a bien été marqué comme refusé, mais aucune adresse e-mail n’est ' +
+        'renseignée pour ce candidat (ou la colonne « E-mail » n’est pas réglée dans la Configuration) : ' +
+        'impossible de préparer le message de relance.');
+      return;
+    }
+    var name = textOfRef(row.stagiaire) || '';
+    var subject = 'Pièce à renvoyer : ' + docLabel;
+    var body = [
+      'Bonjour' + (name ? ' ' + name : '') + ',',
+      '',
+      'Le document « ' + docLabel + ' » que vous nous avez transmis n’a pas pu être validé.',
+      'Merci de bien vouloir nous renvoyer ce document dûment complété dans les meilleurs délais.',
+      '',
+      'Cordialement,'
+    ].join('\n');
+    var url = 'mailto:' + email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    var a = document.createElement('a');
+    a.href = url;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
   // ---- Ligne "Document" : vignette(s) de pièce(s) jointe(s) + boutons
   // Accepter/Refuser portant sur la colonne de validation associée -------
 
@@ -1099,13 +1320,13 @@
 
     var validationRole = ATTACH_VALIDATION_ROLE[role];
     if (validationRole && settings.col[validationRole]) {
-      wrap.appendChild(buildAcceptRefuseButtons(row, validationRole));
+      wrap.appendChild(buildAcceptRefuseButtons(row, validationRole, ROLE_LABELS[role]));
     }
 
     return wrap;
   }
 
-  function buildAcceptRefuseButtons(row, validationRole) {
+  function buildAcceptRefuseButtons(row, validationRole, docLabel) {
     var actions = document.createElement('div');
     actions.className = 'cand-doc-actions';
     var state = boolState(row[validationRole]);
@@ -1124,14 +1345,21 @@
     refuseBtn.title = 'Refuser';
     refuseBtn.dataset.action = 'refuser';
     refuseBtn.setAttribute('aria-pressed', state === 'refused' ? 'true' : 'false');
-    refuseBtn.addEventListener('click', function () { updateValidation(validationRole, row.id, false); });
+    // Un refus doit préciser AU STAGIAIRE quelle pièce renvoyer : on passe
+    // la ligne candidat et le libellé de ce document précis (pas la
+    // colonne de validation, potentiellement partagée entre deux pièces —
+    // voir ATTACH_VALIDATION_ROLE) à updateValidation(), qui ouvre l'e-mail
+    // une fois le refus effectivement enregistré.
+    refuseBtn.addEventListener('click', function () {
+      updateValidation(validationRole, row.id, false, { row: row, docLabel: docLabel });
+    });
 
     actions.appendChild(acceptBtn);
     actions.appendChild(refuseBtn);
     return actions;
   }
 
-  function updateValidation(role, rowId, newValue) {
+  function updateValidation(role, rowId, newValue, refusalContext) {
     var colId = settings.col[role];
     if (!isWritableColId(colId)) {
       window.alert('Le champ « ' + ROLE_LABELS[role] + ' » pointe vers une colonne technique de Grist, qui ne peut pas être modifiée. ' +
@@ -1144,6 +1372,7 @@
       candidates.rows.forEach(function (r) { if (r.id === rowId) r[role] = newValue; });
       renderCandidates(); // met à jour les pastilles de statut de la liste
       if (currentModalRowId === rowId) renderModalContent(); // et les boutons Accepter/Refuser si la fiche est ouverte
+      if (newValue === false && refusalContext) openRefusalEmail(refusalContext.row, refusalContext.docLabel);
     }).catch(function (e) {
       window.alert('Impossible d’enregistrer la décision : ' + friendlyErrorMessage(e));
     });
@@ -1335,6 +1564,18 @@
   function textOf(v) {
     if (v === null || v === undefined) return '';
     if (Array.isArray(v)) {
+      // Une cellule en erreur (formule cassée, référence invalide…) est
+      // renvoyée par fetchTable() comme un tableau étiqueté
+      // ['E', nomErreur, message?] — sans ce traitement, elle s'affichait
+      // littéralement "E, SyntaxError" au lieu d'un message compréhensible
+      // (c'est ce que provoquait l'affichage "E, SyntaxError" sur le nom
+      // du stagiaire : la colonne mappée sur "Stagiaire" contient une
+      // formule en erreur côté Grist — un signal à corriger dans le
+      // document, que le widget se contente maintenant de signaler
+      // clairement plutôt que de le rendre illisible).
+      if (v.length && (v[0] === 'E' || v[0] === 'e')) {
+        return '⚠ Erreur de formule (' + String(v[1] || '?') + ')';
+      }
       var items = v.slice();
       if (items.length && (items[0] === 'L' || items[0] === 'l' || items[0] === 'R' || items[0] === 'r')) {
         items = items.slice(1);
