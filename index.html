@@ -226,10 +226,11 @@
     background: rgba(255, 255, 255, 0.6) !important;
   }
   .cand-modal-dialog__close:hover { background: #fff !important; }
-  /* Pastille "mineur", affichée en haut à droite de la modale quand la
-     case Mineur (réglée dans le backoffice Grist) est cochée pour ce
-     candidat — voir renderModalContent. Ton ambre plutôt que rouge : une
-     information de vigilance, pas une erreur. */
+  /* Pastille "mineur", affichée en haut à droite de la modale quand le
+     candidat sera mineur au 1er jour de formation — calculé à partir de sa
+     date de naissance et de la date du 1er jour de formation (voir
+     willBeMinor/renderModalContent), pas saisi à la main. Ton ambre plutôt
+     que rouge : une information de vigilance, pas une erreur. */
   .cand-modal-dialog__minor-flag {
     display: inline-flex;
     align-items: center;
@@ -369,16 +370,27 @@
   }
   .cand-doc-slot__photos-label { color: var(--text-mention-grey); font-weight: 600; }
 
+  /* Document actuellement déposé : affiché au-dessus de la zone de dépôt
+     (voir buildDocSlot — le fichier, s'il existe, est ajouté avant la
+     zone d'import dans le DOM). Fond et bordure propres pour bien le
+     distinguer visuellement de la zone de dépôt en pointillés juste en
+     dessous. */
   .cand-doc-slot__file {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    margin-bottom: 0.5rem;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
+    padding: 0.4rem 0.5rem;
+    background: #f7f7fb;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 0.5rem;
+    box-sizing: border-box;
   }
   .cand-doc-slot__filename {
     flex: 1 1 auto;
     min-width: 0;
     font-size: 0.78em;
+    font-weight: 600;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -700,18 +712,22 @@
     <div class="fr-alert fr-alert--info fr-alert--sm fr-mb-3w">
       <p>Associez la table Grist des candidats et le rôle de chacune de ses colonnes, d'après les libellés
       de la fiche candidat (NID, Stagiaire, Usage RS…). Les documents (pièces jointes et leur validation)
-      peuvent vivre dans une table Grist séparée de celle des candidats : indiquez alors, dans la section
-      « Documents », la table concernée et sa colonne de liaison — une colonne Référence, dans la table
-      Documents, qui pointe vers la ligne du candidat correspondant. Si un candidat n'a pas encore de ligne
-      liée dans cette table, le premier import d'un fichier depuis sa fiche en crée une automatiquement.
+      ainsi que les informations complémentaires (Photos, Bande patro., Quantité, Dû, Encaissé,
+      Blocages/Infos) peuvent vivre dans une table Grist séparée de celle des candidats : indiquez alors,
+      dans la section « Documents », la table concernée et sa colonne de liaison — une colonne Référence,
+      dans cette table, qui pointe vers la ligne du candidat correspondant. Si un candidat n'a pas encore de
+      ligne liée dans cette table, le premier import d'un fichier ou la première modification d'un champ
+      « Informations complémentaires » depuis sa fiche en crée une automatiquement.
       « Validation admin » pilote le bouton de validation des pièces jointes « Usage RS » et « Form. image » ;
       « Validation EAD » pilote celui de la pièce jointe « EAD ». Passer une pièce en Refusé ouvre
       automatiquement un e-mail pré-rempli vers l'adresse « E-mail » du candidat : sans cette colonne, le
       refus reste enregistré mais aucun e-mail ne s'ouvre. Importer ou remplacer un fichier dans la fiche
       envoie le nouveau document dans le magasin de pièces jointes du document Grist, ce qui nécessite les
-      droits d'écriture sur le document. « Mineur » est une case à cocher que vous renseignez vous-même
-      dans Grist (backoffice) pour chaque candidat qui sera mineur au premier jour de la formation ; le
-      widget se contente de l'afficher. « Bande patro. », « Quantité » et « Encaissé » sont modifiables
+      droits d'écriture sur le document. Le pictogramme « mineur » à côté du nom du candidat, dans la
+      fiche, n'est pas saisi à la main : il est calculé à partir de deux colonnes Date que vous renseignez
+      dans Grist (backoffice) — « Date de naissance du stagiaire » et « Date du 1er jour de formation » —
+      en comparant l'âge du candidat à cette dernière date ; sans l'une des deux colonnes, le pictogramme
+      reste masqué (impossible de savoir). « Bande patro. », « Quantité » et « Encaissé » sont modifiables
       directement depuis la fiche candidat — préférez des colonnes Texte ou Numérique (pas une colonne
       Référence) pour que l'enregistrement fonctionne ; « Dû » reste en lecture seule. Ces réglages sont
       mémorisés avec le widget.</p>
@@ -750,8 +766,12 @@
             <select class="fr-select" id="cand_col_telephone" data-role="telephone"></select>
           </div>
           <div class="fr-select-group">
-            <label class="fr-label" for="cand_col_mineur">Mineur au 1er jour de formation (optionnel, case à cocher)</label>
-            <select class="fr-select" id="cand_col_mineur" data-role="mineur"></select>
+            <label class="fr-label" for="cand_col_dateNaissance">Date de naissance du stagiaire (optionnel, colonne Date)</label>
+            <select class="fr-select" id="cand_col_dateNaissance" data-role="dateNaissance"></select>
+          </div>
+          <div class="fr-select-group">
+            <label class="fr-label" for="cand_col_dateDebutFormation">Date du 1er jour de formation (optionnel, colonne Date)</label>
+            <select class="fr-select" id="cand_col_dateDebutFormation" data-role="dateDebutFormation"></select>
           </div>
         </div>
       </div>
@@ -792,6 +812,7 @@
 
       <div class="settings-section">
         <p class="section-title">Informations complémentaires</p>
+        <p class="fr-hint-text fr-mb-2w">Colonnes lues dans la table Documents réglée ci-dessus (section « Documents »), pas dans la table des candidats.</p>
         <div class="settings-grid">
           <div class="fr-select-group">
             <label class="fr-label" for="cand_col_photos">Photos (optionnel)</label>
@@ -867,8 +888,8 @@
 
   // ---- Rôles de colonnes de la table candidats, d'après les libellés
   // visibles sur la fiche candidat (capture d'écran) --------------------
-  var ROLES = ['nid', 'stagiaire', 'email', 'telephone', 'mineur', 'usageRS', 'formImage', 'photos', 'validationAdmin',
-    'ead', 'validationEAD', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
+  var ROLES = ['nid', 'stagiaire', 'email', 'telephone', 'dateNaissance', 'dateDebutFormation', 'usageRS', 'formImage',
+    'photos', 'validationAdmin', 'ead', 'validationEAD', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
   var REQUIRED_ROLES = ['nid', 'stagiaire'];
   var OPTIONAL_ROLES = ROLES.filter(function (r) { return REQUIRED_ROLES.indexOf(r) === -1; });
   // Rôles qui vivent dans la table "Documents" plutôt que dans la table des
@@ -876,7 +897,8 @@
   // bas, et settings.docsTable / settings.docsLinkCol). Tous les autres
   // rôles restent dans la table principale (candidats).
   var ROLE_LABELS = {
-    nid: 'NID', stagiaire: 'Stagiaire', email: 'E-mail', telephone: 'Téléphone', mineur: 'Mineur au 1er jour de formation',
+    nid: 'NID', stagiaire: 'Stagiaire', email: 'E-mail', telephone: 'Téléphone',
+    dateNaissance: 'Date de naissance', dateDebutFormation: 'Date du 1er jour de formation',
     usageRS: 'Reconnaissance de responsabilité - Réseaux sociaux', formImage: 'Droit à l\'image',
     photos: 'Photos', validationAdmin: 'Validation admin', ead: 'Enseignement à distance Bloc 1', validationEAD: 'Validation EAD',
     inscriptionBande: 'Bande patro.', qteBandes: 'Quantité', du: 'Dû', encaisse: 'Encaissé',
@@ -884,9 +906,14 @@
   };
   // Rôles hébergés par la table "Documents" (voir settings.docsTable /
   // settings.docsLinkCol ci-dessous) quand elle est distincte de la table
-  // des candidats — cas le plus courant en pratique. Tous les autres rôles
-  // de ROLES restent lus/écrits dans la table principale (candidats).
-  var DOC_TABLE_ROLES = ['usageRS', 'formImage', 'validationAdmin', 'ead', 'validationEAD'];
+  // des candidats — cas le plus courant en pratique. Couvre à la fois les
+  // documents (pièces jointes + validations) et les "Informations
+  // complémentaires" (Photos, Bande patro., Quantité, Dû, Encaissé,
+  // Blocages/Infos), qui vivent dans la même table que les documents.
+  // Tous les autres rôles de ROLES (identité du candidat) restent
+  // lus/écrits dans la table principale (candidats).
+  var DOC_TABLE_ROLES = ['usageRS', 'formImage', 'validationAdmin', 'ead', 'validationEAD',
+    'photos', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
   var MAIN_TABLE_ROLES = ROLES.filter(function (r) { return DOC_TABLE_ROLES.indexOf(r) === -1; });
   // Rôles rendus éditables directement depuis la fiche candidat (voir
   // buildBlockField / buildBlocagesEditor) : 'text' pour un simple champ
@@ -955,14 +982,43 @@
     if (Array.isArray(v) && (v[0] === 'R' || v[0] === 'r') && typeof v[1] === 'number') return v[1];
     return 0;
   }
+  // Crée, dans la table Documents, la ligne liée à ce candidat qui
+  // manque encore (voir settings.docsLinkCol) — utilisé aussi bien pour
+  // importer un premier fichier que pour enregistrer un premier champ
+  // "Informations complémentaires" (Bande patro., Quantité, Encaissé,
+  // Blocages/Infos, Photos) alors qu'aucun document n'a encore été
+  // déposé pour ce candidat. Le format exact de la valeur de retour
+  // d'AddRecord n'étant pas garanti identique sur toutes les versions de
+  // Grist, on accepte aussi bien { retValues: [id] } qu'un identifiant
+  // renvoyé directement (même réserve que pour la réponse de l'upload de
+  // pièce jointe, voir importDocument).
+  function ensureDocRowId(row) {
+    if (row.__docRowId) return Promise.resolve(row.__docRowId);
+    var fields = {};
+    fields[settings.docsLinkCol] = row.id;
+    return grist.docApi.applyUserActions([['AddRecord', settings.docsTable, null, fields]]).then(function (result) {
+      var createdId = (result && Array.isArray(result.retValues)) ? result.retValues[0] :
+        (typeof result === 'number' ? result : null);
+      if (!createdId) throw new Error('Impossible de déterminer l’identifiant de la nouvelle ligne créée dans la table Documents.');
+      row.__docRowId = createdId;
+      return createdId;
+    });
+  }
   // Détermine, pour un rôle donné, dans quelle table et sur quelle ligne
-  // écrire : la table Documents (et sa ligne liée, éventuellement absente)
-  // pour un rôle de DOC_TABLE_ROLES, la table principale sinon.
-  function writeTargetFor(role, row) {
-    if (DOC_TABLE_ROLES.indexOf(role) !== -1) {
-      return { table: settings.docsTable, rowId: row.__docRowId || null };
+  // écrire : la table Documents pour un rôle de DOC_TABLE_ROLES (en
+  // créant sa ligne liée au passage si elle manque encore, voir
+  // ensureDocRowId), la table principale (et la ligne du candidat,
+  // toujours présente) sinon.
+  function resolveWriteTarget(role, row) {
+    if (DOC_TABLE_ROLES.indexOf(role) === -1) {
+      return Promise.resolve({ table: settings.table, rowId: row.id });
     }
-    return { table: settings.table, rowId: row.id };
+    if (!settings.docsTable || !settings.docsLinkCol) {
+      return Promise.reject(new Error('Aucune table Documents réglée. Ouvrez la Configuration (5 clics sur le bloc marque du header) et choisissez-la.'));
+    }
+    return ensureDocRowId(row).then(function (docRowId) {
+      return { table: settings.docsTable, rowId: docRowId };
+    });
   }
 
   var settings = defaultConfig();
@@ -1389,7 +1445,7 @@
     // renseigné ; masquée en entier si aucun des deux n'est configuré ou
     // rempli.
     var emailText = settings.col.email ? textOf(row.email) : '';
-    var phoneText = settings.col.telephone ? textOf(row.telephone) : '';
+    var phoneText = settings.col.telephone ? fmtPhoneFr(row.telephone) : '';
     var contactParts = [];
     if (emailText) contactParts.push('<a class="fr-link" href="mailto:' + escapeAttr(emailText) + '">' + escapeHtml(emailText) + '</a>');
     if (phoneText) contactParts.push('<a class="fr-link" href="tel:' + escapeAttr(phoneText.replace(/\s+/g, '')) + '">' + escapeHtml(phoneText) + '</a>');
@@ -1401,7 +1457,7 @@
       candModalContact.hidden = true;
     }
 
-    var isMinor = !!settings.col.mineur && (row.mineur === true || row.mineur === 1);
+    var isMinor = willBeMinor(row.dateNaissance, row.dateDebutFormation);
     candModalMinorFlag.hidden = !isMinor;
 
     candModalBody.innerHTML = '';
@@ -1553,7 +1609,7 @@
     var initialValue = input.value;
     input.addEventListener('blur', function () {
       if (input.value === initialValue) return;
-      saveFieldEdit(role, row.id, input, kind, initialValue);
+      saveFieldEdit(role, row, input, kind, initialValue);
     });
     input.addEventListener('keydown', function (e) {
       if (e.key === 'Enter') input.blur();
@@ -1597,7 +1653,7 @@
     var initialValue = textarea.value;
     textarea.addEventListener('blur', function () {
       if (textarea.value === initialValue) return;
-      saveFieldEdit('blocagesInfos', row.id, textarea, 'text', initialValue);
+      saveFieldEdit('blocagesInfos', row, textarea, 'text', initialValue);
     });
     box.appendChild(textarea);
     return box;
@@ -1609,7 +1665,7 @@
   // saisi…), le champ est restauré à sa valeur d'origine en rechargeant la
   // modale, plutôt que de laisser affiché un texte qui n'a en réalité pas
   // été enregistré.
-  function saveFieldEdit(role, rowId, inputEl, kind, previousValue) {
+  function saveFieldEdit(role, row, inputEl, kind, previousValue) {
     var colId = settings.col[role];
     if (!isWritableColId(colId)) {
       window.alert('Le champ « ' + ROLE_LABELS[role] + ' » pointe vers une colonne technique de Grist, qui ne peut pas être modifiée. ' +
@@ -1634,14 +1690,16 @@
     } else {
       newValue = rawValue;
     }
-    var fields = {};
-    fields[colId] = newValue;
     inputEl.disabled = true;
-    grist.docApi.applyUserActions([['UpdateRecord', settings.table, rowId, fields]]).then(function () {
-      candidates.rows.forEach(function (r) { if (r.id === rowId) r[role] = newValue; });
+    resolveWriteTarget(role, row).then(function (target) {
+      var fields = {};
+      fields[colId] = newValue;
+      return grist.docApi.applyUserActions([['UpdateRecord', target.table, target.rowId, fields]]);
+    }).then(function () {
+      row[role] = newValue;
       inputEl.disabled = false;
       renderCandidates();
-      if (currentModalRowId === rowId) renderModalContent();
+      if (currentModalRowId === row.id) renderModalContent();
     }).catch(function (e) {
       window.alert('Impossible d’enregistrer « ' + ROLE_LABELS[role] + ' » : ' + friendlyErrorMessage(e));
       inputEl.disabled = false;
@@ -1884,16 +1942,11 @@
       if (currentModalRowId === row.id) renderModalContent(); // resynchronise le bouton sur la vraie valeur enregistrée
       return;
     }
-    var target = writeTargetFor(role, row);
-    if (!target.table || !target.rowId) {
-      window.alert('Aucune ligne liée dans la table Documents pour ce candidat. Importez d’abord un document depuis sa fiche, ' +
-        'ou vérifiez la table et la colonne de liaison dans la Configuration.');
-      if (currentModalRowId === row.id) renderModalContent();
-      return;
-    }
-    var fields = {};
-    fields[colId] = newValue;
-    grist.docApi.applyUserActions([['UpdateRecord', target.table, target.rowId, fields]]).then(function () {
+    resolveWriteTarget(role, row).then(function (target) {
+      var fields = {};
+      fields[colId] = newValue;
+      return grist.docApi.applyUserActions([['UpdateRecord', target.table, target.rowId, fields]]);
+    }).then(function () {
       row[role] = newValue;
       renderCandidates(); // met à jour les pastilles de statut de la liste
       if (currentModalRowId === row.id) renderModalContent(); // et le bouton si la fiche est ouverte
@@ -1941,11 +1994,6 @@
       window.alert('Le champ « ' + ROLE_LABELS[role] + ' » pointe vers une colonne technique de Grist, qui ne peut pas être modifiée.');
       return;
     }
-    var target = writeTargetFor(role, row);
-    if (!target.table) {
-      window.alert('Aucune table Documents réglée. Ouvrez la Configuration (5 clics sur le bloc marque du header) et choisissez-la.');
-      return;
-    }
     getWriteAccessTokenInfo().then(function (tokenInfo) {
       var formData = new FormData();
       formData.append('upload', file, file.name);
@@ -1960,27 +2008,15 @@
       var first = Array.isArray(result) ? result[0] : result;
       var newId = (first && typeof first === 'object') ? first.id : first;
       if (!newId) throw new Error('Réponse inattendue du serveur Grist lors de l’import.');
-      var fields = {};
-      fields[colId] = ['L', newId];
-      if (target.rowId) {
+      // resolveWriteTarget crée au passage la ligne Documents liée à ce
+      // candidat si elle manque encore (voir ensureDocRowId) — un premier
+      // import de document en crée donc une automatiquement.
+      return resolveWriteTarget(role, row).then(function (target) {
+        var fields = {};
+        fields[colId] = ['L', newId];
         return grist.docApi.applyUserActions([['UpdateRecord', target.table, target.rowId, fields]]).then(function () {
           row[role] = ['L', newId];
         });
-      }
-      // Aucune ligne Documents encore liée à ce candidat (table Documents
-      // distincte de celle des candidats, voir DOC_TABLE_ROLES) : on en
-      // crée une, avec la colonne de liaison pointée vers ce candidat. Le
-      // format exact de la valeur de retour d'AddRecord n'étant pas
-      // garanti identique sur toutes les versions de Grist (même réserve
-      // que pour la réponse de l'upload, plus haut), on accepte aussi bien
-      // { retValues: [id] } qu'un identifiant renvoyé directement.
-      fields[settings.docsLinkCol] = row.id;
-      return grist.docApi.applyUserActions([['AddRecord', target.table, null, fields]]).then(function (result2) {
-        var createdId = (result2 && Array.isArray(result2.retValues)) ? result2.retValues[0] :
-          (typeof result2 === 'number' ? result2 : null);
-        if (!createdId) throw new Error('Impossible de déterminer l’identifiant de la nouvelle ligne créée dans la table Documents.');
-        row.__docRowId = createdId;
-        row[role] = ['L', newId];
       });
     }).then(function () {
       attachmentsMetaPromise = null; // un nouveau fichier vient d'être ajouté : on force une relecture des métadonnées
@@ -1997,8 +2033,11 @@
       window.alert('Le champ « ' + ROLE_LABELS[role] + ' » pointe vers une colonne technique de Grist, qui ne peut pas être modifiée.');
       return;
     }
-    var target = writeTargetFor(role, row);
-    if (!target.table || !target.rowId) return; // rien à détacher : aucune ligne Documents liée à ce candidat
+    // Pas d'auto-création ici (contrairement à importDocument/
+    // saveFieldEdit/updateValidation) : si aucune ligne Documents n'est
+    // encore liée à ce candidat, il n'y a de toute façon rien à détacher.
+    if (!row.__docRowId && DOC_TABLE_ROLES.indexOf(role) !== -1) return;
+    var target = (DOC_TABLE_ROLES.indexOf(role) !== -1) ? { table: settings.docsTable, rowId: row.__docRowId } : { table: settings.table, rowId: row.id };
     var fields = {};
     fields[colId] = ['L']; // liste vide : détache le fichier de ce candidat (ne le supprime pas du magasin de pièces jointes)
     grist.docApi.applyUserActions([['UpdateRecord', target.table, target.rowId, fields]]).then(function () {
@@ -2233,6 +2272,51 @@
     var n = numOf(v);
     if (isNaN(n)) return '—';
     return n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+  }
+  // Regroupe un numéro de téléphone par paires de chiffres ("0102030405"
+  // ou "01.02.03.04.05" ou "01-02-03-04-05" -> "01 02 03 04 05"), quel que
+  // soit le séparateur saisi dans Grist. Un éventuel "+" initial (indicatif
+  // international) est conservé devant le premier groupe. Si la valeur ne
+  // contient aucun chiffre, elle est affichée telle quelle plutôt que
+  // perdue.
+  function fmtPhoneFr(v) {
+    var raw = textOf(v);
+    if (!raw) return '';
+    var trimmed = raw.trim();
+    var hasPlus = trimmed.charAt(0) === '+';
+    var digits = trimmed.replace(/\D/g, '');
+    if (!digits) return raw;
+    var groups = digits.match(/\d{1,2}/g) || [];
+    return (hasPlus ? '+' : '') + groups.join(' ');
+  }
+  // Grist renvoie les colonnes Date/DateTime comme un nombre de secondes
+  // depuis l'epoch Unix (UTC), jamais comme une chaîne — d'où la
+  // conversion ×1000 pour obtenir un objet Date JavaScript (qui travaille
+  // en millisecondes). Une valeur vide ou inexploitable renvoie null
+  // plutôt que de faire planter le calcul de minorité.
+  function dateOf(v) {
+    if (typeof v === 'number' && isFinite(v)) return new Date(v * 1000);
+    if (typeof v === 'string' && v.trim()) {
+      var t = Date.parse(v);
+      if (!isNaN(t)) return new Date(t);
+    }
+    return null;
+  }
+  // Le stagiaire sera-t-il mineur au premier jour de la formation ?
+  // Calculé à partir de sa date de naissance et de la date du 1er jour de
+  // formation (toutes deux réglées dans le backoffice Grist — voir
+  // settings.col.dateNaissance / dateDebutFormation), plutôt que saisi à
+  // la main. Renvoie false si l'une des deux dates manque ou n'est pas
+  // exploitable : le pictogramme reste alors masqué plutôt que d'afficher
+  // une fausse certitude.
+  function willBeMinor(birthValue, startValue) {
+    var birth = dateOf(birthValue);
+    var start = dateOf(startValue);
+    if (!birth || !start) return false;
+    var age = start.getUTCFullYear() - birth.getUTCFullYear();
+    var monthDiff = start.getUTCMonth() - birth.getUTCMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && start.getUTCDate() < birth.getUTCDate())) age--;
+    return age < 18;
   }
   function escapeHtml(s) {
     var div = document.createElement('div');
