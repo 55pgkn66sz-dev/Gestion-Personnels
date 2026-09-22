@@ -28,13 +28,19 @@
 
   Pièces jointes : les colonnes "Usage RS", "Form. image" et "EAD" sont
   supposées être des colonnes Grist de type Pièce(s) jointe(s). Leur
-  aperçu au survol et leur téléchargement passent par
+  aperçu au survol et leur téléchargement/ouverture passent par
   grist.docApi.getAccessToken() (jeton à courte durée de vie, revalidé
   au besoin) — voir getAccessTokenInfo() plus bas — puis par l'URL
   standard `${baseUrl}/attachments/{id}/download?auth={token}`. Les
   métadonnées (nom de fichier, type MIME) sont lues dans la table
   interne _grist_Attachments, sur le même principe que la lecture de
-  _grist_Tables / _grist_Tables_column dans Réservations.
+  _grist_Tables / _grist_Tables_column dans Réservations. Chaque document
+  porte aussi un interrupteur de validation (accepté/refusé, colonne case
+  à cocher) et peut être remplacé ou supprimé directement depuis la
+  fiche : l'import passe par l'API REST du document (POST
+  {baseUrl}/attachments, jeton en écriture cette fois — voir
+  getWriteAccessTokenInfo()) puisque applyUserActions() ne transporte pas
+  de contenu binaire.
 -->
 
 <!-- DSFR (Système de Design de l'État) -->
@@ -170,9 +176,14 @@
     overflow-y: auto;
   }
   .cand-modal-overlay[hidden] { display: none; }
+  /* Fond de la modale : reprend la teinte de la colonne "NID" de la fiche
+     d'origine (le liseré rose/saumon visible sur la capture d'écran) —
+     déjà disponible comme --uv-pastel-over, utilisée ailleurs dans le
+     widget pour les états "refusé". Les cartes internes (documents,
+     bloc "Bande") restent en blanc pour se détacher de ce fond teinté. */
   .cand-modal-dialog {
-    background: #fff;
-    max-width: 34rem;
+    background: var(--uv-pastel-over);
+    max-width: 38rem;
     width: 100%;
     padding: 1.5rem;
     border-radius: 0.5rem;
@@ -186,12 +197,15 @@
     gap: 1rem;
     margin-bottom: 0.75rem;
     padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--border-default-grey);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
   }
   .cand-modal-dialog__identity { min-width: 0; }
-  .cand-modal-dialog__title { margin: 0.3rem 0 0; font-size: 1.15em; font-weight: 700; }
-  .cand-modal-dialog__email { margin: 0.2rem 0 0; font-size: 0.85em; }
-  .cand-modal-dialog__email a.fr-link { color: inherit; }
+  .cand-modal-dialog__title { margin: 0; font-size: 1.2em; font-weight: 700; }
+  /* Ligne de contact ("Mail · Tél") : grise, non grasse, juste sous le
+     titre — les deux coordonnées sont cliquables (mailto:/tel:) quand
+     elles sont renseignées, séparées par un point médian. */
+  .cand-modal-dialog__contact { margin: 0.2rem 0 0; font-size: 0.85em; font-weight: 400; color: var(--text-mention-grey); }
+  .cand-modal-dialog__contact a.fr-link { color: inherit; }
   .cand-modal-dialog__header-actions { display: flex; align-items: center; gap: 0.5rem; flex: none; }
   .cand-modal-dialog__close { flex: none; margin: -0.25rem -0.25rem 0 0; }
   /* Pastille "mineur", affichée en haut à droite de la modale quand la
@@ -222,36 +236,60 @@
   }
 
   /* ---- Documents (pièces jointes) ---------------------------------------
-     Une ligne par document (Usage RS / Form. image / EAD) : le libellé du
-     champ, un ou plusieurs "vignettes" cliquables/survolables (une par
-     fichier joint, voir renderAttachmentThumb), et à droite le contrôle
-     Accepter/Refuser qui porte sur la colonne de validation associée à ce
-     document (voir ATTACH_VALIDATION_ROLE). */
-  .cand-doc-row {
+     Les 3 documents (Usage RS / Form. image / EAD) côte à côte, chacun
+     dans sa propre carte blanche (contraste avec le fond teinté de la
+     modale) : libellé + interrupteur de validation en tête, fichier
+     actuel (vignette survolable/cliquable + nom + suppression) puis une
+     zone d'import — glisser-déposer ou clic — qui sert aussi bien à
+     déposer un premier fichier qu'à remplacer l'existant. */
+  .cand-doc-cols { display: flex; gap: 0.85rem; }
+  .cand-doc-slot {
+    flex: 1 1 0;
+    min-width: 0;
+    background: #fff;
+    border: 1px solid var(--border-default-grey);
+    border-radius: 0.5rem;
+    padding: 0.65rem;
+    box-sizing: border-box;
+  }
+  .cand-doc-slot__head {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-bottom: 0.5rem;
+  }
+  .cand-doc-slot__label { font-size: 0.85em; font-weight: 700; }
+  .cand-doc-slot__toggle.fr-toggle { margin: 0; }
+
+  .cand-doc-slot__file {
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-    padding: 0.5rem 0;
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
   }
-  .cand-doc-row + .cand-doc-row { border-top: 1px dashed var(--border-default-grey); }
-  .cand-doc-label {
-    flex: 0 0 6.5rem;
-    font-size: 0.85em;
-    color: var(--text-mention-grey);
+  .cand-doc-slot__filename {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 0.78em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
-  .cand-doc-files { display: flex; flex-wrap: wrap; gap: 0.4rem; flex: 1 1 8rem; }
+  .cand-doc-slot__delete { flex: none; margin: 0 !important; padding: 0.25rem !important; }
 
   /* Vignette d'une pièce jointe existante : reprend le rendu natif de
      Grist pour une pièce jointe non prévisualisable (petit encart sombre
      avec le type de fichier en majuscules), pour rester visuellement
-     fidèle à la capture d'écran fournie. */
+     fidèle à la capture d'écran fournie. Survol = aperçu (voir
+     showAttachPreview), clic = ouverture dans un nouvel onglet (voir
+     openAttachmentInNewTab). */
   .cand-doc-thumb {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 3.4rem;
     height: 2.6rem;
+    flex: none;
     border-radius: 0.2rem;
     background: #3a3a3a;
     color: #fff;
@@ -266,33 +304,24 @@
   .cand-doc-thumb:hover, .cand-doc-thumb:focus-visible { border-color: var(--bleu-france); }
   .cand-doc-thumb--image { background-repeat: no-repeat; background-position: center; background-size: cover; color: transparent; }
 
-  /* Emplacement vide (pas de fichier joint), même esprit que le champ
-     "EAD" vide de la capture d'écran : cadre discret avec un trombone. */
-  .cand-doc-empty {
-    display: inline-flex;
+  /* Zone de glisser-déposer / import : toujours présente (même quand un
+     fichier existe déjà, pour permettre le remplacement), en retrait
+     visuel derrière la carte du fichier lorsqu'il y en a un. */
+  .cand-doc-slot__import {
+    display: flex;
     align-items: center;
-    gap: 0.3rem;
-    width: auto;
-    height: 2.6rem;
-    padding: 0 0.6rem;
-    border-radius: 0.2rem;
+    justify-content: center;
+    gap: 0.35rem;
+    text-align: center;
+    padding: 0.5rem 0.4rem;
+    border-radius: 0.3rem;
     border: 1px dashed var(--border-default-grey);
     color: var(--text-mention-grey);
-    font-size: 0.78em;
-    box-sizing: border-box;
+    font-size: 0.72em;
+    cursor: pointer;
   }
-
-  /* Contrôle Accepter/Refuser : même principe que le contrôle segmenté
-     Valider/Refuser du widget Réservations (deux boutons indépendants,
-     celui qui correspond à l'état actuel de la colonne de validation est
-     mis en évidence en fond plein coloré via aria-pressed). */
-  .cand-doc-actions { display: flex; gap: 0.25rem; margin-left: auto; }
-  .cand-doc-actions .fr-btn { white-space: nowrap; }
-  .cand-doc-actions .fr-btn[data-action="accepter"][aria-pressed="true"] { background-color: var(--statut-validee); color: #fff; }
-  .cand-doc-actions .fr-btn[data-action="refuser"][aria-pressed="true"] { background-color: var(--statut-refusee); color: #fff; }
-  /* Aucune des deux colonnes de validation n'est réglée dans les
-     paramètres pour ce document : pas d'action possible, les boutons
-     sont simplement absents (voir buildDocRow) plutôt que désactivés. */
+  .cand-doc-slot__import:hover { border-color: var(--bleu-france); color: var(--bleu-france); }
+  .cand-doc-slot__zone--drag .cand-doc-slot__import { border-color: var(--bleu-france); background: #f0f0f5; color: var(--bleu-france); }
 
   /* ---- Aperçu au survol (popover) --------------------------------------- */
   .attach-preview {
@@ -340,7 +369,7 @@
   .attach-preview__link { display: block; margin-top: 0.5rem; font-size: 0.8em; }
   .attach-preview__loading { padding: 1rem; font-size: 0.85em; color: var(--text-mention-grey); }
 
-  /* ---- Informations complémentaires -------------------------------------- */
+  /* ---- Section "Infos" (Photos en lecture seule + Blocages) -------------- */
   .cand-field {
     display: flex;
     justify-content: space-between;
@@ -350,17 +379,41 @@
   }
   .cand-field__label { color: var(--text-mention-grey); flex: 1 1 auto; }
   .cand-field__value { font-weight: 500; text-align: right; }
-  /* Champs éditables (Inscription bande, Qté bandes, Dû, Encaissé) :
-     saisie directe dans la fiche, enregistrée au blur (voir saveFieldEdit)
-     plutôt qu'à chaque frappe. */
-  .cand-field--editable .cand-field__label { flex: 0 0 auto; padding-top: 0.35rem; }
-  .cand-field__input {
-    flex: 0 0 9rem;
-    max-width: 9rem;
-    text-align: right;
-    margin: 0 !important;
+
+  /* ---- Section "Bande" : "Bande patro." seule sur sa ligne, puis
+     Quantité / Dû / Encaissé côte à côte en dessous — chaque champ dans
+     son propre bloc blanc (libellé au-dessus, valeur ou champ de saisie
+     en dessous), sur le même principe que les cartes documents. ---- */
+  .cand-bande { display: flex; flex-direction: column; gap: 0.6rem; }
+  .cand-bande-row { display: flex; gap: 0.6rem; }
+  .cand-field-block {
+    flex: 1 1 0;
+    min-width: 0;
+    background: #fff;
+    border: 1px solid var(--border-default-grey);
+    border-radius: 0.4rem;
+    padding: 0.4rem 0.6rem;
+    box-sizing: border-box;
   }
-  .cand-field__input:disabled { opacity: 0.6; }
+  .cand-field-block__label {
+    display: block;
+    font-size: 0.72em;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--text-mention-grey);
+    margin-bottom: 0.2rem;
+  }
+  .cand-field-block__input {
+    width: 100%;
+    box-sizing: border-box;
+    border: none;
+    padding: 0;
+    font: inherit;
+    font-weight: 500;
+  }
+  .cand-field-block__input:focus { outline: 2px solid var(--bleu-france); outline-offset: 2px; }
+  .cand-field-block__input:disabled { opacity: 0.6; }
+  .cand-field-block__readonly { display: block; font-weight: 500; }
 
   .cand-pill {
     display: inline-block;
@@ -401,8 +454,8 @@
     .widget-wrap { padding: 1rem 0.75rem; }
     .cand-toolbar .fr-search-bar { flex-basis: 100%; max-width: none; }
     .cand-count--push { margin-left: 0; flex-basis: 100%; }
-    .cand-doc-label { flex-basis: 100%; }
-    .cand-doc-actions { margin-left: 0; }
+    .cand-doc-cols { flex-direction: column; }
+    .cand-bande-row { flex-direction: column; }
   }
 
   /* ---- Zone "Configuration" (geste caché) -------------------------------- */
@@ -521,15 +574,17 @@
 
     <div class="fr-alert fr-alert--info fr-alert--sm fr-mb-3w">
       <p>Associez la table Grist des candidats et le rôle de chacune de ses colonnes, d'après les libellés
-      de la fiche candidat (NID, Stagiaire, Usage RS…). « Validation admin » pilote les boutons
-      Accepter/Refuser des pièces jointes « Usage RS » et « Form. image » ; « Validation EAD » pilote ceux
-      de la pièce jointe « EAD ». Un refus ouvre automatiquement un e-mail pré-rempli vers l'adresse « E-mail »
-      du candidat : sans cette colonne, le refus reste enregistré mais aucun e-mail ne s'ouvre. « Mineur »
-      est une case à cocher que vous renseignez vous-même dans Grist (backoffice) pour chaque candidat qui
-      sera mineur au premier jour de la formation ; le widget se contente de l'afficher. « Inscription bande »,
-      « Qté bandes », « Dû » et « Encaissé » sont modifiables directement depuis la fiche candidat — préférez
-      des colonnes Texte ou Numérique (pas une colonne Référence) pour que l'enregistrement fonctionne. Ces
-      réglages sont mémorisés avec le widget.</p>
+      de la fiche candidat (NID, Stagiaire, Usage RS…). « Validation admin » pilote l'interrupteur des pièces
+      jointes « Usage RS » et « Form. image » ; « Validation EAD » pilote celui de la pièce jointe « EAD ».
+      Le passage d'un interrupteur sur Refusé ouvre automatiquement un e-mail pré-rempli vers l'adresse
+      « E-mail » du candidat : sans cette colonne, le refus reste enregistré mais aucun e-mail ne s'ouvre.
+      Importer ou remplacer un fichier dans la fiche envoie le nouveau document dans le magasin de pièces
+      jointes du document Grist, ce qui nécessite les droits d'écriture sur le document. « Mineur » est une
+      case à cocher que vous renseignez vous-même dans Grist (backoffice) pour chaque candidat qui sera
+      mineur au premier jour de la formation ; le widget se contente de l'afficher. « Bande patro. »,
+      « Quantité » et « Encaissé » sont modifiables directement depuis la fiche candidat — préférez des
+      colonnes Texte ou Numérique (pas une colonne Référence) pour que l'enregistrement fonctionne ; « Dû »
+      reste en lecture seule. Ces réglages sont mémorisés avec le widget.</p>
     </div>
 
     <div id="settingsStatusZone" class="fr-mb-2w"></div>
@@ -559,6 +614,10 @@
           <div class="fr-select-group">
             <label class="fr-label" for="cand_col_email">E-mail du stagiaire (optionnel)</label>
             <select class="fr-select" id="cand_col_email" data-role="email"></select>
+          </div>
+          <div class="fr-select-group">
+            <label class="fr-label" for="cand_col_telephone">Téléphone du stagiaire (optionnel)</label>
+            <select class="fr-select" id="cand_col_telephone" data-role="telephone"></select>
           </div>
           <div class="fr-select-group">
             <label class="fr-label" for="cand_col_mineur">Mineur au 1er jour de formation (optionnel, case à cocher)</label>
@@ -601,15 +660,15 @@
             <select class="fr-select" id="cand_col_photos" data-role="photos"></select>
           </div>
           <div class="fr-select-group">
-            <label class="fr-label" for="cand_col_inscriptionBande">Inscription bande (optionnel)</label>
+            <label class="fr-label" for="cand_col_inscriptionBande">Bande patro. (optionnel)</label>
             <select class="fr-select" id="cand_col_inscriptionBande" data-role="inscriptionBande"></select>
           </div>
           <div class="fr-select-group">
-            <label class="fr-label" for="cand_col_qteBandes">Qté bandes (optionnel)</label>
+            <label class="fr-label" for="cand_col_qteBandes">Quantité (optionnel)</label>
             <select class="fr-select" id="cand_col_qteBandes" data-role="qteBandes"></select>
           </div>
           <div class="fr-select-group">
-            <label class="fr-label" for="cand_col_du">Dû (optionnel)</label>
+            <label class="fr-label" for="cand_col_du">Dû (optionnel, non éditable dans la fiche)</label>
             <select class="fr-select" id="cand_col_du" data-role="du"></select>
           </div>
           <div class="fr-select-group">
@@ -640,9 +699,8 @@
   <div class="cand-modal-dialog" id="candModalDialog" role="dialog" aria-modal="true" aria-labelledby="candModalTitle">
     <div class="cand-modal-dialog__header">
       <div class="cand-modal-dialog__identity">
-        <span class="cand-badge-nid" id="candModalNid"></span>
         <h3 class="cand-modal-dialog__title" id="candModalTitle"></h3>
-        <p class="cand-modal-dialog__email" id="candModalEmail" hidden></p>
+        <p class="cand-modal-dialog__contact" id="candModalContact" hidden></p>
       </div>
       <div class="cand-modal-dialog__header-actions">
         <span class="cand-modal-dialog__minor-flag" id="candModalMinorFlag" hidden title="Sera mineur au premier jour de la formation">
@@ -671,25 +729,26 @@
 
   // ---- Rôles de colonnes de la table candidats, d'après les libellés
   // visibles sur la fiche candidat (capture d'écran) --------------------
-  var ROLES = ['nid', 'stagiaire', 'email', 'mineur', 'usageRS', 'formImage', 'photos', 'validationAdmin',
+  var ROLES = ['nid', 'stagiaire', 'email', 'telephone', 'mineur', 'usageRS', 'formImage', 'photos', 'validationAdmin',
     'ead', 'validationEAD', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
   var REQUIRED_ROLES = ['nid', 'stagiaire'];
   var OPTIONAL_ROLES = ROLES.filter(function (r) { return REQUIRED_ROLES.indexOf(r) === -1; });
   var ROLE_LABELS = {
-    nid: 'NID', stagiaire: 'Stagiaire', email: 'E-mail', mineur: 'Mineur au 1er jour de formation',
+    nid: 'NID', stagiaire: 'Stagiaire', email: 'E-mail', telephone: 'Téléphone', mineur: 'Mineur au 1er jour de formation',
     usageRS: 'Usage RS', formImage: 'Form. image',
     photos: 'Photos', validationAdmin: 'Validation admin', ead: 'EAD', validationEAD: 'Validation EAD',
-    inscriptionBande: 'Inscription bande', qteBandes: 'Qté bandes', du: 'Dû', encaisse: 'Encaissé',
+    inscriptionBande: 'Bande patro.', qteBandes: 'Quantité', du: 'Dû', encaisse: 'Encaissé',
     blocagesInfos: 'Blocages / Infos'
   };
   // Rôles rendus éditables directement depuis la fiche candidat (voir
-  // buildEditableFieldRow / buildBlocagesEditor) : 'text' pour un simple
-  // <input type="text">, 'number'/'currency' pour un <input type="number">
-  // (le pas 0.01 de 'currency' colle aux montants en euros). Les autres
-  // rôles (NID, Stagiaire, Photos, pièces jointes…) restent en lecture
-  // seule dans la fiche : ils se modifient depuis Grist ou via les
-  // boutons Accepter/Refuser dédiés.
-  var EDITABLE_ROLE_KIND = { inscriptionBande: 'text', qteBandes: 'number', du: 'currency', encaisse: 'currency' };
+  // buildBlockField / buildBlocagesEditor) : 'text' pour un simple champ
+  // texte, 'number'/'currency' pour un champ numérique (le pas 0.01 de
+  // 'currency' colle aux montants en euros). "Dû" reste volontairement en
+  // lecture seule (calculé/géré ailleurs) ; les autres rôles non listés
+  // ici (NID, Stagiaire, Photos, pièces jointes…) restent également en
+  // lecture seule dans la fiche : ils se modifient depuis Grist ou via
+  // les interrupteurs/import dédiés aux documents.
+  var EDITABLE_ROLE_KIND = { inscriptionBande: 'text', qteBandes: 'number', encaisse: 'currency' };
   // Champs "pièce jointe" et colonne de validation (case à cocher) qui
   // porte leurs boutons Accepter/Refuser — voir le texte d'aide du panneau
   // Configuration : Usage RS et Form. image partagent "Validation admin"
@@ -757,9 +816,8 @@
   var candModalOverlay = document.getElementById('candModalOverlay');
   var candModalDialog = document.getElementById('candModalDialog');
   var candModalCloseBtn = document.getElementById('candModalCloseBtn');
-  var candModalNid = document.getElementById('candModalNid');
   var candModalTitle = document.getElementById('candModalTitle');
-  var candModalEmail = document.getElementById('candModalEmail');
+  var candModalContact = document.getElementById('candModalContact');
   var candModalMinorFlag = document.getElementById('candModalMinorFlag');
   var candModalBody = document.getElementById('candModalBody');
   var currentModalRowId = null; // id de la ligne actuellement affichée dans la modale, ou null si fermée
@@ -1051,16 +1109,23 @@
   function renderModalContent() {
     var row = findCandidateRow(currentModalRowId);
     if (!row) { closeCandidateModal(); return; }
-    candModalNid.textContent = 'NID · ' + (textOf(row.nid) || '—');
     candModalTitle.textContent = textOfRef(row.stagiaire) || '(Stagiaire non renseigné)';
 
+    // Ligne de contact, sous le titre : e-mail et téléphone séparés par un
+    // point médian, chacun cliquable (mailto:/tel:) quand il est
+    // renseigné ; masquée en entier si aucun des deux n'est configuré ou
+    // rempli.
     var emailText = settings.col.email ? textOf(row.email) : '';
-    if (emailText) {
-      candModalEmail.innerHTML = '<a class="fr-link" href="mailto:' + escapeAttr(emailText) + '">' + escapeHtml(emailText) + '</a>';
-      candModalEmail.hidden = false;
+    var phoneText = settings.col.telephone ? textOf(row.telephone) : '';
+    var contactParts = [];
+    if (emailText) contactParts.push('<a class="fr-link" href="mailto:' + escapeAttr(emailText) + '">' + escapeHtml(emailText) + '</a>');
+    if (phoneText) contactParts.push('<a class="fr-link" href="tel:' + escapeAttr(phoneText.replace(/\s+/g, '')) + '">' + escapeHtml(phoneText) + '</a>');
+    if (contactParts.length) {
+      candModalContact.innerHTML = contactParts.join(' · ');
+      candModalContact.hidden = false;
     } else {
-      candModalEmail.innerHTML = '';
-      candModalEmail.hidden = true;
+      candModalContact.innerHTML = '';
+      candModalContact.hidden = true;
     }
 
     var isMinor = !!settings.col.mineur && (row.mineur === true || row.mineur === 1);
@@ -1077,39 +1142,60 @@
     if (e.key === 'Escape' && !candModalOverlay.hidden) closeCandidateModal();
   });
 
-  // Construit le contenu détaillé d'un candidat (Documents, Informations
-  // complémentaires, Blocages) : utilisé uniquement par la modale, la
-  // bande de la liste elle-même reste volontairement minimale (NID + nom).
+  // Construit le contenu détaillé d'un candidat (Documents, Bande, Infos) :
+  // utilisé uniquement par la modale, la bande de la liste elle-même reste
+  // volontairement minimale (NID + nom).
   function buildCandidateDetails(row) {
     var sections = [];
 
+    // ---- Documents : les 3 pièces jointes côte à côte -------------------
     if (settings.col.usageRS || settings.col.formImage || settings.col.ead) {
       var docsTitle = document.createElement('p');
       docsTitle.className = 'section-title';
       docsTitle.textContent = 'Documents';
       sections.push(docsTitle);
+      var cols = document.createElement('div');
+      cols.className = 'cand-doc-cols';
       ATTACHMENT_ROLES.forEach(function (role) {
-        if (settings.col[role]) sections.push(buildDocRow(row, role));
+        if (settings.col[role]) cols.appendChild(buildDocSlot(row, role));
       });
+      sections.push(cols);
     }
 
-    var infoTitle = document.createElement('p');
-    infoTitle.className = 'section-title';
-    infoTitle.textContent = 'Informations complémentaires';
-    var infoRows = [];
-    if (settings.col.photos) infoRows.push(buildFieldRow(row, 'photos')); // lecture seule : réglée depuis Grist
-    ['inscriptionBande', 'qteBandes', 'du', 'encaisse'].forEach(function (role) {
-      if (settings.col[role]) infoRows.push(buildEditableFieldRow(row, role));
-    });
-    if (infoRows.length) {
+    // ---- Bande : "Bande patro." seule, puis Quantité / Dû / Encaissé ----
+    var bandeRoles = ['inscriptionBande', 'qteBandes', 'du', 'encaisse'];
+    if (bandeRoles.some(function (r) { return !!settings.col[r]; })) {
+      var bandeTitle = document.createElement('p');
+      bandeTitle.className = 'section-title';
+      bandeTitle.textContent = 'Bande';
+      sections.push(bandeTitle);
+
+      var bandeWrap = document.createElement('div');
+      bandeWrap.className = 'cand-bande';
+      if (settings.col.inscriptionBande) bandeWrap.appendChild(buildBlockField(row, 'inscriptionBande'));
+
+      var bandeRow = document.createElement('div');
+      bandeRow.className = 'cand-bande-row';
+      if (settings.col.qteBandes) bandeRow.appendChild(buildBlockField(row, 'qteBandes'));
+      if (settings.col.du) bandeRow.appendChild(buildBlockField(row, 'du')); // non éditable : absent de EDITABLE_ROLE_KIND
+      if (settings.col.encaisse) bandeRow.appendChild(buildBlockField(row, 'encaisse'));
+      if (bandeRow.childElementCount) bandeWrap.appendChild(bandeRow);
+
+      sections.push(bandeWrap);
+    }
+
+    // ---- Infos : Photos (lecture seule) + Blocages (éditable) -----------
+    if (settings.col.photos || settings.col.blocagesInfos) {
+      var infoTitle = document.createElement('p');
+      infoTitle.className = 'section-title';
+      infoTitle.textContent = 'Infos';
       sections.push(infoTitle);
-      sections = sections.concat(infoRows);
+      if (settings.col.photos) sections.push(buildFieldRow(row, 'photos'));
+      // Contrairement à Photos, "Blocages / Infos" reste affiché même vide
+      // dès que la colonne est réglée : c'est justement là qu'on saisit un
+      // blocage, pas seulement là où on le consulte.
+      if (settings.col.blocagesInfos) sections.push(buildBlocagesEditor(row));
     }
-
-    // Contrairement aux autres champs, la case "Blocages / Infos" reste
-    // affichée même vide dès que la colonne est réglée : c'est justement
-    // là qu'on saisit un blocage, pas seulement là où on le consulte.
-    if (settings.col.blocagesInfos) sections.push(buildBlocagesEditor(row));
 
     return sections;
   }
@@ -1144,24 +1230,35 @@
     return t ? escapeHtml(t) : '<span class="cand-pill cand-pill--unknown">—</span>';
   }
 
-  // ---- Champs éditables (Inscription bande, Qté bandes, Dû, Encaissé,
-  // Blocages / Infos) : saisie directe dans la fiche, enregistrée au blur
-  // (pas à chaque frappe) — voir saveFieldEdit. ----------------------------
+  // ---- Champs de la section "Bande" (Bande patro., Quantité, Dû,
+  // Encaissé) : un bloc par champ, libellé au-dessus, éditables sauf "Dû"
+  // (absent de EDITABLE_ROLE_KIND → rendu en lecture seule). Saisie
+  // enregistrée au blur (pas à chaque frappe) — voir saveFieldEdit. ------
 
-  function buildEditableFieldRow(row, role) {
-    var kind = EDITABLE_ROLE_KIND[role] || 'text';
-    var line = document.createElement('div');
-    line.className = 'cand-field cand-field--editable';
+  function buildBlockField(row, role) {
+    var kind = EDITABLE_ROLE_KIND[role]; // undefined => champ en lecture seule (cas de "Dû")
+    var block = document.createElement('div');
+    block.className = 'cand-field-block';
     var inputId = 'candEdit_' + role + '_' + row.id;
 
     var label = document.createElement('label');
-    label.className = 'cand-field__label';
+    label.className = 'cand-field-block__label';
     label.setAttribute('for', inputId);
     label.textContent = ROLE_LABELS[role];
+    block.appendChild(label);
+
+    if (!kind) {
+      var readonly = document.createElement('span');
+      readonly.id = inputId;
+      readonly.className = 'cand-field-block__readonly';
+      readonly.textContent = CURRENCY_ROLES.indexOf(role) !== -1 ? fmtCurrency(row[role]) : (textOf(row[role]) || '—');
+      block.appendChild(readonly);
+      return block;
+    }
 
     var input = document.createElement('input');
     input.id = inputId;
-    input.className = 'fr-input fr-input--sm cand-field__input';
+    input.className = 'cand-field-block__input';
     if (kind === 'number' || kind === 'currency') {
       input.type = 'number';
       input.step = kind === 'currency' ? '0.01' : '1';
@@ -1169,7 +1266,7 @@
       input.value = isNaN(n) ? '' : n;
     } else {
       input.type = 'text';
-      // textOfRef() plutôt que textOf() : si "Inscription bande" est une
+      // textOfRef() plutôt que textOf() : si "Bande patro." est une
       // Référence simple non résolue, on évite d'afficher/écraser avec le
       // "0" qui représente une référence vide côté Grist.
       input.value = textOfRef(row[role]) || '';
@@ -1182,10 +1279,8 @@
     input.addEventListener('keydown', function (e) {
       if (e.key === 'Enter') input.blur();
     });
-
-    line.appendChild(label);
-    line.appendChild(input);
-    return line;
+    block.appendChild(input);
+    return block;
   }
 
   function buildBlocagesEditor(row) {
@@ -1292,71 +1387,148 @@
     document.body.removeChild(a);
   }
 
-  // ---- Ligne "Document" : vignette(s) de pièce(s) jointe(s) + boutons
-  // Accepter/Refuser portant sur la colonne de validation associée -------
+  // ---- Emplacement "Document" : interrupteur de validation, fichier
+  // actuel (vignette + nom + suppression) et zone d'import / glisser-
+  // déposer — voir importDocument/removeDocument plus bas. --------------
 
-  function buildDocRow(row, role) {
-    var wrap = document.createElement('div');
-    wrap.className = 'cand-doc-row';
-    wrap.dataset.role = role;
+  function buildDocSlot(row, role) {
+    var slot = document.createElement('div');
+    slot.className = 'cand-doc-slot';
+    slot.dataset.role = role;
 
+    var head = document.createElement('div');
+    head.className = 'cand-doc-slot__head';
     var label = document.createElement('span');
-    label.className = 'cand-doc-label';
+    label.className = 'cand-doc-slot__label';
     label.textContent = ROLE_LABELS[role];
-    wrap.appendChild(label);
-
-    var filesWrap = document.createElement('div');
-    filesWrap.className = 'cand-doc-files';
-    var ids = extractAttachmentIds(row[role]);
-    if (!ids.length) {
-      var empty = document.createElement('span');
-      empty.className = 'cand-doc-empty';
-      empty.innerHTML = '<span class="fr-icon-attachment-line" aria-hidden="true"></span> Aucun fichier';
-      filesWrap.appendChild(empty);
-    } else {
-      ids.forEach(function (attId) { filesWrap.appendChild(buildAttachmentThumb(attId)); });
-    }
-    wrap.appendChild(filesWrap);
+    head.appendChild(label);
 
     var validationRole = ATTACH_VALIDATION_ROLE[role];
     if (validationRole && settings.col[validationRole]) {
-      wrap.appendChild(buildAcceptRefuseButtons(row, validationRole, ROLE_LABELS[role]));
+      head.appendChild(buildDocValidationToggle(row, validationRole, ROLE_LABELS[role]));
+    }
+    slot.appendChild(head);
+
+    var ids = extractAttachmentIds(row[role]);
+    if (ids.length) {
+      // Un seul fichier attendu par emplacement (voir importDocument, qui
+      // remplace plutôt qu'il n'ajoute) : si plusieurs fichiers sont
+      // malgré tout présents (import fait hors du widget), on n'affiche
+      // que le premier.
+      slot.appendChild(buildDocFileCard(row, role, ids[0]));
     }
 
+    var zone = document.createElement('div');
+    zone.className = 'cand-doc-slot__zone';
+    var importLabel = document.createElement('label');
+    importLabel.className = 'cand-doc-slot__import';
+    importLabel.innerHTML = '<span class="fr-icon-upload-2-line" aria-hidden="true"></span><span>' +
+      (ids.length ? 'Glisser un fichier ou cliquer pour remplacer' : 'Glisser un fichier ou cliquer pour importer') + '</span>';
+    var fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.hidden = true;
+    fileInput.addEventListener('change', function () {
+      if (fileInput.files && fileInput.files[0]) importDocument(row, role, fileInput.files[0]);
+      fileInput.value = '';
+    });
+    importLabel.appendChild(fileInput);
+    zone.appendChild(importLabel);
+
+    ['dragenter', 'dragover'].forEach(function (evt) {
+      zone.addEventListener(evt, function (e) { e.preventDefault(); zone.classList.add('cand-doc-slot__zone--drag'); });
+    });
+    ['dragleave', 'drop'].forEach(function (evt) {
+      zone.addEventListener(evt, function (e) { e.preventDefault(); zone.classList.remove('cand-doc-slot__zone--drag'); });
+    });
+    zone.addEventListener('drop', function (e) {
+      var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (file) importDocument(row, role, file);
+    });
+    slot.appendChild(zone);
+
+    return slot;
+  }
+
+  // Interrupteur DSFR (fr-toggle) : un seul contrôle par document plutôt
+  // que deux boutons Accepter/Refuser séparés — la colonne de validation
+  // est de toute façon binaire (case à cocher Grist), l'interrupteur
+  // colle donc mieux à sa vraie nature. Basculer sur Refusé déclenche
+  // l'e-mail de relance (voir updateValidation/openRefusalEmail) avec le
+  // libellé de CE document précis (pas la colonne, potentiellement
+  // partagée entre deux pièces — voir ATTACH_VALIDATION_ROLE).
+  var toggleSeq = 0;
+  function buildDocValidationToggle(row, validationRole, docLabel) {
+    toggleSeq++;
+    var wrap = document.createElement('div');
+    wrap.className = 'fr-toggle fr-toggle--sm cand-doc-slot__toggle';
+    var id = 'candToggle_' + validationRole + '_' + row.id + '_' + toggleSeq;
+
+    var input = document.createElement('input');
+    input.type = 'checkbox';
+    input.className = 'fr-toggle__input';
+    input.id = id;
+    input.checked = boolState(row[validationRole]) === 'accepted';
+
+    var label = document.createElement('label');
+    label.className = 'fr-toggle__label';
+    label.setAttribute('for', id);
+    label.setAttribute('data-fr-checked-label', 'Validé');
+    label.setAttribute('data-fr-unchecked-label', 'Refusé');
+    label.textContent = 'Validation';
+
+    input.addEventListener('change', function () {
+      var newVal = input.checked;
+      updateValidation(validationRole, row.id, newVal, newVal === false ? { row: row, docLabel: docLabel } : null);
+    });
+
+    wrap.appendChild(input);
+    wrap.appendChild(label);
     return wrap;
   }
 
-  function buildAcceptRefuseButtons(row, validationRole, docLabel) {
-    var actions = document.createElement('div');
-    actions.className = 'cand-doc-actions';
-    var state = boolState(row[validationRole]);
+  // Carte du fichier actuellement attaché : vignette (survol = aperçu,
+  // déjà géré par buildAttachmentThumb ; clic = ouverture dans un nouvel
+  // onglet), nom du fichier, bouton de suppression.
+  function buildDocFileCard(row, role, attachmentId) {
+    var card = document.createElement('div');
+    card.className = 'cand-doc-slot__file';
 
-    var acceptBtn = document.createElement('button');
-    acceptBtn.type = 'button';
-    acceptBtn.className = 'fr-btn fr-btn--tertiary fr-btn--sm fr-icon-check-line';
-    acceptBtn.title = 'Accepter';
-    acceptBtn.dataset.action = 'accepter';
-    acceptBtn.setAttribute('aria-pressed', state === 'accepted' ? 'true' : 'false');
-    acceptBtn.addEventListener('click', function () { updateValidation(validationRole, row.id, true); });
-
-    var refuseBtn = document.createElement('button');
-    refuseBtn.type = 'button';
-    refuseBtn.className = 'fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-line';
-    refuseBtn.title = 'Refuser';
-    refuseBtn.dataset.action = 'refuser';
-    refuseBtn.setAttribute('aria-pressed', state === 'refused' ? 'true' : 'false');
-    // Un refus doit préciser AU STAGIAIRE quelle pièce renvoyer : on passe
-    // la ligne candidat et le libellé de ce document précis (pas la
-    // colonne de validation, potentiellement partagée entre deux pièces —
-    // voir ATTACH_VALIDATION_ROLE) à updateValidation(), qui ouvre l'e-mail
-    // une fois le refus effectivement enregistré.
-    refuseBtn.addEventListener('click', function () {
-      updateValidation(validationRole, row.id, false, { row: row, docLabel: docLabel });
+    var thumb = buildAttachmentThumb(attachmentId);
+    thumb.addEventListener('click', function () { openAttachmentInNewTab(attachmentId); });
+    thumb.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openAttachmentInNewTab(attachmentId); }
     });
+    card.appendChild(thumb);
 
-    actions.appendChild(acceptBtn);
-    actions.appendChild(refuseBtn);
-    return actions;
+    var name = document.createElement('span');
+    name.className = 'cand-doc-slot__filename';
+    name.textContent = '…';
+    loadAttachmentsMeta().then(function (metaMap) {
+      var meta = metaMap[attachmentId];
+      name.textContent = (meta && meta.fileName) || ('Pièce jointe #' + attachmentId);
+      name.title = name.textContent;
+    });
+    card.appendChild(name);
+
+    var delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.className = 'cand-doc-slot__delete fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-delete-line';
+    delBtn.title = 'Supprimer ce fichier';
+    delBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (window.confirm('Supprimer ce fichier ?')) removeDocument(row, role);
+    });
+    card.appendChild(delBtn);
+
+    return card;
+  }
+
+  function openAttachmentInNewTab(attachmentId) {
+    getAccessTokenInfo().then(function (tokenInfo) {
+      window.open(attachmentUrl(tokenInfo, attachmentId), '_blank');
+    }).catch(function (e) {
+      window.alert('Impossible d’ouvrir le fichier : ' + friendlyErrorMessage(e));
+    });
   }
 
   function updateValidation(role, rowId, newValue, refusalContext) {
@@ -1364,6 +1536,7 @@
     if (!isWritableColId(colId)) {
       window.alert('Le champ « ' + ROLE_LABELS[role] + ' » pointe vers une colonne technique de Grist, qui ne peut pas être modifiée. ' +
         'Ouvrez la Configuration (5 clics sur le bloc marque du header) et choisissez la vraie colonne, puis enregistrez.');
+      if (currentModalRowId === rowId) renderModalContent(); // resynchronise l'interrupteur sur la vraie valeur enregistrée
       return;
     }
     var fields = {};
@@ -1371,10 +1544,92 @@
     grist.docApi.applyUserActions([['UpdateRecord', settings.table, rowId, fields]]).then(function () {
       candidates.rows.forEach(function (r) { if (r.id === rowId) r[role] = newValue; });
       renderCandidates(); // met à jour les pastilles de statut de la liste
-      if (currentModalRowId === rowId) renderModalContent(); // et les boutons Accepter/Refuser si la fiche est ouverte
+      if (currentModalRowId === rowId) renderModalContent(); // et l'interrupteur si la fiche est ouverte
       if (newValue === false && refusalContext) openRefusalEmail(refusalContext.row, refusalContext.docLabel);
     }).catch(function (e) {
       window.alert('Impossible d’enregistrer la décision : ' + friendlyErrorMessage(e));
+      if (currentModalRowId === rowId) renderModalContent(); // remet l'interrupteur dans son état réel après l'échec
+    });
+  }
+
+  // ---- Import / suppression d'une pièce jointe -----------------------------
+  //
+  // L'upload d'un fichier binaire n'est pas possible via
+  // grist.docApi.applyUserActions() (qui ne manipule que des données de
+  // lignes) : il passe par l'API REST du document elle-même
+  // (POST {baseUrl}/attachments), authentifiée par un jeton temporaire —
+  // voir getWriteAccessTokenInfo(), équivalent en écriture de
+  // getAccessTokenInfo() (lecture seule) utilisé pour l'aperçu/le
+  // téléchargement. Une fois le fichier envoyé, son identifiant est
+  // pointé sur la colonne via UpdateRecord, comme n'importe quel autre
+  // champ. Le format de réponse exact de cette route n'étant pas garanti
+  // documenté pour toutes les versions de Grist, importDocument() accepte
+  // aussi bien un tableau d'identifiants numériques qu'un tableau d'objets
+  // {id: …} — à ajuster si votre instance Grist répond différemment.
+  var writeAccessTokenInfo = null;
+  var writeAccessTokenPromise = null;
+  function getWriteAccessTokenInfo() {
+    var now = Date.now();
+    if (writeAccessTokenInfo && writeAccessTokenInfo.expiresAt > now + 5000) {
+      return Promise.resolve(writeAccessTokenInfo);
+    }
+    if (!writeAccessTokenPromise) {
+      writeAccessTokenPromise = grist.docApi.getAccessToken({ readOnly: false }).then(function (info) {
+        writeAccessTokenInfo = { token: info.token, baseUrl: info.baseUrl, expiresAt: now + (info.ttlMsecs || 30000) };
+        writeAccessTokenPromise = null;
+        return writeAccessTokenInfo;
+      }).catch(function (e) { writeAccessTokenPromise = null; throw e; });
+    }
+    return writeAccessTokenPromise;
+  }
+
+  function importDocument(row, role, file) {
+    var colId = settings.col[role];
+    if (!isWritableColId(colId)) {
+      window.alert('Le champ « ' + ROLE_LABELS[role] + ' » pointe vers une colonne technique de Grist, qui ne peut pas être modifiée.');
+      return;
+    }
+    getWriteAccessTokenInfo().then(function (tokenInfo) {
+      var formData = new FormData();
+      formData.append('upload', file, file.name);
+      return fetch(tokenInfo.baseUrl + '/attachments?auth=' + encodeURIComponent(tokenInfo.token), {
+        method: 'POST',
+        body: formData
+      }).then(function (resp) {
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        return resp.json();
+      });
+    }).then(function (result) {
+      var first = Array.isArray(result) ? result[0] : result;
+      var newId = (first && typeof first === 'object') ? first.id : first;
+      if (!newId) throw new Error('Réponse inattendue du serveur Grist lors de l’import.');
+      var fields = {};
+      fields[colId] = ['L', newId];
+      return grist.docApi.applyUserActions([['UpdateRecord', settings.table, row.id, fields]]).then(function () {
+        candidates.rows.forEach(function (r) { if (r.id === row.id) r[role] = ['L', newId]; });
+        attachmentsMetaPromise = null; // un nouveau fichier vient d'être ajouté : on force une relecture des métadonnées
+        renderCandidates();
+        if (currentModalRowId === row.id) renderModalContent();
+      });
+    }).catch(function (e) {
+      window.alert('Impossible d’importer le fichier pour « ' + ROLE_LABELS[role] + ' » : ' + friendlyErrorMessage(e));
+    });
+  }
+
+  function removeDocument(row, role) {
+    var colId = settings.col[role];
+    if (!isWritableColId(colId)) {
+      window.alert('Le champ « ' + ROLE_LABELS[role] + ' » pointe vers une colonne technique de Grist, qui ne peut pas être modifiée.');
+      return;
+    }
+    var fields = {};
+    fields[colId] = ['L']; // liste vide : détache le fichier de ce candidat (ne le supprime pas du magasin de pièces jointes)
+    grist.docApi.applyUserActions([['UpdateRecord', settings.table, row.id, fields]]).then(function () {
+      candidates.rows.forEach(function (r) { if (r.id === row.id) r[role] = ['L']; });
+      renderCandidates();
+      if (currentModalRowId === row.id) renderModalContent();
+    }).catch(function (e) {
+      window.alert('Impossible de supprimer le fichier : ' + friendlyErrorMessage(e));
     });
   }
 
