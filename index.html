@@ -285,30 +285,89 @@
      actuel (vignette survolable/cliquable + nom + suppression) puis une
      zone d'import — glisser-déposer ou clic — qui sert aussi bien à
      déposer un premier fichier qu'à remplacer l'existant. */
-  .cand-doc-cols { display: flex; gap: 1rem; }
+  .cand-doc-cols { display: flex; gap: 1rem; align-items: stretch; }
   .cand-doc-slot {
     flex: 1 1 0;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
     background: #fff;
     border: 1px solid rgba(0, 0, 0, 0.07);
+    border-left: 3px solid var(--statut-attente);
     border-radius: 0.65rem;
-    padding: 0.85rem;
+    padding: 0.9rem 0.9rem 0.9rem 0.8rem;
     box-sizing: border-box;
     box-shadow: 0 1px 3px rgba(20, 10, 30, 0.06);
-    transition: box-shadow 0.15s ease;
+    transition: box-shadow 0.15s ease, border-left-color 0.15s ease;
   }
-  .cand-doc-slot:hover { box-shadow: 0 4px 12px rgba(20, 10, 30, 0.1); }
+  .cand-doc-slot:hover { box-shadow: 0 4px 14px rgba(20, 10, 30, 0.11); }
+  .cand-doc-slot[data-state="accepted"] { border-left-color: var(--statut-validee); }
+  .cand-doc-slot[data-state="refused"] { border-left-color: var(--statut-refusee); }
+  /* En-tête en colonne (plutôt qu'en ligne) : les libellés des documents
+     sont désormais des intitulés complets ("Reconnaissance de
+     responsabilité - Réseaux sociaux"…) plutôt que des abréviations, donc
+     trop longs pour tenir à côté du bouton de validation sur une carte
+     d'environ un tiers de la largeur de la modale. */
   .cand-doc-slot__head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.55rem;
+    margin-bottom: 0.7rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  }
+  .cand-doc-slot__label { font-size: 0.82em; font-weight: 700; line-height: 1.3; }
+
+  /* Bouton de validation : deux boutons ronds (case ✓ / croix) dans une
+     pastille arrondie, plutôt que l'interrupteur DSFR par défaut — celui
+     actif se colore (vert = validé, rouge = refusé), l'autre reste neutre ;
+     aucun des deux actif = en attente. Réutilisé tel quel pour le champ
+     Photos (Oui/Non), voir buildPhotosField. */
+  .cand-doc-status {
+    display: inline-flex;
+    background: #f2f2f6;
+    border-radius: 999px;
+    padding: 0.2rem;
+    gap: 0.2rem;
+    flex: none;
+  }
+  .cand-doc-status__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.7rem;
+    height: 1.7rem;
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    color: #8b8b96;
+    cursor: pointer;
+    font-size: 0.85rem;
+    line-height: 1;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  }
+  .cand-doc-status__btn:hover { background: rgba(0, 0, 0, 0.08); color: #3a3a45; }
+  .cand-doc-status__btn:active { transform: scale(0.92); }
+  .cand-doc-status__btn:focus-visible { outline: 2px solid var(--bleu-france); outline-offset: 1px; }
+  .cand-doc-status__btn--yes.is-active { background: var(--statut-validee); color: #fff; }
+  .cand-doc-status__btn--no.is-active { background: var(--statut-refusee); color: #fff; }
+
+  /* Champ "Photos" intégré à la carte "Droit à l'image" (voir
+     buildPhotosField) : même famille visuelle que le reste de la carte,
+     léger fond pour se distinguer du fichier lui-même juste en dessous. */
+  .cand-doc-slot__photos {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.4rem;
-    margin-bottom: 0.65rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    gap: 0.5rem;
+    padding: 0.45rem 0.6rem;
+    margin-bottom: 0.7rem;
+    background: #f7f7fb;
+    border-radius: 0.5rem;
+    font-size: 0.8em;
   }
-  .cand-doc-slot__label { font-size: 0.82em; font-weight: 700; }
-  .cand-doc-slot__toggle.fr-toggle { margin: 0; flex: none; }
+  .cand-doc-slot__photos-label { color: var(--text-mention-grey); font-weight: 600; }
 
   .cand-doc-slot__file {
     display: flex;
@@ -472,6 +531,13 @@
   .cand-field-block__input:focus { outline: 2px solid var(--bleu-france); outline-offset: 2px; }
   .cand-field-block__input:disabled { opacity: 0.6; }
   .cand-field-block__readonly { display: block; font-weight: 500; }
+  /* Champ "Encaissé" (éditable, en euros) : symbole € accolé au champ
+     plutôt qu'inclus dans la valeur, pour rester un nombre pur côté Grist —
+     même lecture visuelle que "Dû" (lecture seule), qui l'affiche déjà via
+     fmtCurrency(). */
+  .cand-field-block__currency-row { display: flex; align-items: baseline; gap: 0.3rem; }
+  .cand-field-block__currency-row .cand-field-block__input { flex: 1 1 auto; min-width: 0; }
+  .cand-field-block__suffix { flex: none; font-weight: 500; color: var(--text-mention-grey); }
 
   .cand-pill {
     display: inline-block;
@@ -633,17 +699,22 @@
 
     <div class="fr-alert fr-alert--info fr-alert--sm fr-mb-3w">
       <p>Associez la table Grist des candidats et le rôle de chacune de ses colonnes, d'après les libellés
-      de la fiche candidat (NID, Stagiaire, Usage RS…). « Validation admin » pilote l'interrupteur des pièces
-      jointes « Usage RS » et « Form. image » ; « Validation EAD » pilote celui de la pièce jointe « EAD ».
-      Le passage d'un interrupteur sur Refusé ouvre automatiquement un e-mail pré-rempli vers l'adresse
-      « E-mail » du candidat : sans cette colonne, le refus reste enregistré mais aucun e-mail ne s'ouvre.
-      Importer ou remplacer un fichier dans la fiche envoie le nouveau document dans le magasin de pièces
-      jointes du document Grist, ce qui nécessite les droits d'écriture sur le document. « Mineur » est une
-      case à cocher que vous renseignez vous-même dans Grist (backoffice) pour chaque candidat qui sera
-      mineur au premier jour de la formation ; le widget se contente de l'afficher. « Bande patro. »,
-      « Quantité » et « Encaissé » sont modifiables directement depuis la fiche candidat — préférez des
-      colonnes Texte ou Numérique (pas une colonne Référence) pour que l'enregistrement fonctionne ; « Dû »
-      reste en lecture seule. Ces réglages sont mémorisés avec le widget.</p>
+      de la fiche candidat (NID, Stagiaire, Usage RS…). Les documents (pièces jointes et leur validation)
+      peuvent vivre dans une table Grist séparée de celle des candidats : indiquez alors, dans la section
+      « Documents », la table concernée et sa colonne de liaison — une colonne Référence, dans la table
+      Documents, qui pointe vers la ligne du candidat correspondant. Si un candidat n'a pas encore de ligne
+      liée dans cette table, le premier import d'un fichier depuis sa fiche en crée une automatiquement.
+      « Validation admin » pilote le bouton de validation des pièces jointes « Usage RS » et « Form. image » ;
+      « Validation EAD » pilote celui de la pièce jointe « EAD ». Passer une pièce en Refusé ouvre
+      automatiquement un e-mail pré-rempli vers l'adresse « E-mail » du candidat : sans cette colonne, le
+      refus reste enregistré mais aucun e-mail ne s'ouvre. Importer ou remplacer un fichier dans la fiche
+      envoie le nouveau document dans le magasin de pièces jointes du document Grist, ce qui nécessite les
+      droits d'écriture sur le document. « Mineur » est une case à cocher que vous renseignez vous-même
+      dans Grist (backoffice) pour chaque candidat qui sera mineur au premier jour de la formation ; le
+      widget se contente de l'afficher. « Bande patro. », « Quantité » et « Encaissé » sont modifiables
+      directement depuis la fiche candidat — préférez des colonnes Texte ou Numérique (pas une colonne
+      Référence) pour que l'enregistrement fonctionne ; « Dû » reste en lecture seule. Ces réglages sont
+      mémorisés avec le widget.</p>
     </div>
 
     <div id="settingsStatusZone" class="fr-mb-2w"></div>
@@ -688,6 +759,14 @@
       <div class="settings-section">
         <p class="section-title">Documents</p>
         <div class="settings-grid">
+          <div class="fr-select-group">
+            <label class="fr-label" for="cand_docs_table">Table Grist des documents (si différente de celle des candidats)</label>
+            <select class="fr-select" id="cand_docs_table"></select>
+          </div>
+          <div class="fr-select-group">
+            <label class="fr-label" for="cand_docs_link">Colonne de liaison vers le candidat (Référence, dans la table Documents)</label>
+            <select class="fr-select" id="cand_docs_link"></select>
+          </div>
           <div class="fr-select-group">
             <label class="fr-label" for="cand_col_usageRS">Usage RS (pièce jointe, optionnel)</label>
             <select class="fr-select" id="cand_col_usageRS" data-role="usageRS"></select>
@@ -792,13 +871,23 @@
     'ead', 'validationEAD', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
   var REQUIRED_ROLES = ['nid', 'stagiaire'];
   var OPTIONAL_ROLES = ROLES.filter(function (r) { return REQUIRED_ROLES.indexOf(r) === -1; });
+  // Rôles qui vivent dans la table "Documents" plutôt que dans la table des
+  // candidats, quand les deux sont distinctes (voir DOC_TABLE_ROLES plus
+  // bas, et settings.docsTable / settings.docsLinkCol). Tous les autres
+  // rôles restent dans la table principale (candidats).
   var ROLE_LABELS = {
     nid: 'NID', stagiaire: 'Stagiaire', email: 'E-mail', telephone: 'Téléphone', mineur: 'Mineur au 1er jour de formation',
-    usageRS: 'Usage RS', formImage: 'Form. image',
-    photos: 'Photos', validationAdmin: 'Validation admin', ead: 'EAD', validationEAD: 'Validation EAD',
+    usageRS: 'Reconnaissance de responsabilité - Réseaux sociaux', formImage: 'Droit à l\'image',
+    photos: 'Photos', validationAdmin: 'Validation admin', ead: 'Enseignement à distance Bloc 1', validationEAD: 'Validation EAD',
     inscriptionBande: 'Bande patro.', qteBandes: 'Quantité', du: 'Dû', encaisse: 'Encaissé',
     blocagesInfos: 'Blocages / Infos'
   };
+  // Rôles hébergés par la table "Documents" (voir settings.docsTable /
+  // settings.docsLinkCol ci-dessous) quand elle est distincte de la table
+  // des candidats — cas le plus courant en pratique. Tous les autres rôles
+  // de ROLES restent lus/écrits dans la table principale (candidats).
+  var DOC_TABLE_ROLES = ['usageRS', 'formImage', 'validationAdmin', 'ead', 'validationEAD'];
+  var MAIN_TABLE_ROLES = ROLES.filter(function (r) { return DOC_TABLE_ROLES.indexOf(r) === -1; });
   // Rôles rendus éditables directement depuis la fiche candidat (voir
   // buildBlockField / buildBlocagesEditor) : 'text' pour un simple champ
   // texte, 'number'/'currency' pour un champ numérique (le pas 0.01 de
@@ -831,12 +920,14 @@
   function defaultConfig() {
     var col = {};
     ROLES.forEach(function (role) { col[role] = ''; });
-    return { table: '', col: col };
+    return { table: '', docsTable: '', docsLinkCol: '', col: col };
   }
   function mergeConfig(loaded) {
     var cfg = defaultConfig();
     if (!loaded) return cfg;
     cfg.table = loaded.table || '';
+    cfg.docsTable = loaded.docsTable || '';
+    cfg.docsLinkCol = loaded.docsLinkCol || '';
     if (loaded.col) {
       Object.keys(cfg.col).forEach(function (k) {
         var v = loaded.col[k];
@@ -845,8 +936,33 @@
     }
     return cfg;
   }
+  // La table Documents et sa colonne de liaison ne sont exigées que si au
+  // moins un rôle "Documents" (pièce jointe ou validation) est réglé —
+  // rien n'empêche un usage sans aucun document.
   function isConfigComplete(cfg) {
-    return !!(cfg.table && REQUIRED_ROLES.every(function (role) { return !!cfg.col[role]; }));
+    if (!cfg.table || !REQUIRED_ROLES.every(function (role) { return !!cfg.col[role]; })) return false;
+    var usesDocsTable = DOC_TABLE_ROLES.some(function (role) { return !!cfg.col[role]; });
+    if (usesDocsTable && (!cfg.docsTable || !cfg.docsLinkCol)) return false;
+    return true;
+  }
+  // Une colonne Référence simple (voir aussi textOfRef) est renvoyée par
+  // fetchTable() comme un entier (l'id de la ligne pointée, 0 = vide) ;
+  // certaines versions de Grist peuvent la renvoyer sous forme étiquetée
+  // ['R', id] (même principe que les colonnes Pièces jointes/Liste) — les
+  // deux formes sont donc acceptées ici, pour rester robuste.
+  function refRowIdOf(v) {
+    if (typeof v === 'number') return v;
+    if (Array.isArray(v) && (v[0] === 'R' || v[0] === 'r') && typeof v[1] === 'number') return v[1];
+    return 0;
+  }
+  // Détermine, pour un rôle donné, dans quelle table et sur quelle ligne
+  // écrire : la table Documents (et sa ligne liée, éventuellement absente)
+  // pour un rôle de DOC_TABLE_ROLES, la table principale sinon.
+  function writeTargetFor(role, row) {
+    if (DOC_TABLE_ROLES.indexOf(role) !== -1) {
+      return { table: settings.docsTable, rowId: row.__docRowId || null };
+    }
+    return { table: settings.table, rowId: row.id };
   }
 
   var settings = defaultConfig();
@@ -938,25 +1054,32 @@
       allTableIds = tables || [];
       var sel = document.getElementById('cand_table');
       fillSelectWithOptions(sel, allTableIds, settings.table, 'Choisir une table…');
-      if (sel.value) refreshColumnLists(sel.value);
+      if (sel.value) refreshMainColumnLists(sel.value);
+      var docsSel = document.getElementById('cand_docs_table');
+      // La table Documents est optionnelle : placeholder différent pour
+      // signaler qu'elle peut simplement rester non réglée si les
+      // documents vivent dans la table des candidats elle-même... en
+      // pratique on l'exige dès qu'un rôle "Documents" est mappé (voir
+      // isConfigComplete), mais rien n'empêche de la laisser vide sinon.
+      fillSelectWithOptions(docsSel, allTableIds, settings.docsTable, '(même table que les candidats / non réglée)');
+      if (docsSel.value) refreshDocsColumnLists(docsSel.value);
+      else refreshDocsColumnLists('');
     }).catch(function (e) {
       showSettingsStatus('error', 'Impossible de lister les tables du document : ' + friendlyErrorMessage(e));
     });
   }
 
-  function refreshColumnLists(tableId) {
+  function refreshMainColumnLists(tableId) {
     if (!tableId) {
-      ROLES.forEach(function (role) {
+      MAIN_TABLE_ROLES.forEach(function (role) {
         var el = document.getElementById('cand_col_' + role);
         if (el) fillSelectWithOptions(el, [], '', 'Choisir une table d’abord…');
       });
       return;
     }
     grist.docApi.fetchTable(tableId).then(function (data) {
-      var columns = Object.keys(data || {}).filter(function (c) {
-        return c !== 'id' && c !== 'manualSort' && c.indexOf('gristHelper_') !== 0;
-      }).sort(function (a, b) { return a.localeCompare(b, 'fr'); });
-      ROLES.forEach(function (role) {
+      var columns = tableColumns(data);
+      MAIN_TABLE_ROLES.forEach(function (role) {
         var el = document.getElementById('cand_col_' + role);
         if (!el) return;
         var current = (settings.table === tableId) ? settings.col[role] : '';
@@ -967,7 +1090,42 @@
     });
   }
 
-  document.getElementById('cand_table').addEventListener('change', function () { refreshColumnLists(this.value); });
+  // Remplit à la fois les sélecteurs de colonnes "Documents" (pièces
+  // jointes + validations) et le sélecteur de la colonne de liaison, tous
+  // les trois lus dans la même table Documents.
+  function refreshDocsColumnLists(tableId) {
+    var linkEl = document.getElementById('cand_docs_link');
+    if (!tableId) {
+      DOC_TABLE_ROLES.forEach(function (role) {
+        var el = document.getElementById('cand_col_' + role);
+        if (el) fillSelectWithOptions(el, [], '', 'Choisir la table Documents d’abord…');
+      });
+      fillSelectWithOptions(linkEl, [], '', 'Choisir la table Documents d’abord…');
+      return;
+    }
+    grist.docApi.fetchTable(tableId).then(function (data) {
+      var columns = tableColumns(data);
+      DOC_TABLE_ROLES.forEach(function (role) {
+        var el = document.getElementById('cand_col_' + role);
+        if (!el) return;
+        var current = (settings.docsTable === tableId) ? settings.col[role] : '';
+        fillSelectWithOptions(el, columns, current, OPTIONAL_ROLES.indexOf(role) !== -1 ? '(aucune)' : 'Choisir une colonne…');
+      });
+      var currentLink = (settings.docsTable === tableId) ? settings.docsLinkCol : '';
+      fillSelectWithOptions(linkEl, columns, currentLink, 'Choisir une colonne…');
+    }).catch(function (e) {
+      showSettingsStatus('error', 'Impossible de lire les colonnes de la table « ' + tableId + ' » : ' + friendlyErrorMessage(e));
+    });
+  }
+
+  function tableColumns(data) {
+    return Object.keys(data || {}).filter(function (c) {
+      return c !== 'id' && c !== 'manualSort' && c.indexOf('gristHelper_') !== 0;
+    }).sort(function (a, b) { return a.localeCompare(b, 'fr'); });
+  }
+
+  document.getElementById('cand_table').addEventListener('change', function () { refreshMainColumnLists(this.value); });
+  document.getElementById('cand_docs_table').addEventListener('change', function () { refreshDocsColumnLists(this.value); });
 
   function showSettingsStatus(type, message) {
     settingsStatusZone.innerHTML = '<div class="fr-alert fr-alert--' + type + ' fr-alert--sm"><p>' + escapeHtml(message) + '</p></div>';
@@ -976,6 +1134,11 @@
   function configFromForm() {
     var cfg = defaultConfig();
     cfg.table = document.getElementById('cand_table').value;
+    cfg.docsTable = document.getElementById('cand_docs_table').value;
+    // Colonne de liaison : lue seule (jamais écrite par le widget), pas
+    // besoin qu'elle passe isWritableColId comme les colonnes de rôle.
+    var linkEl = document.getElementById('cand_docs_link');
+    cfg.docsLinkCol = (linkEl && linkEl.value) ? linkEl.value : '';
     ROLES.forEach(function (role) {
       var el = document.getElementById('cand_col_' + role);
       if (el && isWritableColId(el.value)) cfg.col[role] = el.value;
@@ -1013,12 +1176,48 @@
       renderCandidates();
       return;
     }
-    grist.docApi.fetchTable(settings.table).then(function (data) {
-      candidates = { rows: columnarToRows(data), loaded: true };
+    var usesDocsTable = DOC_TABLE_ROLES.some(function (role) { return !!settings.col[role]; }) &&
+      settings.docsTable && settings.docsLinkCol;
+    var mainPromise = grist.docApi.fetchTable(settings.table);
+    var docsPromise = usesDocsTable ? grist.docApi.fetchTable(settings.docsTable) : Promise.resolve(null);
+    Promise.all([mainPromise, docsPromise]).then(function (results) {
+      var rows = columnarToRows(results[0]);
+      mergeDocsTable(rows, results[1]);
+      candidates = { rows: rows, loaded: true };
       renderCandidates();
     }).catch(function (e) {
       candidates = { rows: [], loaded: false, error: friendlyErrorMessage(e) };
       renderCandidates();
+    });
+  }
+
+  // Complète chaque ligne candidat avec les rôles "Documents" (pièces
+  // jointes + validations), lus depuis la table Documents quand elle est
+  // distincte de la table des candidats — voir DOC_TABLE_ROLES et
+  // settings.docsLinkCol. docsData est null si aucune table Documents
+  // n'est réglée (ou qu'aucun rôle "Documents" n'est utilisé) : dans ce
+  // cas ces rôles restent simplement vides pour chaque candidat. Un seul
+  // document par candidat est attendu : en cas de doublon, seul le
+  // premier trouvé est retenu.
+  function mergeDocsTable(rows, docsData) {
+    if (!docsData || !docsData.id) {
+      rows.forEach(function (row) { row.__docRowId = null; });
+      return;
+    }
+    var linkValues = docsData[settings.docsLinkCol] || [];
+    var docIndexByCandidateId = {};
+    for (var i = 0; i < docsData.id.length; i++) {
+      var candidateId = refRowIdOf(linkValues[i]);
+      if (candidateId && !(candidateId in docIndexByCandidateId)) docIndexByCandidateId[candidateId] = i;
+    }
+    rows.forEach(function (row) {
+      var idx = docIndexByCandidateId[row.id];
+      if (idx === undefined) { row.__docRowId = null; return; }
+      row.__docRowId = docsData.id[idx];
+      DOC_TABLE_ROLES.forEach(function (role) {
+        var colName = settings.col[role];
+        row[role] = colName ? docsData[colName][idx] : null;
+      });
     });
   }
 
@@ -1027,7 +1226,7 @@
     var rows = [];
     for (var i = 0; i < data.id.length; i++) {
       var row = { id: data.id[i] };
-      ROLES.forEach(function (role) {
+      MAIN_TABLE_ROLES.forEach(function (role) {
         var colName = settings.col[role];
         row[role] = colName ? data[colName][i] : null;
       });
@@ -1258,13 +1457,19 @@
       sections.push(bandeWrap);
     }
 
-    // ---- Infos : Photos (lecture seule) + Blocages (éditable) -----------
-    if (settings.col.photos || settings.col.blocagesInfos) {
+    // ---- Infos : Photos (si pas déjà dans la carte "Droit à l'image") +
+    // Blocages (éditable) --------------------------------------------------
+    // Photos est éditable directement dans la carte "Droit à l'image" (voir
+    // buildPhotosField) dès que cette pièce est configurée ; on ne le
+    // ré-affiche ici, en lecture seule, que si formImage n'est pas réglé —
+    // pour ne pas perdre l'info si l'admin n'a pas mappé ce document.
+    var photosInDocCard = !!(settings.col.photos && settings.col.formImage);
+    if ((settings.col.photos && !photosInDocCard) || settings.col.blocagesInfos) {
       var infoTitle = document.createElement('p');
       infoTitle.className = 'section-title';
       infoTitle.textContent = 'Infos';
       sections.push(infoTitle);
-      if (settings.col.photos) sections.push(buildFieldRow(row, 'photos'));
+      if (settings.col.photos && !photosInDocCard) sections.push(buildFieldRow(row, 'photos'));
       // Contrairement à Photos, "Blocages / Infos" reste affiché même vide
       // dès que la colonne est réglée : c'est justement là qu'on saisit un
       // blocage, pas seulement là où on le consulte.
@@ -1353,6 +1558,22 @@
     input.addEventListener('keydown', function (e) {
       if (e.key === 'Enter') input.blur();
     });
+
+    if (kind === 'currency') {
+      // Symbole "€" à côté du champ plutôt que dans la valeur elle-même
+      // (qui reste un nombre pur, enregistré tel quel dans Grist).
+      var currencyRow = document.createElement('div');
+      currencyRow.className = 'cand-field-block__currency-row';
+      currencyRow.appendChild(input);
+      var suffix = document.createElement('span');
+      suffix.className = 'cand-field-block__suffix';
+      suffix.textContent = '€';
+      suffix.setAttribute('aria-hidden', 'true');
+      currencyRow.appendChild(suffix);
+      block.appendChild(currencyRow);
+      return block;
+    }
+
     block.appendChild(input);
     return block;
   }
@@ -1470,6 +1691,12 @@
     slot.className = 'cand-doc-slot';
     slot.dataset.role = role;
 
+    var validationRole = ATTACH_VALIDATION_ROLE[role];
+    // Accent de couleur en bord de carte selon l'état de validation (vert
+    // validé / rouge refusé / ambre en attente) : un repère visuel immédiat
+    // sans avoir à lire le bouton de validation.
+    slot.dataset.state = validationRole ? boolState(row[validationRole]) : 'pending';
+
     var head = document.createElement('div');
     head.className = 'cand-doc-slot__head';
     var label = document.createElement('span');
@@ -1477,11 +1704,17 @@
     label.textContent = ROLE_LABELS[role];
     head.appendChild(label);
 
-    var validationRole = ATTACH_VALIDATION_ROLE[role];
     if (validationRole && settings.col[validationRole]) {
-      head.appendChild(buildDocValidationToggle(row, validationRole, ROLE_LABELS[role]));
+      head.appendChild(buildValidationControl(row, validationRole, ROLE_LABELS[role]));
     }
     slot.appendChild(head);
+
+    // "Droit à l'image" embarque le champ Photos (Oui/Non), plutôt que de
+    // le laisser dans la section "Infos" — les deux informations vont de
+    // pair (voir mergeDocsTable/ROLE_LABELS.photos).
+    if (role === 'formImage' && settings.col.photos) {
+      slot.appendChild(buildPhotosField(row));
+    }
 
     var ids = extractAttachmentIds(row[role]);
     if (ids.length) {
@@ -1523,40 +1756,64 @@
     return slot;
   }
 
-  // Interrupteur DSFR (fr-toggle) : un seul contrôle par document plutôt
-  // que deux boutons Accepter/Refuser séparés — la colonne de validation
-  // est de toute façon binaire (case à cocher Grist), l'interrupteur
-  // colle donc mieux à sa vraie nature. Basculer sur Refusé déclenche
-  // l'e-mail de relance (voir updateValidation/openRefusalEmail) avec le
-  // libellé de CE document précis (pas la colonne, potentiellement
-  // partagée entre deux pièces — voir ATTACH_VALIDATION_ROLE).
-  var toggleSeq = 0;
-  function buildDocValidationToggle(row, validationRole, docLabel) {
-    toggleSeq++;
+  // Contrôle de validation à deux boutons (Valider / Refuser), utilisé à la
+  // fois pour la validation d'un document (avec envoi d'un e-mail de
+  // relance en cas de refus — voir updateValidation/openRefusalEmail, avec
+  // le libellé de CE document précis, pas la colonne, potentiellement
+  // partagée entre deux pièces — voir ATTACH_VALIDATION_ROLE) et pour le
+  // champ Photos (Oui/Non, voir buildPhotosField), sans effet de bord dans
+  // ce second cas. L'état "en attente" (ni l'un ni l'autre bouton actif)
+  // correspond à une colonne encore vide côté Grist — voir boolState.
+  function buildValidationControl(row, role, refusalDocLabel, labels) {
+    labels = labels || { yes: 'Valider la pièce', no: 'Refuser la pièce' };
+    var state = boolState(row[role]);
+
     var wrap = document.createElement('div');
-    wrap.className = 'fr-toggle fr-toggle--sm cand-doc-slot__toggle';
-    var id = 'candToggle_' + validationRole + '_' + row.id + '_' + toggleSeq;
+    wrap.className = 'cand-doc-status';
+    wrap.setAttribute('role', 'group');
+    wrap.setAttribute('aria-label', refusalDocLabel ? 'Validation de la pièce' : ROLE_LABELS[role]);
 
-    var input = document.createElement('input');
-    input.type = 'checkbox';
-    input.className = 'fr-toggle__input';
-    input.id = id;
-    input.checked = boolState(row[validationRole]) === 'accepted';
+    function makeBtn(kind, iconClass, activeState, title) {
+      var isActive = state === activeState;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'cand-doc-status__btn cand-doc-status__btn--' + kind + (isActive ? ' is-active' : '');
+      btn.title = title;
+      btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      btn.innerHTML = '<span class="' + iconClass + '" aria-hidden="true"></span>';
+      return btn;
+    }
 
-    var label = document.createElement('label');
-    label.className = 'fr-toggle__label';
-    label.setAttribute('for', id);
-    label.setAttribute('data-fr-checked-label', 'Validé');
-    label.setAttribute('data-fr-unchecked-label', 'Refusé');
-    label.textContent = 'Validation';
+    var yesBtn = makeBtn('yes', 'fr-icon-check-line', 'accepted', labels.yes);
+    var noBtn = makeBtn('no', 'fr-icon-close-line', 'refused', labels.no);
 
-    input.addEventListener('change', function () {
-      var newVal = input.checked;
-      updateValidation(validationRole, row.id, newVal, newVal === false ? { row: row, docLabel: docLabel } : null);
+    yesBtn.addEventListener('click', function () {
+      if (state === 'accepted') return;
+      updateValidation(role, row, true, null);
+    });
+    noBtn.addEventListener('click', function () {
+      if (state === 'refused') return;
+      updateValidation(role, row, false, refusalDocLabel ? { row: row, docLabel: refusalDocLabel } : null);
     });
 
-    wrap.appendChild(input);
+    wrap.appendChild(yesBtn);
+    wrap.appendChild(noBtn);
+    return wrap;
+  }
+
+  // Champ "Photos" (autorisation liée au droit à l'image) : même contrôle
+  // Oui/Non que la validation d'un document, mais sans e-mail de refus —
+  // ce n'est pas une pièce qu'on demande de renvoyer. Vit dans la table
+  // principale (candidats), même quand les documents sont dans une table
+  // séparée — voir DOC_TABLE_ROLES.
+  function buildPhotosField(row) {
+    var wrap = document.createElement('div');
+    wrap.className = 'cand-doc-slot__photos';
+    var label = document.createElement('span');
+    label.className = 'cand-doc-slot__photos-label';
+    label.textContent = ROLE_LABELS.photos;
     wrap.appendChild(label);
+    wrap.appendChild(buildValidationControl(row, 'photos', null, { yes: 'Oui', no: 'Non' }));
     return wrap;
   }
 
@@ -1597,32 +1854,53 @@
     return card;
   }
 
+  // Ouvre la pièce jointe dans un nouvel onglet. L'onglet est ouvert de
+  // façon SYNCHRONE, dans le gestionnaire de clic lui-même (avant tout
+  // appel réseau) : c'est ce qui évite qu'il soit bloqué par le
+  // bloqueur de popups du navigateur, qui refuse un window.open() déclenché
+  // depuis un .then() asynchrone (le jeton d'accès peut nécessiter un
+  // aller-retour réseau) car ce n'est alors plus perçu comme résultant
+  // directement d'un geste de l'utilisateur. L'onglet est navigué vers
+  // l'URL réelle une fois le jeton obtenu.
   function openAttachmentInNewTab(attachmentId) {
+    var newTab = window.open('', '_blank');
     getAccessTokenInfo().then(function (tokenInfo) {
-      window.open(attachmentUrl(tokenInfo, attachmentId), '_blank');
+      if (!newTab) {
+        window.alert('Le navigateur a bloqué l’ouverture d’un nouvel onglet. Autorisez les pop-ups pour ce site, puis réessayez.');
+        return;
+      }
+      newTab.location.href = attachmentUrl(tokenInfo, attachmentId);
     }).catch(function (e) {
+      if (newTab) newTab.close();
       window.alert('Impossible d’ouvrir le fichier : ' + friendlyErrorMessage(e));
     });
   }
 
-  function updateValidation(role, rowId, newValue, refusalContext) {
+  function updateValidation(role, row, newValue, refusalContext) {
     var colId = settings.col[role];
     if (!isWritableColId(colId)) {
       window.alert('Le champ « ' + ROLE_LABELS[role] + ' » pointe vers une colonne technique de Grist, qui ne peut pas être modifiée. ' +
         'Ouvrez la Configuration (5 clics sur le bloc marque du header) et choisissez la vraie colonne, puis enregistrez.');
-      if (currentModalRowId === rowId) renderModalContent(); // resynchronise l'interrupteur sur la vraie valeur enregistrée
+      if (currentModalRowId === row.id) renderModalContent(); // resynchronise le bouton sur la vraie valeur enregistrée
+      return;
+    }
+    var target = writeTargetFor(role, row);
+    if (!target.table || !target.rowId) {
+      window.alert('Aucune ligne liée dans la table Documents pour ce candidat. Importez d’abord un document depuis sa fiche, ' +
+        'ou vérifiez la table et la colonne de liaison dans la Configuration.');
+      if (currentModalRowId === row.id) renderModalContent();
       return;
     }
     var fields = {};
     fields[colId] = newValue;
-    grist.docApi.applyUserActions([['UpdateRecord', settings.table, rowId, fields]]).then(function () {
-      candidates.rows.forEach(function (r) { if (r.id === rowId) r[role] = newValue; });
+    grist.docApi.applyUserActions([['UpdateRecord', target.table, target.rowId, fields]]).then(function () {
+      row[role] = newValue;
       renderCandidates(); // met à jour les pastilles de statut de la liste
-      if (currentModalRowId === rowId) renderModalContent(); // et l'interrupteur si la fiche est ouverte
+      if (currentModalRowId === row.id) renderModalContent(); // et le bouton si la fiche est ouverte
       if (newValue === false && refusalContext) openRefusalEmail(refusalContext.row, refusalContext.docLabel);
     }).catch(function (e) {
       window.alert('Impossible d’enregistrer la décision : ' + friendlyErrorMessage(e));
-      if (currentModalRowId === rowId) renderModalContent(); // remet l'interrupteur dans son état réel après l'échec
+      if (currentModalRowId === row.id) renderModalContent(); // remet le bouton dans son état réel après l'échec
     });
   }
 
@@ -1663,6 +1941,11 @@
       window.alert('Le champ « ' + ROLE_LABELS[role] + ' » pointe vers une colonne technique de Grist, qui ne peut pas être modifiée.');
       return;
     }
+    var target = writeTargetFor(role, row);
+    if (!target.table) {
+      window.alert('Aucune table Documents réglée. Ouvrez la Configuration (5 clics sur le bloc marque du header) et choisissez-la.');
+      return;
+    }
     getWriteAccessTokenInfo().then(function (tokenInfo) {
       var formData = new FormData();
       formData.append('upload', file, file.name);
@@ -1679,12 +1962,30 @@
       if (!newId) throw new Error('Réponse inattendue du serveur Grist lors de l’import.');
       var fields = {};
       fields[colId] = ['L', newId];
-      return grist.docApi.applyUserActions([['UpdateRecord', settings.table, row.id, fields]]).then(function () {
-        candidates.rows.forEach(function (r) { if (r.id === row.id) r[role] = ['L', newId]; });
-        attachmentsMetaPromise = null; // un nouveau fichier vient d'être ajouté : on force une relecture des métadonnées
-        renderCandidates();
-        if (currentModalRowId === row.id) renderModalContent();
+      if (target.rowId) {
+        return grist.docApi.applyUserActions([['UpdateRecord', target.table, target.rowId, fields]]).then(function () {
+          row[role] = ['L', newId];
+        });
+      }
+      // Aucune ligne Documents encore liée à ce candidat (table Documents
+      // distincte de celle des candidats, voir DOC_TABLE_ROLES) : on en
+      // crée une, avec la colonne de liaison pointée vers ce candidat. Le
+      // format exact de la valeur de retour d'AddRecord n'étant pas
+      // garanti identique sur toutes les versions de Grist (même réserve
+      // que pour la réponse de l'upload, plus haut), on accepte aussi bien
+      // { retValues: [id] } qu'un identifiant renvoyé directement.
+      fields[settings.docsLinkCol] = row.id;
+      return grist.docApi.applyUserActions([['AddRecord', target.table, null, fields]]).then(function (result2) {
+        var createdId = (result2 && Array.isArray(result2.retValues)) ? result2.retValues[0] :
+          (typeof result2 === 'number' ? result2 : null);
+        if (!createdId) throw new Error('Impossible de déterminer l’identifiant de la nouvelle ligne créée dans la table Documents.');
+        row.__docRowId = createdId;
+        row[role] = ['L', newId];
       });
+    }).then(function () {
+      attachmentsMetaPromise = null; // un nouveau fichier vient d'être ajouté : on force une relecture des métadonnées
+      renderCandidates();
+      if (currentModalRowId === row.id) renderModalContent();
     }).catch(function (e) {
       window.alert('Impossible d’importer le fichier pour « ' + ROLE_LABELS[role] + ' » : ' + friendlyErrorMessage(e));
     });
@@ -1696,10 +1997,12 @@
       window.alert('Le champ « ' + ROLE_LABELS[role] + ' » pointe vers une colonne technique de Grist, qui ne peut pas être modifiée.');
       return;
     }
+    var target = writeTargetFor(role, row);
+    if (!target.table || !target.rowId) return; // rien à détacher : aucune ligne Documents liée à ce candidat
     var fields = {};
     fields[colId] = ['L']; // liste vide : détache le fichier de ce candidat (ne le supprime pas du magasin de pièces jointes)
-    grist.docApi.applyUserActions([['UpdateRecord', settings.table, row.id, fields]]).then(function () {
-      candidates.rows.forEach(function (r) { if (r.id === row.id) r[role] = ['L']; });
+    grist.docApi.applyUserActions([['UpdateRecord', target.table, target.rowId, fields]]).then(function () {
+      row[role] = ['L'];
       renderCandidates();
       if (currentModalRowId === row.id) renderModalContent();
     }).catch(function (e) {
