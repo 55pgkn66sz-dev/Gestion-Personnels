@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Administration des personnels</title>
+<title>Administration des candidats — eTuteur</title>
 
 <!--
   Widget personnalisé Grist : administration des candidats à un stage,
@@ -103,28 +103,45 @@
   .cand-toolbar .fr-checkbox-group { margin: 0; }
   .cand-toolbar .fr-checkbox-group label { font-size: 0.85em; padding-left: 1.75rem; }
 
-  /* ---- Grille de cartes candidat (page eTuteur) -------------------------- */
-  .cand-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
-    gap: 1rem;
-  }
-  .cand-card {
+  /* ---- Vue en bandes (page eTuteur) : une ligne compacte par candidat
+     (NID + nom), cliquable pour ouvrir la fiche complète dans une modale
+     (voir openCandidateModal) plutôt que de tout afficher en carte. ---- */
+  .cand-list {
+    display: flex;
+    flex-direction: column;
     border: 1px solid var(--border-default-grey);
     border-radius: 0.5rem;
+    overflow: hidden;
     background: #fff;
-    padding: 1rem 1.1rem 1.1rem;
   }
-  .cand-card__header {
+  .cand-row {
     display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 0.5rem 0.75rem;
-    margin-bottom: 0.25rem;
-    padding-bottom: 0.6rem;
+    align-items: center;
+    gap: 0.9rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: none;
     border-bottom: 1px solid var(--border-default-grey);
+    background: #fff;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
   }
-  .cand-card__name { margin: 0; font-size: 1.05em; font-weight: 700; }
+  .cand-list .cand-row:last-child { border-bottom: none; }
+  .cand-row:hover, .cand-row:focus-visible { background: #f0f0f5; }
+  .cand-row__name { margin: 0; font-size: 1em; font-weight: 700; flex: 1 1 auto; }
+  .cand-row__chevron { color: var(--text-mention-grey); flex: none; }
+  /* Petits indicateurs de statut en fin de ligne (documents à traiter /
+     blocages) : un coup d'œil sur la liste sans avoir à ouvrir la fiche. */
+  .cand-row__flags { display: flex; gap: 0.3rem; flex: none; }
+  .cand-row__flag {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 999px;
+    background: var(--statut-attente);
+  }
+  .cand-row__flag--blocages { background: var(--statut-refusee); }
+
   .cand-badge-nid {
     display: inline-block;
     font-size: 0.75em;
@@ -134,6 +151,54 @@
     background: var(--bleu-france);
     border-radius: 999px;
     padding: 0.15rem 0.65rem;
+    flex: none;
+  }
+
+  /* ---- Modale "Fiche candidat" -------------------------------------------
+     Ouverte au clic sur une bande de la liste (voir openCandidateModal) :
+     même principe que la modale "Nouvelle demande" du widget Réservations
+     (recouvrement + boîte gérée à la main, pas de dépendance à dsfr.js). */
+  .cand-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 150;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2rem 1rem;
+    overflow-y: auto;
+  }
+  .cand-modal-overlay[hidden] { display: none; }
+  .cand-modal-dialog {
+    background: #fff;
+    max-width: 34rem;
+    width: 100%;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+  }
+  .cand-modal-dialog__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-default-grey);
+  }
+  .cand-modal-dialog__title { margin: 0.3rem 0 0; font-size: 1.15em; font-weight: 700; }
+  .cand-modal-dialog__close { flex: none; margin: -0.25rem -0.25rem 0 0; }
+
+  @media (max-width: 40rem) {
+    .cand-modal-overlay { padding: 0; align-items: flex-end; }
+    .cand-modal-dialog {
+      max-width: none;
+      max-height: 92vh;
+      overflow-y: auto;
+      border-radius: 1rem 1rem 0 0;
+    }
   }
 
   /* ---- Documents (pièces jointes) ---------------------------------------
@@ -298,7 +363,6 @@
     .widget-wrap { padding: 1rem 0.75rem; }
     .cand-toolbar .fr-search-bar { flex-basis: 100%; max-width: none; }
     .cand-count--push { margin-left: 0; flex-basis: 100%; }
-    .cand-grid { grid-template-columns: 1fr; }
     .cand-doc-label { flex-basis: 100%; }
     .cand-doc-actions { margin-left: 0; }
   }
@@ -353,8 +417,8 @@
             </div>
           </div>
           <div class="fr-header__service">
-            <p class="fr-header__service-title">Division réserves jeunesse</p>
-            <p class="fr-header__service-tagline">Gestion des personnels</p>
+            <p class="fr-header__service-title">Administration des candidats</p>
+            <p class="fr-header__service-tagline">eTuteur — Suivi des dossiers de stage</p>
           </div>
         </div>
       </div>
@@ -515,6 +579,23 @@
 
 </div>
 
+<!-- Modale "Fiche candidat" : ouverte au clic sur une bande de la liste
+     (voir openCandidateModal), affiche l'intégralité des informations de
+     la fiche candidat et les actions Accepter/Refuser sur les pièces
+     jointes. -->
+<div class="cand-modal-overlay" id="candModalOverlay" hidden>
+  <div class="cand-modal-dialog" id="candModalDialog" role="dialog" aria-modal="true" aria-labelledby="candModalTitle">
+    <div class="cand-modal-dialog__header">
+      <div>
+        <span class="cand-badge-nid" id="candModalNid"></span>
+        <h3 class="cand-modal-dialog__title" id="candModalTitle"></h3>
+      </div>
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-line cand-modal-dialog__close" id="candModalCloseBtn" type="button">Fermer</button>
+    </div>
+    <div id="candModalBody"></div>
+  </div>
+</div>
+
 <!-- Popover d'aperçu des pièces jointes, positionné dynamiquement au
      survol d'une vignette (voir showAttachPreview) : un seul élément
      réutilisé pour toutes les vignettes plutôt qu'un par pièce jointe. -->
@@ -604,6 +685,13 @@
   var candFilterBlocages = document.getElementById('candFilterBlocages');
   var candReloadBtn = document.getElementById('candReloadBtn');
   var attachPreview = document.getElementById('attachPreview');
+  var candModalOverlay = document.getElementById('candModalOverlay');
+  var candModalDialog = document.getElementById('candModalDialog');
+  var candModalCloseBtn = document.getElementById('candModalCloseBtn');
+  var candModalNid = document.getElementById('candModalNid');
+  var candModalTitle = document.getElementById('candModalTitle');
+  var candModalBody = document.getElementById('candModalBody');
+  var currentModalRowId = null; // id de la ligne actuellement affichée dans la modale, ou null si fermée
 
   // ---- Geste caché sur le bloc marque : 5 clics rapprochés ---------------
   // Pas de bouton "Paramètres" visible : seuls les utilisateurs qui savent
@@ -808,51 +896,131 @@
       candZone.innerHTML = '<p class="cand-empty-state">Aucun candidat ne correspond à l’affichage actuel.</p>';
       return;
     }
-    var grid = document.createElement('div');
-    grid.className = 'cand-grid';
-    rows.forEach(function (row) { grid.appendChild(buildCandidateCard(row)); });
-    candZone.appendChild(grid);
+    var list = document.createElement('div');
+    list.className = 'cand-list';
+    rows.forEach(function (row) { list.appendChild(buildCandidateRow(row)); });
+    candZone.appendChild(list);
+
+    // La modale peut rester ouverte pendant qu'on filtre/recherche : si la
+    // ligne affichée n'existe plus dans les données rechargées (candidat
+    // supprimé), on la referme plutôt que de laisser une fiche obsolète.
+    if (currentModalRowId !== null) {
+      var stillThere = candidates.rows.some(function (r) { return r.id === currentModalRowId; });
+      if (stillThere) renderModalContent(); else closeCandidateModal();
+    }
   }
 
-  function buildCandidateCard(row) {
-    var card = document.createElement('div');
-    card.className = 'cand-card';
-    card.dataset.rowId = row.id;
+  // Bande compacte : NID + nom du stagiaire, plus deux pastilles de statut
+  // (documents à traiter / blocages) pour un repérage rapide sans ouvrir la
+  // fiche. Tout le reste (documents, pièces jointes, infos complémentaires)
+  // ne s'affiche qu'au clic, dans la modale — voir buildCandidateDetails.
+  function buildCandidateRow(row) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cand-row';
+    btn.dataset.rowId = row.id;
 
-    var header = document.createElement('div');
-    header.className = 'cand-card__header';
     var nidEl = document.createElement('span');
     nidEl.className = 'cand-badge-nid';
     nidEl.textContent = 'NID · ' + (textOf(row.nid) || '—');
-    var nameEl = document.createElement('h3');
-    nameEl.className = 'cand-card__name';
+
+    var nameEl = document.createElement('span');
+    nameEl.className = 'cand-row__name';
     nameEl.textContent = textOfRef(row.stagiaire) || '(Stagiaire non renseigné)';
-    header.appendChild(nidEl);
-    header.appendChild(nameEl);
-    card.appendChild(header);
+
+    var flags = document.createElement('span');
+    flags.className = 'cand-row__flags';
+    var adminConfigured = !!settings.col.validationAdmin;
+    var eadConfigured = !!settings.col.validationEAD;
+    var toTraiter = (adminConfigured && boolState(row.validationAdmin) !== 'accepted') ||
+      (eadConfigured && boolState(row.validationEAD) !== 'accepted');
+    if (toTraiter) {
+      var flagPending = document.createElement('span');
+      flagPending.className = 'cand-row__flag';
+      flagPending.title = 'Documents à traiter';
+      flags.appendChild(flagPending);
+    }
+    if (settings.col.blocagesInfos && textOf(row.blocagesInfos)) {
+      var flagBlocages = document.createElement('span');
+      flagBlocages.className = 'cand-row__flag cand-row__flag--blocages';
+      flagBlocages.title = 'Blocages signalés';
+      flags.appendChild(flagBlocages);
+    }
+
+    var chevron = document.createElement('span');
+    chevron.className = 'cand-row__chevron fr-icon-arrow-right-s-line';
+    chevron.setAttribute('aria-hidden', 'true');
+
+    btn.appendChild(nidEl);
+    btn.appendChild(nameEl);
+    btn.appendChild(flags);
+    btn.appendChild(chevron);
+    btn.addEventListener('click', function () { openCandidateModal(row.id); });
+    return btn;
+  }
+
+  // ---- Modale "Fiche candidat" --------------------------------------------
+
+  function findCandidateRow(rowId) {
+    var found = null;
+    candidates.rows.forEach(function (r) { if (r.id === rowId) found = r; });
+    return found;
+  }
+
+  function openCandidateModal(rowId) {
+    currentModalRowId = rowId;
+    renderModalContent();
+    candModalOverlay.hidden = false;
+  }
+  function closeCandidateModal() {
+    currentModalRowId = null;
+    candModalOverlay.hidden = true;
+    hideAttachPreview();
+  }
+  function renderModalContent() {
+    var row = findCandidateRow(currentModalRowId);
+    if (!row) { closeCandidateModal(); return; }
+    candModalNid.textContent = 'NID · ' + (textOf(row.nid) || '—');
+    candModalTitle.textContent = textOfRef(row.stagiaire) || '(Stagiaire non renseigné)';
+    candModalBody.innerHTML = '';
+    buildCandidateDetails(row).forEach(function (el) { candModalBody.appendChild(el); });
+  }
+  candModalCloseBtn.addEventListener('click', closeCandidateModal);
+  candModalOverlay.addEventListener('click', function (e) {
+    if (e.target === candModalOverlay) closeCandidateModal();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !candModalOverlay.hidden) closeCandidateModal();
+  });
+
+  // Construit le contenu détaillé d'un candidat (Documents, Informations
+  // complémentaires, Blocages) : utilisé uniquement par la modale, la
+  // bande de la liste elle-même reste volontairement minimale (NID + nom).
+  function buildCandidateDetails(row) {
+    var sections = [];
 
     if (settings.col.usageRS || settings.col.formImage || settings.col.ead) {
       var docsTitle = document.createElement('p');
       docsTitle.className = 'section-title';
       docsTitle.textContent = 'Documents';
-      card.appendChild(docsTitle);
+      sections.push(docsTitle);
       ATTACHMENT_ROLES.forEach(function (role) {
-        if (settings.col[role]) card.appendChild(buildDocRow(row, role));
+        if (settings.col[role]) sections.push(buildDocRow(row, role));
       });
     }
 
     var infoTitle = document.createElement('p');
     infoTitle.className = 'section-title';
     infoTitle.textContent = 'Informations complémentaires';
-    card.appendChild(infoTitle);
+    var infoRows = [];
     var infoRoles = ['photos', 'inscriptionBande', 'qteBandes', 'du', 'encaisse'];
-    var anyInfo = false;
     infoRoles.forEach(function (role) {
-      if (!settings.col[role]) return;
-      anyInfo = true;
-      card.appendChild(buildFieldRow(row, role));
+      if (settings.col[role]) infoRows.push(buildFieldRow(row, role));
     });
-    if (!anyInfo) infoTitle.remove();
+    if (infoRows.length) {
+      sections.push(infoTitle);
+      sections = sections.concat(infoRows);
+    }
 
     if (settings.col.blocagesInfos) {
       var blocagesText = textOf(row.blocagesInfos);
@@ -866,11 +1034,11 @@
         p.textContent = blocagesText;
         box.appendChild(strong);
         box.appendChild(p);
-        card.appendChild(box);
+        sections.push(box);
       }
     }
 
-    return card;
+    return sections;
   }
 
   function buildFieldRow(row, role) {
@@ -974,7 +1142,8 @@
     fields[colId] = newValue;
     grist.docApi.applyUserActions([['UpdateRecord', settings.table, rowId, fields]]).then(function () {
       candidates.rows.forEach(function (r) { if (r.id === rowId) r[role] = newValue; });
-      renderCandidates();
+      renderCandidates(); // met à jour les pastilles de statut de la liste
+      if (currentModalRowId === rowId) renderModalContent(); // et les boutons Accepter/Refuser si la fiche est ouverte
     }).catch(function (e) {
       window.alert('Impossible d’enregistrer la décision : ' + friendlyErrorMessage(e));
     });
