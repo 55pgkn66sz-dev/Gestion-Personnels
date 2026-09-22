@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-scheme="system">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Administration des candidats — eTuteur</title>
+
+<!--
+  Widget personnalisé Grist : administration des candidats à un stage,
+  avec consultation des pièces jointes (aperçu au survol) et décision
+  accepter/refuser pour chacune, depuis une page front unique "eTuteur".
+
+  Construit sur le même modèle que le widget "Réservations véhicules &
+  matériels" (lui-même repris de "Feuille de service journalier") :
+  interface conforme au DSFR (Système de Design de l'État)
+  https://www.systeme-de-design.gouv.fr/ — via le package officiel
+  @gouvfr/dsfr — même en-tête, même geste caché (5 clics rapprochés sur
+  le bloc marque du header) pour atteindre la zone "Configuration".
+
+  Une seule table de référence est utilisée ici (la table des candidats),
+  à la différence du widget Réservations qui en gère plusieurs : ce
+  widget utilise donc l'accès complet au document (requiredAccess:
+  'full') et grist.docApi.fetchTable / applyUserActions plutôt que
+  grist.onRecords, pour pouvoir choisir librement la table et ses
+  colonnes depuis le panneau "Paramètres" (bouton caché), mémorisées par
+  widget via grist.setOption / grist.getOption — exactement comme dans
+  Réservations.
+
+  Pièces jointes : les colonnes "Usage RS", "Form. image" et "EAD" sont
+  supposées être des colonnes Grist de type Pièce(s) jointe(s). Leur
+  aperçu au survol et leur téléchargement passent par
+  grist.docApi.getAccessToken() (jeton à courte durée de vie, revalidé
+  au besoin) — voir getAccessTokenInfo() plus bas — puis par l'URL
+  standard `${baseUrl}/attachments/{id}/download?auth={token}`. Les
+  métadonnées (nom de fichier, type MIME) sont lues dans la table
+  interne _grist_Attachments, sur le même principe que la lecture de
+  _grist_Tables / _grist_Tables_column dans Réservations.
+-->
+
+<!-- DSFR (Système de Design de l'État) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.15.3/dist/dsfr.min.css">
+<!-- Icônes DSFR (fr-icon-*, fr-btn--icon-*) : chargées directement en
+     complément, comme dans les widgets précédents, pour garantir leur
+     affichage dans le contexte d'un widget Grist. -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.15.3/dist/utility/icons/icons.min.css">
+
+<!-- API du widget Grist -->
+<script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+
+<style>
+  :root {
+    --bleu-france: #000091;
+    /* Couleurs de statut (Accepté / Refusé / en attente), réutilisées à la
+       fois pour les boutons d'action et pour les liserés/fonds pastel des
+       cartes candidat. Mêmes variables que le widget Réservations, pour
+       rester visuellement cohérent d'un widget à l'autre. */
+    --statut-validee: #18753c;
+    --statut-refusee: #ce0500;
+    --statut-attente: #ffd200;
+    --uv-pastel-full: #e0f3e4;
+    --uv-pastel-over: #fbe1e0;
+    --statut-pastel-attente: #fff6d6;
+  }
+  html, body { margin: 0; padding: 0; }
+  .widget-wrap { padding: 1.5rem 1.25rem; width: 100%; box-sizing: border-box; }
+  .fr-header .fr-container { width: 100%; max-width: none; }
+  .fr-alert { margin-bottom: 0; }
+
+  .section-title {
+    font-weight: 700;
+    text-decoration: underline;
+    margin: 1rem 0 0.5rem;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--text-mention-grey);
+  }
+
+  /* Menu de navigation principale, dans le header : une seule entrée
+     "eTuteur" ici (page front unique), mais on garde la même structure
+     de nav que Réservations (aria-current="page") pour rester dans le
+     même langage d'interface et pouvoir ajouter d'autres pages plus
+     tard sans tout reconstruire. */
+  #header-navigation .fr-nav__link { cursor: default; }
+
+  /* Le bloc marque du header (logo + intitulé) sert de geste d'accès
+     caché au panneau Paramètres (5 clics rapprochés) : pas d'indice
+     visuel volontaire, on laisse simplement le curseur normal de
+     fr-enlarge-link (voir #brandGesture dans le script). */
+
+  header.fr-header { z-index: 30; }
+
+  .cand-toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: flex-start;
+  }
+  .cand-count { margin: 0; color: var(--text-mention-grey); font-size: 0.9em; }
+  .cand-count--push { margin-left: auto; }
+  .cand-toolbar .fr-search-bar { flex: 1 1 16rem; max-width: 22rem; margin: 0; }
+  .cand-toolbar .fr-checkbox-group { margin: 0; }
+  .cand-toolbar .fr-checkbox-group label { font-size: 0.85em; padding-left: 1.75rem; }
+
+  /* ---- Grille de cartes candidat (page eTuteur) -------------------------- */
+  .cand-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
+    gap: 1rem;
+  }
+  .cand-card {
+    border: 1px solid var(--border-default-grey);
+    border-radius: 0.5rem;
+    background: #fff;
+    padding: 1rem 1.1rem 1.1rem;
+  }
+  .cand-card__header {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.75rem;
+    margin-bottom: 0.25rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border-default-grey);
+  }
+  .cand-card__name { margin: 0; font-size: 1.05em; font-weight: 700; }
+  .cand-badge-nid {
+    display: inline-block;
+    font-size: 0.75em;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #fff;
+    background: var(--bleu-france);
+    border-radius: 999px;
+    padding: 0.15rem 0.65rem;
+  }
+
+  /* ---- Documents (pièces jointes) ---------------------------------------
+     Une ligne par document (Usage RS / Form. image / EAD) : le libellé du
+     champ, un ou plusieurs "vignettes" cliquables/survolables (une par
+     fichier joint, voir renderAttachmentThumb), et à droite le contrôle
+     Accepter/Refuser qui porte sur la colonne de validation associée à ce
+     document (voir ATTACH_VALIDATION_ROLE). */
+  .cand-doc-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    padding: 0.5rem 0;
+  }
+  .cand-doc-row + .cand-doc-row { border-top: 1px dashed var(--border-default-grey); }
+  .cand-doc-label {
+    flex: 0 0 6.5rem;
+    font-size: 0.85em;
+    color: var(--text-mention-grey);
+  }
+  .cand-doc-files { display: flex; flex-wrap: wrap; gap: 0.4rem; flex: 1 1 8rem; }
+
+  /* Vignette d'une pièce jointe existante : reprend le rendu natif de
+     Grist pour une pièce jointe non prévisualisable (petit encart sombre
+     avec le type de fichier en majuscules), pour rester visuellement
+     fidèle à la capture d'écran fournie. */
+  .cand-doc-thumb {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.4rem;
+    height: 2.6rem;
+    border-radius: 0.2rem;
+    background: #3a3a3a;
+    color: #fff;
+    font-size: 0.62em;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 2px solid transparent;
+    box-sizing: border-box;
+  }
+  .cand-doc-thumb:hover, .cand-doc-thumb:focus-visible { border-color: var(--bleu-france); }
+  .cand-doc-thumb--image { background-repeat: no-repeat; background-position: center; background-size: cover; color: transparent; }
+
+  /* Emplacement vide (pas de fichier joint), même esprit que le champ
+     "EAD" vide de la capture d'écran : cadre discret avec un trombone. */
+  .cand-doc-empty {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    width: auto;
+    height: 2.6rem;
+    padding: 0 0.6rem;
+    border-radius: 0.2rem;
+    border: 1px dashed var(--border-default-grey);
+    color: var(--text-mention-grey);
+    font-size: 0.78em;
+    box-sizing: border-box;
+  }
+
+  /* Contrôle Accepter/Refuser : même principe que le contrôle segmenté
+     Valider/Refuser du widget Réservations (deux boutons indépendants,
+     celui qui correspond à l'état actuel de la colonne de validation est
+     mis en évidence en fond plein coloré via aria-pressed). */
+  .cand-doc-actions { display: flex; gap: 0.25rem; margin-left: auto; }
+  .cand-doc-actions .fr-btn { white-space: nowrap; }
+  .cand-doc-actions .fr-btn[data-action="accepter"][aria-pressed="true"] { background-color: var(--statut-validee); color: #fff; }
+  .cand-doc-actions .fr-btn[data-action="refuser"][aria-pressed="true"] { background-color: var(--statut-refusee); color: #fff; }
+  /* Aucune des deux colonnes de validation n'est réglée dans les
+     paramètres pour ce document : pas d'action possible, les boutons
+     sont simplement absents (voir buildDocRow) plutôt que désactivés. */
+
+  /* ---- Aperçu au survol (popover) --------------------------------------- */
+  .attach-preview {
+    position: fixed;
+    z-index: 200;
+    max-width: 20rem;
+    background: #fff;
+    border: 1px solid var(--border-default-grey);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
+    padding: 0.65rem;
+    box-sizing: border-box;
+  }
+  .attach-preview[hidden] { display: none; }
+  .attach-preview__name {
+    margin: 0 0 0.4rem;
+    font-size: 0.8em;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+  .attach-preview__body img {
+    display: block;
+    max-width: 100%;
+    max-height: 16rem;
+    border-radius: 0.25rem;
+    margin: 0 auto;
+  }
+  .attach-preview__body embed {
+    display: block;
+    width: 17rem;
+    height: 20rem;
+    border: 1px solid var(--border-default-grey);
+    border-radius: 0.25rem;
+  }
+  .attach-preview__fallback {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 1rem 0;
+    color: var(--text-mention-grey);
+    font-size: 0.85em;
+    text-align: center;
+  }
+  .attach-preview__link { display: block; margin-top: 0.5rem; font-size: 0.8em; }
+  .attach-preview__loading { padding: 1rem; font-size: 0.85em; color: var(--text-mention-grey); }
+
+  /* ---- Informations complémentaires -------------------------------------- */
+  .cand-field {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.3rem 0;
+    font-size: 0.92em;
+  }
+  .cand-field__label { color: var(--text-mention-grey); }
+  .cand-field__value { font-weight: 500; text-align: right; }
+
+  .cand-pill {
+    display: inline-block;
+    font-size: 0.8em;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 0.1rem 0.6rem;
+  }
+  .cand-pill--yes { background: var(--uv-pastel-full); color: var(--statut-validee); }
+  .cand-pill--no { background: var(--uv-pastel-over); color: var(--statut-refusee); }
+  .cand-pill--unknown { background: #f0f0f0; color: var(--text-mention-grey); }
+
+  .cand-blocages {
+    margin-top: 0.75rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 0.3rem;
+    background: var(--statut-pastel-attente);
+    border: 1px solid var(--statut-attente);
+    font-size: 0.85em;
+  }
+  .cand-blocages strong { display: block; font-size: 0.85em; margin-bottom: 0.15rem; }
+
+  .cand-empty-state {
+    padding: 2rem 1rem;
+    text-align: center;
+    color: var(--text-mention-grey);
+  }
+
+  /* ---- Vue mobile (écran étroit) ----------------------------------------- */
+  @media (max-width: 40rem) {
+    .widget-wrap { padding: 1rem 0.75rem; }
+    .cand-toolbar .fr-search-bar { flex-basis: 100%; max-width: none; }
+    .cand-count--push { margin-left: 0; flex-basis: 100%; }
+    .cand-grid { grid-template-columns: 1fr; }
+    .cand-doc-label { flex-basis: 100%; }
+    .cand-doc-actions { margin-left: 0; }
+  }
+
+  /* ---- Zone "Configuration" (geste caché) -------------------------------- */
+  .config-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .config-header h2 { margin: 0; }
+  .settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem 1.25rem;
+  }
+  .settings-grid .fr-select-group { margin-bottom: 0; }
+  .settings-section + .settings-section { margin-top: 1.75rem; }
+  .settings-footer {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    margin-top: 1.75rem;
+  }
+
+  /* Pied de page du widget : crédit, comme dans les widgets précédents. */
+  .widget-footer {
+    margin-top: 2rem;
+    border-top: 1px solid var(--border-default-grey);
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  .widget-footer__credit { margin: 0; font-size: 0.8em; color: var(--text-mention-grey); }
+</style>
+</head>
+<body>
+
+<header role="banner" class="fr-header" id="siteHeader">
+  <div class="fr-header__body">
+    <div class="fr-container">
+      <div class="fr-header__body-row">
+        <div class="fr-header__brand fr-enlarge-link" id="brandGesture">
+          <div class="fr-header__brand-top">
+            <div class="fr-header__logo">
+              <p class="fr-logo">Stage<br>Admission</p>
+            </div>
+          </div>
+          <div class="fr-header__service">
+            <p class="fr-header__service-title">Administration des candidats</p>
+            <p class="fr-header__service-tagline">eTuteur — Suivi des dossiers de stage</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fr-header__menu fr-header__menu--sticky">
+    <div class="fr-container">
+      <nav class="fr-nav" id="header-navigation" role="navigation" aria-label="Menu principal">
+        <ul class="fr-nav__list">
+          <li class="fr-nav__item">
+            <button class="fr-nav__link" id="navEtuteur" type="button" aria-current="page">eTuteur</button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<div class="widget-wrap">
+
+  <!-- Page front "eTuteur" : une carte par candidat, réorganisée par
+       rapport à la capture d'écran d'origine (identité en tête, documents
+       groupés avec leurs actions, informations complémentaires en bas,
+       blocages mis en évidence). -->
+  <div id="panelEtuteur">
+    <h2 class="fr-h6">Candidats au stage</h2>
+
+    <div class="cand-toolbar fr-mb-2w">
+      <div class="fr-search-bar fr-search-bar--sm" id="candSearchBar" role="search">
+        <label class="fr-label" for="candSearchInput">Rechercher un candidat</label>
+        <input class="fr-input" type="search" id="candSearchInput" placeholder="NID, nom du stagiaire…">
+        <button class="fr-btn fr-btn--sm" id="candSearchBtn" title="Rechercher">Rechercher</button>
+      </div>
+      <div class="fr-checkbox-group fr-checkbox-group--sm">
+        <input type="checkbox" id="candFilterPending">
+        <label class="fr-label" for="candFilterPending">Dossiers à traiter uniquement</label>
+      </div>
+      <div class="fr-checkbox-group fr-checkbox-group--sm">
+        <input type="checkbox" id="candFilterBlocages">
+        <label class="fr-label" for="candFilterBlocages">Avec blocages uniquement</label>
+      </div>
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-refresh-line fr-btn--icon-left" id="candReloadBtn" type="button" title="Recharger les candidats depuis la table Grist">
+        Actualiser
+      </button>
+      <p class="cand-count cand-count--push" id="candCount"></p>
+    </div>
+
+    <div id="candZone"></div>
+  </div>
+
+  <!-- Zone "Configuration" : accessible uniquement via le geste caché sur
+       le bloc marque du header (5 clics rapprochés) — voir brandGesture
+       dans le script. Associe la table Grist de référence (candidats) et
+       le rôle de chacune de ses colonnes, selon les libellés visibles sur
+       la fiche candidat. -->
+  <div id="panelSettings" hidden>
+    <div class="config-header">
+      <h2 class="fr-h6">Configuration</h2>
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-line" id="closeConfigBtn" type="button">Fermer</button>
+    </div>
+
+    <div class="fr-alert fr-alert--info fr-alert--sm fr-mb-3w">
+      <p>Associez la table Grist des candidats et le rôle de chacune de ses colonnes, d'après les libellés
+      de la fiche candidat (NID, Stagiaire, Usage RS…). « Validation admin » pilote les boutons
+      Accepter/Refuser des pièces jointes « Usage RS » et « Form. image » ; « Validation EAD » pilote ceux
+      de la pièce jointe « EAD ». Ces réglages sont mémorisés avec le widget.</p>
+    </div>
+
+    <div id="settingsStatusZone" class="fr-mb-2w"></div>
+
+    <form id="settingsForm">
+      <div class="settings-section">
+        <p class="section-title">Table de référence</p>
+        <div class="settings-grid">
+          <div class="fr-select-group">
+            <label class="fr-label" for="cand_table">Table Grist des candidats</label>
+            <select class="fr-select" id="cand_table"></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <p class="section-title">Identité</p>
+        <div class="settings-grid">
+          <div class="fr-select-group">
+            <label class="fr-label" for="cand_col_nid">NID</label>
+            <select class="fr-select" id="cand_col_nid" data-role="nid"></select>
+          </div>
+          <div class="fr-select-group">
+            <label class="fr-label" for="cand_col_stagiaire">Stagiaire</label>
+            <select class="fr-select" id="cand_col_stagiaire" data-role="stagiaire"></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <p class="section-title">Documents</p>
+        <div class="settings-grid">
+          <div class="fr-select-group">
+            <label class="fr-label" for="cand_col_usageRS">Usage RS (pièce jointe, optionnel)</label>
+            <select class="fr-select" id="cand_col_usageRS" data-role="usageRS"></select>
+          </div>
+          <div class="fr-select-group">
+            <label class="fr-label" for="cand_col_formImage">Form. image (pièce jointe, optionnel)</label>
+            <select class="fr-select" id="cand_col_formImage" data-role="formImage"></select>
+          </div>
+          <div class="fr-select-group">
+            <label class="fr-label" for="cand_col_validationAdmin">Validation admin (optionnel, case à cocher)</label>
+            <select class="fr-select" id="cand_col_validationAdmin" data-role="validationAdmin"></select>
+          </div>
+          <div class="fr-select-group">
+            <label class="fr-label" for="cand_col_ead">EAD (pièce jointe, optionnel)</label>
+            <select class="fr-select" id="cand_col_ead" data-role="ead"></select>
+          </div>
+          <div class="fr-select-group">
+            <label class="fr-label" for="cand_col_validationEAD">Validation EAD (optionnel, case à cocher)</label>
+            <select class="fr-select" id="cand_col_validationEAD" data-role="validationEAD"></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <p class="section-title">Informations complémentaires</p>
+        <div class="settings-grid">
+          <div class="fr-select-group">
+            <label class="fr-label" for="cand_col_photos">Photos (optionnel)</label>
+            <select class="fr-select" id="cand_col_photos" data-role="photos"></select>
+          </div>
+          <div class="fr-select-group">
+            <label class="fr-label" for="cand_col_inscriptionBande">Inscription bande (optionnel)</label>
+            <select class="fr-select" id="cand_col_inscriptionBande" data-role="inscriptionBande"></select>
+          </div>
+          <div class="fr-select-group">
+            <label class="fr-label" for="cand_col_qteBandes">Qté bandes (optionnel)</label>
+            <select class="fr-select" id="cand_col_qteBandes" data-role="qteBandes"></select>
+          </div>
+          <div class="fr-select-group">
+            <label class="fr-label" for="cand_col_du">Dû (optionnel)</label>
+            <select class="fr-select" id="cand_col_du" data-role="du"></select>
+          </div>
+          <div class="fr-select-group">
+            <label class="fr-label" for="cand_col_encaisse">Encaissé (optionnel)</label>
+            <select class="fr-select" id="cand_col_encaisse" data-role="encaisse"></select>
+          </div>
+          <div class="fr-select-group">
+            <label class="fr-label" for="cand_col_blocagesInfos">Blocages / Infos (optionnel)</label>
+            <select class="fr-select" id="cand_col_blocagesInfos" data-role="blocagesInfos"></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-footer">
+        <button class="fr-btn fr-btn--tertiary" id="cancelSettingsBtn" type="button">Annuler</button>
+        <button class="fr-btn" id="saveSettingsBtn" type="button">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+
+</div>
+
+<!-- Popover d'aperçu des pièces jointes, positionné dynamiquement au
+     survol d'une vignette (voir showAttachPreview) : un seul élément
+     réutilisé pour toutes les vignettes plutôt qu'un par pièce jointe. -->
+<div class="attach-preview" id="attachPreview" hidden></div>
+
+<div class="widget-footer">
+  <p class="widget-footer__credit">Conçu avec ❤️ par G. Leclercq — Bloom Social Analytics — 2026</p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---- Rôles de colonnes de la table candidats, d'après les libellés
+  // visibles sur la fiche candidat (capture d'écran) --------------------
+  var ROLES = ['nid', 'stagiaire', 'usageRS', 'formImage', 'photos', 'validationAdmin',
+    'ead', 'validationEAD', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
+  var REQUIRED_ROLES = ['nid', 'stagiaire'];
+  var OPTIONAL_ROLES = ROLES.filter(function (r) { return REQUIRED_ROLES.indexOf(r) === -1; });
+  var ROLE_LABELS = {
+    nid: 'NID', stagiaire: 'Stagiaire', usageRS: 'Usage RS', formImage: 'Form. image',
+    photos: 'Photos', validationAdmin: 'Validation admin', ead: 'EAD', validationEAD: 'Validation EAD',
+    inscriptionBande: 'Inscription bande', qteBandes: 'Qté bandes', du: 'Dû', encaisse: 'Encaissé',
+    blocagesInfos: 'Blocages / Infos'
+  };
+  // Champs "pièce jointe" et colonne de validation (case à cocher) qui
+  // porte leurs boutons Accepter/Refuser — voir le texte d'aide du panneau
+  // Configuration : Usage RS et Form. image partagent "Validation admin"
+  // (un seul interrupteur les couvre tous les deux sur la fiche d'origine),
+  // EAD a son propre "Validation EAD".
+  var ATTACHMENT_ROLES = ['usageRS', 'formImage', 'ead'];
+  var ATTACH_VALIDATION_ROLE = { usageRS: 'validationAdmin', formImage: 'validationAdmin', ead: 'validationEAD' };
+  var BOOL_ROLES = ['validationAdmin', 'validationEAD'];
+  var CURRENCY_ROLES = ['du', 'encaisse'];
+
+  // gristHelper_Display / gristHelper_Display2… sont des colonnes formule
+  // internes que Grist crée automatiquement pour afficher le texte d'une
+  // colonne Référence : elles apparaissent dans fetchTable() comme des
+  // colonnes normales, mais AddRecord/UpdateRecord dessus échoue avec
+  // "Can't save value to formula column" — on les exclut donc des
+  // colonnes proposées dans les réglages, et on refuse d'écrire dessus.
+  function isWritableColId(colId) {
+    return !!colId && colId.indexOf('gristHelper_') !== 0;
+  }
+
+  function defaultConfig() {
+    var col = {};
+    ROLES.forEach(function (role) { col[role] = ''; });
+    return { table: '', col: col };
+  }
+  function mergeConfig(loaded) {
+    var cfg = defaultConfig();
+    if (!loaded) return cfg;
+    cfg.table = loaded.table || '';
+    if (loaded.col) {
+      Object.keys(cfg.col).forEach(function (k) {
+        var v = loaded.col[k];
+        if (isWritableColId(v)) cfg.col[k] = v;
+      });
+    }
+    return cfg;
+  }
+  function isConfigComplete(cfg) {
+    return !!(cfg.table && REQUIRED_ROLES.every(function (role) { return !!cfg.col[role]; }));
+  }
+
+  var settings = defaultConfig();
+  var candidates = { rows: [], loaded: false };
+  var allTableIds = [];
+  var searchText = '';
+  var filterPendingOnly = false;
+  var filterBlocagesOnly = false;
+
+  // ---- Références DOM ----------------------------------------------------
+  var panelEtuteur = document.getElementById('panelEtuteur');
+  var panelSettings = document.getElementById('panelSettings');
+  var brandGesture = document.getElementById('brandGesture');
+  var closeConfigBtn = document.getElementById('closeConfigBtn');
+  var cancelSettingsBtn = document.getElementById('cancelSettingsBtn');
+  var saveSettingsBtn = document.getElementById('saveSettingsBtn');
+  var settingsStatusZone = document.getElementById('settingsStatusZone');
+  var candZone = document.getElementById('candZone');
+  var candCount = document.getElementById('candCount');
+  var candSearchInput = document.getElementById('candSearchInput');
+  var candSearchBtn = document.getElementById('candSearchBtn');
+  var candFilterPending = document.getElementById('candFilterPending');
+  var candFilterBlocages = document.getElementById('candFilterBlocages');
+  var candReloadBtn = document.getElementById('candReloadBtn');
+  var attachPreview = document.getElementById('attachPreview');
+
+  // ---- Geste caché sur le bloc marque : 5 clics rapprochés ---------------
+  // Pas de bouton "Paramètres" visible : seuls les utilisateurs qui savent
+  // qu'il faut cliquer 5 fois, rapidement, sur le bloc marque du header
+  // ouvrent la zone Configuration. Ce n'est PAS un contrôle d'accès réel
+  // (rien n'empêche techniquement quelqu'un d'ouvrir cette zone) : l'API
+  // des widgets personnalisés Grist n'expose pas le rôle du visiteur sur
+  // le document — même remarque que dans le widget Réservations.
+  var brandClickCount = 0;
+  var brandClickResetTimer = null;
+  brandGesture.addEventListener('click', function () {
+    brandClickCount++;
+    if (brandClickResetTimer) clearTimeout(brandClickResetTimer);
+    brandClickResetTimer = setTimeout(function () { brandClickCount = 0; }, 1500);
+    if (brandClickCount >= 5) {
+      brandClickCount = 0;
+      clearTimeout(brandClickResetTimer);
+      openSettings();
+    }
+  });
+
+  function openSettings() {
+    panelEtuteur.hidden = true;
+    panelSettings.hidden = false;
+    settingsStatusZone.innerHTML = '';
+    refreshTableList();
+  }
+  function closeSettings() {
+    panelSettings.hidden = true;
+    panelEtuteur.hidden = false;
+  }
+  cancelSettingsBtn.addEventListener('click', closeSettings);
+  closeConfigBtn.addEventListener('click', closeSettings);
+
+  // ---- Panneau Configuration : choix de la table et des colonnes --------
+
+  function fillSelectWithOptions(selectEl, options, currentValue, placeholder) {
+    var current = currentValue || selectEl.value;
+    selectEl.innerHTML = '';
+    var optEmpty = document.createElement('option');
+    optEmpty.value = '';
+    optEmpty.textContent = placeholder;
+    selectEl.appendChild(optEmpty);
+    options.forEach(function (opt) {
+      var o = document.createElement('option');
+      o.value = opt;
+      o.textContent = opt;
+      selectEl.appendChild(o);
+    });
+    if (current && options.indexOf(current) !== -1) selectEl.value = current;
+    else selectEl.value = '';
+  }
+
+  function refreshTableList() {
+    grist.docApi.listTables().then(function (tables) {
+      allTableIds = tables || [];
+      var sel = document.getElementById('cand_table');
+      fillSelectWithOptions(sel, allTableIds, settings.table, 'Choisir une table…');
+      if (sel.value) refreshColumnLists(sel.value);
+    }).catch(function (e) {
+      showSettingsStatus('error', 'Impossible de lister les tables du document : ' + friendlyErrorMessage(e));
+    });
+  }
+
+  function refreshColumnLists(tableId) {
+    if (!tableId) {
+      ROLES.forEach(function (role) {
+        var el = document.getElementById('cand_col_' + role);
+        if (el) fillSelectWithOptions(el, [], '', 'Choisir une table d’abord…');
+      });
+      return;
+    }
+    grist.docApi.fetchTable(tableId).then(function (data) {
+      var columns = Object.keys(data || {}).filter(function (c) {
+        return c !== 'id' && c !== 'manualSort' && c.indexOf('gristHelper_') !== 0;
+      }).sort(function (a, b) { return a.localeCompare(b, 'fr'); });
+      ROLES.forEach(function (role) {
+        var el = document.getElementById('cand_col_' + role);
+        if (!el) return;
+        var current = (settings.table === tableId) ? settings.col[role] : '';
+        fillSelectWithOptions(el, columns, current, OPTIONAL_ROLES.indexOf(role) !== -1 ? '(aucune)' : 'Choisir une colonne…');
+      });
+    }).catch(function (e) {
+      showSettingsStatus('error', 'Impossible de lire les colonnes de la table « ' + tableId + ' » : ' + friendlyErrorMessage(e));
+    });
+  }
+
+  document.getElementById('cand_table').addEventListener('change', function () { refreshColumnLists(this.value); });
+
+  function showSettingsStatus(type, message) {
+    settingsStatusZone.innerHTML = '<div class="fr-alert fr-alert--' + type + ' fr-alert--sm"><p>' + escapeHtml(message) + '</p></div>';
+  }
+
+  function configFromForm() {
+    var cfg = defaultConfig();
+    cfg.table = document.getElementById('cand_table').value;
+    ROLES.forEach(function (role) {
+      var el = document.getElementById('cand_col_' + role);
+      if (el && isWritableColId(el.value)) cfg.col[role] = el.value;
+    });
+    return cfg;
+  }
+
+  saveSettingsBtn.addEventListener('click', function () {
+    var next = configFromForm();
+    grist.setOption('candidatsStageConfig', next).then(function () {
+      settings = next;
+      showSettingsStatus('success', 'Paramètres enregistrés.');
+      attachmentsMetaPromise = null; // la table peut avoir changé, on force une relecture des métadonnées
+      loadCandidates();
+    }).catch(function (e) {
+      showSettingsStatus('error', 'Enregistrement impossible : ' + friendlyErrorMessage(e));
+    });
+  });
+
+  // ---- Initialisation du widget Grist ------------------------------------
+
+  grist.ready({ requiredAccess: 'full' });
+
+  grist.onOptions(function (options) {
+    settings = mergeConfig(options && options.candidatsStageConfig);
+    loadCandidates();
+    if (!isConfigComplete(settings)) openSettings();
+  });
+
+  // ---- Chargement des candidats -------------------------------------------
+
+  function loadCandidates() {
+    if (!isConfigComplete(settings)) {
+      candidates = { rows: [], loaded: false };
+      renderCandidates();
+      return;
+    }
+    grist.docApi.fetchTable(settings.table).then(function (data) {
+      candidates = { rows: columnarToRows(data), loaded: true };
+      renderCandidates();
+    }).catch(function (e) {
+      candidates = { rows: [], loaded: false, error: friendlyErrorMessage(e) };
+      renderCandidates();
+    });
+  }
+
+  function columnarToRows(data) {
+    if (!data || !data.id) return [];
+    var rows = [];
+    for (var i = 0; i < data.id.length; i++) {
+      var row = { id: data.id[i] };
+      ROLES.forEach(function (role) {
+        var colName = settings.col[role];
+        row[role] = colName ? data[colName][i] : null;
+      });
+      rows.push(row);
+    }
+    return rows;
+  }
+
+  candReloadBtn.addEventListener('click', loadCandidates);
+  candSearchBtn.addEventListener('click', function () { searchText = candSearchInput.value; renderCandidates(); });
+  candSearchInput.addEventListener('input', function () { searchText = candSearchInput.value; renderCandidates(); });
+  candFilterPending.addEventListener('change', function () { filterPendingOnly = candFilterPending.checked; renderCandidates(); });
+  candFilterBlocages.addEventListener('change', function () { filterBlocagesOnly = candFilterBlocages.checked; renderCandidates(); });
+
+  // ---- Rendu de la page eTuteur -------------------------------------------
+
+  function boolState(v) {
+    if (v === true || v === 1) return 'accepted';
+    if (v === false || v === 0) return 'refused';
+    return 'pending'; // colonne vide/non réglée : ni acceptée ni explicitement refusée
+  }
+
+  function matchesFilters(row) {
+    if (searchText.trim()) {
+      var q = normalizeKey(searchText);
+      var hay = normalizeKey(textOf(row.nid) + ' ' + textOfRef(row.stagiaire) + ' ' + textOfRef(row.inscriptionBande));
+      if (hay.indexOf(q) === -1) return false;
+    }
+    if (filterPendingOnly) {
+      var adminOk = boolState(row.validationAdmin) === 'accepted';
+      var eadOk = boolState(row.validationEAD) === 'accepted';
+      if (adminOk && eadOk) return false;
+    }
+    if (filterBlocagesOnly && !textOf(row.blocagesInfos)) return false;
+    return true;
+  }
+
+  function renderCandidates() {
+    candZone.innerHTML = '';
+    if (candidates.error) {
+      candZone.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm"><p>' + escapeHtml(candidates.error) + '</p></div>';
+      candCount.textContent = '';
+      return;
+    }
+    if (!isConfigComplete(settings)) {
+      candZone.innerHTML = '<div class="fr-alert fr-alert--info fr-alert--sm"><p>Aucune table de candidats n’est encore configurée. ' +
+        'Cliquez 5 fois, rapidement, sur le bloc marque du header pour ouvrir la Configuration.</p></div>';
+      candCount.textContent = '';
+      return;
+    }
+    var rows = candidates.rows.filter(matchesFilters);
+    candCount.textContent = rows.length + ' candidat(s) affiché(s) sur ' + candidates.rows.length;
+    if (!rows.length) {
+      candZone.innerHTML = '<p class="cand-empty-state">Aucun candidat ne correspond à l’affichage actuel.</p>';
+      return;
+    }
+    var grid = document.createElement('div');
+    grid.className = 'cand-grid';
+    rows.forEach(function (row) { grid.appendChild(buildCandidateCard(row)); });
+    candZone.appendChild(grid);
+  }
+
+  function buildCandidateCard(row) {
+    var card = document.createElement('div');
+    card.className = 'cand-card';
+    card.dataset.rowId = row.id;
+
+    var header = document.createElement('div');
+    header.className = 'cand-card__header';
+    var nidEl = document.createElement('span');
+    nidEl.className = 'cand-badge-nid';
+    nidEl.textContent = 'NID · ' + (textOf(row.nid) || '—');
+    var nameEl = document.createElement('h3');
+    nameEl.className = 'cand-card__name';
+    nameEl.textContent = textOfRef(row.stagiaire) || '(Stagiaire non renseigné)';
+    header.appendChild(nidEl);
+    header.appendChild(nameEl);
+    card.appendChild(header);
+
+    if (settings.col.usageRS || settings.col.formImage || settings.col.ead) {
+      var docsTitle = document.createElement('p');
+      docsTitle.className = 'section-title';
+      docsTitle.textContent = 'Documents';
+      card.appendChild(docsTitle);
+      ATTACHMENT_ROLES.forEach(function (role) {
+        if (settings.col[role]) card.appendChild(buildDocRow(row, role));
+      });
+    }
+
+    var infoTitle = document.createElement('p');
+    infoTitle.className = 'section-title';
+    infoTitle.textContent = 'Informations complémentaires';
+    card.appendChild(infoTitle);
+    var infoRoles = ['photos', 'inscriptionBande', 'qteBandes', 'du', 'encaisse'];
+    var anyInfo = false;
+    infoRoles.forEach(function (role) {
+      if (!settings.col[role]) return;
+      anyInfo = true;
+      card.appendChild(buildFieldRow(row, role));
+    });
+    if (!anyInfo) infoTitle.remove();
+
+    if (settings.col.blocagesInfos) {
+      var blocagesText = textOf(row.blocagesInfos);
+      if (blocagesText) {
+        var box = document.createElement('div');
+        box.className = 'cand-blocages';
+        var strong = document.createElement('strong');
+        strong.textContent = ROLE_LABELS.blocagesInfos;
+        var p = document.createElement('p');
+        p.style.margin = '0';
+        p.textContent = blocagesText;
+        box.appendChild(strong);
+        box.appendChild(p);
+        card.appendChild(box);
+      }
+    }
+
+    return card;
+  }
+
+  function buildFieldRow(row, role) {
+    var line = document.createElement('div');
+    line.className = 'cand-field';
+    var label = document.createElement('span');
+    label.className = 'cand-field__label';
+    label.textContent = ROLE_LABELS[role];
+    var value = document.createElement('span');
+    value.className = 'cand-field__value';
+    if (role === 'photos') {
+      value.innerHTML = photosBadgeHtml(row.photos);
+    } else if (CURRENCY_ROLES.indexOf(role) !== -1) {
+      value.textContent = fmtCurrency(row[role]);
+    } else if (role === 'inscriptionBande') {
+      value.textContent = textOfRef(row[role]) || '—';
+    } else {
+      value.textContent = textOf(row[role]) || '—';
+    }
+    line.appendChild(label);
+    line.appendChild(value);
+    return line;
+  }
+
+  function photosBadgeHtml(v) {
+    var t = textOf(v);
+    var norm = normalizeKey(t);
+    if (v === true || norm === 'OUI') return '<span class="cand-pill cand-pill--yes">Oui</span>';
+    if (v === false || norm === 'NON') return '<span class="cand-pill cand-pill--no">Non</span>';
+    return t ? escapeHtml(t) : '<span class="cand-pill cand-pill--unknown">—</span>';
+  }
+
+  // ---- Ligne "Document" : vignette(s) de pièce(s) jointe(s) + boutons
+  // Accepter/Refuser portant sur la colonne de validation associée -------
+
+  function buildDocRow(row, role) {
+    var wrap = document.createElement('div');
+    wrap.className = 'cand-doc-row';
+    wrap.dataset.role = role;
+
+    var label = document.createElement('span');
+    label.className = 'cand-doc-label';
+    label.textContent = ROLE_LABELS[role];
+    wrap.appendChild(label);
+
+    var filesWrap = document.createElement('div');
+    filesWrap.className = 'cand-doc-files';
+    var ids = extractAttachmentIds(row[role]);
+    if (!ids.length) {
+      var empty = document.createElement('span');
+      empty.className = 'cand-doc-empty';
+      empty.innerHTML = '<span class="fr-icon-attachment-line" aria-hidden="true"></span> Aucun fichier';
+      filesWrap.appendChild(empty);
+    } else {
+      ids.forEach(function (attId) { filesWrap.appendChild(buildAttachmentThumb(attId)); });
+    }
+    wrap.appendChild(filesWrap);
+
+    var validationRole = ATTACH_VALIDATION_ROLE[role];
+    if (validationRole && settings.col[validationRole]) {
+      wrap.appendChild(buildAcceptRefuseButtons(row, validationRole));
+    }
+
+    return wrap;
+  }
+
+  function buildAcceptRefuseButtons(row, validationRole) {
+    var actions = document.createElement('div');
+    actions.className = 'cand-doc-actions';
+    var state = boolState(row[validationRole]);
+
+    var acceptBtn = document.createElement('button');
+    acceptBtn.type = 'button';
+    acceptBtn.className = 'fr-btn fr-btn--tertiary fr-btn--sm fr-icon-check-line';
+    acceptBtn.title = 'Accepter';
+    acceptBtn.dataset.action = 'accepter';
+    acceptBtn.setAttribute('aria-pressed', state === 'accepted' ? 'true' : 'false');
+    acceptBtn.addEventListener('click', function () { updateValidation(validationRole, row.id, true); });
+
+    var refuseBtn = document.createElement('button');
+    refuseBtn.type = 'button';
+    refuseBtn.className = 'fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-line';
+    refuseBtn.title = 'Refuser';
+    refuseBtn.dataset.action = 'refuser';
+    refuseBtn.setAttribute('aria-pressed', state === 'refused' ? 'true' : 'false');
+    refuseBtn.addEventListener('click', function () { updateValidation(validationRole, row.id, false); });
+
+    actions.appendChild(acceptBtn);
+    actions.appendChild(refuseBtn);
+    return actions;
+  }
+
+  function updateValidation(role, rowId, newValue) {
+    var colId = settings.col[role];
+    if (!isWritableColId(colId)) {
+      window.alert('Le champ « ' + ROLE_LABELS[role] + ' » pointe vers une colonne technique de Grist, qui ne peut pas être modifiée. ' +
+        'Ouvrez la Configuration (5 clics sur le bloc marque du header) et choisissez la vraie colonne, puis enregistrez.');
+      return;
+    }
+    var fields = {};
+    fields[colId] = newValue;
+    grist.docApi.applyUserActions([['UpdateRecord', settings.table, rowId, fields]]).then(function () {
+      candidates.rows.forEach(function (r) { if (r.id === rowId) r[role] = newValue; });
+      renderCandidates();
+    }).catch(function (e) {
+      window.alert('Impossible d’enregistrer la décision : ' + friendlyErrorMessage(e));
+    });
+  }
+
+  // ---- Pièces jointes : vignette, jeton d'accès, métadonnées, aperçu ----
+
+  // Une colonne Pièce(s) jointe(s) est renvoyée par fetchTable() comme un
+  // tableau étiqueté ('L', id1, id2…), sur le même principe que les
+  // colonnes Liste de choix / Références multiples — voir textOf() dans
+  // le widget Réservations. On ne garde que les identifiants numériques.
+  function extractAttachmentIds(v) {
+    if (!v || !Array.isArray(v)) return [];
+    var items = v.slice();
+    if (items.length && (items[0] === 'L' || items[0] === 'l')) items = items.slice(1);
+    return items.filter(function (x) { return typeof x === 'number' && x > 0; });
+  }
+
+  // Jeton d'accès Grist pour construire les URL de téléchargement des
+  // pièces jointes : à durée de vie limitée (ttlMsecs), on le mémorise et
+  // on le renouvelle un peu avant son expiration plutôt qu'à chaque
+  // aperçu, pour éviter un aller-retour réseau à chaque survol.
+  var accessTokenInfo = null;
+  var accessTokenPromise = null;
+  function getAccessTokenInfo() {
+    var now = Date.now();
+    if (accessTokenInfo && accessTokenInfo.expiresAt > now + 5000) {
+      return Promise.resolve(accessTokenInfo);
+    }
+    if (!accessTokenPromise) {
+      accessTokenPromise = grist.docApi.getAccessToken({ readOnly: true }).then(function (info) {
+        accessTokenInfo = { token: info.token, baseUrl: info.baseUrl, expiresAt: now + (info.ttlMsecs || 30000) };
+        accessTokenPromise = null;
+        return accessTokenInfo;
+      }).catch(function (e) { accessTokenPromise = null; throw e; });
+    }
+    return accessTokenPromise;
+  }
+  function attachmentUrl(tokenInfo, attachmentId) {
+    return tokenInfo.baseUrl + '/attachments/' + attachmentId + '/download?auth=' + encodeURIComponent(tokenInfo.token);
+  }
+
+  // Métadonnées des pièces jointes (nom de fichier, type MIME) : lues dans
+  // la table interne _grist_Attachments, non documentée mais déjà utilisée
+  // par d'autres widgets officiels (même principe que la lecture de
+  // _grist_Tables / _grist_Tables_column dans le widget Réservations) —
+  // mise en cache car commune à toutes les vignettes de la page.
+  var attachmentsMetaPromise = null;
+  function loadAttachmentsMeta() {
+    if (!attachmentsMetaPromise) {
+      attachmentsMetaPromise = grist.docApi.fetchTable('_grist_Attachments').then(function (data) {
+        var map = {};
+        if (data && data.id) {
+          for (var i = 0; i < data.id.length; i++) {
+            map[data.id[i]] = {
+              fileName: data.fileName ? data.fileName[i] : ('Fichier ' + data.id[i]),
+              fileType: data.fileType ? data.fileType[i] : ''
+            };
+          }
+        }
+        return map;
+      }).catch(function () { return {}; });
+    }
+    return attachmentsMetaPromise;
+  }
+
+  function fileExtensionLabel(meta) {
+    var name = (meta && meta.fileName) || '';
+    var m = name.match(/\.([a-z0-9]+)$/i);
+    if (m) return m[1].toUpperCase();
+    var type = (meta && meta.fileType) || '';
+    if (type.indexOf('pdf') !== -1) return 'PDF';
+    if (type.indexOf('image') !== -1) return 'IMG';
+    return 'FICHIER';
+  }
+  function isImageType(meta) {
+    return !!(meta && meta.fileType && meta.fileType.indexOf('image/') === 0);
+  }
+  function isPdfType(meta) {
+    return !!(meta && meta.fileType && meta.fileType.indexOf('pdf') !== -1);
+  }
+
+  // Vignette d'une pièce jointe : reprend le rendu natif d'un fichier non
+  // prévisualisable dans Grist (encart sombre + type de fichier en
+  // majuscules), fidèle à la capture d'écran fournie. Les métadonnées
+  // (nom, type) sont chargées à la volée puis appliquées dès qu'elles sont
+  // disponibles ; le survol déclenche l'aperçu (voir showAttachPreview).
+  function buildAttachmentThumb(attachmentId) {
+    var el = document.createElement('span');
+    el.className = 'cand-doc-thumb';
+    el.tabIndex = 0;
+    el.setAttribute('role', 'button');
+    el.textContent = '…';
+    el.dataset.attachmentId = attachmentId;
+
+    loadAttachmentsMeta().then(function (metaMap) {
+      var meta = metaMap[attachmentId];
+      el.title = (meta && meta.fileName) || ('Pièce jointe #' + attachmentId);
+      if (isImageType(meta)) {
+        getAccessTokenInfo().then(function (tokenInfo) {
+          el.style.backgroundImage = "url('" + attachmentUrl(tokenInfo, attachmentId) + "')";
+          el.classList.add('cand-doc-thumb--image');
+          el.textContent = '';
+        }).catch(function () { el.textContent = fileExtensionLabel(meta); });
+      } else {
+        el.textContent = fileExtensionLabel(meta);
+      }
+    });
+
+    var hoverTimer = null;
+    var hideTimer = null;
+    el.addEventListener('mouseenter', function () {
+      if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+      hoverTimer = setTimeout(function () { showAttachPreview(el, attachmentId); }, 150);
+    });
+    el.addEventListener('mouseleave', function () {
+      if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
+      hideTimer = setTimeout(hideAttachPreview, 200);
+    });
+    el.addEventListener('focus', function () { showAttachPreview(el, attachmentId); });
+    el.addEventListener('blur', hideAttachPreview);
+
+    return el;
+  }
+
+  // Le popover d'aperçu reste ouvert si la souris passe de la vignette à
+  // l'intérieur du popover lui-même (par ex. pour cliquer le lien "Ouvrir
+  // dans un nouvel onglet") : mêmes minuteries d'affichage/masquage que
+  // sur les vignettes.
+  attachPreview.addEventListener('mouseenter', function () { /* rien : le masquage différé de la vignette suffit à laisser le temps d'entrer ici */ });
+  attachPreview.addEventListener('mouseleave', hideAttachPreview);
+
+  var previewRequestSeq = 0;
+  function showAttachPreview(anchorEl, attachmentId) {
+    var seq = ++previewRequestSeq;
+    var rect = anchorEl.getBoundingClientRect();
+    attachPreview.innerHTML = '<p class="attach-preview__loading">Chargement de l’aperçu…</p>';
+    attachPreview.hidden = false;
+    positionPreview(rect);
+
+    Promise.all([loadAttachmentsMeta(), getAccessTokenInfo()]).then(function (results) {
+      if (seq !== previewRequestSeq) return; // un autre survol a entre-temps pris le relais
+      var meta = results[0][attachmentId];
+      var tokenInfo = results[1];
+      var url = attachmentUrl(tokenInfo, attachmentId);
+      var fileName = (meta && meta.fileName) || ('Pièce jointe #' + attachmentId);
+
+      var html = '<p class="attach-preview__name">' + escapeHtml(fileName) + '</p><div class="attach-preview__body">';
+      if (isImageType(meta)) {
+        html += '<img src="' + escapeAttr(url) + '" alt="' + escapeAttr(fileName) + '">';
+      } else if (isPdfType(meta)) {
+        html += '<embed src="' + escapeAttr(url) + '#toolbar=0&view=FitH" type="application/pdf">';
+      } else {
+        html += '<div class="attach-preview__fallback"><span class="fr-icon-file-line" aria-hidden="true" style="font-size:2rem;"></span>' +
+          '<span>Aperçu non disponible pour ce type de fichier.</span></div>';
+      }
+      html += '</div><a class="attach-preview__link fr-link" href="' + escapeAttr(url) + '" target="_blank" rel="noopener">Ouvrir dans un nouvel onglet</a>';
+      attachPreview.innerHTML = html;
+      positionPreview(rect); // la taille du contenu vient de changer (image/PDF) : on repositionne pour rester dans l'écran
+    }).catch(function (e) {
+      if (seq !== previewRequestSeq) return;
+      attachPreview.innerHTML = '<p class="attach-preview__loading">Aperçu indisponible : ' + escapeHtml(friendlyErrorMessage(e)) + '</p>';
+    });
+  }
+  function hideAttachPreview() {
+    previewRequestSeq++; // invalide toute requête d'aperçu encore en cours
+    attachPreview.hidden = true;
+  }
+  function positionPreview(rect) {
+    // Positionne le popover juste sous la vignette, en le ramenant dans la
+    // fenêtre visible s'il déborderait à droite ou en bas (même logique
+    // simple que les menus déroulants : pas de bibliothèque de
+    // positionnement, un ajustement suffisant pour la taille du popover).
+    var top = rect.bottom + 8;
+    var left = rect.left;
+    var maxLeft = window.innerWidth - attachPreview.offsetWidth - 12;
+    var maxTop = window.innerHeight - attachPreview.offsetHeight - 12;
+    if (left > maxLeft) left = Math.max(12, maxLeft);
+    if (top > maxTop) top = Math.max(12, rect.top - attachPreview.offsetHeight - 8);
+    attachPreview.style.left = left + 'px';
+    attachPreview.style.top = top + 'px';
+  }
+
+  // ---- Utilitaires génériques (repris du widget Réservations) -----------
+
+  function normalizeKey(v) {
+    return String(v || '').normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toUpperCase();
+  }
+  function textOf(v) {
+    if (v === null || v === undefined) return '';
+    if (Array.isArray(v)) {
+      var items = v.slice();
+      if (items.length && (items[0] === 'L' || items[0] === 'l' || items[0] === 'R' || items[0] === 'r')) {
+        items = items.slice(1);
+      }
+      return items.map(function (x) { return String(x).trim(); }).filter(function (x) { return x.length > 0; }).join(', ');
+    }
+    return String(v).trim();
+  }
+  // Une colonne Référence simple non résolue en texte représente une
+  // référence "vide" par l'entier 0 côté Grist, pas par une chaîne vide —
+  // sans ce traitement, "Stagiaire" ou "Inscription bande" afficheraient
+  // "0" tant que la ligne visée n'a pas de valeur.
+  function textOfRef(v) {
+    return v === 0 ? '' : textOf(v);
+  }
+  function numOf(v) {
+    var t = textOf(v);
+    if (t === '') return NaN;
+    var n = Number(t);
+    return isNaN(n) ? NaN : n;
+  }
+  function fmtCurrency(v) {
+    var n = numOf(v);
+    if (isNaN(n)) return '—';
+    return n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+  }
+  function escapeHtml(s) {
+    var div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+  }
+  function escapeAttr(s) {
+    return escapeHtml(s).replace(/"/g, '&quot;');
+  }
+  // Grist renvoie un message technique en anglais lorsque les règles
+  // d'accès du document interdisent l'écriture demandée : on le remplace
+  // par un texte compréhensible, comme dans le widget Réservations.
+  function friendlyErrorMessage(e) {
+    var raw = (e && e.message) ? e.message : String(e || '');
+    if (/blocked by .*access rules/i.test(raw)) {
+      return 'Vous ne disposez pas des droits nécessaires. Contactez l\'équipe projet si vous pensez qu\'il s\'agit d\'une erreur.';
+    }
+    return raw;
+  }
+
+})();
+</script>
+
+</body>
+</html>
