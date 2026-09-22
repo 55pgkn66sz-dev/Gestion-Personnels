@@ -2286,6 +2286,11 @@
     var hasPlus = trimmed.charAt(0) === '+';
     var digits = trimmed.replace(/\D/g, '');
     if (!digits) return raw;
+    // Un numéro français stocké dans une colonne Numérique perd son 0
+    // initial (ex. 612345678 au lieu de 0612345678) : on le rajoute
+    // lorsque le compte de chiffres (9, sans indicatif international)
+    // correspond à un numéro français privé de ce 0.
+    if (!hasPlus && digits.length === 9) digits = '0' + digits;
     var groups = digits.match(/\d{1,2}/g) || [];
     return (hasPlus ? '+' : '') + groups.join(' ');
   }
