@@ -167,47 +167,65 @@
   .cand-modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(22, 22, 40, 0.55);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
     z-index: 150;
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    padding: 2rem 1rem;
+    padding: 3rem 1rem;
     overflow-y: auto;
+    opacity: 0;
+    transition: opacity 0.18s ease;
   }
   .cand-modal-overlay[hidden] { display: none; }
+  .cand-modal-overlay.is-open { opacity: 1; }
   /* Fond de la modale : reprend la teinte de la colonne "NID" de la fiche
      d'origine (le liseré rose/saumon visible sur la capture d'écran) —
      déjà disponible comme --uv-pastel-over, utilisée ailleurs dans le
      widget pour les états "refusé". Les cartes internes (documents,
-     bloc "Bande") restent en blanc pour se détacher de ce fond teinté. */
+     bloc "Bande") restent en blanc pour se détacher de ce fond teinté.
+     Transition d'ouverture discrète (fondu + léger zoom) pilotée par la
+     classe .is-open, ajoutée en double rAF après retrait de [hidden] —
+     voir openCandidateModal / closeCandidateModal. */
   .cand-modal-dialog {
-    background: var(--uv-pastel-over);
-    max-width: 38rem;
+    background: linear-gradient(180deg, var(--uv-pastel-over) 0%, #fdf0ef 100%);
+    max-width: 46rem;
     width: 100%;
-    padding: 1.5rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+    padding: 1.85rem 2rem 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 1.5rem 3.5rem rgba(20, 10, 30, 0.28), 0 2px 8px rgba(20, 10, 30, 0.12);
     box-sizing: border-box;
+    transform: translateY(0.6rem) scale(0.98);
+    opacity: 0;
+    transition: transform 0.2s ease, opacity 0.2s ease;
   }
+  .cand-modal-overlay.is-open .cand-modal-dialog { transform: translateY(0) scale(1); opacity: 1; }
   .cand-modal-dialog__header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   }
   .cand-modal-dialog__identity { min-width: 0; }
-  .cand-modal-dialog__title { margin: 0; font-size: 1.2em; font-weight: 700; }
+  .cand-modal-dialog__title { margin: 0; font-size: 1.45em; font-weight: 700; letter-spacing: -0.01em; }
   /* Ligne de contact ("Mail · Tél") : grise, non grasse, juste sous le
      titre — les deux coordonnées sont cliquables (mailto:/tel:) quand
      elles sont renseignées, séparées par un point médian. */
-  .cand-modal-dialog__contact { margin: 0.2rem 0 0; font-size: 0.85em; font-weight: 400; color: var(--text-mention-grey); }
+  .cand-modal-dialog__contact { margin: 0.3rem 0 0; font-size: 0.9em; font-weight: 400; color: var(--text-mention-grey); }
   .cand-modal-dialog__contact a.fr-link { color: inherit; }
-  .cand-modal-dialog__header-actions { display: flex; align-items: center; gap: 0.5rem; flex: none; }
-  .cand-modal-dialog__close { flex: none; margin: -0.25rem -0.25rem 0 0; }
+  .cand-modal-dialog__header-actions { display: flex; align-items: center; gap: 0.6rem; flex: none; }
+  .cand-modal-dialog__close {
+    flex: none;
+    margin: -0.25rem -0.25rem 0 0;
+    border-radius: 999px !important;
+    background: rgba(255, 255, 255, 0.6) !important;
+  }
+  .cand-modal-dialog__close:hover { background: #fff !important; }
   /* Pastille "mineur", affichée en haut à droite de la modale quand la
      case Mineur (réglée dans le backoffice Grist) est cochée pour ce
      candidat — voir renderModalContent. Ton ambre plutôt que rouge : une
@@ -216,14 +234,37 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 2rem;
+    width: 2.1rem;
+    height: 2.1rem;
     border-radius: 999px;
     background: var(--statut-pastel-attente);
     color: #716200;
     font-size: 1.05rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   }
   .cand-modal-dialog__minor-flag[hidden] { display: none; }
+
+  /* Titres de section à l'intérieur de la modale uniquement (ne touche pas
+     .section-title du panneau Configuration) : plus aérés, sans
+     soulignement, avec une puce de couleur pour ponctuer visuellement
+     plutôt qu'un simple texte gris souligné. */
+  .cand-modal-dialog .section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    text-decoration: none;
+    margin: 1.5rem 0 0.75rem;
+    font-size: 0.8em;
+  }
+  .cand-modal-dialog .section-title:first-of-type { margin-top: 0; }
+  .cand-modal-dialog .section-title::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    background: var(--bleu-france);
+    flex: none;
+  }
 
   @media (max-width: 40rem) {
     .cand-modal-overlay { padding: 0; align-items: flex-end; }
@@ -231,8 +272,10 @@
       max-width: none;
       max-height: 92vh;
       overflow-y: auto;
-      border-radius: 1rem 1rem 0 0;
+      border-radius: 1.25rem 1.25rem 0 0;
+      transform: translateY(1rem);
     }
+    .cand-modal-overlay.is-open .cand-modal-dialog { transform: translateY(0); }
   }
 
   /* ---- Documents (pièces jointes) ---------------------------------------
@@ -242,24 +285,30 @@
      actuel (vignette survolable/cliquable + nom + suppression) puis une
      zone d'import — glisser-déposer ou clic — qui sert aussi bien à
      déposer un premier fichier qu'à remplacer l'existant. */
-  .cand-doc-cols { display: flex; gap: 0.85rem; }
+  .cand-doc-cols { display: flex; gap: 1rem; }
   .cand-doc-slot {
     flex: 1 1 0;
     min-width: 0;
     background: #fff;
-    border: 1px solid var(--border-default-grey);
-    border-radius: 0.5rem;
-    padding: 0.65rem;
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    border-radius: 0.65rem;
+    padding: 0.85rem;
     box-sizing: border-box;
+    box-shadow: 0 1px 3px rgba(20, 10, 30, 0.06);
+    transition: box-shadow 0.15s ease;
   }
+  .cand-doc-slot:hover { box-shadow: 0 4px 12px rgba(20, 10, 30, 0.1); }
   .cand-doc-slot__head {
     display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-    margin-bottom: 0.5rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+    margin-bottom: 0.65rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   }
-  .cand-doc-slot__label { font-size: 0.85em; font-weight: 700; }
-  .cand-doc-slot__toggle.fr-toggle { margin: 0; }
+  .cand-doc-slot__label { font-size: 0.82em; font-weight: 700; }
+  .cand-doc-slot__toggle.fr-toggle { margin: 0; flex: none; }
 
   .cand-doc-slot__file {
     display: flex;
@@ -373,9 +422,15 @@
   .cand-field {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     gap: 0.75rem;
-    padding: 0.3rem 0;
+    padding: 0.5rem 0.75rem;
     font-size: 0.92em;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    border-radius: 0.55rem;
+    box-shadow: 0 1px 3px rgba(20, 10, 30, 0.06);
+    box-sizing: border-box;
   }
   .cand-field__label { color: var(--text-mention-grey); flex: 1 1 auto; }
   .cand-field__value { font-weight: 500; text-align: right; }
@@ -384,24 +439,27 @@
      Quantité / Dû / Encaissé côte à côte en dessous — chaque champ dans
      son propre bloc blanc (libellé au-dessus, valeur ou champ de saisie
      en dessous), sur le même principe que les cartes documents. ---- */
-  .cand-bande { display: flex; flex-direction: column; gap: 0.6rem; }
-  .cand-bande-row { display: flex; gap: 0.6rem; }
+  .cand-bande { display: flex; flex-direction: column; gap: 0.7rem; }
+  .cand-bande-row { display: flex; gap: 0.7rem; }
   .cand-field-block {
     flex: 1 1 0;
     min-width: 0;
     background: #fff;
-    border: 1px solid var(--border-default-grey);
-    border-radius: 0.4rem;
-    padding: 0.4rem 0.6rem;
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    border-radius: 0.55rem;
+    padding: 0.55rem 0.75rem;
     box-sizing: border-box;
+    box-shadow: 0 1px 3px rgba(20, 10, 30, 0.06);
+    transition: box-shadow 0.15s ease;
   }
+  .cand-field-block:hover { box-shadow: 0 4px 12px rgba(20, 10, 30, 0.1); }
   .cand-field-block__label {
     display: block;
     font-size: 0.72em;
     text-transform: uppercase;
     letter-spacing: 0.02em;
     color: var(--text-mention-grey);
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.25rem;
   }
   .cand-field-block__input {
     width: 100%;
@@ -428,11 +486,12 @@
 
   .cand-blocages {
     margin-top: 0.75rem;
-    padding: 0.55rem 0.75rem;
-    border-radius: 0.3rem;
+    padding: 0.6rem 0.8rem;
+    border-radius: 0.55rem;
     background: var(--statut-pastel-attente);
     border: 1px solid var(--statut-attente);
     font-size: 0.85em;
+    box-shadow: 0 1px 3px rgba(20, 10, 30, 0.06);
   }
   .cand-blocages strong { display: block; font-size: 0.85em; margin-bottom: 0.15rem; }
   .cand-blocages__textarea {
@@ -1100,11 +1159,26 @@
     currentModalRowId = rowId;
     renderModalContent();
     candModalOverlay.hidden = false;
+    // Double rAF avant d'ajouter .is-open : le premier laisse le
+    // navigateur peindre l'état initial (opacité 0, léger décalage), le
+    // second déclenche la transition CSS — sans ce délai, l'élément
+    // passerait directement de [hidden] à son état final sans fondu.
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        candModalOverlay.classList.add('is-open');
+      });
+    });
   }
   function closeCandidateModal() {
     currentModalRowId = null;
-    candModalOverlay.hidden = true;
     hideAttachPreview();
+    candModalOverlay.classList.remove('is-open');
+    // On laisse le temps au fondu de sortie de se jouer avant de masquer
+    // réellement la modale (voir la durée des transitions déclarées sur
+    // .cand-modal-overlay / .cand-modal-dialog).
+    window.setTimeout(function () {
+      candModalOverlay.hidden = true;
+    }, 180);
   }
   function renderModalContent() {
     var row = findCandidateRow(currentModalRowId);
