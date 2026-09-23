@@ -310,15 +310,23 @@
      trop longs pour tenir à côté du bouton de validation sur une carte
      d'environ un tiers de la largeur de la modale. */
   .cand-doc-slot__head {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.55rem;
     margin-bottom: 0.7rem;
     padding-bottom: 0.6rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   }
   .cand-doc-slot__label { font-size: 0.82em; font-weight: 700; line-height: 1.3; }
+
+  /* Bouton de validation en pied de carte (voir buildDocSlot), aligné à
+     droite. margin-top: auto exploite le flex-direction: column de
+     .cand-doc-slot pour pousser ce pied de carte en bas, même quand la
+     carte est plus courte que ses voisines — les boutons des 3 cartes
+     restent ainsi alignés entre eux. */
+  .cand-doc-slot__footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: auto;
+    padding-top: 0.6rem;
+  }
 
   /* Bouton de validation : deux boutons ronds (case ✓ / croix) dans une
      pastille arrondie, plutôt que l'interrupteur DSFR par défaut — celui
@@ -396,6 +404,22 @@
     white-space: nowrap;
   }
   .cand-doc-slot__delete { flex: none; margin: 0 !important; padding: 0.25rem !important; }
+  /* Nom du fichier : bouton reset stylé comme un lien (ouvre dans un nouvel
+     onglet, voir buildDocFileCard). */
+  .cand-doc-slot__filename--link {
+    display: block;
+    border: none;
+    background: none;
+    padding: 0;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    color: var(--text-action-high-blue-france, #000091);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .cand-doc-slot__filename--link:hover { text-decoration-thickness: 2px; }
+  .cand-doc-slot__filename--link:focus-visible { outline: 2px solid var(--bleu-france); outline-offset: 2px; }
 
   /* Vignette d'une pièce jointe existante : reprend le rendu natif de
      Grist pour une pièce jointe non prévisualisable (petit encart sombre
@@ -469,13 +493,15 @@
     border-radius: 0.25rem;
     margin: 0 auto;
   }
-  .attach-preview__body embed {
+  .attach-preview__body canvas {
     display: block;
     width: 17rem;
-    height: 20rem;
+    max-width: 100%;
+    height: auto;
     border: 1px solid var(--border-default-grey);
     border-radius: 0.25rem;
   }
+  .attach-preview__pages { margin: 0.3rem 0 0; font-size: 0.75em; color: var(--text-mention-grey); text-align: center; }
   .attach-preview__fallback {
     display: flex;
     flex-direction: column;
@@ -714,20 +740,25 @@
       de la fiche candidat (NID, Stagiaire, Usage RS…). Les documents (pièces jointes et leur validation)
       ainsi que les informations complémentaires (Photos, Bande patro., Quantité, Dû, Encaissé,
       Blocages/Infos) peuvent vivre dans une table Grist séparée de celle des candidats : indiquez alors,
-      dans la section « Documents », la table concernée et sa colonne de liaison — une colonne Référence,
-      dans cette table, qui pointe vers la ligne du candidat correspondant. Si un candidat n'a pas encore de
-      ligne liée dans cette table, le premier import d'un fichier ou la première modification d'un champ
-      « Informations complémentaires » depuis sa fiche en crée une automatiquement.
+      dans la section « Documents », la table concernée, le sens de la liaison entre les deux tables et la
+      colonne Référence correspondante — soit une colonne, dans la table Documents, qui pointe vers la
+      ligne du candidat ; soit une colonne, dans la table des candidats, qui pointe vers sa ligne dans la
+      table Documents. Si les champs Documents/Informations complémentaires restent vides pour tous les
+      candidats après enregistrement alors que les données existent bien dans Grist, c'est presque toujours
+      que le sens choisi ici est inversé par rapport à votre table — essayez l'autre option. Si un candidat
+      n'a pas encore de ligne liée, le premier import d'un fichier ou la première modification d'un champ
+      « Informations complémentaires » depuis sa fiche en crée une automatiquement (uniquement dans le sens
+      « La ligne Documents référence le candidat »).
       « Validation admin » pilote le bouton de validation des pièces jointes « Usage RS » et « Form. image » ;
       « Validation EAD » pilote celui de la pièce jointe « EAD ». Passer une pièce en Refusé ouvre
       automatiquement un e-mail pré-rempli vers l'adresse « E-mail » du candidat : sans cette colonne, le
       refus reste enregistré mais aucun e-mail ne s'ouvre. Importer ou remplacer un fichier dans la fiche
       envoie le nouveau document dans le magasin de pièces jointes du document Grist, ce qui nécessite les
       droits d'écriture sur le document. Le pictogramme « mineur » à côté du nom du candidat, dans la
-      fiche, n'est pas saisi à la main : il est calculé à partir de deux colonnes Date que vous renseignez
-      dans Grist (backoffice) — « Date de naissance du stagiaire » et « Date du 1er jour de formation » —
-      en comparant l'âge du candidat à cette dernière date ; sans l'une des deux colonnes, le pictogramme
-      reste masqué (impossible de savoir). « Bande patro. », « Quantité » et « Encaissé » sont modifiables
+      fiche, n'est pas saisi à la main pour chaque candidat : il est calculé en comparant l'âge du candidat
+      (colonne Date « Date de naissance du stagiaire ») à la date « Début de formation le », que vous
+      saisissez ici à la main au format JJ/MM/AAAA (elle ne correspond à aucune colonne de la table) ;
+      sans l'une des deux informations, le pictogramme reste masqué (impossible de savoir). « Bande patro. », « Quantité » et « Encaissé » sont modifiables
       directement depuis la fiche candidat — préférez des colonnes Texte ou Numérique (pas une colonne
       Référence) pour que l'enregistrement fonctionne ; « Dû » reste en lecture seule. Ces réglages sont
       mémorisés avec le widget.</p>
@@ -769,9 +800,11 @@
             <label class="fr-label" for="cand_col_dateNaissance">Date de naissance du stagiaire (optionnel, colonne Date)</label>
             <select class="fr-select" id="cand_col_dateNaissance" data-role="dateNaissance"></select>
           </div>
-          <div class="fr-select-group">
-            <label class="fr-label" for="cand_col_dateDebutFormation">Date du 1er jour de formation (optionnel, colonne Date)</label>
-            <select class="fr-select" id="cand_col_dateDebutFormation" data-role="dateDebutFormation"></select>
+          <div class="fr-input-group" id="cand_dateDebutFormation_group">
+            <label class="fr-label" for="cand_dateDebutFormation">Début de formation le (optionnel)
+              <span class="fr-hint-text">Saisie manuelle au format JJ/MM/AAAA — ne correspond à aucune colonne de la table.</span>
+            </label>
+            <input class="fr-input" type="text" id="cand_dateDebutFormation" inputmode="numeric" maxlength="10" placeholder="JJ/MM/AAAA" autocomplete="off">
           </div>
         </div>
       </div>
@@ -784,7 +817,14 @@
             <select class="fr-select" id="cand_docs_table"></select>
           </div>
           <div class="fr-select-group">
-            <label class="fr-label" for="cand_docs_link">Colonne de liaison vers le candidat (Référence, dans la table Documents)</label>
+            <label class="fr-label" for="cand_docs_link_dir">Sens de la liaison entre les deux tables</label>
+            <select class="fr-select" id="cand_docs_link_dir">
+              <option value="docsToMain">La ligne Documents référence le candidat</option>
+              <option value="mainToDocs">Le candidat référence sa ligne Documents</option>
+            </select>
+          </div>
+          <div class="fr-select-group">
+            <label class="fr-label" for="cand_docs_link" id="cand_docs_link_label">Colonne de liaison (Référence)</label>
             <select class="fr-select" id="cand_docs_link"></select>
           </div>
           <div class="fr-select-group">
@@ -888,7 +928,9 @@
 
   // ---- Rôles de colonnes de la table candidats, d'après les libellés
   // visibles sur la fiche candidat (capture d'écran) --------------------
-  var ROLES = ['nid', 'stagiaire', 'email', 'telephone', 'dateNaissance', 'dateDebutFormation', 'usageRS', 'formImage',
+  // (La date "Début de formation le" n'est PAS un rôle de colonne : elle est
+  // saisie à la main dans la Configuration, voir settings.dateDebutFormation.)
+  var ROLES = ['nid', 'stagiaire', 'email', 'telephone', 'dateNaissance', 'usageRS', 'formImage',
     'photos', 'validationAdmin', 'ead', 'validationEAD', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
   var REQUIRED_ROLES = ['nid', 'stagiaire'];
   var OPTIONAL_ROLES = ROLES.filter(function (r) { return REQUIRED_ROLES.indexOf(r) === -1; });
@@ -898,7 +940,7 @@
   // rôles restent dans la table principale (candidats).
   var ROLE_LABELS = {
     nid: 'NID', stagiaire: 'Stagiaire', email: 'E-mail', telephone: 'Téléphone',
-    dateNaissance: 'Date de naissance', dateDebutFormation: 'Date du 1er jour de formation',
+    dateNaissance: 'Date de naissance',
     usageRS: 'Reconnaissance de responsabilité - Réseaux sociaux', formImage: 'Droit à l\'image',
     photos: 'Photos', validationAdmin: 'Validation admin', ead: 'Enseignement à distance Bloc 1', validationEAD: 'Validation EAD',
     inscriptionBande: 'Bande patro.', qteBandes: 'Quantité', du: 'Dû', encaisse: 'Encaissé',
@@ -947,7 +989,7 @@
   function defaultConfig() {
     var col = {};
     ROLES.forEach(function (role) { col[role] = ''; });
-    return { table: '', docsTable: '', docsLinkCol: '', col: col };
+    return { table: '', docsTable: '', docsLinkCol: '', docsLinkDir: 'docsToMain', dateDebutFormation: '', col: col };
   }
   function mergeConfig(loaded) {
     var cfg = defaultConfig();
@@ -955,6 +997,8 @@
     cfg.table = loaded.table || '';
     cfg.docsTable = loaded.docsTable || '';
     cfg.docsLinkCol = loaded.docsLinkCol || '';
+    cfg.docsLinkDir = loaded.docsLinkDir === 'mainToDocs' ? 'mainToDocs' : 'docsToMain';
+    cfg.dateDebutFormation = (typeof loaded.dateDebutFormation === 'string') ? loaded.dateDebutFormation : '';
     if (loaded.col) {
       Object.keys(cfg.col).forEach(function (k) {
         var v = loaded.col[k];
@@ -977,10 +1021,17 @@
   // certaines versions de Grist peuvent la renvoyer sous forme étiquetée
   // ['R', id] (même principe que les colonnes Pièces jointes/Liste) — les
   // deux formes sont donc acceptées ici, pour rester robuste.
-  function refRowIdOf(v) {
-    if (typeof v === 'number') return v;
-    if (Array.isArray(v) && (v[0] === 'R' || v[0] === 'r') && typeof v[1] === 'number') return v[1];
-    return 0;
+  // Renvoie la liste des identifiants de lignes pointés (une Référence
+  // simple en donne au plus un ; une Liste de références ['L', id, id…] en
+  // donne plusieurs).
+  function refRowIdsOf(v) {
+    if (typeof v === 'number') return v > 0 ? [v] : [];
+    if (Array.isArray(v)) {
+      var items = v.slice();
+      if (items.length && (items[0] === 'R' || items[0] === 'r' || items[0] === 'L' || items[0] === 'l')) items = items.slice(1);
+      return items.filter(function (x) { return typeof x === 'number' && x > 0; });
+    }
+    return [];
   }
   // Crée, dans la table Documents, la ligne liée à ce candidat qui
   // manque encore (voir settings.docsLinkCol) — utilisé aussi bien pour
@@ -994,6 +1045,10 @@
   // pièce jointe, voir importDocument).
   function ensureDocRowId(row) {
     if (row.__docRowId) return Promise.resolve(row.__docRowId);
+    if (settings.docsLinkDir === 'mainToDocs') {
+      return Promise.reject(new Error('Aucune ligne Documents n’est liée à ce candidat. Avec le sens de liaison « Le candidat référence sa ligne Documents », ' +
+        'cette ligne ne peut pas être créée automatiquement : créez-la dans Grist et rattachez-la au candidat.'));
+    }
     var fields = {};
     fields[settings.docsLinkCol] = row.id;
     return grist.docApi.applyUserActions([['AddRecord', settings.docsTable, null, fields]]).then(function (result) {
@@ -1120,6 +1175,9 @@
       fillSelectWithOptions(docsSel, allTableIds, settings.docsTable, '(même table que les candidats / non réglée)');
       if (docsSel.value) refreshDocsColumnLists(docsSel.value);
       else refreshDocsColumnLists('');
+      document.getElementById('cand_docs_link_dir').value = settings.docsLinkDir;
+      document.getElementById('cand_dateDebutFormation').value = settings.dateDebutFormation;
+      refreshLinkColumnList();
     }).catch(function (e) {
       showSettingsStatus('error', 'Impossible de lister les tables du document : ' + friendlyErrorMessage(e));
     });
@@ -1146,17 +1204,17 @@
     });
   }
 
-  // Remplit à la fois les sélecteurs de colonnes "Documents" (pièces
-  // jointes + validations) et le sélecteur de la colonne de liaison, tous
-  // les trois lus dans la même table Documents.
+  // Remplit les sélecteurs de colonnes "Documents" (pièces jointes,
+  // validations, informations complémentaires), tous lus dans la table
+  // Documents. La colonne de liaison a sa propre fonction (voir
+  // refreshLinkColumnList) : selon le sens de la liaison, elle est lue
+  // dans la table Documents OU dans la table des candidats.
   function refreshDocsColumnLists(tableId) {
-    var linkEl = document.getElementById('cand_docs_link');
     if (!tableId) {
       DOC_TABLE_ROLES.forEach(function (role) {
         var el = document.getElementById('cand_col_' + role);
         if (el) fillSelectWithOptions(el, [], '', 'Choisir la table Documents d’abord…');
       });
-      fillSelectWithOptions(linkEl, [], '', 'Choisir la table Documents d’abord…');
       return;
     }
     grist.docApi.fetchTable(tableId).then(function (data) {
@@ -1167,8 +1225,34 @@
         var current = (settings.docsTable === tableId) ? settings.col[role] : '';
         fillSelectWithOptions(el, columns, current, OPTIONAL_ROLES.indexOf(role) !== -1 ? '(aucune)' : 'Choisir une colonne…');
       });
-      var currentLink = (settings.docsTable === tableId) ? settings.docsLinkCol : '';
-      fillSelectWithOptions(linkEl, columns, currentLink, 'Choisir une colonne…');
+    }).catch(function (e) {
+      showSettingsStatus('error', 'Impossible de lire les colonnes de la table « ' + tableId + ' » : ' + friendlyErrorMessage(e));
+    });
+  }
+
+  // Colonne de liaison : « La ligne Documents référence le candidat »
+  // (docsToMain) => colonne de la table Documents ; « Le candidat référence
+  // sa ligne Documents » (mainToDocs) => colonne de la table des candidats.
+  var linkListSeq = 0;
+  function refreshLinkColumnList() {
+    var linkEl = document.getElementById('cand_docs_link');
+    var labelEl = document.getElementById('cand_docs_link_label');
+    var dir = document.getElementById('cand_docs_link_dir').value === 'mainToDocs' ? 'mainToDocs' : 'docsToMain';
+    var tableId = dir === 'mainToDocs'
+      ? document.getElementById('cand_table').value
+      : document.getElementById('cand_docs_table').value;
+    labelEl.textContent = dir === 'mainToDocs'
+      ? 'Colonne de liaison (Référence, dans la table des candidats)'
+      : 'Colonne de liaison (Référence, dans la table Documents)';
+    var current = (settings.docsLinkDir === dir) ? settings.docsLinkCol : '';
+    if (!tableId) {
+      fillSelectWithOptions(linkEl, [], '', dir === 'mainToDocs' ? 'Choisir la table des candidats d’abord…' : 'Choisir la table Documents d’abord…');
+      return;
+    }
+    var seq = ++linkListSeq;
+    grist.docApi.fetchTable(tableId).then(function (data) {
+      if (seq !== linkListSeq) return;
+      fillSelectWithOptions(linkEl, tableColumns(data), current, 'Choisir une colonne…');
     }).catch(function (e) {
       showSettingsStatus('error', 'Impossible de lire les colonnes de la table « ' + tableId + ' » : ' + friendlyErrorMessage(e));
     });
@@ -1180,8 +1264,21 @@
     }).sort(function (a, b) { return a.localeCompare(b, 'fr'); });
   }
 
-  document.getElementById('cand_table').addEventListener('change', function () { refreshMainColumnLists(this.value); });
-  document.getElementById('cand_docs_table').addEventListener('change', function () { refreshDocsColumnLists(this.value); });
+  document.getElementById('cand_table').addEventListener('change', function () { refreshMainColumnLists(this.value); refreshLinkColumnList(); });
+  document.getElementById('cand_docs_table').addEventListener('change', function () { refreshDocsColumnLists(this.value); refreshLinkColumnList(); });
+  document.getElementById('cand_docs_link_dir').addEventListener('change', refreshLinkColumnList);
+
+  // Date saisie à la main, au format JJ/MM/AAAA (voir settings.dateDebutFormation).
+  // Renvoie un Date en UTC minuit, ou null si le texte n'est pas une date
+  // de calendrier valide (ex. 31/02/2026 est refusé, pas "corrigé" en mars).
+  function parseFrDate(text) {
+    var m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(text || '').trim());
+    if (!m) return null;
+    var d = Number(m[1]), mo = Number(m[2]), y = Number(m[3]);
+    var date = new Date(Date.UTC(y, mo - 1, d));
+    if (date.getUTCFullYear() !== y || date.getUTCMonth() !== mo - 1 || date.getUTCDate() !== d) return null;
+    return date;
+  }
 
   function showSettingsStatus(type, message) {
     settingsStatusZone.innerHTML = '<div class="fr-alert fr-alert--' + type + ' fr-alert--sm"><p>' + escapeHtml(message) + '</p></div>';
@@ -1195,6 +1292,8 @@
     // besoin qu'elle passe isWritableColId comme les colonnes de rôle.
     var linkEl = document.getElementById('cand_docs_link');
     cfg.docsLinkCol = (linkEl && linkEl.value) ? linkEl.value : '';
+    cfg.docsLinkDir = document.getElementById('cand_docs_link_dir').value === 'mainToDocs' ? 'mainToDocs' : 'docsToMain';
+    cfg.dateDebutFormation = document.getElementById('cand_dateDebutFormation').value.trim();
     ROLES.forEach(function (role) {
       var el = document.getElementById('cand_col_' + role);
       if (el && isWritableColId(el.value)) cfg.col[role] = el.value;
@@ -1204,6 +1303,11 @@
 
   saveSettingsBtn.addEventListener('click', function () {
     var next = configFromForm();
+    if (next.dateDebutFormation && !parseFrDate(next.dateDebutFormation)) {
+      showSettingsStatus('error', '« Début de formation le » doit être une date valide au format JJ/MM/AAAA (par ex. 15/09/2026).');
+      document.getElementById('cand_dateDebutFormation').focus();
+      return;
+    }
     grist.setOption('candidatsStageConfig', next).then(function () {
       settings = next;
       showSettingsStatus('success', 'Paramètres enregistrés.');
@@ -1238,8 +1342,17 @@
     var docsPromise = usesDocsTable ? grist.docApi.fetchTable(settings.docsTable) : Promise.resolve(null);
     Promise.all([mainPromise, docsPromise]).then(function (results) {
       var rows = columnarToRows(results[0]);
-      mergeDocsTable(rows, results[1]);
+      var linked = mergeDocsTable(rows, results[1]);
       candidates = { rows: rows, loaded: true };
+      // Aucune ligne Documents rattachée alors que des candidats existent :
+      // presque toujours un sens de liaison ou une colonne de liaison mal
+      // réglés — on le signale plutôt que d'afficher des fiches vides sans
+      // explication.
+      if (usesDocsTable && rows.length && results[1] && results[1].id && results[1].id.length && linked === 0) {
+        candidates.warning = 'Aucune ligne de la table Documents n’a pu être rattachée à un candidat : les pièces jointes et les informations ' +
+          'complémentaires (bande patro., quantité, blocages…) restent donc vides. Ouvrez la Configuration (5 clics sur le bloc marque du header) ' +
+          'et vérifiez le sens de la liaison ainsi que la colonne de liaison.';
+      }
       renderCandidates();
     }).catch(function (e) {
       candidates = { rows: [], loaded: false, error: friendlyErrorMessage(e) };
@@ -1255,26 +1368,52 @@
   // cas ces rôles restent simplement vides pour chaque candidat. Un seul
   // document par candidat est attendu : en cas de doublon, seul le
   // premier trouvé est retenu.
+  //
+  // Deux sens de liaison sont gérés (settings.docsLinkDir) :
+  //  - docsToMain : la colonne de liaison est dans la table Documents et
+  //    pointe vers la ligne du candidat ;
+  //  - mainToDocs : la colonne de liaison est dans la table des candidats
+  //    (lue par columnarToRows dans row.__docLinkValue) et pointe vers sa
+  //    ligne Documents.
+  // Renvoie le nombre de candidats rattachés à une ligne Documents.
   function mergeDocsTable(rows, docsData) {
     if (!docsData || !docsData.id) {
       rows.forEach(function (row) { row.__docRowId = null; });
-      return;
+      return 0;
     }
-    var linkValues = docsData[settings.docsLinkCol] || [];
+    var docIndexById = {};
+    for (var i = 0; i < docsData.id.length; i++) docIndexById[docsData.id[i]] = i;
+
     var docIndexByCandidateId = {};
-    for (var i = 0; i < docsData.id.length; i++) {
-      var candidateId = refRowIdOf(linkValues[i]);
-      if (candidateId && !(candidateId in docIndexByCandidateId)) docIndexByCandidateId[candidateId] = i;
+    if (settings.docsLinkDir === 'mainToDocs') {
+      rows.forEach(function (row) {
+        var ids = refRowIdsOf(row.__docLinkValue);
+        for (var k = 0; k < ids.length; k++) {
+          if (ids[k] in docIndexById) { docIndexByCandidateId[row.id] = docIndexById[ids[k]]; break; }
+        }
+      });
+    } else {
+      var linkValues = docsData[settings.docsLinkCol] || [];
+      for (var j = 0; j < docsData.id.length; j++) {
+        var candidateIds = refRowIdsOf(linkValues[j]);
+        candidateIds.forEach(function (candidateId) {
+          if (!(candidateId in docIndexByCandidateId)) docIndexByCandidateId[candidateId] = j;
+        });
+      }
     }
+
+    var linked = 0;
     rows.forEach(function (row) {
       var idx = docIndexByCandidateId[row.id];
       if (idx === undefined) { row.__docRowId = null; return; }
+      linked++;
       row.__docRowId = docsData.id[idx];
       DOC_TABLE_ROLES.forEach(function (role) {
         var colName = settings.col[role];
-        row[role] = colName ? docsData[colName][idx] : null;
+        row[role] = (colName && docsData[colName]) ? docsData[colName][idx] : null;
       });
     });
+    return linked;
   }
 
   function columnarToRows(data) {
@@ -1284,8 +1423,11 @@
       var row = { id: data.id[i] };
       MAIN_TABLE_ROLES.forEach(function (role) {
         var colName = settings.col[role];
-        row[role] = colName ? data[colName][i] : null;
+        row[role] = (colName && data[colName]) ? data[colName][i] : null;
       });
+      if (settings.docsLinkDir === 'mainToDocs' && settings.docsLinkCol && data[settings.docsLinkCol]) {
+        row.__docLinkValue = data[settings.docsLinkCol][i];
+      }
       rows.push(row);
     }
     return rows;
@@ -1335,8 +1477,11 @@
     }
     var rows = candidates.rows.filter(matchesFilters);
     candCount.textContent = rows.length + ' candidat(s) affiché(s) sur ' + candidates.rows.length;
+    if (candidates.warning) {
+      candZone.innerHTML = '<div class="fr-alert fr-alert--warning fr-alert--sm fr-mb-2w"><p>' + escapeHtml(candidates.warning) + '</p></div>';
+    }
     if (!rows.length) {
-      candZone.innerHTML = '<p class="cand-empty-state">Aucun candidat ne correspond à l’affichage actuel.</p>';
+      candZone.insertAdjacentHTML('beforeend', '<p class="cand-empty-state">Aucun candidat ne correspond à l’affichage actuel.</p>');
       return;
     }
     var list = document.createElement('div');
@@ -1438,6 +1583,7 @@
   function renderModalContent() {
     var row = findCandidateRow(currentModalRowId);
     if (!row) { closeCandidateModal(); return; }
+    hideAttachPreview(); // le contenu de la fiche va être reconstruit : l'élément survolé n'existera plus
     candModalTitle.textContent = textOfRef(row.stagiaire) || '(Stagiaire non renseigné)';
 
     // Ligne de contact, sous le titre : e-mail et téléphone séparés par un
@@ -1457,7 +1603,7 @@
       candModalContact.hidden = true;
     }
 
-    var isMinor = willBeMinor(row.dateNaissance, row.dateDebutFormation);
+    var isMinor = willBeMinor(row.dateNaissance, parseFrDate(settings.dateDebutFormation));
     candModalMinorFlag.hidden = !isMinor;
 
     candModalBody.innerHTML = '';
@@ -1761,10 +1907,6 @@
     label.className = 'cand-doc-slot__label';
     label.textContent = ROLE_LABELS[role];
     head.appendChild(label);
-
-    if (validationRole && settings.col[validationRole]) {
-      head.appendChild(buildValidationControl(row, validationRole, ROLE_LABELS[role]));
-    }
     slot.appendChild(head);
 
     // "Droit à l'image" embarque le champ Photos (Oui/Non), plutôt que de
@@ -1810,6 +1952,18 @@
       if (file) importDocument(row, role, file);
     });
     slot.appendChild(zone);
+
+    // Bouton de validation en pied de carte, aligné à droite. margin-top:
+    // auto (voir CSS) le pousse en bas de la carte même quand celle-ci est
+    // plus courte que ses voisines (pas de fichier déposé, pas de champ
+    // Photos…) : les trois boutons de validation restent ainsi alignés sur
+    // la même ligne d'une carte à l'autre.
+    if (validationRole && settings.col[validationRole]) {
+      var footer = document.createElement('div');
+      footer.className = 'cand-doc-slot__footer';
+      footer.appendChild(buildValidationControl(row, validationRole, ROLE_LABELS[role]));
+      slot.appendChild(footer);
+    }
 
     return slot;
   }
@@ -1889,14 +2043,19 @@
     });
     card.appendChild(thumb);
 
-    var name = document.createElement('span');
-    name.className = 'cand-doc-slot__filename';
+    // Le nom du fichier est lui aussi cliquable (nouvel onglet) et déclenche
+    // le même aperçu au survol que la vignette.
+    var name = document.createElement('button');
+    name.type = 'button';
+    name.className = 'cand-doc-slot__filename cand-doc-slot__filename--link';
     name.textContent = '…';
     loadAttachmentsMeta().then(function (metaMap) {
       var meta = metaMap[attachmentId];
       name.textContent = (meta && meta.fileName) || ('Pièce jointe #' + attachmentId);
-      name.title = name.textContent;
+      name.title = 'Ouvrir « ' + name.textContent + ' » dans un nouvel onglet';
     });
+    name.addEventListener('click', function () { openAttachmentInNewTab(attachmentId); });
+    bindAttachHover(name, attachmentId);
     card.appendChild(name);
 
     var delBtn = document.createElement('button');
@@ -2153,33 +2312,127 @@
       }
     });
 
+    bindAttachHover(el, attachmentId);
+    return el;
+  }
+
+  // Branche l'aperçu au survol (ou au focus clavier) sur un élément : la
+  // vignette et le nom du fichier partagent ce comportement. La minuterie
+  // de masquage est commune (previewHideTimer) pour que la souris puisse
+  // passer de l'élément au popover lui-même (par ex. pour cliquer "Ouvrir
+  // dans un nouvel onglet") sans qu'il se referme entre-temps.
+  var previewHideTimer = null;
+  function bindAttachHover(el, attachmentId) {
     var hoverTimer = null;
-    var hideTimer = null;
     el.addEventListener('mouseenter', function () {
-      if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+      if (previewHideTimer) { clearTimeout(previewHideTimer); previewHideTimer = null; }
       hoverTimer = setTimeout(function () { showAttachPreview(el, attachmentId); }, 150);
     });
     el.addEventListener('mouseleave', function () {
       if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
-      hideTimer = setTimeout(hideAttachPreview, 200);
+      previewHideTimer = setTimeout(hideAttachPreview, 250);
     });
     el.addEventListener('focus', function () { showAttachPreview(el, attachmentId); });
     el.addEventListener('blur', hideAttachPreview);
+  }
+  attachPreview.addEventListener('mouseenter', function () {
+    if (previewHideTimer) { clearTimeout(previewHideTimer); previewHideTimer = null; }
+  });
+  attachPreview.addEventListener('mouseleave', hideAttachPreview);
 
-    return el;
+  // pdf.js, chargé à la demande au premier aperçu d'un PDF : un <embed>
+  // PDF est bloqué par Chrome dans une iframe sandboxée (c'est le cas d'un
+  // widget Grist), alors que le rendu de la 1re page sur un <canvas> n'en
+  // dépend pas. Le worker est récupéré puis lancé depuis un Blob, car un
+  // Worker ne peut pas être créé directement depuis une URL d'une autre
+  // origine (le CDN).
+  var PDFJS_BASE = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/';
+  var pdfjsPromise = null;
+  function loadPdfJs() {
+    if (!pdfjsPromise) {
+      pdfjsPromise = new Promise(function (resolve, reject) {
+        var s = document.createElement('script');
+        s.src = PDFJS_BASE + 'pdf.min.js';
+        s.onload = function () {
+          var lib = window.pdfjsLib || window['pdfjs-dist/build/pdf'];
+          if (!lib) { reject(new Error('pdf.js indisponible')); return; }
+          fetch(PDFJS_BASE + 'pdf.worker.min.js').then(function (r) { return r.text(); }).then(function (code) {
+            lib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([code], { type: 'text/javascript' }));
+            resolve(lib);
+          }).catch(reject);
+        };
+        s.onerror = function () { reject(new Error('pdf.js indisponible')); };
+        document.head.appendChild(s);
+      });
+      pdfjsPromise.catch(function () { pdfjsPromise = null; }); // permet de réessayer au prochain survol
+    }
+    return pdfjsPromise;
+  }
+  function renderPdfFirstPage(buffer) {
+    return loadPdfJs().then(function (lib) {
+      return lib.getDocument({ data: buffer }).promise;
+    }).then(function (pdf) {
+      return pdf.getPage(1).then(function (page) {
+        var cssWidth = 272; // 17rem, comme la largeur du popover
+        var base = page.getViewport({ scale: 1 });
+        var viewport = page.getViewport({ scale: (cssWidth / base.width) * 2 }); // ×2 : netteté sur écran dense
+        var canvas = document.createElement('canvas');
+        canvas.width = Math.floor(viewport.width);
+        canvas.height = Math.floor(viewport.height);
+        return page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport }).promise.then(function () {
+          var wrap = document.createElement('div');
+          wrap.appendChild(canvas);
+          if (pdf.numPages > 1) {
+            var note = document.createElement('p');
+            note.className = 'attach-preview__pages';
+            note.textContent = 'Page 1 sur ' + pdf.numPages;
+            wrap.appendChild(note);
+          }
+          return wrap;
+        });
+      });
+    });
   }
 
-  // Le popover d'aperçu reste ouvert si la souris passe de la vignette à
-  // l'intérieur du popover lui-même (par ex. pour cliquer le lien "Ouvrir
-  // dans un nouvel onglet") : mêmes minuteries d'affichage/masquage que
-  // sur les vignettes.
-  attachPreview.addEventListener('mouseenter', function () { /* rien : le masquage différé de la vignette suffit à laisser le temps d'entrer ici */ });
-  attachPreview.addEventListener('mouseleave', hideAttachPreview);
+  // Corps du popover : image directe, ou PDF téléchargé puis rendu par
+  // pdf.js. Si le type n'est pas connu (métadonnées illisibles), on le
+  // déduit du Content-Type de la réponse. Renvoie null si aucun aperçu
+  // n'est possible (le popover affiche alors le lien d'ouverture seul).
+  function buildPreviewBody(url, meta, fileName) {
+    if (isImageType(meta)) {
+      var img = document.createElement('img');
+      img.src = url;
+      img.alt = fileName;
+      return Promise.resolve(img);
+    }
+    if (meta && meta.fileType && !isPdfType(meta)) return Promise.resolve(null);
+    return fetch(url).then(function (resp) {
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      return resp.blob();
+    }).then(function (blob) {
+      var type = (meta && meta.fileType) || blob.type || '';
+      if (type.indexOf('image/') === 0) {
+        var img2 = document.createElement('img');
+        img2.src = URL.createObjectURL(blob);
+        img2.alt = fileName;
+        return img2;
+      }
+      if (type.indexOf('pdf') !== -1) return blob.arrayBuffer().then(renderPdfFirstPage);
+      return null;
+    }).catch(function () { return null; });
+  }
 
   var previewRequestSeq = 0;
   function showAttachPreview(anchorEl, attachmentId) {
+    // Déjà affiché pour ce même fichier (passage de la vignette au nom) :
+    // on se contente de repositionner, sans tout recharger.
+    if (!attachPreview.hidden && attachPreview.dataset.attachmentId === String(attachmentId)) {
+      positionPreview(anchorEl.getBoundingClientRect());
+      return;
+    }
     var seq = ++previewRequestSeq;
     var rect = anchorEl.getBoundingClientRect();
+    attachPreview.dataset.attachmentId = attachmentId;
     attachPreview.innerHTML = '<p class="attach-preview__loading">Chargement de l’aperçu…</p>';
     attachPreview.hidden = false;
     positionPreview(rect);
@@ -2191,18 +2444,24 @@
       var url = attachmentUrl(tokenInfo, attachmentId);
       var fileName = (meta && meta.fileName) || ('Pièce jointe #' + attachmentId);
 
-      var html = '<p class="attach-preview__name">' + escapeHtml(fileName) + '</p><div class="attach-preview__body">';
-      if (isImageType(meta)) {
-        html += '<img src="' + escapeAttr(url) + '" alt="' + escapeAttr(fileName) + '">';
-      } else if (isPdfType(meta)) {
-        html += '<embed src="' + escapeAttr(url) + '#toolbar=0&view=FitH" type="application/pdf">';
-      } else {
-        html += '<div class="attach-preview__fallback"><span class="fr-icon-file-line" aria-hidden="true" style="font-size:2rem;"></span>' +
-          '<span>Aperçu non disponible pour ce type de fichier.</span></div>';
-      }
-      html += '</div><a class="attach-preview__link fr-link" href="' + escapeAttr(url) + '" target="_blank" rel="noopener">Ouvrir dans un nouvel onglet</a>';
-      attachPreview.innerHTML = html;
-      positionPreview(rect); // la taille du contenu vient de changer (image/PDF) : on repositionne pour rester dans l'écran
+      attachPreview.innerHTML = '<p class="attach-preview__name">' + escapeHtml(fileName) + '</p>' +
+        '<div class="attach-preview__body"><p class="attach-preview__loading">Chargement de l’aperçu…</p></div>' +
+        '<a class="attach-preview__link fr-link" href="' + escapeAttr(url) + '" target="_blank" rel="noopener">Ouvrir dans un nouvel onglet</a>';
+      positionPreview(rect);
+
+      return buildPreviewBody(url, meta, fileName).then(function (bodyEl) {
+        if (seq !== previewRequestSeq) return;
+        var body = attachPreview.querySelector('.attach-preview__body');
+        if (!body) return;
+        body.innerHTML = '';
+        if (bodyEl) {
+          body.appendChild(bodyEl);
+        } else {
+          body.innerHTML = '<div class="attach-preview__fallback"><span class="fr-icon-file-line" aria-hidden="true" style="font-size:2rem;"></span>' +
+            '<span>Aperçu non disponible pour ce fichier.</span></div>';
+        }
+        positionPreview(rect); // la taille du contenu vient de changer (image/PDF) : on repositionne pour rester dans l'écran
+      });
     }).catch(function (e) {
       if (seq !== previewRequestSeq) return;
       attachPreview.innerHTML = '<p class="attach-preview__loading">Aperçu indisponible : ' + escapeHtml(friendlyErrorMessage(e)) + '</p>';
@@ -2211,6 +2470,7 @@
   function hideAttachPreview() {
     previewRequestSeq++; // invalide toute requête d'aperçu encore en cours
     attachPreview.hidden = true;
+    delete attachPreview.dataset.attachmentId;
   }
   function positionPreview(rect) {
     // Positionne le popover juste sous la vignette, en le ramenant dans la
@@ -2308,15 +2568,15 @@
     return null;
   }
   // Le stagiaire sera-t-il mineur au premier jour de la formation ?
-  // Calculé à partir de sa date de naissance et de la date du 1er jour de
-  // formation (toutes deux réglées dans le backoffice Grist — voir
-  // settings.col.dateNaissance / dateDebutFormation), plutôt que saisi à
-  // la main. Renvoie false si l'une des deux dates manque ou n'est pas
-  // exploitable : le pictogramme reste alors masqué plutôt que d'afficher
-  // une fausse certitude.
-  function willBeMinor(birthValue, startValue) {
+  // Calculé à partir de sa date de naissance (colonne Date de Grist, voir
+  // settings.col.dateNaissance) et de la date "Début de formation le",
+  // saisie à la main dans la Configuration (settings.dateDebutFormation,
+  // déjà convertie en Date UTC par parseFrDate) — pas une colonne.
+  // Renvoie false si l'une des deux dates manque ou n'est pas exploitable :
+  // le pictogramme reste alors masqué plutôt que d'afficher une fausse
+  // certitude.
+  function willBeMinor(birthValue, start) {
     var birth = dateOf(birthValue);
-    var start = dateOf(startValue);
     if (!birth || !start) return false;
     var age = start.getUTCFullYear() - birth.getUTCFullYear();
     var monthDiff = start.getUTCMonth() - birth.getUTCMonth();
