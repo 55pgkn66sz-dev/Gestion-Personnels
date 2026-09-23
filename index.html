@@ -89,7 +89,7 @@
      de nav que Réservations (aria-current="page") pour rester dans le
      même langage d'interface et pouvoir ajouter d'autres pages plus
      tard sans tout reconstruire. */
-  #header-navigation .fr-nav__link { cursor: default; }
+  #header-navigation .fr-nav__link { cursor: pointer; }
 
   /* Le bloc marque du header (logo + intitulé) sert de geste d'accès
      caché au panneau Paramètres (5 clics rapprochés) : pas d'indice
@@ -268,6 +268,96 @@
   /* Icône de doublon, en haut à droite de la modale (à gauche du pictogramme "mineur"). */
   .cand-modal-dialog__dup-flag { width: 2.1rem; height: 2.1rem; font-size: 1.05rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); }
   .cand-modal-dialog__dup-flag[hidden] { display: none; }
+  /* ---- Page Stagiaires : tags et fiche profil ---------------------------- */
+  .fr-tag.stg-tag--pon { background: #e3e3fd; color: var(--bleu-france); font-weight: 700; }
+  .fr-tag.stg-tag--fonction { background: #d5f0ee; color: #006a6f; }
+  .fr-tag.stg-tag--nid { background: #eceaf0; color: #3a3a45; }
+
+  .stg-dialog { max-width: 52rem; }
+  .stg-hero { display: flex; align-items: flex-start; gap: 1.1rem; padding-bottom: 1.1rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
+  .stg-avatar {
+    flex: none; width: 4.2rem; height: 4.2rem; border-radius: 999px;
+    background: linear-gradient(135deg, var(--bleu-france), #4a4ad6); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.45rem; font-weight: 800; letter-spacing: 0.02em;
+    box-shadow: 0 4px 12px rgba(0, 0, 145, 0.3);
+  }
+  .stg-hero__id { flex: 1 1 auto; min-width: 0; }
+  .stg-hero__civ { margin: 0 0 0.1rem; font-size: 0.8em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-mention-grey); }
+  .stg-hero__sub { margin: 0.2rem 0 0; color: var(--text-mention-grey); font-size: 0.95em; }
+  .stg-hero__tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.6rem 0 0; }
+  .stg-hero__tags:empty { display: none; }
+
+  /* Pastilles d'état (autorisé, identité, droit à l'image, secourisme). */
+  .stg-status { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.1rem; }
+  .stg-chip {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.28rem 0.8rem; border-radius: 999px;
+    font-size: 0.8em; font-weight: 700; background: #fff; border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+  .stg-chip::before { content: ''; width: 0.55rem; height: 0.55rem; border-radius: 999px; background: #8b8b96; }
+  .stg-chip--ok { background: #e0f3e4; color: var(--statut-validee); border-color: transparent; }
+  .stg-chip--ok::before { background: var(--statut-validee); }
+  .stg-chip--bad { background: #ffe9e9; color: var(--statut-refusee); border-color: transparent; }
+  .stg-chip--bad::before { background: var(--statut-refusee); }
+  .stg-chip--warn { background: #ffe6d1; color: #a84300; border-color: transparent; }
+  .stg-chip--warn::before { background: var(--statut-rejet); }
+  .stg-chip--neutral { background: #eceaf0; color: #3a3a45; border-color: transparent; }
+
+  /* Cartes thématiques sur deux colonnes. */
+  .stg-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9rem; }
+  .stg-card {
+    background: #fff; border: 1px solid rgba(0, 0, 0, 0.07); border-radius: 0.65rem;
+    padding: 0.9rem 1rem 1rem; box-shadow: 0 1px 3px rgba(20, 10, 30, 0.06);
+  }
+  .stg-card__title {
+    display: flex; align-items: center; gap: 0.5rem; margin: 0 0 0.75rem;
+    font-size: 0.78em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--bleu-france);
+  }
+  .stg-items { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem 0.9rem; }
+  .stg-item { min-width: 0; }
+  .stg-item__label { display: block; font-size: 0.7em; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-mention-grey); margin-bottom: 0.1rem; }
+  .stg-item__value { display: block; font-weight: 600; overflow-wrap: anywhere; }
+  .stg-item__value--empty { font-weight: 400; color: #b5b5c0; }
+  /* Les cartes « courtes » (Contact, Hébergement…) n'ont qu'une colonne d'éléments. */
+  .stg-card:nth-child(2) .stg-items { grid-template-columns: 1fr; }
+  @media (max-width: 40rem) {
+    .stg-grid, .stg-items { grid-template-columns: 1fr; }
+    .stg-hero { flex-wrap: wrap; }
+  }
+  .cand-modal-stack--compare .stg-grid { grid-template-columns: 1fr; }
+  .cand-modal-stack--compare .stg-hero { flex-wrap: wrap; }
+
+  /* Doublon : plusieurs volets côte à côte (voir renderModalContent). */
+  .cand-modal-stack { display: flex; align-items: flex-start; justify-content: center; gap: 1rem; width: 100%; }
+  .cand-modal-stack--compare { max-width: 84rem; }
+  .cand-modal-stack--compare .cand-modal-dialog { flex: 1 1 0; min-width: 0; max-width: 42rem; }
+  /* Volets étroits : cartes documents et champs de bande empilés. */
+  .cand-modal-stack--compare .cand-doc-cols,
+  .cand-modal-stack--compare .cand-bande-row { flex-direction: column; }
+  .cand-modal-dialog__version {
+    display: inline-block;
+    margin: 0.45rem 0 0;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    font-size: 0.75em;
+    font-weight: 700;
+    color: var(--text-mention-grey);
+  }
+  .cand-modal-dialog__version--oldest { color: #a84300; border-color: var(--statut-rejet); }
+  /* Pied du volet : icône de suppression en bas à droite (volet de la ligne la plus ancienne). */
+  .cand-modal-dialog__footer { display: flex; justify-content: flex-end; margin-top: 1.25rem; }
+  .cand-modal-dialog__delete { color: var(--statut-refusee) !important; }
+  @media (max-width: 60rem) {
+    .cand-modal-stack--compare { flex-direction: column; align-items: stretch; }
+    .cand-modal-stack--compare .cand-modal-dialog { max-width: none; }
+  }
+  @media (max-width: 40rem) {
+    .cand-modal-stack--compare { max-height: 92vh; overflow-y: auto; }
+    .cand-modal-stack--compare .cand-modal-dialog { max-height: none; }
+  }
 
   /* Titres de section à l'intérieur de la modale uniquement (ne touche pas
      .section-title du panneau Configuration) : plus aérés, sans
@@ -852,6 +942,9 @@
           <li class="fr-nav__item">
             <button class="fr-nav__link" id="navEtuteur" type="button" aria-current="page">eTuteur</button>
           </li>
+          <li class="fr-nav__item">
+            <button class="fr-nav__link" id="navStagiaires" type="button">Stagiaires</button>
+          </li>
         </ul>
       </nav>
     </div>
@@ -893,6 +986,33 @@
     </div>
 
     <div id="candZone"></div>
+  </div>
+
+  <!-- Page "Stagiaires" : même table que eTuteur, même vue liste (nom, tags PON
+       et Fonction, icônes d'alerte) ; fiche « profil » au clic. -->
+  <div id="panelStagiaires" hidden>
+    <h2 class="fr-h6">Stagiaires</h2>
+
+    <div class="cand-toolbar fr-mb-2w">
+      <div class="fr-search-bar fr-search-bar--sm" role="search">
+        <label class="fr-label" for="stgSearchInput">Rechercher un stagiaire</label>
+        <input class="fr-input" type="search" id="stgSearchInput" placeholder="Nom, PON, NID, Nigend…">
+        <button class="fr-btn fr-btn--sm" id="stgSearchBtn" title="Rechercher">Rechercher</button>
+      </div>
+      <div class="fr-select-group cand-doc-filter" id="stgFonctionGroup">
+        <label class="fr-label fr-sr-only" for="stgFonctionSelect">Filtrer par fonction</label>
+        <select class="fr-select" id="stgFonctionSelect"></select>
+      </div>
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-circle-line fr-btn--icon-left" id="stgResetBtn" type="button" disabled title="Efface la recherche et le filtre sur la fonction">
+        Réinitialiser les filtres
+      </button>
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-refresh-line fr-btn--icon-left" id="stgReloadBtn" type="button" title="Recharger les stagiaires depuis la table Grist">
+        Actualiser
+      </button>
+      <p class="cand-count cand-count--push" id="stgCount"></p>
+    </div>
+
+    <div id="stgZone"></div>
   </div>
 
 <!-- Zone "Configuration" (backoffice) : accessible uniquement via le geste
@@ -1075,6 +1195,35 @@
 
       </section>
 
+      <section class="cfg-card" aria-labelledby="cfgCardTitle8">
+        <div class="cfg-card__head">
+          <span class="cfg-card__num" aria-hidden="true">8</span>
+          <div>
+            <h3 class="cfg-card__title" id="cfgCardTitle8">Page « Stagiaires »</h3>
+            <p class="cfg-card__desc">Colonnes de la table des candidats affichées sur la page Stagiaires (liste et fiche profil). NID, E-mail, Téléphone et Date de naissance se règlent dans la carte 3. Une colonne est proposée automatiquement quand son libellé correspond (PON, Nom, Prénom…) : vérifiez puis enregistrez.</p>
+          </div>
+        </div>
+<div class="cfg-grid">
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_pon">PON<span class="fr-hint-text">Identifiant PON : tag principal de la liste.</span></label><select class="fr-select" id="cand_col_pon" data-role="pon"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_civilite">Civilité</label><select class="fr-select" id="cand_col_civilite" data-role="civilite"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_nom">Nom<span class="fr-hint-text">Sert au tri et à l'affichage « NOM Prénom ».</span></label><select class="fr-select" id="cand_col_nom" data-role="nom"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_prenom">Prénom</label><select class="fr-select" id="cand_col_prenom" data-role="prenom"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_affectation">Affectation</label><select class="fr-select" id="cand_col_affectation" data-role="affectation"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_lieuNaissance">Lieu de naissance</label><select class="fr-select" id="cand_col_lieuNaissance" data-role="lieuNaissance"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_dpt">Dpt<span class="fr-hint-text">Département de naissance.</span></label><select class="fr-select" id="cand_col_dpt" data-role="dpt"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_nigend">Nigend</label><select class="fr-select" id="cand_col_nigend" data-role="nigend"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_fonction">Fonction<span class="fr-hint-text">Second tag de la liste ; permet aussi de filtrer.</span></label><select class="fr-select" id="cand_col_fonction" data-role="fonction"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_batiment">Bât.</label><select class="fr-select" id="cand_col_batiment" data-role="batiment"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_chambre">Ch.</label><select class="fr-select" id="cand_col_chambre" data-role="chambre"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_autorise">Autorisé<span class="fr-hint-text">Case à cocher.</span></label><select class="fr-select" id="cand_col_autorise" data-role="autorise"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_identiteComplete">Identité complète<span class="fr-hint-text">Case à cocher.</span></label><select class="fr-select" id="cand_col_identiteComplete" data-role="identiteComplete"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_droitImage">Droit à l'image<span class="fr-hint-text">Case à cocher (table des candidats).</span></label><select class="fr-select" id="cand_col_droitImage" data-role="droitImage"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_qualifSecourisme">Qualif. secourisme</label><select class="fr-select" id="cand_col_qualifSecourisme" data-role="qualifSecourisme"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_regimeAlimentaire">Régime alimentaire</label><select class="fr-select" id="cand_col_regimeAlimentaire" data-role="regimeAlimentaire"></select></div>
+</div>
+
+      </section>
+
       <div class="cfg-bar">
         <span class="cfg-bar__state" id="cfgBarState">Configuration à jour</span>
         <div class="cfg-bar__actions">
@@ -1093,25 +1242,9 @@
      la fiche candidat et les actions Accepter/Refuser sur les pièces
      jointes. -->
 <div class="cand-modal-overlay" id="candModalOverlay" hidden>
-  <div class="cand-modal-dialog" id="candModalDialog" role="dialog" aria-modal="true" aria-labelledby="candModalTitle">
-    <div class="cand-modal-dialog__header">
-      <div class="cand-modal-dialog__identity">
-        <h3 class="cand-modal-dialog__title" id="candModalTitle"></h3>
-        <p class="cand-modal-dialog__contact" id="candModalContact" hidden></p>
-      </div>
-      <div class="cand-modal-dialog__header-actions">
-        <span class="cand-modal-dialog__dup-flag" id="candModalDupFlag" hidden>
-          <span class="fr-icon-error-warning-line" aria-hidden="true"></span>
-          <span class="fr-sr-only" id="candModalDupText"></span>
-        </span>
-        <span class="cand-modal-dialog__minor-flag" id="candModalMinorFlag" hidden title="Sera mineur au premier jour de la formation">
-          <span class="fr-icon-alert-line" aria-hidden="true"></span>
-        </span>
-        <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-line cand-modal-dialog__close" id="candModalCloseBtn" type="button">Fermer</button>
-      </div>
-    </div>
-    <div id="candModalBody"></div>
-  </div>
+  <!-- Volets de la modale, construits par renderModalContent : un seul en
+       temps normal, deux (ou plus) côte à côte quand le candidat est en doublon. -->
+  <div class="cand-modal-stack" id="candModalStack"></div>
 </div>
 
 <!-- Popover d'aperçu des pièces jointes, positionné dynamiquement au
@@ -1133,6 +1266,8 @@
   // (La date "Début de formation le" n'est PAS un rôle de colonne : elle est
   // saisie à la main dans la Configuration, voir settings.dateDebutFormation.)
   var ROLES = ['nid', 'stagiaire', 'email', 'telephone', 'dateNaissance',
+    'pon', 'civilite', 'nom', 'prenom', 'affectation', 'lieuNaissance', 'dpt', 'nigend', 'fonction', 'batiment', 'chambre',
+    'autorise', 'identiteComplete', 'droitImage', 'qualifSecourisme', 'regimeAlimentaire',
     'usageRS', 'validationUsageRS', 'formImage', 'validationFormImage', 'ead', 'validationEAD',
     'photos', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
   var REQUIRED_ROLES = ['nid', 'stagiaire'];
@@ -1143,6 +1278,10 @@
   // rôles restent dans la table principale (candidats).
   var ROLE_LABELS = {
     nid: 'NID', stagiaire: 'Stagiaire', email: 'E-mail', telephone: 'Téléphone',
+    pon: 'PON', civilite: 'Civilité', nom: 'Nom', prenom: 'Prénom', affectation: 'Affectation', lieuNaissance: 'Lieu de naissance',
+    dpt: 'Dpt', nigend: 'Nigend', fonction: 'Fonction', batiment: 'Bât.', chambre: 'Ch.', autorise: 'Autorisé',
+    identiteComplete: 'Identité complète', droitImage: 'Droit à l\'image', qualifSecourisme: 'Qualif. secourisme',
+    regimeAlimentaire: 'Régime alimentaire',
     dateNaissance: 'Date de naissance',
     usageRS: 'Reconnaissance de responsabilité - Réseaux sociaux', formImage: 'Droit à l\'image',
     ead: 'EAD - Bloc 1',
@@ -1301,6 +1440,10 @@
 
   // ---- Références DOM ----------------------------------------------------
   var panelEtuteur = document.getElementById('panelEtuteur');
+  var navEtuteur = document.getElementById('navEtuteur');
+  var navStagiaires = document.getElementById('navStagiaires');
+  var currentPage = 'etuteur'; // 'etuteur' | 'stagiaires'
+  var settingsOpen = false;
   var panelSettings = document.getElementById('panelSettings');
   var brandGesture = document.getElementById('brandGesture');
   var closeConfigBtn = document.getElementById('closeConfigBtn');
@@ -1317,14 +1460,8 @@
   var candReloadBtn = document.getElementById('candReloadBtn');
   var attachPreview = document.getElementById('attachPreview');
   var candModalOverlay = document.getElementById('candModalOverlay');
-  var candModalDialog = document.getElementById('candModalDialog');
-  var candModalCloseBtn = document.getElementById('candModalCloseBtn');
-  var candModalTitle = document.getElementById('candModalTitle');
-  var candModalContact = document.getElementById('candModalContact');
-  var candModalMinorFlag = document.getElementById('candModalMinorFlag');
-  var candModalDupFlag = document.getElementById('candModalDupFlag');
-  var candModalDupText = document.getElementById('candModalDupText');
-  var candModalBody = document.getElementById('candModalBody');
+  var candModalStack = document.getElementById('candModalStack');
+  var currentModalKind = 'etuteur'; // page d'origine de la modale : 'etuteur' | 'stagiaire'
   var currentModalRowId = null; // id de la ligne actuellement affichée dans la modale, ou null si fermée
 
   // ---- Geste caché sur le bloc marque : 5 clics rapprochés ---------------
@@ -1369,9 +1506,31 @@
     cfgBarState.classList.toggle('cfg-bar__state--dirty', dirty);
   }
 
+  // Affichage des pages : eTuteur, Stagiaires, ou la Configuration (qui prend
+  // la place de la page courante).
+  function applyPageVisibility() {
+    panelSettings.hidden = !settingsOpen;
+    panelEtuteur.hidden = settingsOpen || currentPage !== 'etuteur';
+    panelStagiaires.hidden = settingsOpen || currentPage !== 'stagiaires';
+    navEtuteur.setAttribute('aria-current', currentPage === 'etuteur' ? 'page' : 'false');
+    navStagiaires.setAttribute('aria-current', currentPage === 'stagiaires' ? 'page' : 'false');
+    if (!navEtuteur.getAttribute('aria-current') || navEtuteur.getAttribute('aria-current') === 'false') navEtuteur.removeAttribute('aria-current');
+    if (navStagiaires.getAttribute('aria-current') === 'false') navStagiaires.removeAttribute('aria-current');
+  }
+  function showPage(name) {
+    if (settingsOpen) {
+      closeSettings(); // demande confirmation s'il reste des modifications non enregistrées
+      if (settingsOpen) return;
+    }
+    currentPage = name;
+    applyPageVisibility();
+  }
+  navEtuteur.addEventListener('click', function () { showPage('etuteur'); });
+  navStagiaires.addEventListener('click', function () { showPage('stagiaires'); });
+
   function openSettings() {
-    panelEtuteur.hidden = true;
-    panelSettings.hidden = false;
+    settingsOpen = true;
+    applyPageVisibility();
     settingsStatusZone.innerHTML = '';
     cfgLinkResult.textContent = '';
     cfgLinkResult.className = 'cfg-link-result';
@@ -1381,8 +1540,8 @@
   function closeSettings() {
     if (configDirty && !window.confirm('Des modifications ne sont pas enregistrées. Fermer sans enregistrer ?')) return;
     setConfigDirty(false);
-    panelSettings.hidden = true;
-    panelEtuteur.hidden = false;
+    settingsOpen = false;
+    applyPageVisibility();
   }
   cancelSettingsBtn.addEventListener('click', closeSettings);
   closeConfigBtn.addEventListener('click', closeSettings);
@@ -1418,6 +1577,8 @@
   // (pièce jointe, case à cocher, date) et à annoter les autres. En cas
   // d'échec de lecture : aucun filtre, rien n'est bloqué.
   var columnTypesPromise = null;
+  var columnLabels = {}; // { tableId: { colId: libellé } }, lus avec les types
+  var suggestionsApplied = false; // une colonne a été présélectionnée d'après son libellé
   function loadColumnTypes() {
     if (!columnTypesPromise) {
       columnTypesPromise = Promise.all([
@@ -1428,11 +1589,14 @@
         var tableNameById = {};
         for (var i = 0; i < tables.id.length; i++) tableNameById[tables.id[i]] = tables.tableId[i];
         var map = {};
+        var labels = {};
         for (var j = 0; j < cols.id.length; j++) {
           var tableName = tableNameById[cols.parentId[j]];
           if (!tableName) continue;
           (map[tableName] = map[tableName] || {})[cols.colId[j]] = cols.type[j];
+          (labels[tableName] = labels[tableName] || {})[cols.colId[j]] = cols.label ? cols.label[j] : '';
         }
+        columnLabels = labels;
         return map;
       }).catch(function () { return {}; });
     }
@@ -1455,13 +1619,41 @@
     validationUsageRS: 'Bool', validationFormImage: 'Bool', validationEAD: 'Bool',
     dateNaissance: 'Date'
   };
-  function columnOptions(columns, types, expectedType, keepValue) {
+  // Libellé affiché : « Libellé (identifiant) · Type » — le libellé Grist est
+  // montré en premier car l'identifiant technique (ex. B_t_ pour « Bât. »)
+  // est rarement lisible.
+  function columnOptions(columns, types, expectedType, keepValue, tableId) {
+    var labels = (tableId && columnLabels[tableId]) || {};
     return columns.filter(function (c) {
       var t = types && types[c];
       return !expectedType || !t || String(t).indexOf(expectedType) === 0 || c === keepValue;
     }).map(function (c) {
-      return { value: c, label: (types && types[c]) ? c + '  ·  ' + typeLabel(types[c]) : c };
+      var name = (labels[c] && labels[c] !== c) ? labels[c] + ' (' + c + ')' : c;
+      return { value: c, label: (types && types[c]) ? name + '  ·  ' + typeLabel(types[c]) : name };
     });
+  }
+  // Libellés (normalisés : sans accents ni casse) qui font présélectionner une
+  // colonne quand le champ n'est pas encore réglé — colonnes de la table
+  // « Stagiaires » et champs d'identité.
+  var SUGGEST_LABELS = {
+    nid: ['NID'], telephone: ['TELEPHONE'], email: ['EMAIL PERSO'], dateNaissance: ['DDN'],
+    pon: ['PON'], civilite: ['CIVILITE'], nom: ['NOM'], prenom: ['PRENOM'], affectation: ['AFFECTATION'],
+    lieuNaissance: ['LIEU DE NAISSANCE'], dpt: ['DPT'], nigend: ['NIGEND'], fonction: ['FONCTION'],
+    batiment: ['BAT.', 'BAT'], chambre: ['CH.', 'CH'], autorise: ['AUTORISE'],
+    identiteComplete: ['IDENTITE COMPLETE'], droitImage: ['DROIT A L\'IMAGE'],
+    qualifSecourisme: ['QUALIF. SECOURISME'], regimeAlimentaire: ['REGIME ALIMENTAIRE']
+  };
+  function suggestColumn(role, columns, tableId) {
+    var targets = SUGGEST_LABELS[role];
+    if (!targets) return '';
+    var labels = columnLabels[tableId] || {};
+    for (var i = 0; i < columns.length; i++) {
+      var c = columns[i];
+      var byLabel = normalizeKey(labels[c] || '');
+      var byId = normalizeKey(c.replace(/_/g, ' '));
+      if (targets.indexOf(byLabel) !== -1 || targets.indexOf(byId) !== -1) return c;
+    }
+    return '';
   }
   function roleSelect(role) { return document.getElementById('cand_col_' + role); }
 
@@ -1489,34 +1681,41 @@
         if (!el) return;
         var current = (savedTable === tableId) ? settings.col[role] : '';
         var expected = ROLE_TYPE_FILTER[role];
-        var opts = columnOptions(columns, types, expected, current || el.value);
+        var opts = columnOptions(columns, types, expected, current || el.value, tableId);
         var placeholder = REQUIRED_ROLES.indexOf(role) !== -1 ? 'Choisir une colonne…' : '(non utilisé)';
         if (!opts.length && expected) placeholder = 'Aucune colonne « ' + typeLabel(expected) + ' » dans cette table';
         fillSelectWithOptions(el, opts, current, placeholder);
+        if (!el.value && !current) {
+          var suggested = suggestColumn(role, columns, tableId);
+          if (suggested && opts.some(function (o) { return o.value === suggested; })) {
+            el.value = suggested;
+            suggestionsApplied = true;
+          }
+        }
       });
     }).catch(function (e) {
       showSettingsStatus('error', 'Impossible de lire les colonnes de la table « ' + tableId + ' » : ' + friendlyErrorMessage(e));
     });
   }
 
-// Colonne de liaison : la colonne NID de la table Documents.
-var linkListSeq = 0;
-function refreshLinkColumnList() {
-  var tableId = docsTableEl.value;
-  var current = settings.docsLinkCol;
-  if (!tableId) {
-    fillSelectWithOptions(linkColEl, [], '', 'Choisir la table Documents d’abord…');
-    return Promise.resolve();
+  // Colonne de liaison : la colonne NID de la table Documents.
+  var linkListSeq = 0;
+  function refreshLinkColumnList() {
+    var tableId = docsTableEl.value;
+    var current = settings.docsLinkCol;
+    if (!tableId) {
+      fillSelectWithOptions(linkColEl, [], '', 'Choisir la table Documents d’abord…');
+      return Promise.resolve();
+    }
+    var seq = ++linkListSeq;
+    return Promise.all([grist.docApi.fetchTable(tableId), loadColumnTypes()]).then(function (res) {
+      if (seq !== linkListSeq) return;
+      var types = res[1][tableId] || null;
+      fillSelectWithOptions(linkColEl, columnOptions(tableColumns(res[0]), types, null, '', tableId), current, 'Choisir une colonne…');
+    }).catch(function (e) {
+      showSettingsStatus('error', 'Impossible de lire les colonnes de la table « ' + tableId + ' » : ' + friendlyErrorMessage(e));
+    });
   }
-  var seq = ++linkListSeq;
-  return Promise.all([grist.docApi.fetchTable(tableId), loadColumnTypes()]).then(function (res) {
-    if (seq !== linkListSeq) return;
-    var types = res[1][tableId] || null;
-    fillSelectWithOptions(linkColEl, columnOptions(tableColumns(res[0]), types, null, ''), current, 'Choisir une colonne…');
-  }).catch(function (e) {
-    showSettingsStatus('error', 'Impossible de lire les colonnes de la table « ' + tableId + ' » : ' + friendlyErrorMessage(e));
-  });
-}
 
   function refreshTableList() {
     return grist.docApi.listTables().then(function (tables) {
@@ -1532,7 +1731,8 @@ function refreshLinkColumnList() {
         refreshLinkColumnList()
       ]);
     }).then(function () {
-      setConfigDirty(false);
+      setConfigDirty(suggestionsApplied); // colonnes présélectionnées : à enregistrer
+      suggestionsApplied = false;
       renderConfigSummary();
     }).catch(function (e) {
       showSettingsStatus('error', 'Impossible de lister les tables du document : ' + friendlyErrorMessage(e));
@@ -1681,6 +1881,12 @@ function refreshLinkColumnList() {
       else chip('ok', 'Courriel EAD prêt');
     }
 
+    var stgRoles = ['pon', 'nom', 'prenom', 'fonction'];
+    var stgSet = stgRoles.filter(function (r) { return !!cfg.col[r]; }).length;
+    if (stgSet === stgRoles.length) chip('ok', 'Page Stagiaires : colonnes réglées');
+    else if (stgSet) chip('warn', 'Page Stagiaires : colonnes à compléter');
+    else chip('', 'Page Stagiaires : à régler');
+
     var dateInvalid = !!cfg.dateDebutFormation && !parseFrDate(cfg.dateDebutFormation);
     if (!cfg.dateDebutFormation) chip('', 'Début de formation : non renseigné');
     else if (dateInvalid) chip('warn', 'Début de formation : date invalide');
@@ -1770,10 +1976,16 @@ function refreshLinkColumnList() {
 
   // ---- Chargement des candidats -------------------------------------------
 
+  // Rend les deux pages (eTuteur et Stagiaires) depuis les mêmes données.
+  function renderAll() {
+    renderCandidates();
+    renderStagiaires();
+  }
+
   function loadCandidates() {
     if (!isConfigComplete(settings)) {
       candidates = { rows: [], loaded: false };
-      renderCandidates();
+      renderAll();
       return;
     }
     var usesDocsTable = DOC_TABLE_ROLES.some(function (role) { return !!settings.col[role]; }) &&
@@ -1786,7 +1998,7 @@ function refreshLinkColumnList() {
       markDuplicates(rows);
       // hasNumCand : la table des candidats possède bien la colonne N_Cand
       // (sinon le champ « N° CAND » n'est pas affiché dans la fiche).
-      candidates = { rows: rows, loaded: true, hasNumCand: !!(results[0] && results[0][NUM_CAND_COL]) };
+      candidates = { rows: rows, docsData: results[1], loaded: true, hasNumCand: !!(results[0] && results[0][NUM_CAND_COL]) };
       // Aucune ligne Documents rattachée alors que des candidats existent :
       // presque toujours un sens de liaison ou une colonne de liaison mal
       // réglés — on le signale plutôt que d'afficher des fiches vides sans
@@ -1796,10 +2008,10 @@ function refreshLinkColumnList() {
           'complémentaires (inscription, quantité, blocages…) restent donc vides. Ouvrez la Configuration (5 clics sur le bloc marque du header) ' +
           'et vérifiez la colonne NID de la table Documents (elle doit contenir les mêmes NID que la table des candidats).';
       }
-      renderCandidates();
+      renderAll();
     }).catch(function (e) {
       candidates = { rows: [], loaded: false, error: friendlyErrorMessage(e) };
-      renderCandidates();
+      renderAll();
     });
   }
 
@@ -1825,22 +2037,26 @@ function refreshLinkColumnList() {
     var nidValues = docsData[cfg.docsLinkCol] || [];
     var docIndexByNid = {};
     var docCountByNid = {};
+    var docIdxListByNid = {};
     for (var n = 0; n < docsData.id.length; n++) {
       var key = nidKey(nidValues[n]);
       if (!key) continue;
       docCountByNid[key] = (docCountByNid[key] || 0) + 1;
+      (docIdxListByNid[key] = docIdxListByNid[key] || []).push(n);
       if (!(key in docIndexByNid)) docIndexByNid[key] = n;
     }
     rows.forEach(function (row) {
       var k = nidKey(row.nid);
       // __docRowCount : nombre de lignes Documents portant ce NID (doublon si > 1).
       row.__docRowCount = k ? (docCountByNid[k] || 0) : 0;
+      row.__docIdxList = k ? (docIdxListByNid[k] || []) : []; // indices de TOUTES les lignes Documents de ce NID
       if (k && k in docIndexByNid) docIndexByCandidateId[row.id] = docIndexByNid[k];
     });
 
     var linked = 0;
     rows.forEach(function (row) {
       var idx = docIndexByCandidateId[row.id];
+      row.__docIdx = idx; // indice de la ligne Documents utilisée (la première)
       if (idx === undefined) { row.__docRowId = null; return; }
       linked++;
       row.__docRowId = docsData.id[idx];
@@ -1867,11 +2083,12 @@ function refreshLinkColumnList() {
       r.__candRowCount = k ? counts[k] : 0;
     });
   }
-  function duplicateReasons(row) {
+  // candOnly : ne considère que le doublon dans la table des candidats (page Stagiaires).
+  function duplicateReasons(row, candOnly) {
     var reasons = [];
     var nid = textOf(row.nid);
     if (row.__candRowCount > 1) reasons.push('Doublon : le NID ' + nid + ' figure sur ' + row.__candRowCount + ' lignes de la table des candidats.');
-    if (row.__docRowCount > 1) reasons.push('Doublon : le NID ' + nid + ' figure sur ' + row.__docRowCount + ' lignes de la table Documents (seule la première est utilisée).');
+    if (!candOnly && row.__docRowCount > 1) reasons.push('Doublon : le NID ' + nid + ' figure sur ' + row.__docRowCount + ' lignes de la table Documents (seule la première est utilisée).');
     return reasons;
   }
   function columnarToRows(data, cfg) {
@@ -2010,15 +2227,23 @@ function refreshLinkColumnList() {
     if (!nom.length && tokens.length) { nom = [tokens[0]]; prenom = tokens.slice(1); }
     return { nom: nom.join(' '), prenom: prenom.join(' ') };
   }
+  // Nom / prénom d'un stagiaire : colonnes Nom et Prénom quand elles sont
+  // réglées (page Stagiaires), sinon découpage de la colonne Stagiaire.
+  function nameParts(row) {
+    var nom = settings.col.nom ? textOf(row.nom) : '';
+    var prenom = settings.col.prenom ? textOf(row.prenom) : '';
+    if (nom || prenom) return { nom: nom, prenom: prenom };
+    return splitStagiaireName(textOfRef(row.stagiaire));
+  }
   // Nom du stagiaire pour les courriels : "DUPONT Jean" -> "Jean DUPONT"
-  // (prénom puis NOM), même repérage du NOM que pour le tri.
-  function formatPrenomNom(full) {
-    var parts = splitStagiaireName(full);
+  // (prénom puis NOM).
+  function fullNamePrenomNom(row) {
+    var parts = nameParts(row);
     return [parts.prenom, parts.nom].filter(Boolean).join(' ');
   }
   function compareCandidatesByName(a, b) {
-    var na = splitStagiaireName(textOfRef(a.stagiaire));
-    var nb = splitStagiaireName(textOfRef(b.stagiaire));
+    var na = nameParts(a);
+    var nb = nameParts(b);
     // Stagiaires sans nom renseigné : en fin de liste.
     if (!na.nom !== !nb.nom) return na.nom ? -1 : 1;
     return nameCollator.compare(na.nom, nb.nom) || nameCollator.compare(na.prenom, nb.prenom);
@@ -2084,11 +2309,20 @@ function refreshLinkColumnList() {
     });
     btn.appendChild(tags);
 
-    // Bout de ligne : icône de doublon, pictogramme "mineur", chevron.
+    btn.appendChild(buildRowEnd(row, false));
+
+    btn.addEventListener('click', function () { openCandidateModal(row.id); });
+    return btn;
+  }
+
+  // Bout de ligne (liste eTuteur et liste Stagiaires) : icône de doublon,
+  // pictogramme "mineur", chevron. candOnly : doublon dans la seule table des
+  // candidats (page Stagiaires).
+  function buildRowEnd(row, candOnly) {
     var end = document.createElement('span');
     end.className = 'cand-row__end';
 
-    var dupReasons = duplicateReasons(row);
+    var dupReasons = duplicateReasons(row, candOnly);
     if (dupReasons.length) {
       var dup = document.createElement('span');
       dup.className = 'cand-row__dup';
@@ -2110,10 +2344,346 @@ function refreshLinkColumnList() {
     chevron.className = 'cand-row__chevron fr-icon-arrow-right-s-line';
     chevron.setAttribute('aria-hidden', 'true');
     end.appendChild(chevron);
-    btn.appendChild(end);
+    return end;
+  }
 
-    btn.addEventListener('click', function () { openCandidateModal(row.id); });
+
+  // ==== Page « Stagiaires » ===================================================
+  //
+  // Même table (celle des candidats) et même principe de liste que la page
+  // eTuteur : une bande par stagiaire (nom, tag PON, tag Fonction) et les
+  // deux icônes d'alerte en bout de ligne (doublon de NID, mineur au 1er jour
+  // de la formation). Le clic ouvre une fiche « profil » en lecture seule
+  // (voir buildStagiairePanel). Colonnes réglées dans la Configuration,
+  // carte « Page Stagiaires ».
+
+  var stgSearchText = '';
+  var stgFonction = '';
+  var panelStagiaires = document.getElementById('panelStagiaires');
+  var stgZone = document.getElementById('stgZone');
+  var stgCount = document.getElementById('stgCount');
+  var stgSearchInput = document.getElementById('stgSearchInput');
+  var stgSearchBtn = document.getElementById('stgSearchBtn');
+  var stgFonctionGroup = document.getElementById('stgFonctionGroup');
+  var stgFonctionSelect = document.getElementById('stgFonctionSelect');
+  var stgResetBtn = document.getElementById('stgResetBtn');
+  var stgReloadBtn = document.getElementById('stgReloadBtn');
+
+  stgSearchBtn.addEventListener('click', function () { stgSearchText = stgSearchInput.value; renderStagiaires(); });
+  stgSearchInput.addEventListener('input', function () { stgSearchText = stgSearchInput.value; renderStagiaires(); });
+  stgFonctionSelect.addEventListener('change', function () { stgFonction = stgFonctionSelect.value; renderStagiaires(); });
+  stgReloadBtn.addEventListener('click', loadCandidates);
+  stgResetBtn.addEventListener('click', function () {
+    stgSearchText = '';
+    stgSearchInput.value = '';
+    stgFonction = '';
+    renderStagiaires();
+  });
+
+  function stgHay(row) {
+    return normalizeKey([textOf(row.nid), textOf(row.nom), textOf(row.prenom), textOfRef(row.stagiaire),
+      textOf(row.pon), textOf(row.fonction), textOf(row.nigend), textOf(row.affectation)].join(' '));
+  }
+  function stgMatches(row, skipFonction) {
+    if (stgSearchText.trim() && stgHay(row).indexOf(normalizeKey(stgSearchText)) === -1) return false;
+    if (!skipFonction && stgFonction && textOf(row.fonction) !== stgFonction) return false;
+    return true;
+  }
+
+  function renderStagiaires() {
+    stgZone.innerHTML = '';
+    if (candidates.error) {
+      stgZone.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm"><p>' + escapeHtml(candidates.error) + '</p></div>';
+      stgCount.textContent = '';
+      return;
+    }
+    if (!isConfigComplete(settings)) {
+      stgZone.innerHTML = '<div class="fr-alert fr-alert--info fr-alert--sm"><p>Aucune table de candidats n’est encore configurée. ' +
+        'Cliquez 5 fois, rapidement, sur le bloc marque du header pour ouvrir la Configuration.</p></div>';
+      stgCount.textContent = '';
+      return;
+    }
+
+    // Filtre par fonction : liste des fonctions présentes (avec effectifs,
+    // calculés sur les stagiaires qui passent déjà la recherche).
+    var hasFonction = !!settings.col.fonction;
+    stgFonctionGroup.hidden = !hasFonction;
+    if (hasFonction) {
+      var base = candidates.rows.filter(function (r) { return stgMatches(r, true); });
+      var counts = {};
+      base.forEach(function (r) { var f = textOf(r.fonction); if (f) counts[f] = (counts[f] || 0) + 1; });
+      var names = Object.keys(counts).sort(function (a, b) { return nameCollator.compare(a, b); });
+      if (stgFonction && !(stgFonction in counts)) stgFonction = '';
+      stgFonctionSelect.innerHTML = '';
+      var all = document.createElement('option');
+      all.value = '';
+      all.textContent = 'Toutes les fonctions (' + base.length + ')';
+      stgFonctionSelect.appendChild(all);
+      names.forEach(function (f) {
+        var o = document.createElement('option');
+        o.value = f;
+        o.textContent = f + ' (' + counts[f] + ')';
+        stgFonctionSelect.appendChild(o);
+      });
+      stgFonctionSelect.value = stgFonction;
+    } else {
+      stgFonction = '';
+    }
+    stgResetBtn.disabled = !stgFonction && !stgSearchText.trim();
+
+    var rows = candidates.rows.filter(function (r) { return stgMatches(r); }).sort(compareCandidatesByName);
+    stgCount.textContent = rows.length + ' stagiaire(s) affiché(s) sur ' + candidates.rows.length;
+    if (!rows.length) {
+      stgZone.innerHTML = '<p class="cand-empty-state">Aucun stagiaire ne correspond à l’affichage actuel.</p>';
+    } else {
+      var list = document.createElement('div');
+      list.className = 'cand-list';
+      rows.forEach(function (row) { list.appendChild(buildStagiaireRow(row)); });
+      stgZone.appendChild(list);
+    }
+
+    // Modale ouverte pendant un rechargement : mise à jour, ou fermeture si
+    // la ligne n'existe plus.
+    if (currentModalRowId !== null) {
+      var stillThere = candidates.rows.some(function (r) { return r.id === currentModalRowId; });
+      if (stillThere) renderModalContent(); else closeCandidateModal();
+    }
+  }
+
+  // Nom affiché : « NOM Prénom » d'après les colonnes Nom et Prénom quand elles
+  // sont réglées, sinon la colonne Stagiaire.
+  function stagiaireDisplayName(row) {
+    var nom = settings.col.nom ? textOf(row.nom) : '';
+    var prenom = settings.col.prenom ? textOf(row.prenom) : '';
+    return [nom, prenom].filter(Boolean).join(' ') || textOfRef(row.stagiaire) || '(Stagiaire non renseigné)';
+  }
+
+  function buildStagiaireRow(row) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cand-row';
+    btn.dataset.rowId = row.id;
+
+    var nameEl = document.createElement('span');
+    nameEl.className = 'cand-row__name';
+    nameEl.textContent = stagiaireDisplayName(row);
+    btn.appendChild(nameEl);
+
+    // Tags : PON (bleu) puis Fonction (vert d'eau).
+    var tags = document.createElement('span');
+    tags.className = 'cand-row__tags';
+    var pon = settings.col.pon ? textOf(row.pon) : '';
+    if (pon) tags.appendChild(buildPlainTag(pon, 'stg-tag--pon', 'PON : ' + pon));
+    var fonction = settings.col.fonction ? textOf(row.fonction) : '';
+    if (fonction) tags.appendChild(buildPlainTag(fonction, 'stg-tag--fonction', 'Fonction : ' + fonction));
+    btn.appendChild(tags);
+
+    btn.appendChild(buildRowEnd(row, true));
+    btn.addEventListener('click', function () { openCandidateModal(row.id, 'stagiaire'); });
     return btn;
+  }
+  function buildPlainTag(text, modifier, title) {
+    var tag = document.createElement('span');
+    tag.className = 'fr-tag fr-tag--sm ' + modifier;
+    tag.textContent = text;
+    if (title) tag.title = title;
+    return tag;
+  }
+
+  // ---- Fiche « profil » d'un stagiaire (modale de la page Stagiaires) -------
+  //
+  // Mise en page : bandeau d'identité (avatar à initiales, nom, fonction ·
+  // affectation, tags PON / NID), rangée de pastilles d'état (autorisé,
+  // identité complète, droit à l'image, secourisme), puis des cartes
+  // thématiques sur deux colonnes : Identité, Contact, Affectation,
+  // Hébergement, Santé & restauration. Lecture seule.
+
+  function isBoolLike(v) { return v === true || v === false; }
+  function isYes(v) { return v === true || v === 1 || normalizeKey(textOf(v)) === 'OUI'; }
+  function fmtDateFr(d) {
+    var p = function (n) { return (n < 10 ? '0' : '') + n; };
+    return p(d.getUTCDate()) + '/' + p(d.getUTCMonth() + 1) + '/' + d.getUTCFullYear();
+  }
+  function ageOn(birth, ref) {
+    var age = ref.getUTCFullYear() - birth.getUTCFullYear();
+    var m = ref.getUTCMonth() - birth.getUTCMonth();
+    if (m < 0 || (m === 0 && ref.getUTCDate() < birth.getUTCDate())) age--;
+    return age;
+  }
+
+  function stgValueNode(row, role) {
+    var v = row[role];
+    var span = document.createElement('span');
+    span.className = 'stg-item__value';
+    if (role === 'dateNaissance') {
+      var d = dateOf(v);
+      if (!d) { span.textContent = '—'; span.classList.add('stg-item__value--empty'); return span; }
+      var today = new Date();
+      var age = ageOn(d, new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate())));
+      span.textContent = fmtDateFr(d) + ' (' + age + ' ans)';
+      return span;
+    }
+    var text = isBoolLike(v) ? (v ? 'Oui' : 'Non') : (role === 'telephone' ? fmtPhoneFr(v) : textOf(v));
+    if (!text) { span.textContent = '—'; span.classList.add('stg-item__value--empty'); return span; }
+    if (role === 'telephone') {
+      span.innerHTML = '<a class="fr-link" href="tel:' + escapeAttr(text.replace(/\s+/g, '')) + '">' + escapeHtml(text) + '</a>';
+    } else if (role === 'email') {
+      span.innerHTML = '<a class="fr-link" href="mailto:' + escapeAttr(text) + '">' + escapeHtml(text) + '</a>';
+    } else {
+      span.textContent = text;
+    }
+    return span;
+  }
+
+  var STG_CARDS = [
+    { title: 'Identité', icon: 'fr-icon-user-line', roles: ['civilite', 'nom', 'prenom', 'dateNaissance', 'lieuNaissance', 'dpt'] },
+    { title: 'Contact', icon: 'fr-icon-phone-line', roles: ['telephone', 'email'] },
+    { title: 'Affectation', icon: 'fr-icon-map-pin-2-line', roles: ['affectation', 'fonction', 'nigend', 'pon', 'nid'] },
+    { title: 'Hébergement', icon: 'fr-icon-home-4-line', roles: ['batiment', 'chambre'] },
+    { title: 'Santé & restauration', icon: 'fr-icon-heart-line', roles: ['qualifSecourisme', 'regimeAlimentaire'] }
+  ];
+  var STG_LABELS = { email: 'Email perso', dateNaissance: 'Né(e) le', dpt: 'Département' };
+
+  function buildStgStatusChips(row) {
+    var chips = [];
+    function chip(kind, text) {
+      var c = document.createElement('span');
+      c.className = 'stg-chip stg-chip--' + kind;
+      c.textContent = text;
+      chips.push(c);
+    }
+    if (settings.col.autorise) { if (isYes(row.autorise)) chip('ok', 'Autorisé'); else chip('bad', 'Non autorisé'); }
+    if (settings.col.identiteComplete) { if (isYes(row.identiteComplete)) chip('ok', 'Identité complète'); else chip('warn', 'Identité incomplète'); }
+    if (settings.col.droitImage) { if (isYes(row.droitImage)) chip('ok', 'Droit à l’image : oui'); else chip('neutral', 'Droit à l’image : non'); }
+    if (settings.col.qualifSecourisme && isBoolLike(row.qualifSecourisme)) {
+      if (row.qualifSecourisme) chip('ok', 'Qualif. secourisme'); else chip('neutral', 'Sans qualif. secourisme');
+    }
+    return chips;
+  }
+
+  function buildStagiairePanel(view, compare, isOldest) {
+    var row = view.row;
+    var np = nameParts(row);
+    var prenomNom = [np.prenom, np.nom].filter(Boolean).join(' ') || stagiaireDisplayName(row);
+    var civilite = settings.col.civilite ? textOf(row.civilite) : '';
+
+    var dlg = document.createElement('div');
+    dlg.className = 'cand-modal-dialog stg-dialog';
+    dlg.setAttribute('role', 'dialog');
+    dlg.setAttribute('aria-modal', 'true');
+    dlg.setAttribute('aria-label', prenomNom);
+
+    // -- Bandeau d'identité --
+    var hero = document.createElement('div');
+    hero.className = 'stg-hero';
+    var avatar = document.createElement('div');
+    avatar.className = 'stg-avatar';
+    avatar.setAttribute('aria-hidden', 'true');
+    avatar.textContent = ((np.prenom || '').charAt(0) + (np.nom || '').charAt(0)).toUpperCase() || '?';
+    hero.appendChild(avatar);
+
+    var id = document.createElement('div');
+    id.className = 'stg-hero__id';
+    if (civilite) {
+      var civ = document.createElement('p');
+      civ.className = 'stg-hero__civ';
+      civ.textContent = civilite;
+      id.appendChild(civ);
+    }
+    var title = document.createElement('h3');
+    title.className = 'cand-modal-dialog__title';
+    title.textContent = prenomNom;
+    id.appendChild(title);
+    var sub = [settings.col.fonction ? textOf(row.fonction) : '', settings.col.affectation ? textOf(row.affectation) : ''].filter(Boolean);
+    if (sub.length) {
+      var subEl = document.createElement('p');
+      subEl.className = 'stg-hero__sub';
+      subEl.textContent = sub.join(' · ');
+      id.appendChild(subEl);
+    }
+    var tagsEl = document.createElement('p');
+    tagsEl.className = 'stg-hero__tags';
+    var pon = settings.col.pon ? textOf(row.pon) : '';
+    if (pon) tagsEl.appendChild(buildPlainTag('PON ' + pon, 'stg-tag--pon'));
+    if (textOf(row.nid)) tagsEl.appendChild(buildPlainTag('NID ' + textOf(row.nid), 'stg-tag--nid'));
+    if (tagsEl.childNodes.length) id.appendChild(tagsEl);
+    if (compare) {
+      var version = document.createElement('p');
+      version.className = 'cand-modal-dialog__version' + (isOldest ? ' cand-modal-dialog__version--oldest' : '');
+      version.textContent = 'Ligne n° ' + view.recordId + ' (table des candidats) · ' + (isOldest ? 'la plus ancienne' : 'la plus récente');
+      id.appendChild(version);
+    }
+    hero.appendChild(id);
+
+    // Icônes d'alerte + fermeture (mêmes pictogrammes que la liste).
+    var actions = document.createElement('div');
+    actions.className = 'cand-modal-dialog__header-actions';
+    var dupReasons = duplicateReasons(row, true);
+    if (dupReasons.length) {
+      var dupFlag = document.createElement('span');
+      dupFlag.className = 'cand-modal-dialog__dup-flag';
+      dupFlag.title = dupReasons.join(' ');
+      dupFlag.innerHTML = '<span class="fr-icon-error-warning-line" aria-hidden="true"></span><span class="fr-sr-only"></span>';
+      dupFlag.lastChild.textContent = dupReasons.join(' ');
+      actions.appendChild(dupFlag);
+    }
+    if (willBeMinor(row.dateNaissance, parseFrDate(settings.dateDebutFormation))) {
+      var minorFlag = document.createElement('span');
+      minorFlag.className = 'cand-modal-dialog__minor-flag';
+      minorFlag.title = 'Sera mineur au premier jour de la formation';
+      minorFlag.innerHTML = '<span class="fr-icon-alert-line" aria-hidden="true"></span>';
+      actions.appendChild(minorFlag);
+    }
+    var closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-line cand-modal-dialog__close';
+    closeBtn.textContent = 'Fermer';
+    closeBtn.addEventListener('click', closeCandidateModal);
+    actions.appendChild(closeBtn);
+    hero.appendChild(actions);
+    dlg.appendChild(hero);
+
+    // -- Pastilles d'état --
+    var chips = buildStgStatusChips(row);
+    if (chips.length) {
+      var statusEl = document.createElement('div');
+      statusEl.className = 'stg-status';
+      chips.forEach(function (c) { statusEl.appendChild(c); });
+      dlg.appendChild(statusEl);
+    }
+
+    // -- Cartes thématiques --
+    var grid = document.createElement('div');
+    grid.className = 'stg-grid';
+    STG_CARDS.forEach(function (def) {
+      var roles = def.roles.filter(function (r) { return !!settings.col[r]; });
+      if (!roles.length) return;
+      var card = document.createElement('section');
+      card.className = 'stg-card';
+      var h = document.createElement('h4');
+      h.className = 'stg-card__title';
+      h.innerHTML = '<span class="' + def.icon + '" aria-hidden="true"></span>';
+      h.appendChild(document.createTextNode(def.title));
+      card.appendChild(h);
+      var dl = document.createElement('div');
+      dl.className = 'stg-items';
+      roles.forEach(function (role) {
+        var item = document.createElement('div');
+        item.className = 'stg-item';
+        var label = document.createElement('span');
+        label.className = 'stg-item__label';
+        label.textContent = STG_LABELS[role] || ROLE_LABELS[role];
+        item.appendChild(label);
+        item.appendChild(stgValueNode(row, role));
+        dl.appendChild(item);
+      });
+      card.appendChild(dl);
+      grid.appendChild(card);
+    });
+    dlg.appendChild(grid);
+
+    if (compare && isOldest) dlg.appendChild(buildDeleteFooter(view, prenomNom));
+    return dlg;
   }
 
   // ---- Modale "Fiche candidat" --------------------------------------------
@@ -2124,7 +2694,8 @@ function refreshLinkColumnList() {
     return found;
   }
 
-  function openCandidateModal(rowId) {
+  function openCandidateModal(rowId, kind) {
+    currentModalKind = kind || 'etuteur';
     currentModalRowId = rowId;
     renderModalContent();
     candModalOverlay.hidden = false;
@@ -2149,11 +2720,86 @@ function refreshLinkColumnList() {
       candModalOverlay.hidden = true;
     }, 180);
   }
+  // Vues affichées par la modale pour le candidat cliqué. En temps normal :
+  // une seule. En cas de doublon de NID :
+  //  - plusieurs lignes dans la table des candidats -> un volet par ligne ;
+  //  - sinon plusieurs lignes dans la table Documents -> un volet par ligne
+  //    Documents (même candidat).
+  // recordId / table servent à la suppression de la ligne la plus ancienne
+  // (id le plus petit : Grist attribue les identifiants dans l'ordre de création).
+  function modalViewsFor(row, candOnly) {
+    var nid = nidKey(row.nid);
+    if (nid && row.__candRowCount > 1) {
+      return candidates.rows.filter(function (r) { return nidKey(r.nid) === nid; })
+        .sort(function (a, b) { return a.id - b.id; })
+        .map(function (r) { return { row: variantRow(r, r.__docIdx), table: settings.table, recordId: r.id, kind: 'candidate' }; });
+    }
+    if (!candOnly && nid && row.__docRowCount > 1 && candidates.docsData) {
+      return row.__docIdxList.map(function (idx) {
+        return { row: variantRow(row, idx), table: settings.docsTable, recordId: candidates.docsData.id[idx], kind: 'documents' };
+      }).sort(function (a, b) { return a.recordId - b.recordId; });
+    }
+    return [{ row: row, table: null, recordId: null, kind: 'single' }];
+  }
+
+  // Copie "vivante" d'une ligne : chaque propriété lit et écrit la ligne
+  // d'origine ; les colonnes Documents lisent et écrivent, elles, la ligne
+  // Documents d'indice `idx` (candidates.docsData). Ainsi deux volets qui
+  // partagent une même ligne Documents restent toujours cohérents, et une
+  // modification faite dans un volet est visible dans l'autre.
+  function variantRow(row, idx) {
+    var docs = candidates.docsData;
+    var v = {};
+    Object.keys(row).forEach(function (key) {
+      var col = (DOC_TABLE_ROLES.indexOf(key) !== -1) ? settings.col[key] : null;
+      if (idx !== undefined && docs && col && docs[col]) {
+        Object.defineProperty(v, key, { enumerable: true, configurable: true,
+          get: function () { return docs[col][idx]; }, set: function (val) { docs[col][idx] = val; } });
+      } else {
+        Object.defineProperty(v, key, { enumerable: true, configurable: true,
+          get: function () { return row[key]; }, set: function (val) { row[key] = val; } });
+      }
+    });
+    Object.defineProperty(v, '__docRowId', { enumerable: true, configurable: true, writable: true,
+      value: (idx !== undefined && docs) ? docs.id[idx] : row.__docRowId });
+    return v;
+  }
+
   function renderModalContent() {
-    var row = findCandidateRow(currentModalRowId);
-    if (!row) { closeCandidateModal(); return; }
+    var base = findCandidateRow(currentModalRowId);
+    if (!base) { closeCandidateModal(); return; }
     hideAttachPreview(); // le contenu de la fiche va être reconstruit : l'élément survolé n'existera plus
-    candModalTitle.textContent = textOfRef(row.stagiaire) || '(Stagiaire non renseigné)';
+    var isStg = currentModalKind === 'stagiaire';
+    var views = modalViewsFor(base, isStg);
+    var compare = views.length > 1;
+    var oldest = views[0]; // vues triées par identifiant croissant : la première est la plus ancienne
+    candModalStack.className = 'cand-modal-stack' + (compare ? ' cand-modal-stack--compare' : '');
+    candModalStack.innerHTML = '';
+    views.forEach(function (view) {
+      candModalStack.appendChild((isStg ? buildStagiairePanel : buildModalPanel)(view, compare, view === oldest));
+    });
+  }
+
+  // Un volet de la modale : en-tête (nom, contacts, icônes doublon / mineur,
+  // fermeture), détail du candidat et, en cas de doublon, mention de l'ancienneté
+  // de la ligne + icône de suppression en bas à droite du volet le plus ancien.
+  function buildModalPanel(view, compare, isOldest) {
+    var row = view.row;
+    var name = textOfRef(row.stagiaire) || '(Stagiaire non renseigné)';
+    var dlg = document.createElement('div');
+    dlg.className = 'cand-modal-dialog';
+    dlg.setAttribute('role', 'dialog');
+    dlg.setAttribute('aria-modal', 'true');
+    dlg.setAttribute('aria-label', name);
+
+    var header = document.createElement('div');
+    header.className = 'cand-modal-dialog__header';
+    var identity = document.createElement('div');
+    identity.className = 'cand-modal-dialog__identity';
+    var title = document.createElement('h3');
+    title.className = 'cand-modal-dialog__title';
+    title.textContent = name;
+    identity.appendChild(title);
 
     // Ligne de contact, sous le titre : e-mail et téléphone séparés par un
     // point médian, chacun cliquable (mailto:/tel:) quand il est
@@ -2165,24 +2811,83 @@ function refreshLinkColumnList() {
     if (emailText) contactParts.push('<a class="fr-link" href="mailto:' + escapeAttr(emailText) + '">' + escapeHtml(emailText) + '</a>');
     if (phoneText) contactParts.push('<a class="fr-link" href="tel:' + escapeAttr(phoneText.replace(/\s+/g, '')) + '">' + escapeHtml(phoneText) + '</a>');
     if (contactParts.length) {
-      candModalContact.innerHTML = contactParts.join(' · ');
-      candModalContact.hidden = false;
-    } else {
-      candModalContact.innerHTML = '';
-      candModalContact.hidden = true;
+      var contact = document.createElement('p');
+      contact.className = 'cand-modal-dialog__contact';
+      contact.innerHTML = contactParts.join(' · ');
+      identity.appendChild(contact);
     }
+    if (compare) {
+      var version = document.createElement('p');
+      version.className = 'cand-modal-dialog__version' + (isOldest ? ' cand-modal-dialog__version--oldest' : '');
+      version.textContent = 'Ligne n° ' + view.recordId + ' (' + (view.kind === 'candidate' ? 'table des candidats' : 'table Documents') + ') · ' +
+        (isOldest ? 'la plus ancienne' : 'la plus récente');
+      identity.appendChild(version);
+    }
+    header.appendChild(identity);
 
-    var isMinor = willBeMinor(row.dateNaissance, parseFrDate(settings.dateDebutFormation));
-    candModalMinorFlag.hidden = !isMinor;
+    var actions = document.createElement('div');
+    actions.className = 'cand-modal-dialog__header-actions';
     var dupReasons = duplicateReasons(row);
-    candModalDupFlag.hidden = !dupReasons.length;
-    candModalDupFlag.title = dupReasons.join(' ');
-    candModalDupText.textContent = dupReasons.join(' ');
+    if (dupReasons.length) {
+      var dupFlag = document.createElement('span');
+      dupFlag.className = 'cand-modal-dialog__dup-flag';
+      dupFlag.title = dupReasons.join(' ');
+      dupFlag.innerHTML = '<span class="fr-icon-error-warning-line" aria-hidden="true"></span><span class="fr-sr-only"></span>';
+      dupFlag.lastChild.textContent = dupReasons.join(' ');
+      actions.appendChild(dupFlag);
+    }
+    if (willBeMinor(row.dateNaissance, parseFrDate(settings.dateDebutFormation))) {
+      var minorFlag = document.createElement('span');
+      minorFlag.className = 'cand-modal-dialog__minor-flag';
+      minorFlag.title = 'Sera mineur au premier jour de la formation';
+      minorFlag.innerHTML = '<span class="fr-icon-alert-line" aria-hidden="true"></span>';
+      actions.appendChild(minorFlag);
+    }
+    var closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-line cand-modal-dialog__close';
+    closeBtn.textContent = 'Fermer';
+    closeBtn.addEventListener('click', closeCandidateModal);
+    actions.appendChild(closeBtn);
+    header.appendChild(actions);
+    dlg.appendChild(header);
 
-    candModalBody.innerHTML = '';
-    buildCandidateDetails(row).forEach(function (el) { candModalBody.appendChild(el); });
+    var body = document.createElement('div');
+    buildCandidateDetails(row).forEach(function (el) { body.appendChild(el); });
+    dlg.appendChild(body);
+
+    if (compare && isOldest) dlg.appendChild(buildDeleteFooter(view, name));
+    return dlg;
   }
-  candModalCloseBtn.addEventListener('click', closeCandidateModal);
+
+  // Pied de volet du doublon le plus ancien : icône de suppression en bas à droite.
+  function buildDeleteFooter(view, name) {
+    var footer = document.createElement('div');
+    footer.className = 'cand-modal-dialog__footer';
+    var del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-delete-line cand-modal-dialog__delete';
+    del.title = 'Supprimer cette ligne (la plus ancienne)';
+    del.textContent = 'Supprimer cette ligne (la plus ancienne)';
+    del.addEventListener('click', function () { deleteDuplicateRecord(view, name); });
+    footer.appendChild(del);
+    return footer;
+  }
+
+  // Supprime, après confirmation, la ligne en doublon la plus ancienne
+  // (RemoveRecord dans la table concernée), puis recharge les données.
+  function deleteDuplicateRecord(view, name) {
+    var where = view.kind === 'candidate' ? 'de la table des candidats' : 'de la table Documents';
+    var msg = 'Supprimer la ligne n° ' + view.recordId + ' ' + where + ' (« ' + view.table + ' »), la plus ancienne des doublons de « ' + name + ' » ?\n\n' +
+      'La ligne sera supprimée dans Grist. Vérifiez que l’autre ligne contient bien les informations à conserver.';
+    if (!window.confirm(msg)) return;
+    grist.docApi.applyUserActions([['RemoveRecord', view.table, view.recordId]]).then(function () {
+      closeCandidateModal();
+      loadCandidates();
+    }).catch(function (e) {
+      window.alert('Impossible de supprimer la ligne : ' + friendlyErrorMessage(e));
+    });
+  }
   candModalOverlay.addEventListener('click', function (e) {
     if (e.target === candModalOverlay) closeCandidateModal();
   });
@@ -2467,7 +3172,7 @@ function refreshLinkColumnList() {
         'impossible de préparer le message de relance.');
       return;
     }
-    var name = formatPrenomNom(textOfRef(row.stagiaire));
+    var name = fullNamePrenomNom(row);
     var subject = 'Pièce à renvoyer : ' + docLabel;
     var body = [
       'Bonjour' + (name ? ' ' + name : '') + ',',
@@ -2499,7 +3204,7 @@ function refreshLinkColumnList() {
     return String(text || '').replace(/\{\{\s*([^{}]*?)\s*\}\}/g, function (whole, name) {
       var key = name.toUpperCase();
       if (key === 'N_CAND') return textOf(row.numCand);
-      if (key === 'STAGIAIRE') return formatPrenomNom(textOfRef(row.stagiaire));
+      if (key === 'STAGIAIRE') return fullNamePrenomNom(row);
       return whole;
     });
   }
