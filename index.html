@@ -90,6 +90,7 @@
      même langage d'interface et pouvoir ajouter d'autres pages plus
      tard sans tout reconstruire. */
   #header-navigation .fr-nav__link { cursor: pointer; }
+  #header-navigation .fr-nav__item[hidden] { display: none; }
 
   /* Le bloc marque du header (logo + intitulé) sert de geste d'accès
      caché au panneau Paramètres (5 clics rapprochés) : pas d'indice
@@ -282,9 +283,17 @@
   .cand-modal-dialog__dup-flag { width: 2.1rem; height: 2.1rem; font-size: 1.05rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); }
   .cand-modal-dialog__dup-flag[hidden] { display: none; }
   /* Filtres à cocher de la page Stagiaires (liste déroulante à cases). */
-  .stg-multi { position: relative; flex: 0 1 17.5rem; min-width: 13rem; }
+  .stg-multi { position: relative; flex: 0 1 11.5rem; min-width: 9rem; }
   .stg-multi[hidden] { display: none; }
-  .stg-multi__summary { display: block; cursor: pointer; list-style: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* box-sizing + width : sans eux, le style .fr-select faisait déborder chaque liste
+     de son conteneur (largeur + marges internes) et les trois listes se touchaient.
+     Taille réduite : police, hauteur et flèche. */
+  .stg-multi__summary {
+    display: block; box-sizing: border-box; width: 100%; cursor: pointer; list-style: none;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    padding: 0.35rem 1.8rem 0.35rem 0.65rem; font-size: 0.85rem; line-height: 1.35;
+    background-position: calc(100% - 0.6rem) 50%; background-size: 0.9rem 0.9rem;
+  }
   .stg-multi__summary::-webkit-details-marker { display: none; }
   .stg-multi__summary--active { font-weight: 700; color: var(--bleu-france); }
   .stg-multi__panel {
@@ -300,6 +309,14 @@
   .stg-multi__clear:hover { text-decoration-thickness: 2px; }
 
   /* ---- Page Stagiaires : tags et fiche profil ---------------------------- */
+  /* Avatar rond de la liste Stagiaires : photo, sinon initiales. */
+  .stg-row-avatar {
+    flex: none; width: 2.3rem; height: 2.3rem; border-radius: 999px; overflow: hidden;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: #d9d9f5 center / cover no-repeat; color: var(--bleu-france);
+    font-size: 0.8rem; font-weight: 800; letter-spacing: 0.02em;
+    box-shadow: 0 0 0 2px #fff, 0 1px 4px rgba(0, 0, 145, 0.25);
+  }
   .fr-tag.stg-tag--pon { background: #e3e3fd; color: var(--bleu-france); font-weight: 700; }
   .fr-tag.stg-tag--fonction { background: #d5f0ee; color: #006a6f; }
   .fr-tag.stg-tag--nid { background: #eceaf0; color: #3a3a45; }
@@ -443,6 +460,17 @@
   .stg-naming__chip { cursor: pointer; border: none; }
   .stg-naming__actions { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.6rem; }
   .stg-naming__status { font-size: 0.85em; color: var(--text-mention-grey); }
+  /* Fichier + corbeille ronde discrète (grise, rouge au survol). */
+  .stg-file { display: inline-flex; align-items: center; gap: 0.35rem; max-width: 100%; min-width: 0; }
+  .stg-file__trash {
+    flex: none; display: inline-flex; align-items: center; justify-content: center;
+    width: 1.55rem; height: 1.55rem; padding: 0; border: none; border-radius: 999px;
+    background: transparent; color: #a0a0ac; font-size: 0.8rem; cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .stg-file__trash:hover:not(:disabled), .stg-file__trash:focus-visible { background: #ffe9e9; color: var(--statut-refusee); }
+  .stg-file__trash:focus-visible { outline: 2px solid var(--bleu-france); outline-offset: 1px; }
+  .stg-file__trash:disabled { opacity: 0.4; cursor: wait; }
   /* Onglet Documents. */
   .stg-docline { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem 0.9rem; padding: 0.55rem 0; border-top: 1px solid rgba(0, 0, 0, 0.07); }
   .stg-docline__label { flex: 1 1 14rem; font-weight: 600; font-size: 0.9em; }
@@ -1223,6 +1251,11 @@
     <select class="fr-select" id="cand_docs_table"></select>
   </div>
 </div>
+<div class="fr-checkbox-group fr-mt-3w">
+  <input type="checkbox" id="cfg_hideEtuteur">
+  <label class="fr-label" for="cfg_hideEtuteur">Masquer la page eTuteur
+    <span class="fr-hint-text">L'onglet eTuteur n'est plus affiché ; seule la page Stagiaires reste accessible. Les données restent chargées.</span></label>
+</div>
 
       </section>
 
@@ -1430,7 +1463,11 @@
   // Tous les autres rôles de ROLES (identité du candidat) restent
   // lus/écrits dans la table principale (candidats).
   var DOC_TABLE_ROLES = ['usageRS', 'validationUsageRS', 'formImage', 'validationFormImage', 'ead', 'validationEAD',
-    'photos', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
+    'photos', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos',
+    'nomUrgence', 'prenomUrgence', 'telUrgence', 'allergies', 'traitements', 'lateralite', 'modeTransport', 'immatriculation'];
+  // Colonnes de la fiche Stagiaires lues dans la table Documents (ETuteur), retrouvées par libellé
+  // (voir applySuggestedColumns) : elles ne rendent pas la Configuration "incomplète".
+  var HARD_DOCS_ROLES = ['nomUrgence', 'prenomUrgence', 'telUrgence', 'allergies', 'traitements', 'lateralite', 'modeTransport', 'immatriculation'];
   var MAIN_TABLE_ROLES = ROLES.filter(function (r) { return DOC_TABLE_ROLES.indexOf(r) === -1; });
   // Rôles rendus éditables directement depuis la fiche candidat (voir
   // buildBlockField / buildBlocagesEditor) : 'text' pour un simple champ
@@ -1488,7 +1525,7 @@
   function defaultConfig() {
     var col = {};
     ROLES.forEach(function (role) { col[role] = ''; });
-    return { table: '', docsTable: '', docsLinkCol: '', dateDebutFormation: '', eadMail: { subject: DEFAULT_EAD_MAIL.subject, body: DEFAULT_EAD_MAIL.body }, col: col };
+    return { table: '', docsTable: '', docsLinkCol: '', hideEtuteur: false, dateDebutFormation: '', eadMail: { subject: DEFAULT_EAD_MAIL.subject, body: DEFAULT_EAD_MAIL.body }, col: col };
   }
   function mergeConfig(loaded) {
     var cfg = defaultConfig();
@@ -1497,6 +1534,7 @@
     cfg.docsTable = loaded.docsTable || '';
     cfg.docsLinkCol = loaded.docsLinkCol || '';
     cfg.dateDebutFormation = (typeof loaded.dateDebutFormation === 'string') ? loaded.dateDebutFormation : '';
+    cfg.hideEtuteur = !!loaded.hideEtuteur; // masque l'onglet et la page eTuteur
     if (loaded.eadMail && typeof loaded.eadMail.subject === 'string' && typeof loaded.eadMail.body === 'string') {
       cfg.eadMail = { subject: loaded.eadMail.subject, body: loaded.eadMail.body };
     }
@@ -1522,7 +1560,7 @@
   // rien n'empêche un usage sans aucun document.
   function isConfigComplete(cfg) {
     if (!cfg.table || !REQUIRED_ROLES.every(function (role) { return !!cfg.col[role]; })) return false;
-    var usesDocsTable = DOC_TABLE_ROLES.some(function (role) { return !!cfg.col[role]; });
+    var usesDocsTable = DOC_TABLE_ROLES.some(function (role) { return HARD_DOCS_ROLES.indexOf(role) === -1 && !!cfg.col[role]; });
     if (usesDocsTable && (!cfg.docsTable || !cfg.docsLinkCol)) return false;
     return true;
   }
@@ -1646,6 +1684,10 @@
   // Affichage des pages : eTuteur, Stagiaires, ou la Configuration (qui prend
   // la place de la page courante).
   function applyPageVisibility() {
+    // Page eTuteur masquée (option de la Configuration) : onglet caché, et on repart sur Stagiaires.
+    var hideEtuteur = !!settings.hideEtuteur;
+    navEtuteur.parentElement.hidden = hideEtuteur;
+    if (hideEtuteur && currentPage === 'etuteur') currentPage = 'stagiaires';
     panelSettings.hidden = !settingsOpen;
     panelEtuteur.hidden = settingsOpen || currentPage !== 'etuteur';
     panelStagiaires.hidden = settingsOpen || currentPage !== 'stagiaires';
@@ -1866,6 +1908,7 @@
       fillSelectWithOptions(candTableEl, allTableIds, settings.table, 'Choisir une table…');
       fillSelectWithOptions(docsTableEl, allTableIds, settings.docsTable, 'Choisir une table…');
       startDateEl.value = settings.dateDebutFormation;
+      document.getElementById('cfg_hideEtuteur').checked = !!settings.hideEtuteur;
       mailSubjectEl.value = settings.eadMail.subject;
       mailBodyEl.value = settings.eadMail.body;
       return Promise.all([
@@ -1933,6 +1976,7 @@
     // Colonne de liaison : lue seule (jamais écrite par le widget), pas
     // besoin qu'elle passe isWritableColId comme les colonnes de rôle.
     cfg.docsLinkCol = linkColEl.value || '';
+    cfg.hideEtuteur = document.getElementById('cfg_hideEtuteur').checked;
     cfg.dateDebutFormation = startDateEl.value.trim();
     cfg.eadMail = { subject: mailSubjectEl.value.trim(), body: mailBodyEl.value };
     ROLES.forEach(function (role) {
@@ -2024,6 +2068,8 @@
       else chip('ok', 'Courriel EAD prêt');
     }
 
+    if (cfg.hideEtuteur) chip('', 'Page eTuteur masquée');
+
     var dateInvalid = !!cfg.dateDebutFormation && !parseFrDate(cfg.dateDebutFormation);
     if (!cfg.dateDebutFormation) chip('', 'Début de formation : non renseigné');
     else if (dateInvalid) chip('warn', 'Début de formation : date invalide');
@@ -2093,11 +2139,12 @@
       ['Pièces complémentaires (noms)', colCell(PIECES_NOMS_COL, mainCols, labelsMain)]
     ]);
 
-    html += '<h4>Page Stagiaires — colonnes retrouvées par libellé Grist</h4>' + table(HARD_STG_ROLES.map(function (role) {
+    html += '<h4>Page Stagiaires — colonnes retrouvées par libellé Grist (candidats, ou Documents pour les colonnes ETuteur)</h4>' + table(HARD_STG_ROLES.map(function (role) {
       var expected = (SUGGEST_LABELS[role] || [''])[0];
       var col = settings.col[role];
-      var cell = col ? colCell(col, mainCols, labelsMain) : '<span class="cfg-pill cfg-pill--ko">non trouvée</span> <span class="cfg-sources__grist">libellé attendu « ' + escapeHtml(expected) + ' »</span>';
-      return [ROLE_LABELS[role], cell];
+      var inDocs = HARD_DOCS_ROLES.indexOf(role) !== -1;
+      var cell = col ? colCell(col, inDocs ? docsCols : mainCols, inDocs ? labelsDocs : labelsMain) : '<span class="cfg-pill cfg-pill--ko">non trouvée</span> <span class="cfg-sources__grist">libellé attendu « ' + escapeHtml(expected) + ' »</span>';
+      return [ROLE_LABELS[role] + (inDocs ? ' (Documents)' : ''), cell];
     }));
 
     var setMain = ['nid', 'stagiaire', 'email', 'telephone', 'dateNaissance'];
@@ -2155,6 +2202,7 @@
     saveSettingsBtn.disabled = true;
     grist.setOption('candidatsStageConfig', next).then(function () {
       settings = next;
+      applyPageVisibility();
       setConfigDirty(false);
       showSettingsStatus('success', 'Configuration enregistrée.');
       attachmentsMetaPromise = null; // la table peut avoir changé, on force une relecture des métadonnées
@@ -2172,6 +2220,7 @@
 
   grist.onOptions(function (options) {
     settings = mergeConfig(options && options.candidatsStageConfig);
+    applyPageVisibility();
     loadCandidates();
     if (!isConfigComplete(settings)) openSettings();
   });
@@ -2191,12 +2240,11 @@
       renderAll();
       return;
     }
-    var usesDocsTable = DOC_TABLE_ROLES.some(function (role) { return !!settings.col[role]; }) &&
-      settings.docsTable && settings.docsLinkCol;
+    var usesDocsTable = !!(settings.docsTable && settings.docsLinkCol);
     var mainPromise = grist.docApi.fetchTable(settings.table);
     var docsPromise = usesDocsTable ? grist.docApi.fetchTable(settings.docsTable) : Promise.resolve(null);
     Promise.all([mainPromise, docsPromise, loadColumnTypes()]).then(function (results) {
-      applySuggestedColumns(results[0]);
+      applySuggestedColumns(results[0], results[1]);
       var rows = columnarToRows(results[0]);
       var linked = mergeDocsTable(rows, results[1]);
       markDuplicates(rows);
@@ -2759,11 +2807,43 @@
     return [nom, prenom].filter(Boolean).join(' ') || textOfRef(row.stagiaire) || '(Stagiaire non renseigné)';
   }
 
+  // Avatar rond de la liste Stagiaires : la photo (colonne « Photo ») si elle est
+  // lisible avec le jeton du widget, sinon les initiales. On mémorise seulement le
+  // résultat (lisible ou non), pas l'URL : le jeton d'accès expire.
+  var portraitOk = {}; // "idLigne:idFichier" -> true (image lisible) | false (illisible)
+  function buildRowAvatar(row) {
+    var np = nameParts(row);
+    var av = document.createElement('span');
+    av.className = 'stg-row-avatar';
+    av.setAttribute('aria-hidden', 'true');
+    av.textContent = ((np.prenom || '').charAt(0) + (np.nom || '').charAt(0)).toUpperCase() || '?';
+    var ids = extractAttachmentIds(row.portrait);
+    if (!ids.length) return av;
+    var key = row.id + ':' + ids[0];
+    if (portraitOk[key] === false) return av;
+    function apply(url) {
+      av.style.backgroundImage = "url('" + url + "')";
+      av.classList.add('stg-row-avatar--photo');
+      av.textContent = '';
+    }
+    getAccessTokenInfo().then(function (tokenInfo) {
+      var url = attachmentUrl(tokenInfo, ids[0], { tableId: settings.table, colId: PHOTO_COL, rowId: row.id });
+      if (portraitOk[key] === true) { apply(url); return; }
+      var probe = new Image();
+      probe.onload = function () { portraitOk[key] = true; apply(url); };
+      probe.onerror = function () { portraitOk[key] = false; };
+      probe.src = url;
+    }).catch(function () { /* initiales conservées */ });
+    return av;
+  }
+
   function buildStagiaireRow(row) {
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'cand-row';
     btn.dataset.rowId = row.id;
+
+    btn.appendChild(buildRowAvatar(row));
 
     var nameEl = document.createElement('span');
     nameEl.className = 'cand-row__name';
@@ -2809,10 +2889,14 @@
   // Champs d'identité communs aux deux pages, réglables dans la carte 3 : le
   // libellé Grist ne sert que s'ils ne sont pas réglés.
   var SOFT_STG_ROLES = ['telephone', 'email', 'dateNaissance'];
-  function applySuggestedColumns(data) {
+  function applySuggestedColumns(data, docsData) {
     var cols = tableColumns(data);
+    var docsCols = docsData ? tableColumns(docsData) : [];
     HARD_STG_ROLES.forEach(function (role) {
-      settings.col[role] = suggestColumn(role, cols, settings.table);
+      // Colonnes ETuteur : cherchées dans la table Documents ; les autres dans la table des candidats.
+      settings.col[role] = HARD_DOCS_ROLES.indexOf(role) !== -1
+        ? suggestColumn(role, docsCols, settings.docsTable)
+        : suggestColumn(role, cols, settings.table);
     });
     SOFT_STG_ROLES.forEach(function (role) {
       if (settings.col[role]) return;
@@ -3134,6 +3218,42 @@
     return persistPieces(row, ids, names).then(function () { renderCandidates(); });
   }
 
+  // Fichier + corbeille ronde discrète à son extrémité. `action` renvoie une promesse.
+  function buildFileItem(link, confirmText, action) {
+    var item = document.createElement('span');
+    item.className = 'stg-file';
+    item.appendChild(link);
+    var trash = document.createElement('button');
+    trash.type = 'button';
+    trash.className = 'stg-file__trash';
+    trash.title = 'Supprimer ce fichier';
+    trash.setAttribute('aria-label', 'Supprimer ce fichier');
+    trash.innerHTML = '<span class="fr-icon-delete-line" aria-hidden="true"></span>';
+    trash.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (!window.confirm(confirmText)) return;
+      trash.disabled = true;
+      action().catch(function (err) {
+        trash.disabled = false;
+        window.alert('Impossible de supprimer le fichier : ' + friendlyErrorMessage(err));
+      });
+    });
+    item.appendChild(trash);
+    return item;
+  }
+  // Détache UN fichier d'une pièce eTuteur (colonne pièce jointe de la table Documents).
+  function removeDocFile(row, role, id) {
+    var colId = settings.col[role];
+    if (!isWritableColId(colId) || !row.__docRowId) return Promise.reject(new Error('Aucune ligne Documents liée à ce stagiaire.'));
+    var remaining = extractAttachmentIds(row[role]).filter(function (x) { return x !== id; });
+    var fields = {};
+    fields[colId] = ['L'].concat(remaining);
+    return grist.docApi.applyUserActions([['UpdateRecord', settings.docsTable, row.__docRowId, fields]]).then(function () {
+      row[role] = ['L'].concat(remaining);
+      renderCandidates();
+    });
+  }
+
   function buildStgPiecesCard(row) {
     var card = document.createElement('section');
     card.className = 'stg-card';
@@ -3188,18 +3308,9 @@
       loadAttachmentsMeta().then(function (m) { link.textContent = (m[id] && m[id].fileName) || ('Pièce jointe #' + id); });
       link.addEventListener('click', function () { openAttachmentInNewTab(id, cell); });
       bindAttachHover(link, id, cell);
-      files.appendChild(link);
+      files.appendChild(buildFileItem(link, 'Retirer la pièce « ' + (names[id] || 'sans nom') + ' » de ce stagiaire ?\n\nLe fichier est détaché de la fiche.',
+        function () { return removePiece(row, id); }));
       line.appendChild(files);
-      var del = document.createElement('button');
-      del.type = 'button';
-      del.className = 'fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-delete-line stg-docline__delete';
-      del.title = 'Retirer cette pièce';
-      del.textContent = 'Retirer cette pièce';
-      del.addEventListener('click', function () {
-        if (!window.confirm('Retirer la pièce « ' + (names[id] || 'sans nom') + ' » de ce stagiaire ?\n\nLe fichier est détaché de la fiche.')) return;
-        removePiece(row, id).catch(function (e) { window.alert('Impossible de retirer la pièce : ' + friendlyErrorMessage(e)); });
-      });
-      line.appendChild(del);
       list.appendChild(line);
     });
     if (!ids.length) {
@@ -3318,7 +3429,7 @@
   // ---- Onglet « Documents » -------------------------------------------------------------
   // Pour chaque pièce eTuteur : tag d'état coloré (vert / orange / rouge, comme
   // la liste eTuteur) et fichier cliquable (nouvel onglet, aperçu au survol) ;
-  // puis les pièces complémentaires (glisser-déposer) et le suivi (n° CAND, blocages / infos).
+  // puis les pièces complémentaires (glisser-déposer).
   function buildStgDocumentsTab(row) {
     var wrap = document.createElement('div');
     wrap.className = 'stg-docs-tab';
@@ -3348,7 +3459,8 @@
           loadAttachmentsMeta().then(function (m) { link.textContent = (m[id] && m[id].fileName) || ('Pièce jointe #' + id); });
           link.addEventListener('click', function () { openAttachmentInNewTab(id, cell); });
           bindAttachHover(link, id, cell);
-          files.appendChild(link);
+          files.appendChild(buildFileItem(link, 'Supprimer ce fichier (« ' + ROLE_LABELS[role] + ' ») ?\n\nLe fichier est détaché de la fiche.',
+            function () { return removeDocFile(row, role, id); }));
         });
         line.appendChild(files);
         card.appendChild(line);
@@ -3356,11 +3468,6 @@
       wrap.appendChild(card);
     }
     wrap.appendChild(buildStgPiecesCard(row));
-    var suivi = stgBlock('Suivi eTuteur', 'fr-icon-file-text-line', [
-      candidates.hasNumCand ? stgItem('N° CAND', stgTextValue(textOf(row.numCand))) : null,
-      settings.col.blocagesInfos ? stgItem('Blocages / Infos', stgTextValue(textOf(row.blocagesInfos), true), true) : null
-    ]);
-    if (suivi) wrap.appendChild(suivi);
     if (!wrap.childNodes.length) {
       var none = document.createElement('p');
       none.className = 'cand-empty-state';
