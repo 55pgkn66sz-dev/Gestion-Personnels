@@ -137,11 +137,15 @@
   }
   .cand-list .cand-row:last-child { border-bottom: none; }
   .cand-row:hover, .cand-row:focus-visible { background: #f0f0f5; }
-  .cand-row__name { margin: 0; font-size: 1em; font-weight: 700; flex: 1 1 auto; }
-  .cand-row__chevron { color: var(--text-mention-grey); flex: none; }
+  /* Les tags suivent directement le nom (ni le nom ni les tags ne s'étirent) ;
+     seul le bout de ligne (pictogramme "mineur" + chevron) est repoussé à
+     droite, par la marge automatique du premier des deux. */
+  .cand-row__name { margin: 0; font-size: 1em; font-weight: 700; flex: 0 0 auto; }
+  .cand-row__chevron { color: var(--text-mention-grey); flex: none; margin-left: auto; }
+  .cand-row__minor + .cand-row__chevron { margin-left: 0; }
   /* Nom du candidat, puis un tag DSFR par document (voir buildCandidateRow),
      puis, en bout de ligne, le pictogramme "mineur" et le chevron. */
-  .cand-row__tags { display: flex; flex-wrap: wrap; gap: 0.4rem; flex: 1 1 auto; min-width: 0; }
+  .cand-row__tags { display: flex; flex-wrap: wrap; gap: 0.4rem; flex: 0 1 auto; min-width: 0; }
   .cand-row__minor {
     display: inline-flex;
     align-items: center;
@@ -153,6 +157,7 @@
     color: #716200;
     font-size: 0.9rem;
     flex: none;
+    margin-left: auto;
   }
 
   /* Tags de statut des documents : le tag DSFR (.fr-tag) recoloré selon l'état.
@@ -669,8 +674,7 @@
     .cand-toolbar .fr-search-bar { flex-basis: 100%; max-width: none; }
     .cand-count--push { margin-left: 0; flex-basis: 100%; }
     .cand-doc-cols { flex-direction: column; }
-    .cand-row { flex-wrap: wrap; }
-    .cand-row__name { flex-basis: 100%; }
+    .cand-row { flex-wrap: wrap; row-gap: 0.4rem; }
     .cand-bande-row { flex-direction: column; }
   }
 
