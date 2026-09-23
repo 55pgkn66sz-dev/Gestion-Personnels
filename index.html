@@ -588,22 +588,13 @@
   .cand-pill--no { background: var(--uv-pastel-over); color: var(--statut-refusee); }
   .cand-pill--unknown { background: #f0f0f0; color: var(--text-mention-grey); }
 
-  .cand-blocages {
-    margin-top: 0.75rem;
-    padding: 0.6rem 0.8rem;
-    border-radius: 0.55rem;
-    background: var(--statut-pastel-attente);
-    border: 1px solid var(--statut-attente);
-    font-size: 0.85em;
-    box-shadow: 0 1px 3px rgba(20, 10, 30, 0.06);
-  }
-  .cand-blocages strong { display: block; font-size: 0.85em; margin-bottom: 0.15rem; }
-  .cand-blocages__textarea {
-    width: 100%;
-    box-sizing: border-box;
+  /* Blocages / Infos : même bloc que les champs "Bande" (voir
+     buildBlocagesEditor), avec une zone de texte redimensionnable. */
+  .cand-field-block__textarea {
+    display: block;
     resize: vertical;
-    font: inherit;
-    margin: 0 !important;
+    min-height: 4.5rem;
+    background: transparent;
   }
 
   .cand-empty-state {
@@ -738,7 +729,7 @@
     <div class="fr-alert fr-alert--info fr-alert--sm fr-mb-3w">
       <p>Associez la table Grist des candidats et le rôle de chacune de ses colonnes, d'après les libellés
       de la fiche candidat (NID, Stagiaire, Usage RS…). Les documents (pièces jointes et leur validation)
-      ainsi que les informations complémentaires (Photos, Bande patro., Quantité, Dû, Encaissé,
+      ainsi que les informations complémentaires (Photos, Inscription (bande patronymique), Quantité, Dû, Encaissé,
       Blocages/Infos) peuvent vivre dans une table Grist séparée de celle des candidats : indiquez alors,
       dans la section « Documents », la table concernée, le mode de liaison entre les deux tables et la
       colonne de liaison correspondante — soit la colonne NID de la table Documents (mode « même NID » :
@@ -759,7 +750,7 @@
       fiche, n'est pas saisi à la main pour chaque candidat : il est calculé en comparant l'âge du candidat
       (colonne Date « Date de naissance du stagiaire ») à la date « Début de formation le », que vous
       saisissez ici à la main au format JJ/MM/AAAA (elle ne correspond à aucune colonne de la table) ;
-      sans l'une des deux informations, le pictogramme reste masqué (impossible de savoir). « Bande patro. », « Quantité » et « Encaissé » sont modifiables
+      sans l'une des deux informations, le pictogramme reste masqué (impossible de savoir). « Inscription », « Quantité » et « Encaissé » sont modifiables
       directement depuis la fiche candidat — préférez des colonnes Texte ou Numérique (pas une colonne
       Référence) pour que l'enregistrement fonctionne ; « Dû » reste en lecture seule. Ces réglages sont
       mémorisés avec le widget.</p>
@@ -861,7 +852,7 @@
             <select class="fr-select" id="cand_col_photos" data-role="photos"></select>
           </div>
           <div class="fr-select-group">
-            <label class="fr-label" for="cand_col_inscriptionBande">Bande patro. (optionnel)</label>
+            <label class="fr-label" for="cand_col_inscriptionBande">Inscription (bande patronymique, optionnel)</label>
             <select class="fr-select" id="cand_col_inscriptionBande" data-role="inscriptionBande"></select>
           </div>
           <div class="fr-select-group">
@@ -945,7 +936,7 @@
     dateNaissance: 'Date de naissance',
     usageRS: 'Reconnaissance de responsabilité - Réseaux sociaux', formImage: 'Droit à l\'image',
     photos: 'Photos', validationAdmin: 'Validation admin', ead: 'Enseignement à distance Bloc 1', validationEAD: 'Validation EAD',
-    inscriptionBande: 'Bande patro.', qteBandes: 'Quantité', du: 'Dû', encaisse: 'Encaissé',
+    inscriptionBande: 'Inscription', qteBandes: 'Quantité', du: 'Dû', encaisse: 'Encaissé',
     blocagesInfos: 'Blocages / Infos'
   };
   // Rôles hébergés par la table "Documents" (voir settings.docsTable /
@@ -1373,7 +1364,7 @@
       // explication.
       if (usesDocsTable && rows.length && results[1] && results[1].id && results[1].id.length && linked === 0) {
         candidates.warning = 'Aucune ligne de la table Documents n’a pu être rattachée à un candidat : les pièces jointes et les informations ' +
-          'complémentaires (bande patro., quantité, blocages…) restent donc vides. Ouvrez la Configuration (5 clics sur le bloc marque du header) ' +
+          'complémentaires (inscription, quantité, blocages…) restent donc vides. Ouvrez la Configuration (5 clics sur le bloc marque du header) ' +
           'et vérifiez le mode de liaison ainsi que la colonne de liaison (par exemple, la colonne NID de la table Documents).';
       }
       renderCandidates();
@@ -1680,7 +1671,7 @@
     if (bandeRoles.some(function (r) { return !!settings.col[r]; })) {
       var bandeTitle = document.createElement('p');
       bandeTitle.className = 'section-title';
-      bandeTitle.textContent = 'Bande';
+      bandeTitle.textContent = 'Bande patronymique';
       sections.push(bandeTitle);
 
       var bandeWrap = document.createElement('div');
@@ -1754,6 +1745,11 @@
   // (absent de EDITABLE_ROLE_KIND → rendu en lecture seule). Saisie
   // enregistrée au blur (pas à chaque frappe) — voir saveFieldEdit. ------
 
+  // 6 -> "6,00" ; 12.5 -> "12,50"
+  function formatAmountInput(n) {
+    return n.toFixed(2).replace('.', ',');
+  }
+
   function buildBlockField(row, role) {
     var kind = EDITABLE_ROLE_KIND[role]; // undefined => champ en lecture seule (cas de "Dû")
     var block = document.createElement('div');
@@ -1778,9 +1774,18 @@
     var input = document.createElement('input');
     input.id = inputId;
     input.className = 'cand-field-block__input';
-    if (kind === 'number' || kind === 'currency') {
+    if (kind === 'currency') {
+      // Champ texte (et non type=number) : un champ numérique natif
+      // n'affiche pas les zéros de fin ("6" au lieu de "6,00"). Le montant
+      // est affiché avec 2 décimales, virgule française ; la saisie accepte
+      // virgule ou point (voir saveFieldEdit).
+      input.type = 'text';
+      input.inputMode = 'decimal';
+      var amount = numOf(row[role]);
+      input.value = isNaN(amount) ? '' : formatAmountInput(amount);
+    } else if (kind === 'number') {
       input.type = 'number';
-      input.step = kind === 'currency' ? '0.01' : '1';
+      input.step = '1';
       var n = numOf(row[role]);
       input.value = isNaN(n) ? '' : n;
     } else {
@@ -1818,19 +1823,23 @@
     return block;
   }
 
+  // Même bloc blanc que les champs de la section "Bande" (libellé en
+  // majuscules au-dessus, saisie sans bordure en dessous), mais avec une
+  // zone de texte multiligne.
   function buildBlocagesEditor(row) {
     var box = document.createElement('div');
-    box.className = 'cand-blocages cand-blocages--editable';
+    box.className = 'cand-field-block';
     var inputId = 'candEdit_blocagesInfos_' + row.id;
 
     var strong = document.createElement('label');
+    strong.className = 'cand-field-block__label';
     strong.setAttribute('for', inputId);
     strong.textContent = ROLE_LABELS.blocagesInfos;
     box.appendChild(strong);
 
     var textarea = document.createElement('textarea');
     textarea.id = inputId;
-    textarea.className = 'fr-input cand-blocages__textarea';
+    textarea.className = 'cand-field-block__input cand-field-block__textarea';
     textarea.rows = 3;
     textarea.placeholder = 'Aucun blocage renseigné.';
     textarea.value = textOf(row.blocagesInfos);
@@ -1863,7 +1872,8 @@
       if (rawValue.trim() === '') {
         newValue = null;
       } else {
-        var n = Number(rawValue);
+        // Virgule française acceptée, espaces (séparateur de milliers) ignorés.
+        var n = Number(rawValue.replace(/\s/g, '').replace(',', '.'));
         if (isNaN(n)) {
           window.alert('Valeur numérique invalide pour « ' + ROLE_LABELS[role] + ' ».');
           inputEl.value = previousValue;
@@ -2074,10 +2084,11 @@
     var card = document.createElement('div');
     card.className = 'cand-doc-slot__file';
 
-    var thumb = buildAttachmentThumb(attachmentId);
-    thumb.addEventListener('click', function () { openAttachmentInNewTab(attachmentId); });
+    var cell = attachmentCell(row, role);
+    var thumb = buildAttachmentThumb(attachmentId, cell);
+    thumb.addEventListener('click', function () { openAttachmentInNewTab(attachmentId, cell); });
     thumb.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openAttachmentInNewTab(attachmentId); }
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openAttachmentInNewTab(attachmentId, cell); }
     });
     card.appendChild(thumb);
 
@@ -2092,8 +2103,8 @@
       name.textContent = (meta && meta.fileName) || ('Pièce jointe #' + attachmentId);
       name.title = 'Ouvrir « ' + name.textContent + ' » dans un nouvel onglet';
     });
-    name.addEventListener('click', function () { openAttachmentInNewTab(attachmentId); });
-    bindAttachHover(name, attachmentId);
+    name.addEventListener('click', function () { openAttachmentInNewTab(attachmentId, cell); });
+    bindAttachHover(name, attachmentId, cell);
     card.appendChild(name);
 
     var delBtn = document.createElement('button');
@@ -2117,14 +2128,14 @@
   // aller-retour réseau) car ce n'est alors plus perçu comme résultant
   // directement d'un geste de l'utilisateur. L'onglet est navigué vers
   // l'URL réelle une fois le jeton obtenu.
-  function openAttachmentInNewTab(attachmentId) {
+  function openAttachmentInNewTab(attachmentId, cell) {
     var newTab = window.open('', '_blank');
     getAccessTokenInfo().then(function (tokenInfo) {
       if (!newTab) {
         window.alert('Le navigateur a bloqué l’ouverture d’un nouvel onglet. Autorisez les pop-ups pour ce site, puis réessayez.');
         return;
       }
-      newTab.location.href = attachmentUrl(tokenInfo, attachmentId);
+      newTab.location.href = attachmentUrl(tokenInfo, attachmentId, cell);
     }).catch(function (e) {
       if (newTab) newTab.close();
       window.alert('Impossible d’ouvrir le fichier : ' + friendlyErrorMessage(e));
@@ -2185,6 +2196,98 @@
     return writeAccessTokenPromise;
   }
 
+  // Envoie le fichier dans le magasin de pièces jointes du document et
+  // renvoie l'identifiant créé. Premier essai : fetch() (réponse lisible).
+  // Si le navigateur le refuse au niveau réseau ("Load failed" sous
+  // Safari, "Failed to fetch" ailleurs — typiquement un blocage CORS, le
+  // widget n'étant pas servi depuis l'origine de Grist), on retombe sur un
+  // envoi par formulaire HTML classique, qui n'est pas soumis à CORS.
+  function uploadAttachment(tokenInfo, file) {
+    var url = tokenInfo.baseUrl + '/attachments?auth=' + encodeURIComponent(tokenInfo.token);
+    var formData = new FormData();
+    formData.append('upload', file, file.name);
+    return fetch(url, { method: 'POST', body: formData }).then(function (resp) {
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      return resp.json();
+    }).then(function (result) {
+      var first = Array.isArray(result) ? result[0] : result;
+      return (first && typeof first === 'object') ? first.id : first;
+    }, function (err) {
+      if (err instanceof TypeError) return uploadAttachmentViaForm(url, file);
+      throw err;
+    });
+  }
+
+  function fetchAttachmentRows() {
+    return grist.docApi.fetchTable('_grist_Attachments').then(function (data) {
+      var rows = [];
+      if (data && data.id) {
+        for (var i = 0; i < data.id.length; i++) {
+          rows.push({ id: data.id[i], fileName: data.fileName ? data.fileName[i] : '' });
+        }
+      }
+      return rows;
+    });
+  }
+
+  // Envoi par <form> (multipart) dans une iframe cachée : la réponse d'une
+  // requête inter-origine n'est pas lisible, donc l'identifiant du fichier
+  // créé est retrouvé ensuite dans _grist_Attachments (nouvelle ligne, id
+  // supérieur à tous les précédents, même nom de fichier), en relisant la
+  // table jusqu'à ce qu'elle apparaisse.
+  function uploadAttachmentViaForm(url, file) {
+    var maxBefore = 0;
+    var iframe = null, form = null;
+    function cleanup() {
+      if (iframe && iframe.parentNode) iframe.parentNode.removeChild(iframe);
+      if (form && form.parentNode) form.parentNode.removeChild(form);
+    }
+    return fetchAttachmentRows().then(function (rows) {
+      rows.forEach(function (r) { if (r.id > maxBefore) maxBefore = r.id; });
+      var frameName = 'attachUploadFrame_' + Date.now();
+      iframe = document.createElement('iframe');
+      iframe.name = frameName;
+      iframe.hidden = true;
+      form = document.createElement('form');
+      form.method = 'POST';
+      form.enctype = 'multipart/form-data';
+      form.action = url;
+      form.target = frameName;
+      form.hidden = true;
+      var input = document.createElement('input');
+      input.type = 'file';
+      input.name = 'upload';
+      try {
+        var dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+      } catch (e) {
+        throw new Error('ce navigateur ne permet pas l’envoi de fichier depuis le widget.');
+      }
+      form.appendChild(input);
+      document.body.appendChild(iframe);
+      document.body.appendChild(form);
+      form.submit();
+
+      var deadline = Date.now() + 90000;
+      return new Promise(function (resolve, reject) {
+        (function poll() {
+          window.setTimeout(function () {
+            fetchAttachmentRows().then(function (rowsNow) {
+              var found = rowsNow.filter(function (r) { return r.id > maxBefore && r.fileName === file.name; });
+              if (found.length) { resolve(found[found.length - 1].id); return; }
+              if (Date.now() > deadline) {
+                reject(new Error('le fichier n’a pas été reçu par Grist (droits d’écriture insuffisants sur le document ?).'));
+                return;
+              }
+              poll();
+            }).catch(reject);
+          }, 800);
+        })();
+      });
+    }).then(function (id) { cleanup(); return id; }, function (e) { cleanup(); throw e; });
+  }
+
   function importDocument(row, role, file) {
     var colId = settings.col[role];
     if (!isWritableColId(colId)) {
@@ -2192,18 +2295,8 @@
       return;
     }
     getWriteAccessTokenInfo().then(function (tokenInfo) {
-      var formData = new FormData();
-      formData.append('upload', file, file.name);
-      return fetch(tokenInfo.baseUrl + '/attachments?auth=' + encodeURIComponent(tokenInfo.token), {
-        method: 'POST',
-        body: formData
-      }).then(function (resp) {
-        if (!resp.ok) throw new Error('HTTP ' + resp.status);
-        return resp.json();
-      });
-    }).then(function (result) {
-      var first = Array.isArray(result) ? result[0] : result;
-      var newId = (first && typeof first === 'object') ? first.id : first;
+      return uploadAttachment(tokenInfo, file);
+    }).then(function (newId) {
       if (!newId) throw new Error('Réponse inattendue du serveur Grist lors de l’import.');
       // resolveWriteTarget crée au passage la ligne Documents liée à ce
       // candidat si elle manque encore (voir ensureDocRowId) — un premier
@@ -2279,8 +2372,22 @@
     }
     return accessTokenPromise;
   }
-  function attachmentUrl(tokenInfo, attachmentId) {
-    return tokenInfo.baseUrl + '/attachments/' + attachmentId + '/download?auth=' + encodeURIComponent(tokenInfo.token);
+  // `cell` = { tableId, colId, rowId } de la cellule qui contient la pièce
+  // jointe. Grist s'en sert pour vérifier que l'utilisateur a le droit de
+  // LIRE cette cellule ; sans elle, dès que le document a des règles
+  // d'accès, le téléchargement est refusé ({"error":"Cannot access
+  // attachment"}), même pour un utilisateur qui voit le fichier dans Grist.
+  function attachmentUrl(tokenInfo, attachmentId, cell) {
+    var url = tokenInfo.baseUrl + '/attachments/' + attachmentId + '/download?auth=' + encodeURIComponent(tokenInfo.token);
+    if (cell && cell.tableId && cell.colId && cell.rowId) {
+      url += '&tableId=' + encodeURIComponent(cell.tableId) + '&colId=' + encodeURIComponent(cell.colId) + '&rowId=' + encodeURIComponent(cell.rowId);
+    }
+    return url;
+  }
+  // Cellule d'une pièce jointe d'une fiche : toujours dans la table
+  // Documents (voir DOC_TABLE_ROLES), sur la ligne liée au candidat.
+  function attachmentCell(row, role) {
+    return { tableId: settings.docsTable, colId: settings.col[role], rowId: row.__docRowId };
   }
 
   // Métadonnées des pièces jointes (nom de fichier, type MIME) : lues dans
@@ -2328,7 +2435,7 @@
   // majuscules), fidèle à la capture d'écran fournie. Les métadonnées
   // (nom, type) sont chargées à la volée puis appliquées dès qu'elles sont
   // disponibles ; le survol déclenche l'aperçu (voir showAttachPreview).
-  function buildAttachmentThumb(attachmentId) {
+  function buildAttachmentThumb(attachmentId, cell) {
     var el = document.createElement('span');
     el.className = 'cand-doc-thumb';
     el.tabIndex = 0;
@@ -2341,7 +2448,7 @@
       el.title = (meta && meta.fileName) || ('Pièce jointe #' + attachmentId);
       if (isImageType(meta)) {
         getAccessTokenInfo().then(function (tokenInfo) {
-          el.style.backgroundImage = "url('" + attachmentUrl(tokenInfo, attachmentId) + "')";
+          el.style.backgroundImage = "url('" + attachmentUrl(tokenInfo, attachmentId, cell) + "')";
           el.classList.add('cand-doc-thumb--image');
           el.textContent = '';
         }).catch(function () { el.textContent = fileExtensionLabel(meta); });
@@ -2350,7 +2457,7 @@
       }
     });
 
-    bindAttachHover(el, attachmentId);
+    bindAttachHover(el, attachmentId, cell);
     return el;
   }
 
@@ -2360,17 +2467,17 @@
   // passer de l'élément au popover lui-même (par ex. pour cliquer "Ouvrir
   // dans un nouvel onglet") sans qu'il se referme entre-temps.
   var previewHideTimer = null;
-  function bindAttachHover(el, attachmentId) {
+  function bindAttachHover(el, attachmentId, cell) {
     var hoverTimer = null;
     el.addEventListener('mouseenter', function () {
       if (previewHideTimer) { clearTimeout(previewHideTimer); previewHideTimer = null; }
-      hoverTimer = setTimeout(function () { showAttachPreview(el, attachmentId); }, 150);
+      hoverTimer = setTimeout(function () { showAttachPreview(el, attachmentId, cell); }, 150);
     });
     el.addEventListener('mouseleave', function () {
       if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
       previewHideTimer = setTimeout(hideAttachPreview, 250);
     });
-    el.addEventListener('focus', function () { showAttachPreview(el, attachmentId); });
+    el.addEventListener('focus', function () { showAttachPreview(el, attachmentId, cell); });
     el.addEventListener('blur', hideAttachPreview);
   }
   attachPreview.addEventListener('mouseenter', function () {
@@ -2461,7 +2568,7 @@
   }
 
   var previewRequestSeq = 0;
-  function showAttachPreview(anchorEl, attachmentId) {
+  function showAttachPreview(anchorEl, attachmentId, cell) {
     // Déjà affiché pour ce même fichier (passage de la vignette au nom) :
     // on se contente de repositionner, sans tout recharger.
     if (!attachPreview.hidden && attachPreview.dataset.attachmentId === String(attachmentId)) {
@@ -2479,7 +2586,7 @@
       if (seq !== previewRequestSeq) return; // un autre survol a entre-temps pris le relais
       var meta = results[0][attachmentId];
       var tokenInfo = results[1];
-      var url = attachmentUrl(tokenInfo, attachmentId);
+      var url = attachmentUrl(tokenInfo, attachmentId, cell);
       var fileName = (meta && meta.fileName) || ('Pièce jointe #' + attachmentId);
 
       attachPreview.innerHTML = '<p class="attach-preview__name">' + escapeHtml(fileName) + '</p>' +
