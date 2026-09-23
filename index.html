@@ -740,15 +740,16 @@
       de la fiche candidat (NID, Stagiaire, Usage RS…). Les documents (pièces jointes et leur validation)
       ainsi que les informations complémentaires (Photos, Bande patro., Quantité, Dû, Encaissé,
       Blocages/Infos) peuvent vivre dans une table Grist séparée de celle des candidats : indiquez alors,
-      dans la section « Documents », la table concernée, le sens de la liaison entre les deux tables et la
-      colonne Référence correspondante — soit une colonne, dans la table Documents, qui pointe vers la
-      ligne du candidat ; soit une colonne, dans la table des candidats, qui pointe vers sa ligne dans la
-      table Documents. Si les champs Documents/Informations complémentaires restent vides pour tous les
-      candidats après enregistrement alors que les données existent bien dans Grist, c'est presque toujours
-      que le sens choisi ici est inversé par rapport à votre table — essayez l'autre option. Si un candidat
-      n'a pas encore de ligne liée, le premier import d'un fichier ou la première modification d'un champ
-      « Informations complémentaires » depuis sa fiche en crée une automatiquement (uniquement dans le sens
-      « La ligne Documents référence le candidat »).
+      dans la section « Documents », la table concernée, le mode de liaison entre les deux tables et la
+      colonne de liaison correspondante — soit la colonne NID de la table Documents (mode « même NID » :
+      les deux tables portent la même valeur de NID) ; soit une colonne Référence, dans la table Documents,
+      qui pointe vers la ligne du candidat ; soit une colonne Référence, dans la table des candidats, qui
+      pointe vers sa ligne dans la table Documents. Si les champs Documents/Informations complémentaires
+      restent vides pour tous les candidats après enregistrement alors que les données existent bien dans
+      Grist, un bandeau d'avertissement s'affiche sur la liste : vérifiez alors le mode et la colonne de
+      liaison. Si un candidat n'a pas encore de ligne dans la table Documents, le premier import d'un
+      fichier ou la première modification d'un champ « Informations complémentaires » depuis sa fiche en
+      crée une automatiquement (modes « même NID » et « La ligne Documents référence le candidat »).
       « Validation admin » pilote le bouton de validation des pièces jointes « Usage RS » et « Form. image » ;
       « Validation EAD » pilote celui de la pièce jointe « EAD ». Passer une pièce en Refusé ouvre
       automatiquement un e-mail pré-rempli vers l'adresse « E-mail » du candidat : sans cette colonne, le
@@ -819,6 +820,7 @@
           <div class="fr-select-group">
             <label class="fr-label" for="cand_docs_link_dir">Sens de la liaison entre les deux tables</label>
             <select class="fr-select" id="cand_docs_link_dir">
+              <option value="byNid">Les deux tables ont le même NID (valeur identique)</option>
               <option value="docsToMain">La ligne Documents référence le candidat</option>
               <option value="mainToDocs">Le candidat référence sa ligne Documents</option>
             </select>
@@ -986,10 +988,27 @@
     return !!colId && colId.indexOf('gristHelper_') !== 0;
   }
 
+  // Modes de liaison entre la table des candidats et la table Documents :
+  //  - byNid      : les deux tables contiennent le même NID (valeur
+  //                 identique) — la colonne de liaison est la colonne NID
+  //                 de la table Documents ;
+  //  - docsToMain : colonne Référence, dans la table Documents, vers le
+  //                 candidat ;
+  //  - mainToDocs : colonne Référence, dans la table des candidats, vers sa
+  //                 ligne Documents.
+  function normalizeLinkDir(v) {
+    return (v === 'docsToMain' || v === 'mainToDocs') ? v : 'byNid';
+  }
+  // Clé de comparaison d'un NID : texte normalisé (espaces, casse), pour que
+  // "12345" (texte) et 12345 (numérique) se rejoignent.
+  function nidKey(v) {
+    return normalizeKey(textOf(v));
+  }
+
   function defaultConfig() {
     var col = {};
     ROLES.forEach(function (role) { col[role] = ''; });
-    return { table: '', docsTable: '', docsLinkCol: '', docsLinkDir: 'docsToMain', dateDebutFormation: '', col: col };
+    return { table: '', docsTable: '', docsLinkCol: '', docsLinkDir: 'byNid', dateDebutFormation: '', col: col };
   }
   function mergeConfig(loaded) {
     var cfg = defaultConfig();
@@ -997,7 +1016,7 @@
     cfg.table = loaded.table || '';
     cfg.docsTable = loaded.docsTable || '';
     cfg.docsLinkCol = loaded.docsLinkCol || '';
-    cfg.docsLinkDir = loaded.docsLinkDir === 'mainToDocs' ? 'mainToDocs' : 'docsToMain';
+    cfg.docsLinkDir = normalizeLinkDir(loaded.docsLinkDir);
     cfg.dateDebutFormation = (typeof loaded.dateDebutFormation === 'string') ? loaded.dateDebutFormation : '';
     if (loaded.col) {
       Object.keys(cfg.col).forEach(function (k) {
@@ -1050,7 +1069,9 @@
         'cette ligne ne peut pas être créée automatiquement : créez-la dans Grist et rattachez-la au candidat.'));
     }
     var fields = {};
-    fields[settings.docsLinkCol] = row.id;
+    // byNid : la nouvelle ligne reçoit le NID du candidat ; sinon une
+    // Référence vers sa ligne.
+    fields[settings.docsLinkCol] = settings.docsLinkDir === 'byNid' ? row.nid : row.id;
     return grist.docApi.applyUserActions([['AddRecord', settings.docsTable, null, fields]]).then(function (result) {
       var createdId = (result && Array.isArray(result.retValues)) ? result.retValues[0] :
         (typeof result === 'number' ? result : null);
@@ -1237,13 +1258,15 @@
   function refreshLinkColumnList() {
     var linkEl = document.getElementById('cand_docs_link');
     var labelEl = document.getElementById('cand_docs_link_label');
-    var dir = document.getElementById('cand_docs_link_dir').value === 'mainToDocs' ? 'mainToDocs' : 'docsToMain';
+    var dir = normalizeLinkDir(document.getElementById('cand_docs_link_dir').value);
     var tableId = dir === 'mainToDocs'
       ? document.getElementById('cand_table').value
       : document.getElementById('cand_docs_table').value;
     labelEl.textContent = dir === 'mainToDocs'
       ? 'Colonne de liaison (Référence, dans la table des candidats)'
-      : 'Colonne de liaison (Référence, dans la table Documents)';
+      : dir === 'byNid'
+        ? 'Colonne NID dans la table Documents'
+        : 'Colonne de liaison (Référence, dans la table Documents)';
     var current = (settings.docsLinkDir === dir) ? settings.docsLinkCol : '';
     if (!tableId) {
       fillSelectWithOptions(linkEl, [], '', dir === 'mainToDocs' ? 'Choisir la table des candidats d’abord…' : 'Choisir la table Documents d’abord…');
@@ -1292,7 +1315,7 @@
     // besoin qu'elle passe isWritableColId comme les colonnes de rôle.
     var linkEl = document.getElementById('cand_docs_link');
     cfg.docsLinkCol = (linkEl && linkEl.value) ? linkEl.value : '';
-    cfg.docsLinkDir = document.getElementById('cand_docs_link_dir').value === 'mainToDocs' ? 'mainToDocs' : 'docsToMain';
+    cfg.docsLinkDir = normalizeLinkDir(document.getElementById('cand_docs_link_dir').value);
     cfg.dateDebutFormation = document.getElementById('cand_dateDebutFormation').value.trim();
     ROLES.forEach(function (role) {
       var el = document.getElementById('cand_col_' + role);
@@ -1351,7 +1374,7 @@
       if (usesDocsTable && rows.length && results[1] && results[1].id && results[1].id.length && linked === 0) {
         candidates.warning = 'Aucune ligne de la table Documents n’a pu être rattachée à un candidat : les pièces jointes et les informations ' +
           'complémentaires (bande patro., quantité, blocages…) restent donc vides. Ouvrez la Configuration (5 clics sur le bloc marque du header) ' +
-          'et vérifiez le sens de la liaison ainsi que la colonne de liaison.';
+          'et vérifiez le mode de liaison ainsi que la colonne de liaison (par exemple, la colonne NID de la table Documents).';
       }
       renderCandidates();
     }).catch(function (e) {
@@ -1370,6 +1393,7 @@
   // premier trouvé est retenu.
   //
   // Deux sens de liaison sont gérés (settings.docsLinkDir) :
+  //  - byNid : les deux tables portent le même NID (voir nidKey) ;
   //  - docsToMain : la colonne de liaison est dans la table Documents et
   //    pointe vers la ligne du candidat ;
   //  - mainToDocs : la colonne de liaison est dans la table des candidats
@@ -1385,7 +1409,21 @@
     for (var i = 0; i < docsData.id.length; i++) docIndexById[docsData.id[i]] = i;
 
     var docIndexByCandidateId = {};
-    if (settings.docsLinkDir === 'mainToDocs') {
+    if (settings.docsLinkDir === 'byNid') {
+      // Même NID dans les deux tables : on indexe les lignes Documents par
+      // NID (première ligne trouvée en cas de doublon), puis on cherche celle
+      // de chaque candidat.
+      var nidValues = docsData[settings.docsLinkCol] || [];
+      var docIndexByNid = {};
+      for (var n = 0; n < docsData.id.length; n++) {
+        var key = nidKey(nidValues[n]);
+        if (key && !(key in docIndexByNid)) docIndexByNid[key] = n;
+      }
+      rows.forEach(function (row) {
+        var k = nidKey(row.nid);
+        if (k && k in docIndexByNid) docIndexByCandidateId[row.id] = docIndexByNid[k];
+      });
+    } else if (settings.docsLinkDir === 'mainToDocs') {
       rows.forEach(function (row) {
         var ids = refRowIdsOf(row.__docLinkValue);
         for (var k = 0; k < ids.length; k++) {
