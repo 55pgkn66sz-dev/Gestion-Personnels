@@ -380,6 +380,8 @@
     border-radius: 999px; background: #ffe6d1; color: #a84300; font-size: 1.05rem; flex: none;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   }
+  .stg-flags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.6rem; }
+  .stg-flags:empty { display: none; }
   .stg-hero__id .cand-modal-dialog__title { font-size: 1.6em; }
 
   /* Onglets (Informations / Notation / Documents). */
@@ -418,6 +420,25 @@
   }
   .stg-freetext:focus { outline: 2px solid var(--bleu-france); outline-offset: 1px; }
 
+  /* Pièces complémentaires : zone de dépôt et formulaire de nom. */
+  .stg-pieces__notice, .stg-pieces__none { margin: 0 0 0.8rem; font-size: 0.88em; color: var(--text-mention-grey); }
+  .stg-docline__delete { margin-left: auto; padding: 0.25rem !important; color: var(--statut-refusee) !important; }
+  .stg-drop { margin-top: 0.9rem; }
+  .stg-drop__label {
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 1rem 0.8rem;
+    border: 2px dashed var(--border-default-grey); border-radius: 0.5rem; color: var(--text-mention-grey);
+    font-size: 0.9em; text-align: center; cursor: pointer; background: #fbfbfe;
+  }
+  .stg-drop__label:hover, .stg-drop--over .stg-drop__label { border-color: var(--bleu-france); color: var(--bleu-france); background: #f0f0ff; }
+  .stg-naming { margin-top: 0.8rem; padding: 0.8rem 0.9rem; background: #f7f7fb; border: 1px solid rgba(0, 0, 0, 0.08); border-radius: 0.5rem; }
+  .stg-naming__intro { margin: 0 0 0.6rem; font-weight: 700; font-size: 0.9em; }
+  .stg-naming__row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.35rem; padding: 0.55rem 0; border-top: 1px solid rgba(0, 0, 0, 0.07); }
+  .stg-naming__row:first-of-type { border-top: none; }
+  .stg-naming__file { font-size: 0.78em; color: var(--text-mention-grey); overflow-wrap: anywhere; }
+  .stg-naming__chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .stg-naming__chip { cursor: pointer; border: none; }
+  .stg-naming__actions { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.6rem; }
+  .stg-naming__status { font-size: 0.85em; color: var(--text-mention-grey); }
   /* Onglet Documents. */
   .stg-docline { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem 0.9rem; padding: 0.55rem 0; border-top: 1px solid rgba(0, 0, 0, 0.07); }
   .stg-docline__label { flex: 1 1 14rem; font-weight: 600; font-size: 0.9em; }
@@ -998,6 +1019,20 @@
   .cfg-doc-table td::before { content: attr(data-label); display: block; font-size: 0.75em; color: var(--text-mention-grey); margin-bottom: 0.2rem; }
 }
 
+  /* Sources de données (lecture seule) : tables et colonnes utilisées, avec leur état. */
+  .cfg-sources { margin-top: -0.4rem; }
+  .cfg-sources__note { margin: 0.6rem 0 0.2rem; color: var(--text-mention-grey); }
+  .cfg-sources h4 { margin: 1rem 0 0.35rem; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.03em; color: var(--bleu-france); }
+  .cfg-sources__table { width: 100%; border-collapse: collapse; }
+  .cfg-sources__table th, .cfg-sources__table td { padding: 0.32rem 0.5rem; text-align: left; vertical-align: top; border-top: 1px solid var(--border-default-grey); }
+  .cfg-sources__table th { width: 34%; font-weight: 600; }
+  .cfg-sources__col { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.92em; }
+  .cfg-sources__grist { color: var(--text-mention-grey); }
+  .cfg-pill { display: inline-block; margin-left: 0.4rem; padding: 0 0.5rem; border-radius: 999px; font-size: 0.82em; font-weight: 700; white-space: nowrap; }
+  .cfg-pill--ok { background: var(--uv-pastel-full); color: var(--statut-validee); }
+  .cfg-pill--ko { background: #ffe9e9; color: var(--statut-refusee); }
+  .cfg-pill--na { background: #eceaf0; color: #3a3a45; }
+
   /* Pied de page du widget : crédit, comme dans les widgets précédents. */
   .widget-footer {
     margin-top: 2rem;
@@ -1158,7 +1193,12 @@
       </ul>
     </details>
 
-    <form id="settingsForm" novalidate>
+          <details class="cfg-help cfg-sources" id="cfgSources">
+        <summary>Sources de données du widget (lecture seule)</summary>
+        <div id="cfgSourcesBody"></div>
+      </details>
+
+<form id="settingsForm" novalidate>
       <section class="cfg-card" aria-labelledby="cfgCardTitle1">
         <div class="cfg-card__head">
           <span class="cfg-card__num" aria-hidden="true">1</span>
@@ -1405,6 +1445,8 @@
   // table des candidats (Stagiaires). Lue par columnarToRows dans row.numCand,
   // modifiable depuis la carte « EAD - Bloc 1 » (voir buildNumCandField).
   var NUM_CAND_COL = 'N_Cand';
+  var PIECES_COL = 'Pieces'; // colonne « Pieces » (Pièces jointes) : pièces complémentaires du stagiaire, référence fixe
+  var PIECES_NOMS_COL = 'Pieces_noms'; // colonne « Pieces_noms » (Texte, JSON id -> nom donné), référence fixe
   var INFOS_COL = 'Infos'; // colonne « Infos » (texte libre, fiche Stagiaires), référence fixe
   var PHOTO_COL = 'Photo'; // colonne « Photo » de la table des candidats (Pièces jointes), référence fixe
   var ATTACHMENT_ROLES = ['usageRS', 'formImage', 'ead'];
@@ -1626,6 +1668,7 @@
     cfgLinkResult.textContent = '';
     cfgLinkResult.className = 'cfg-link-result';
     columnTypesPromise = null; // types de colonnes relus à chaque ouverture (la structure a pu changer)
+    renderSourcesPanel();
     refreshTableList();
   }
   function closeSettings() {
@@ -1997,6 +2040,71 @@
   settingsForm.addEventListener('input', onFormEdited);
   settingsForm.addEventListener('change', onFormEdited);
 
+  // ---- Sources de données du widget (panneau en lecture seule) -------------------
+  //
+  // Récapitule d'où le widget lit ses données : tables choisies, colonnes fixes du
+  // code (N_Cand, Photo, Infos, Pieces, Pieces_noms), colonnes de la page Stagiaires
+  // retrouvées par libellé, et colonnes réglées dans la Configuration. Chaque colonne
+  // est vérifiée dans les données chargées en dernier (candidates.mainCols / docsCols).
+  function renderSourcesPanel() {
+    var body = document.getElementById('cfgSourcesBody');
+    if (!body) return;
+    var mainCols = candidates.mainCols || [];
+    var docsCols = candidates.docsCols || [];
+    var known = !!candidates.loaded;
+    var labelsMain = columnLabels[settings.table] || {};
+    var labelsDocs = columnLabels[settings.docsTable] || {};
+
+    function pill(ok) {
+      if (!known) return '<span class="cfg-pill cfg-pill--na">non vérifiée</span>';
+      return ok ? '<span class="cfg-pill cfg-pill--ok">trouvée</span>' : '<span class="cfg-pill cfg-pill--ko">absente</span>';
+    }
+    function colCell(colId, cols, labels) {
+      if (!colId) return '<span class="cfg-pill cfg-pill--na">non réglée</span>';
+      var lbl = labels[colId] && labels[colId] !== colId ? ' <span class="cfg-sources__grist">« ' + escapeHtml(labels[colId]) + ' »</span>' : '';
+      return '<span class="cfg-sources__col">' + escapeHtml(colId) + '</span>' + lbl + pill(cols.indexOf(colId) !== -1);
+    }
+    function table(rows) {
+      return '<table class="cfg-sources__table"><tbody>' + rows.map(function (r) {
+        return '<tr><th scope="row">' + escapeHtml(r[0]) + '</th><td>' + r[1] + '</td></tr>';
+      }).join('') + '</tbody></table>';
+    }
+    function tableName(t) { return t ? '<span class="cfg-sources__col">' + escapeHtml(t) + '</span>' : '<span class="cfg-pill cfg-pill--na">non réglée</span>'; }
+
+    var html = '<p class="cfg-sources__note">Rappel des tables et colonnes lues (et écrites) par le widget. Rien ne se modifie ici : les tables se règlent dans les cartes 1 et 2, les colonnes fixes sont dans le code. ' +
+      (known ? 'État vérifié sur les dernières données chargées.' : 'Les données ne sont pas encore chargées : l\'état des colonnes n\'est pas vérifié.') + '</p>';
+
+    html += '<h4>Tables</h4>' + table([
+      ['Table des candidats (Stagiaires)', tableName(settings.table)],
+      ['Table Documents (eTuteur)', tableName(settings.docsTable)],
+      ['Liaison des deux tables', 'par le NID : colonne ' + (settings.col.nid ? '<span class="cfg-sources__col">' + escapeHtml(settings.col.nid) + '</span>' : 'NID <span class="cfg-pill cfg-pill--na">non réglée</span>') +
+        ' (candidats) = ' + (settings.docsLinkCol ? '<span class="cfg-sources__col">' + escapeHtml(settings.docsLinkCol) + '</span>' : 'colonne NID <span class="cfg-pill cfg-pill--na">non réglée</span>') + ' (Documents)']
+    ]);
+
+    html += '<h4>Colonnes fixes — table des candidats</h4>' + table([
+      ['N° CAND', colCell(NUM_CAND_COL, mainCols, labelsMain)],
+      ['Photo', colCell(PHOTO_COL, mainCols, labelsMain)],
+      ['Infos (texte libre)', colCell(INFOS_COL, mainCols, labelsMain)],
+      ['Pièces complémentaires (fichiers)', colCell(PIECES_COL, mainCols, labelsMain)],
+      ['Pièces complémentaires (noms)', colCell(PIECES_NOMS_COL, mainCols, labelsMain)]
+    ]);
+
+    html += '<h4>Page Stagiaires — colonnes retrouvées par libellé Grist</h4>' + table(HARD_STG_ROLES.map(function (role) {
+      var expected = (SUGGEST_LABELS[role] || [''])[0];
+      var col = settings.col[role];
+      var cell = col ? colCell(col, mainCols, labelsMain) : '<span class="cfg-pill cfg-pill--ko">non trouvée</span> <span class="cfg-sources__grist">libellé attendu « ' + escapeHtml(expected) + ' »</span>';
+      return [ROLE_LABELS[role], cell];
+    }));
+
+    var setMain = ['nid', 'stagiaire', 'email', 'telephone', 'dateNaissance'];
+    var setDocs = ['usageRS', 'validationUsageRS', 'formImage', 'validationFormImage', 'ead', 'validationEAD', 'photos', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
+    html += '<h4>Colonnes réglées dans la Configuration</h4>' + table(
+      setMain.map(function (role) { return [ROLE_LABELS[role] + ' (candidats)', colCell(settings.col[role], mainCols, labelsMain)]; })
+        .concat(setDocs.map(function (role) { return [ROLE_LABELS[role] + ' (Documents)', colCell(settings.col[role], docsCols, labelsDocs)]; }))
+    );
+    body.innerHTML = html;
+  }
+
   // ---- Test de la liaison entre les deux tables ---------------------------
 
   function setLinkResult(kind, text) {
@@ -2070,6 +2178,7 @@
   function renderAll() {
     renderCandidates();
     renderStagiaires();
+    renderSourcesPanel();
   }
 
   function loadCandidates() {
@@ -2089,7 +2198,10 @@
       markDuplicates(rows);
       // hasNumCand : la table des candidats possède bien la colonne N_Cand
       // (sinon le champ « N° CAND » n'est pas affiché dans la fiche).
-      candidates = { rows: rows, docsData: results[1], loaded: true, hasInfos: !!(results[0] && results[0][INFOS_COL]), hasNumCand: !!(results[0] && results[0][NUM_CAND_COL]) };
+      candidates = { rows: rows, docsData: results[1], loaded: true, mainCols: tableColumns(results[0]), docsCols: results[1] ? tableColumns(results[1]) : [],
+        hasInfos: !!(results[0] && results[0][INFOS_COL]),
+        hasPieces: !!(results[0] && results[0][PIECES_COL] && results[0][PIECES_NOMS_COL]),
+        missingPieceCols: [PIECES_COL, PIECES_NOMS_COL].filter(function (c) { return !(results[0] && results[0][c]); }), hasNumCand: !!(results[0] && results[0][NUM_CAND_COL]) };
       // Aucune ligne Documents rattachée alors que des candidats existent :
       // presque toujours un sens de liaison ou une colonne de liaison mal
       // réglés — on le signale plutôt que d'afficher des fiches vides sans
@@ -2191,6 +2303,8 @@
     usedCols[NUM_CAND_COL] = true;
     usedCols[PHOTO_COL] = true;
     usedCols[INFOS_COL] = true;
+    usedCols[PIECES_COL] = true;
+    usedCols[PIECES_NOMS_COL] = true;
     MAIN_TABLE_ROLES.forEach(function (r) { if (cfg.col[r]) usedCols[cfg.col[r]] = true; });
     var extraCols = Object.keys(data).filter(function (c) {
       return c !== 'id' && c !== 'manualSort' && c.indexOf('gristHelper_') !== 0 && !usedCols[c];
@@ -2204,6 +2318,8 @@
       row.numCand = data[NUM_CAND_COL] ? data[NUM_CAND_COL][i] : null;
       row.portrait = data[PHOTO_COL] ? data[PHOTO_COL][i] : null;
       row.infosLibre = data[INFOS_COL] ? data[INFOS_COL][i] : null;
+      row.pieces = data[PIECES_COL] ? data[PIECES_COL][i] : null;
+      row.piecesNames = data[PIECES_NOMS_COL] ? data[PIECES_NOMS_COL][i] : null;
       row.__extra = {};
       extraCols.forEach(function (c) { row.__extra[c] = data[c][i]; });
       rows.push(row);
@@ -2898,11 +3014,11 @@
     return wrap;
   }
 
-  // Infos pratiques : fonction, chambre, bâtiment, secourisme, latéralité, mode
+  // Infos pratiques : bâtiment, chambre, fonction, secourisme, latéralité, mode
   // de transport (icône + plaque) et, en bas, zone de texte libre (colonne Infos).
   function buildStgPracticalBlock(row) {
     var items = [
-      stgField(row, 'fonction', 'Fonction'), stgField(row, 'chambre', 'Ch.'), stgField(row, 'batiment', 'Bât.'),
+      stgField(row, 'batiment', 'Bât.'), stgField(row, 'chambre', 'Ch.'), stgField(row, 'fonction', 'Fonction'),
       stgField(row, 'qualifSecourisme', 'Qualif. secourisme'), stgField(row, 'lateralite', 'Latéralité'),
       settings.col.modeTransport ? stgItem('Mode de transport', stgTransportValue(row), true) : null
     ];
@@ -2961,10 +3077,244 @@
     return empty;
   }
 
+  // ---- Pièces complémentaires (onglet Documents de la fiche Stagiaires) ------------
+  //
+  // Zone de glisser-déposer : les fichiers déposés sont envoyés dans le magasin de
+  // pièces jointes du document Grist et rattachés au stagiaire, dans la table des
+  // candidats : colonne « Pieces » (Pièces jointes) pour les fichiers et colonne
+  // « Pieces_noms » (Texte, JSON { identifiant du fichier : nom donné }) pour le nom
+  // choisi à l'ajout. Références fixes (PIECES_COL / PIECES_NOMS_COL). Si ces colonnes
+  // n'existent pas, la carte propose de les créer.
+  var PIECE_NAME_SUGGESTIONS = ['Attestation RS', 'Droit à l\'image', 'EAD - Bloc 1']; // les 3 pièces eTuteur
+
+  function parsePieceNames(v) {
+    try {
+      var o = JSON.parse(textOf(v) || '{}');
+      return (o && typeof o === 'object' && !Array.isArray(o)) ? o : {};
+    } catch (e) { return {}; }
+  }
+  function persistPieces(row, ids, names) {
+    var fields = {};
+    fields[PIECES_COL] = ['L'].concat(ids);
+    fields[PIECES_NOMS_COL] = JSON.stringify(names);
+    return grist.docApi.applyUserActions([['UpdateRecord', settings.table, row.id, fields]]).then(function () {
+      row.pieces = ['L'].concat(ids);
+      row.piecesNames = JSON.stringify(names);
+    });
+  }
+  // Envoie les fichiers un par un puis enregistre chacun (un échec en cours de route
+  // ne perd pas les fichiers déjà rattachés).
+  function addPieces(row, items) {
+    var ids = extractAttachmentIds(row.pieces);
+    var names = parsePieceNames(row.piecesNames);
+    return getWriteAccessTokenInfo().then(function (tokenInfo) {
+      return items.reduce(function (p, it) {
+        return p.then(function () {
+          return uploadAttachment(tokenInfo, it.file).then(function (id) {
+            if (!id) throw new Error('Réponse inattendue du serveur Grist lors de l’import.');
+            ids.push(id);
+            names[id] = it.name;
+            return persistPieces(row, ids, names);
+          });
+        });
+      }, Promise.resolve());
+    }).then(function () {
+      attachmentsMetaPromise = null; // nouveaux fichiers : relecture des noms de fichier
+      renderCandidates();
+    });
+  }
+  function removePiece(row, id) {
+    var ids = extractAttachmentIds(row.pieces).filter(function (x) { return x !== id; });
+    var names = parsePieceNames(row.piecesNames);
+    delete names[id];
+    return persistPieces(row, ids, names).then(function () { renderCandidates(); });
+  }
+
+  function buildStgPiecesCard(row) {
+    var card = document.createElement('section');
+    card.className = 'stg-card';
+    card.innerHTML = '<h4 class="stg-card__title"><span class="fr-icon-attachment-line" aria-hidden="true"></span>Pièces complémentaires</h4>';
+
+    // Colonnes absentes : proposition de les créer.
+    if (!candidates.hasPieces) {
+      var missing = candidates.missingPieceCols || [PIECES_COL, PIECES_NOMS_COL];
+      var msg = document.createElement('p');
+      msg.className = 'stg-pieces__notice';
+      msg.textContent = 'Le stockage de pièces utilise deux colonnes de la table des candidats : « ' + PIECES_COL + ' » (Pièces jointes) et « ' +
+        PIECES_NOMS_COL + ' » (Texte). Manquante(s) : ' + missing.join(', ') + '.';
+      card.appendChild(msg);
+      var create = document.createElement('button');
+      create.type = 'button';
+      create.className = 'fr-btn fr-btn--secondary fr-btn--sm';
+      create.textContent = 'Créer les colonnes manquantes';
+      create.addEventListener('click', function () {
+        if (!window.confirm('Ajouter la ou les colonne(s) « ' + missing.join('», «') + ' » à la table « ' + settings.table + ' » ?')) return;
+        var actions = missing.map(function (c) {
+          return ['AddColumn', settings.table, c, c === PIECES_COL ? { type: 'Attachments', label: 'Pièces' } : { type: 'Text', label: 'Pièces (noms)' }];
+        });
+        create.disabled = true;
+        grist.docApi.applyUserActions(actions).then(function () { loadCandidates(); }).catch(function (e) {
+          create.disabled = false;
+          window.alert('Impossible de créer les colonnes : ' + friendlyErrorMessage(e));
+        });
+      });
+      card.appendChild(create);
+      return card;
+    }
+
+    // Pièces déjà ajoutées.
+    var ids = extractAttachmentIds(row.pieces);
+    var names = parsePieceNames(row.piecesNames);
+    var cell = { tableId: settings.table, colId: PIECES_COL, rowId: row.id };
+    var list = document.createElement('div');
+    list.className = 'stg-pieces';
+    ids.forEach(function (id) {
+      var line = document.createElement('div');
+      line.className = 'stg-docline';
+      var label = document.createElement('span');
+      label.className = 'stg-docline__label';
+      label.textContent = names[id] || 'Pièce sans nom';
+      line.appendChild(label);
+      var files = document.createElement('span');
+      files.className = 'stg-docline__files';
+      var link = document.createElement('button');
+      link.type = 'button';
+      link.className = 'cand-doc-slot__filename--link stg-docline__link';
+      link.textContent = '…';
+      loadAttachmentsMeta().then(function (m) { link.textContent = (m[id] && m[id].fileName) || ('Pièce jointe #' + id); });
+      link.addEventListener('click', function () { openAttachmentInNewTab(id, cell); });
+      bindAttachHover(link, id, cell);
+      files.appendChild(link);
+      line.appendChild(files);
+      var del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-delete-line stg-docline__delete';
+      del.title = 'Retirer cette pièce';
+      del.textContent = 'Retirer cette pièce';
+      del.addEventListener('click', function () {
+        if (!window.confirm('Retirer la pièce « ' + (names[id] || 'sans nom') + ' » de ce stagiaire ?\n\nLe fichier est détaché de la fiche.')) return;
+        removePiece(row, id).catch(function (e) { window.alert('Impossible de retirer la pièce : ' + friendlyErrorMessage(e)); });
+      });
+      line.appendChild(del);
+      list.appendChild(line);
+    });
+    if (!ids.length) {
+      var none = document.createElement('p');
+      none.className = 'stg-pieces__none';
+      none.textContent = 'Aucune pièce complémentaire.';
+      list.appendChild(none);
+    }
+    card.appendChild(list);
+
+    // Zone de dépôt + formulaire de nom.
+    var zone = document.createElement('div');
+    zone.className = 'stg-drop';
+    var dropLabel = document.createElement('label');
+    dropLabel.className = 'stg-drop__label';
+    dropLabel.innerHTML = '<span class="fr-icon-upload-2-line" aria-hidden="true"></span><span>Glisser des fichiers ici ou cliquer pour ajouter des pièces</span>';
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = true;
+    input.hidden = true;
+    dropLabel.appendChild(input);
+    zone.appendChild(dropLabel);
+    var formHost = document.createElement('div');
+    zone.appendChild(formHost);
+    card.appendChild(zone);
+
+    function showNamingForm(files) {
+      formHost.innerHTML = '';
+      var form = document.createElement('div');
+      form.className = 'stg-naming';
+      var intro = document.createElement('p');
+      intro.className = 'stg-naming__intro';
+      intro.textContent = files.length > 1 ? 'Nom à donner à chaque pièce :' : 'Nom à donner à la pièce :';
+      form.appendChild(intro);
+      var fields = [];
+      files.forEach(function (file, idx) {
+        var rowEl = document.createElement('div');
+        rowEl.className = 'stg-naming__row';
+        var fname = document.createElement('span');
+        fname.className = 'stg-naming__file';
+        fname.textContent = file.name;
+        var inputId = 'stgPieceName_' + row.id + '_' + idx;
+        var nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.id = inputId;
+        nameInput.className = 'fr-input stg-naming__input';
+        nameInput.placeholder = 'Nom de la pièce';
+        nameInput.setAttribute('aria-label', 'Nom de la pièce ' + file.name);
+        nameInput.value = file.name.replace(/\.[^.]+$/, '');
+        var chips = document.createElement('span');
+        chips.className = 'stg-naming__chips';
+        PIECE_NAME_SUGGESTIONS.forEach(function (sugg) {
+          var chip = document.createElement('button');
+          chip.type = 'button';
+          chip.className = 'fr-tag fr-tag--sm stg-naming__chip';
+          chip.textContent = sugg;
+          chip.addEventListener('click', function () { nameInput.value = sugg; nameInput.focus(); });
+          chips.appendChild(chip);
+        });
+        rowEl.appendChild(fname);
+        rowEl.appendChild(nameInput);
+        rowEl.appendChild(chips);
+        form.appendChild(rowEl);
+        fields.push({ file: file, input: nameInput });
+      });
+      var actionsEl = document.createElement('div');
+      actionsEl.className = 'stg-naming__actions';
+      var ok = document.createElement('button');
+      ok.type = 'button';
+      ok.className = 'fr-btn fr-btn--sm';
+      ok.textContent = 'Ajouter';
+      var cancel = document.createElement('button');
+      cancel.type = 'button';
+      cancel.className = 'fr-btn fr-btn--tertiary fr-btn--sm';
+      cancel.textContent = 'Annuler';
+      cancel.addEventListener('click', function () { formHost.innerHTML = ''; });
+      var status = document.createElement('span');
+      status.className = 'stg-naming__status';
+      ok.addEventListener('click', function () {
+        var items = fields.map(function (f) { return { file: f.file, name: f.input.value.trim() }; });
+        if (items.some(function (it) { return !it.name; })) { status.textContent = 'Donnez un nom à chaque pièce.'; return; }
+        ok.disabled = true;
+        cancel.disabled = true;
+        status.textContent = 'Envoi en cours…';
+        addPieces(row, items).catch(function (e) {
+          ok.disabled = false;
+          cancel.disabled = false;
+          status.textContent = '';
+          window.alert('Impossible d’ajouter la pièce : ' + friendlyErrorMessage(e));
+        });
+      });
+      actionsEl.appendChild(ok);
+      actionsEl.appendChild(cancel);
+      actionsEl.appendChild(status);
+      form.appendChild(actionsEl);
+      formHost.appendChild(form);
+      if (fields.length) fields[0].input.select();
+    }
+    input.addEventListener('change', function () {
+      if (input.files && input.files.length) showNamingForm(Array.prototype.slice.call(input.files));
+      input.value = '';
+    });
+    ['dragenter', 'dragover'].forEach(function (evt) {
+      zone.addEventListener(evt, function (e) { e.preventDefault(); zone.classList.add('stg-drop--over'); });
+    });
+    ['dragleave', 'drop'].forEach(function (evt) {
+      zone.addEventListener(evt, function (e) { e.preventDefault(); zone.classList.remove('stg-drop--over'); });
+    });
+    zone.addEventListener('drop', function (e) {
+      var files = e.dataTransfer && e.dataTransfer.files;
+      if (files && files.length) showNamingForm(Array.prototype.slice.call(files));
+    });
+    return card;
+  }
+
   // ---- Onglet « Documents » -------------------------------------------------------------
   // Pour chaque pièce eTuteur : tag d'état coloré (vert / orange / rouge, comme
   // la liste eTuteur) et fichier cliquable (nouvel onglet, aperçu au survol) ;
-  // puis le suivi (n° CAND, inscription, quantité, dû, encaissé, blocages).
+  // puis les pièces complémentaires (glisser-déposer) et le suivi (n° CAND, blocages / infos).
   function buildStgDocumentsTab(row) {
     var wrap = document.createElement('div');
     wrap.className = 'stg-docs-tab';
@@ -3001,12 +3351,9 @@
       });
       wrap.appendChild(card);
     }
+    wrap.appendChild(buildStgPiecesCard(row));
     var suivi = stgBlock('Suivi eTuteur', 'fr-icon-file-text-line', [
       candidates.hasNumCand ? stgItem('N° CAND', stgTextValue(textOf(row.numCand))) : null,
-      settings.col.inscriptionBande ? stgItem('Inscription', stgTextValue(textOfRef(row.inscriptionBande))) : null,
-      settings.col.qteBandes ? stgItem('Quantité', stgTextValue(textOf(row.qteBandes))) : null,
-      settings.col.du ? stgItem('Dû', stgTextValue(fmtCurrency(row.du))) : null,
-      settings.col.encaisse ? stgItem('Encaissé', stgTextValue(fmtCurrency(row.encaisse))) : null,
       settings.col.blocagesInfos ? stgItem('Blocages / Infos', stgTextValue(textOf(row.blocagesInfos), true), true) : null
     ]);
     if (suivi) wrap.appendChild(suivi);
@@ -3062,6 +3409,10 @@
     title.className = 'cand-modal-dialog__title';
     title.textContent = prenomNom;
     id.appendChild(title);
+    // Icônes d'alerte (doublon, mineur, pas de droit à l'image) : sous le nom.
+    var flags = document.createElement('div');
+    flags.className = 'stg-flags';
+    id.appendChild(flags);
     if (compare) {
       var version = document.createElement('p');
       version.className = 'cand-modal-dialog__version' + (isOldest ? ' cand-modal-dialog__version--oldest' : '');
@@ -3080,21 +3431,28 @@
       dupFlag.title = dupReasons.join(' ');
       dupFlag.innerHTML = '<span class="fr-icon-error-warning-line" aria-hidden="true"></span><span class="fr-sr-only"></span>';
       dupFlag.lastChild.textContent = dupReasons.join(' ');
-      actions.appendChild(dupFlag);
+      flags.appendChild(dupFlag);
     }
     if (willBeMinor(row.dateNaissance, parseFrDate(settings.dateDebutFormation))) {
       var minorFlag = document.createElement('span');
       minorFlag.className = 'cand-modal-dialog__minor-flag';
       minorFlag.title = 'Sera mineur au premier jour de la formation';
       minorFlag.innerHTML = '<span class="fr-icon-alert-line" aria-hidden="true"></span>';
-      actions.appendChild(minorFlag);
+      flags.appendChild(minorFlag);
     }
     if (settings.col.droitImage && !isYes(row.droitImage)) {
       var imgFlag = document.createElement('span');
       imgFlag.className = 'cand-modal-dialog__noimage-flag';
       imgFlag.title = 'Pas de droit à l’image';
-      imgFlag.innerHTML = '<span class="fr-icon-eye-off-line" aria-hidden="true"></span><span class="fr-sr-only">Pas de droit à l’image</span>';
-      actions.appendChild(imgFlag);
+      // Appareil photo barré (SVG en ligne : le DSFR n'a pas d'icône dédiée). Le
+      // trait est doublé d'un liseré de la couleur du fond pour bien « couper » l'appareil.
+      imgFlag.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">' +
+        '<path fill="currentColor" d="M9 2 7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9z"/>' +
+        '<circle cx="12" cy="12.2" r="4.3" fill="#ffe6d1"/><circle cx="12" cy="12.2" r="2.6" fill="currentColor"/>' +
+        '<line x1="3.5" y1="3.5" x2="20.5" y2="20.5" stroke="#ffe6d1" stroke-width="4.4" stroke-linecap="round"/>' +
+        '<line x1="3.5" y1="3.5" x2="20.5" y2="20.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' +
+        '<span class="fr-sr-only">Pas de droit à l’image</span>';
+      flags.appendChild(imgFlag);
     }
     var closeBtn = document.createElement('button');
     closeBtn.type = 'button';
