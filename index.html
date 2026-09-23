@@ -63,6 +63,8 @@
     --statut-validee: #18753c;
     --statut-refusee: #ce0500;
     --statut-attente: #ffd200;
+    /* Documents : vert = OK, orange = refusé, rouge = manquant (vue liste ET modale). */
+    --statut-rejet: #d9620b;
     --uv-pastel-full: #e0f3e4;
     --uv-pastel-over: #fbe1e0;
     --statut-pastel-attente: #fff6d6;
@@ -137,28 +139,31 @@
   .cand-row:hover, .cand-row:focus-visible { background: #f0f0f5; }
   .cand-row__name { margin: 0; font-size: 1em; font-weight: 700; flex: 1 1 auto; }
   .cand-row__chevron { color: var(--text-mention-grey); flex: none; }
-  /* Petits indicateurs de statut en fin de ligne (documents à traiter /
-     blocages) : un coup d'œil sur la liste sans avoir à ouvrir la fiche. */
-  .cand-row__flags { display: flex; gap: 0.3rem; flex: none; }
-  .cand-row__flag {
-    width: 0.55rem;
-    height: 0.55rem;
+  /* Nom du candidat, puis un tag DSFR par document (voir buildCandidateRow),
+     puis, en bout de ligne, le pictogramme "mineur" et le chevron. */
+  .cand-row__tags { display: flex; flex-wrap: wrap; gap: 0.4rem; flex: 1 1 auto; min-width: 0; }
+  .cand-row__minor {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
     border-radius: 999px;
-    background: var(--statut-attente);
-  }
-  .cand-row__flag--blocages { background: var(--statut-refusee); }
-
-  .cand-badge-nid {
-    display: inline-block;
-    font-size: 0.75em;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    color: #fff;
-    background: var(--bleu-france);
-    border-radius: 999px;
-    padding: 0.15rem 0.65rem;
+    background: var(--statut-pastel-attente);
+    color: #716200;
+    font-size: 0.9rem;
     flex: none;
   }
+
+  /* Tags de statut des documents : le tag DSFR (.fr-tag) recoloré selon l'état.
+     Vert = OK, orange = refusé, rouge = manquant, gris = fichier présent mais
+     pas encore validé. Le libellé d'état est aussi écrit (texte caché + title)
+     pour ne pas dépendre de la seule couleur. */
+  .fr-tag.doc-tag--ok { background: #b8fec9; color: #18753c; }
+  .fr-tag.doc-tag--rejected { background: #ffe6d1; color: #a84300; }
+  .fr-tag.doc-tag--missing { background: #ffe9e9; color: #ce0500; }
+  .fr-tag.doc-tag--pending { background: #eceaf0; color: #3a3a45; }
+
 
   /* ---- Modale "Fiche candidat" -------------------------------------------
      Ouverte au clic sur une bande de la liste (voir openCandidateModal) :
@@ -294,7 +299,7 @@
     flex-direction: column;
     background: #fff;
     border: 1px solid rgba(0, 0, 0, 0.07);
-    border-left: 3px solid var(--statut-attente);
+    border-left: 3px solid #8b8b96;
     border-radius: 0.65rem;
     padding: 0.9rem 0.9rem 0.9rem 0.8rem;
     box-sizing: border-box;
@@ -302,8 +307,9 @@
     transition: box-shadow 0.15s ease, border-left-color 0.15s ease;
   }
   .cand-doc-slot:hover { box-shadow: 0 4px 14px rgba(20, 10, 30, 0.11); }
-  .cand-doc-slot[data-state="accepted"] { border-left-color: var(--statut-validee); }
-  .cand-doc-slot[data-state="refused"] { border-left-color: var(--statut-refusee); }
+  .cand-doc-slot[data-state="ok"] { border-left-color: var(--statut-validee); }
+  .cand-doc-slot[data-state="rejected"] { border-left-color: var(--statut-rejet); }
+  .cand-doc-slot[data-state="missing"] { border-left-color: var(--statut-refusee); }
   /* En-tête en colonne (plutôt qu'en ligne) : les libellés des documents
      sont désormais des intitulés complets ("Reconnaissance de
      responsabilité - Réseaux sociaux"…) plutôt que des abréviations, donc
@@ -315,6 +321,7 @@
     border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   }
   .cand-doc-slot__label { font-size: 0.82em; font-weight: 700; line-height: 1.3; }
+  .cand-doc-slot__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.4rem 0.6rem; }
 
   /* Bouton de validation en pied de carte (voir buildDocSlot), aligné à
      droite. margin-top: auto exploite le flex-direction: column de
@@ -359,8 +366,22 @@
   .cand-doc-status__btn:hover { background: rgba(0, 0, 0, 0.08); color: #3a3a45; }
   .cand-doc-status__btn:active { transform: scale(0.92); }
   .cand-doc-status__btn:focus-visible { outline: 2px solid var(--bleu-france); outline-offset: 1px; }
+  /* Bascule Oui / Non (champ Photos, voir buildYesNoToggle) : mêmes couleurs
+     que la validation, mais avec les libellés écrits. */
+  .cand-yesno { display: inline-flex; background: #f2f2f6; border-radius: 999px; padding: 0.2rem; gap: 0.2rem; flex: none; }
+  .cand-yesno__btn {
+    border: none; background: transparent; color: #6b6b76;
+    border-radius: 999px; padding: 0.25rem 0.85rem;
+    font: inherit; font-size: 0.8rem; font-weight: 700; line-height: 1.2; cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .cand-yesno__btn:hover:not(.is-active) { background: rgba(0, 0, 0, 0.08); color: #3a3a45; }
+  .cand-yesno__btn:focus-visible { outline: 2px solid var(--bleu-france); outline-offset: 1px; }
+  .cand-yesno__btn--yes.is-active { background: var(--statut-validee); color: #fff; }
+  /* "Non" volontairement neutre (gris) : pour Photos, ce n'est pas un blocage. */
+  .cand-yesno__btn--no.is-active { background: #5a5a66; color: #fff; }
   .cand-doc-status__btn--yes.is-active { background: var(--statut-validee); color: #fff; }
-  .cand-doc-status__btn--no.is-active { background: var(--statut-refusee); color: #fff; }
+  .cand-doc-status__btn--no.is-active { background: var(--statut-rejet); color: #fff; }
 
   /* Champ "Photos" intégré à la carte "Droit à l'image" (voir
      buildPhotosField) : même famille visuelle que le reste de la carte,
@@ -468,7 +489,7 @@
   .cand-doc-slot__zone--busy .cand-doc-slot__import { pointer-events: none; opacity: 0.7; border-style: solid; }
   .cand-doc-slot__zone--drag .cand-doc-slot__import { border-color: var(--bleu-france); background: #f0f0f5; color: var(--bleu-france); }
 
-  /* Champ "N° CAND" (carte Enseignement à distance) : même bandeau que "Photos"
+  /* Champ "N° CAND" (carte EAD - Bloc 1) : même bandeau que "Photos"
      (voir buildNumCandField), avec une zone de texte à la place des boutons. */
   .cand-doc-slot__numcand-input {
     flex: 1 1 5rem;
@@ -624,7 +645,7 @@
     padding: 0.1rem 0.6rem;
   }
   .cand-pill--yes { background: var(--uv-pastel-full); color: var(--statut-validee); }
-  .cand-pill--no { background: var(--uv-pastel-over); color: var(--statut-refusee); }
+  .cand-pill--no { background: #eceaf0; color: #3a3a45; } /* neutre : "Non" (Photos) n'est pas bloquant */
   .cand-pill--unknown { background: #f0f0f0; color: var(--text-mention-grey); }
 
   /* Blocages / Infos : même bloc que les champs "Bande" (voir
@@ -648,6 +669,8 @@
     .cand-toolbar .fr-search-bar { flex-basis: 100%; max-width: none; }
     .cand-count--push { margin-left: 0; flex-basis: 100%; }
     .cand-doc-cols { flex-direction: column; }
+    .cand-row { flex-wrap: wrap; }
+    .cand-row__name { flex-basis: 100%; }
     .cand-bande-row { flex-direction: column; }
   }
 
@@ -956,12 +979,12 @@
     <tbody>
       <tr><th scope="row">Reconnaissance de responsabilité — Réseaux sociaux</th><td data-label="Colonne du fichier"><select class="fr-select" id="cand_col_usageRS" data-role="usageRS" aria-label="Colonne du fichier — Reconnaissance de responsabilité — Réseaux sociaux"></select></td><td data-label="Colonne de validation"><select class="fr-select" id="cand_col_validationUsageRS" data-role="validationUsageRS" aria-label="Colonne de validation — Reconnaissance de responsabilité — Réseaux sociaux"></select></td></tr>
       <tr><th scope="row">Droit à l'image</th><td data-label="Colonne du fichier"><select class="fr-select" id="cand_col_formImage" data-role="formImage" aria-label="Colonne du fichier — Droit à l'image"></select></td><td data-label="Colonne de validation"><select class="fr-select" id="cand_col_validationFormImage" data-role="validationFormImage" aria-label="Colonne de validation — Droit à l'image"></select></td></tr>
-      <tr><th scope="row">Enseignement à distance — Bloc 1</th><td data-label="Colonne du fichier"><select class="fr-select" id="cand_col_ead" data-role="ead" aria-label="Colonne du fichier — Enseignement à distance — Bloc 1"></select></td><td data-label="Colonne de validation"><select class="fr-select" id="cand_col_validationEAD" data-role="validationEAD" aria-label="Colonne de validation — Enseignement à distance — Bloc 1"></select></td></tr>
+      <tr><th scope="row">EAD - Bloc 1</th><td data-label="Colonne du fichier"><select class="fr-select" id="cand_col_ead" data-role="ead" aria-label="Colonne du fichier — EAD - Bloc 1"></select></td><td data-label="Colonne de validation"><select class="fr-select" id="cand_col_validationEAD" data-role="validationEAD" aria-label="Colonne de validation — EAD - Bloc 1"></select></td></tr>
     </tbody>
   </table>
 </div>
 <div class="cfg-grid cfg-grid--after-table">
-  <div class="fr-select-group"><label class="fr-label" for="cand_col_numCand">N° CAND (Enseignement à distance)<span class="fr-hint-text">Zone de texte modifiable dans la carte « Enseignement à distance Bloc 1 » ; colonne Texte recommandée.</span></label><select class="fr-select" id="cand_col_numCand" data-role="numCand"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_numCand">N° CAND (EAD - Bloc 1)<span class="fr-hint-text">Zone de texte modifiable dans la carte « EAD - Bloc 1 » ; colonne Texte recommandée.</span></label><select class="fr-select" id="cand_col_numCand" data-role="numCand"></select></div>
 </div>
 
       </section>
@@ -970,8 +993,8 @@
         <div class="cfg-card__head">
           <span class="cfg-card__num" aria-hidden="true">5</span>
           <div>
-            <h3 class="cfg-card__title" id="cfgCardTitle5">Courriel « Enseignement à distance »</h3>
-            <p class="cfg-card__desc">Message pré-rempli ouvert dans la messagerie quand on clique sur l'icône courriel de la carte « Enseignement à distance Bloc 1 ». Il est adressé à l'e-mail du candidat (colonne E-mail de la carte 3).</p>
+            <h3 class="cfg-card__title" id="cfgCardTitle5">Courriel « EAD - Bloc 1 »</h3>
+            <p class="cfg-card__desc">Message pré-rempli ouvert dans la messagerie quand on clique sur l'icône courriel de la carte « EAD - Bloc 1 ». Il est adressé à l'e-mail du candidat (colonne E-mail de la carte 3).</p>
           </div>
         </div>
         <div class="fr-input-group">
@@ -986,7 +1009,7 @@
         <div class="cfg-vars">
           <p class="cfg-vars__title">Variables disponibles <span>(cliquez pour insérer à l'emplacement du curseur)</span></p>
           <ul class="cfg-vars__list">
-            <li><button class="cfg-var-btn" type="button" data-var="{{N_CAND}}">{{N_CAND}}</button> affiche le n° CAND du candidat (champ « N° CAND » de la carte Enseignement à distance).</li>
+            <li><button class="cfg-var-btn" type="button" data-var="{{N_CAND}}">{{N_CAND}}</button> affiche le n° CAND du candidat (champ « N° CAND » de la carte EAD - Bloc 1).</li>
             <li><button class="cfg-var-btn" type="button" data-var="{{STAGIAIRE}}">{{STAGIAIRE}}</button> affiche le nom du stagiaire.</li>
           </ul>
         </div>
@@ -1018,7 +1041,7 @@
           </div>
         </div>
 <div class="cfg-grid">
-  <div class="fr-select-group"><label class="fr-label" for="cand_col_photos">Photos<span class="fr-hint-text">Autorisation photo (Oui / Non), modifiable depuis la carte « Droit à l'image ».</span></label><select class="fr-select" id="cand_col_photos" data-role="photos"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_photos">Photos<span class="fr-hint-text">Autorisation photo : coché = Oui, sinon Non. « Non » n'est pas bloquant. Modifiable depuis la carte « Droit à l'image ».</span></label><select class="fr-select" id="cand_col_photos" data-role="photos"></select></div>
   <div class="fr-select-group"><label class="fr-label" for="cand_col_blocagesInfos">Blocages / Infos<span class="fr-hint-text">Texte libre, modifiable ; signale les dossiers bloqués dans la liste.</span></label><select class="fr-select" id="cand_col_blocagesInfos" data-role="blocagesInfos"></select></div>
 </div>
 
@@ -1090,9 +1113,9 @@
     nid: 'NID', stagiaire: 'Stagiaire', email: 'E-mail', telephone: 'Téléphone',
     dateNaissance: 'Date de naissance',
     usageRS: 'Reconnaissance de responsabilité - Réseaux sociaux', formImage: 'Droit à l\'image',
-    ead: 'Enseignement à distance Bloc 1',
+    ead: 'EAD - Bloc 1',
     validationUsageRS: 'Validation — Reconnaissance de responsabilité', validationFormImage: 'Validation — Droit à l\'image',
-    validationEAD: 'Validation — Enseignement à distance Bloc 1',
+    validationEAD: 'Validation EAD - Bloc 1',
     numCand: 'N° CAND', photos: 'Photos',
     inscriptionBande: 'Inscription', qteBandes: 'Quantité', du: 'Dû', encaisse: 'Encaissé',
     blocagesInfos: 'Blocages / Infos'
@@ -1144,12 +1167,12 @@
     return normalizeKey(textOf(v));
   }
 
-  // Courriel adressé au candidat depuis la carte « Enseignement à distance »
+  // Courriel adressé au candidat depuis la carte « EAD - Bloc 1 »
   // (icône courriel) : objet et corps rédigés dans la Configuration, avec des
   // variables {{…}} remplacées à l'envoi (voir fillMailTemplate).
   var MAIL_VARIABLES = ['N_CAND', 'STAGIAIRE'];
   var DEFAULT_EAD_MAIL = {
-    subject: 'Enseignement à distance – Bloc 1',
+    subject: 'EAD - Bloc 1',
     body: 'Bonjour {{STAGIAIRE}},\n\nVotre numéro de candidat pour l’enseignement à distance (Bloc 1) est : {{N_CAND}}.\n\nCordialement,'
   };
 
@@ -1814,12 +1837,41 @@ var linked = 0;
     return 'pending'; // colonne vide/non réglée : ni acceptée ni explicitement refusée
   }
 
-  // Le candidat a-t-il au moins un document (configuré, avec sa colonne de
-  // validation) qui n'est pas encore accepté ?
+  // Statut d'un document, partagé par la liste (tags) et la modale (cartes) :
+  //  - missing  : aucun fichier déposé                        -> rouge
+  //  - rejected : fichier présent, validation décochée (refus) -> orange
+  //  - ok       : fichier présent, validation cochée           -> vert
+  //  - pending  : fichier présent, validation vide / non réglée -> gris
+  function docStatus(row, role) {
+    if (!extractAttachmentIds(row[role]).length) return 'missing';
+    var validationRole = ATTACH_VALIDATION_ROLE[role];
+    if (!settings.col[validationRole]) return 'pending';
+    var state = boolState(row[validationRole]);
+    return state === 'accepted' ? 'ok' : (state === 'refused' ? 'rejected' : 'pending');
+  }
+  var DOC_STATUS_TEXT = { ok: 'validé', rejected: 'refusé', missing: 'manquant', pending: 'à valider' };
+  // Intitulés courts des tags de la liste (la modale garde les intitulés complets).
+  var DOC_TAG_LABELS = { usageRS: 'Attestation RS', formImage: 'Droit à l\'image', ead: 'EAD - Bloc 1' };
+
+  // Tag DSFR d'un document, coloré selon son statut.
+  function buildDocTag(row, role) {
+    var status = docStatus(row, role);
+    var tag = document.createElement('span');
+    tag.className = 'fr-tag fr-tag--sm doc-tag--' + status;
+    tag.title = DOC_TAG_LABELS[role] + ' : ' + DOC_STATUS_TEXT[status];
+    tag.appendChild(document.createTextNode(DOC_TAG_LABELS[role]));
+    var sr = document.createElement('span');
+    sr.className = 'fr-sr-only';
+    sr.textContent = ' — ' + DOC_STATUS_TEXT[status];
+    tag.appendChild(sr);
+    return tag;
+  }
+
+  // Le candidat a-t-il au moins un document (configuré) qui n'est pas encore
+  // "OK" — manquant, refusé ou pas encore validé ?
   function hasPendingDocs(row) {
     return ATTACHMENT_ROLES.some(function (role) {
-      var validationRole = ATTACH_VALIDATION_ROLE[role];
-      return !!settings.col[role] && !!settings.col[validationRole] && boolState(row[validationRole]) !== 'accepted';
+      return !!settings.col[role] && docStatus(row, role) !== 'ok';
     });
   }
 
@@ -1892,47 +1944,42 @@ var linked = 0;
     }
   }
 
-  // Bande compacte : NID + nom du stagiaire, plus deux pastilles de statut
-  // (documents à traiter / blocages) pour un repérage rapide sans ouvrir la
-  // fiche. Tout le reste (documents, pièces jointes, infos complémentaires)
-  // ne s'affiche qu'au clic, dans la modale — voir buildCandidateDetails.
+  // Bande de la liste : le nom du candidat, un tag DSFR par document
+  // (rouge = manquant, orange = refusé, vert = OK, voir docStatus) et, en bout
+  // de ligne, le pictogramme "mineur" quand le candidat le sera au 1er jour de
+  // la formation. Tout le reste (documents, pièces jointes, infos) ne
+  // s'affiche qu'au clic, dans la modale — voir buildCandidateDetails.
   function buildCandidateRow(row) {
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'cand-row';
     btn.dataset.rowId = row.id;
 
-    var nidEl = document.createElement('span');
-    nidEl.className = 'cand-badge-nid';
-    nidEl.textContent = 'NID · ' + (textOf(row.nid) || '—');
-
     var nameEl = document.createElement('span');
     nameEl.className = 'cand-row__name';
     nameEl.textContent = textOfRef(row.stagiaire) || '(Stagiaire non renseigné)';
+    btn.appendChild(nameEl);
 
-    var flags = document.createElement('span');
-    flags.className = 'cand-row__flags';
-    if (hasPendingDocs(row)) {
-      var flagPending = document.createElement('span');
-      flagPending.className = 'cand-row__flag';
-      flagPending.title = 'Documents à traiter';
-      flags.appendChild(flagPending);
-    }
-    if (settings.col.blocagesInfos && textOf(row.blocagesInfos)) {
-      var flagBlocages = document.createElement('span');
-      flagBlocages.className = 'cand-row__flag cand-row__flag--blocages';
-      flagBlocages.title = 'Blocages signalés';
-      flags.appendChild(flagBlocages);
+    var tags = document.createElement('span');
+    tags.className = 'cand-row__tags';
+    ATTACHMENT_ROLES.forEach(function (role) {
+      if (settings.col[role]) tags.appendChild(buildDocTag(row, role));
+    });
+    btn.appendChild(tags);
+
+    if (willBeMinor(row.dateNaissance, parseFrDate(settings.dateDebutFormation))) {
+      var minor = document.createElement('span');
+      minor.className = 'cand-row__minor';
+      minor.title = 'Sera mineur au premier jour de la formation';
+      minor.innerHTML = '<span class="fr-icon-alert-line" aria-hidden="true"></span><span class="fr-sr-only">Sera mineur au premier jour de la formation</span>';
+      btn.appendChild(minor);
     }
 
     var chevron = document.createElement('span');
     chevron.className = 'cand-row__chevron fr-icon-arrow-right-s-line';
     chevron.setAttribute('aria-hidden', 'true');
-
-    btn.appendChild(nidEl);
-    btn.appendChild(nameEl);
-    btn.appendChild(flags);
     btn.appendChild(chevron);
+
     btn.addEventListener('click', function () { openCandidateModal(row.id); });
     return btn;
   }
@@ -2055,18 +2102,23 @@ var linked = 0;
     // buildPhotosField) dès que cette pièce est configurée ; on ne le
     // ré-affiche ici, en lecture seule, que si formImage n'est pas réglé —
     // pour ne pas perdre l'info si l'admin n'a pas mappé ce document.
+    // Le NID (colonne obligatoire, donc toujours réglée) ouvre la section, en
+    // lecture seule, dans le même bloc blanc que les champs de la section
+    // "Bande" ; la section Infos est donc toujours affichée.
     var photosInDocCard = !!(settings.col.photos && settings.col.formImage);
-    if ((settings.col.photos && !photosInDocCard) || settings.col.blocagesInfos) {
-      var infoTitle = document.createElement('p');
-      infoTitle.className = 'section-title';
-      infoTitle.textContent = 'Infos';
-      sections.push(infoTitle);
-      if (settings.col.photos && !photosInDocCard) sections.push(buildFieldRow(row, 'photos'));
-      // Contrairement à Photos, "Blocages / Infos" reste affiché même vide
-      // dès que la colonne est réglée : c'est justement là qu'on saisit un
-      // blocage, pas seulement là où on le consulte.
-      if (settings.col.blocagesInfos) sections.push(buildBlocagesEditor(row));
-    }
+    var infoTitle = document.createElement('p');
+    infoTitle.className = 'section-title';
+    infoTitle.textContent = 'Infos';
+    sections.push(infoTitle);
+    var infoWrap = document.createElement('div');
+    infoWrap.className = 'cand-bande'; // colonne de blocs espacés, comme la section Bande
+    infoWrap.appendChild(buildBlockField(row, 'nid'));
+    if (settings.col.photos && !photosInDocCard) infoWrap.appendChild(buildFieldRow(row, 'photos'));
+    // Contrairement à Photos, "Blocages / Infos" reste affiché même vide
+    // dès que la colonne est réglée : c'est justement là qu'on saisit un
+    // blocage, pas seulement là où on le consulte.
+    if (settings.col.blocagesInfos) infoWrap.appendChild(buildBlocagesEditor(row));
+    sections.push(infoWrap);
 
     return sections;
   }
@@ -2093,12 +2145,15 @@ var linked = 0;
     return line;
   }
 
+  // Photos : coché => "Oui", sinon (décoché, vide, autre valeur) => "Non".
+  // Une colonne texte contenant "Oui" est aussi reconnue.
+  function isPhotosYes(v) {
+    return v === true || v === 1 || normalizeKey(textOf(v)) === 'OUI';
+  }
   function photosBadgeHtml(v) {
-    var t = textOf(v);
-    var norm = normalizeKey(t);
-    if (v === true || norm === 'OUI') return '<span class="cand-pill cand-pill--yes">Oui</span>';
-    if (v === false || norm === 'NON') return '<span class="cand-pill cand-pill--no">Non</span>';
-    return t ? escapeHtml(t) : '<span class="cand-pill cand-pill--unknown">—</span>';
+    return isPhotosYes(v)
+      ? '<span class="cand-pill cand-pill--yes">Oui</span>'
+      : '<span class="cand-pill cand-pill--no">Non</span>';
   }
 
   // ---- Champs de la section "Bande" (Bande patro., Quantité, Dû,
@@ -2313,7 +2368,7 @@ var linked = 0;
     });
   }
 
-  // Courriel « Enseignement à distance » : objet et corps rédigés dans la
+  // Courriel « EAD - Bloc 1 » : objet et corps rédigés dans la
   // Configuration (settings.eadMail), adressé à l'e-mail du candidat.
   function openEadMail(row) {
     var email = settings.col.email ? textOf(row.email) : '';
@@ -2341,7 +2396,7 @@ var linked = 0;
     // Accent de couleur en bord de carte selon l'état de validation (vert
     // validé / rouge refusé / ambre en attente) : un repère visuel immédiat
     // sans avoir à lire le bouton de validation.
-    slot.dataset.state = validationRole ? boolState(row[validationRole]) : 'pending';
+    slot.dataset.state = docStatus(row, role);
 
     var head = document.createElement('div');
     head.className = 'cand-doc-slot__head';
@@ -2349,6 +2404,11 @@ var linked = 0;
     label.className = 'cand-doc-slot__label';
     label.textContent = ROLE_LABELS[role];
     head.appendChild(label);
+    // Même tag coloré que dans la liste (rouge / orange / vert).
+    var statusTag = buildDocTag(row, role);
+    statusTag.textContent = DOC_STATUS_TEXT[docStatus(row, role)].replace(/^./, function (c) { return c.toUpperCase(); });
+    statusTag.removeAttribute('title');
+    head.appendChild(statusTag);
     slot.appendChild(head);
 
     // "Droit à l'image" embarque le champ Photos (Oui/Non), plutôt que de
@@ -2357,7 +2417,7 @@ var linked = 0;
     if (role === 'formImage' && settings.col.photos) {
       slot.appendChild(buildPhotosField(row));
     }
-    // "Enseignement à distance" embarque le champ N° CAND, au même endroit que
+    // "EAD - Bloc 1" embarque le champ N° CAND, au même endroit que
     // Photos dans la carte "Droit à l'image".
     if (role === 'ead' && settings.col.numCand) {
       slot.appendChild(buildNumCandField(row));
@@ -2478,6 +2538,31 @@ var linked = 0;
     return wrap;
   }
 
+  // Bascule Oui / Non à deux états, libellés visibles : coché => "Oui", sinon
+  // "Non" (une cellule vide vaut "Non", pas "en attente" comme pour la
+  // validation d'un document). Un clic enregistre la valeur opposée.
+  function buildYesNoToggle(row, role) {
+    var isYes = isPhotosYes(row[role]);
+    var wrap = document.createElement('div');
+    wrap.className = 'cand-yesno';
+    wrap.setAttribute('role', 'group');
+    wrap.setAttribute('aria-label', ROLE_LABELS[role]);
+    [['yes', 'Oui', true], ['no', 'Non', false]].forEach(function (def) {
+      var active = isYes === def[2];
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'cand-yesno__btn cand-yesno__btn--' + def[0] + (active ? ' is-active' : '');
+      btn.textContent = def[1];
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      btn.addEventListener('click', function () {
+        if (active) return;
+        updateValidation(role, row, def[2], null);
+      });
+      wrap.appendChild(btn);
+    });
+    return wrap;
+  }
+
   // Champ "Photos" (autorisation liée au droit à l'image) : même contrôle
   // Oui/Non que la validation d'un document, mais sans e-mail de refus —
   // ce n'est pas une pièce qu'on demande de renvoyer. Vit dans la table
@@ -2490,11 +2575,11 @@ var linked = 0;
     label.className = 'cand-doc-slot__photos-label';
     label.textContent = ROLE_LABELS.photos;
     wrap.appendChild(label);
-    wrap.appendChild(buildValidationControl(row, 'photos', null, { yes: 'Oui', no: 'Non' }));
+    wrap.appendChild(buildYesNoToggle(row, 'photos'));
     return wrap;
   }
 
-  // Champ "N° CAND" (carte Enseignement à distance) : zone de texte modifiable,
+  // Champ "N° CAND" (carte EAD - Bloc 1) : zone de texte modifiable,
   // enregistrée au blur dans la table Documents (voir saveFieldEdit).
   function buildNumCandField(row) {
     var wrap = document.createElement('div');
@@ -2522,7 +2607,7 @@ var linked = 0;
     return wrap;
   }
 
-  // Icône courriel (carte Enseignement à distance) : ouvre le courriel rédigé
+  // Icône courriel (carte EAD - Bloc 1) : ouvre le courriel rédigé
   // dans la Configuration ; inactive tant que le candidat n'a pas d'adresse.
   function buildMailButton(row) {
     var btn = document.createElement('button');
