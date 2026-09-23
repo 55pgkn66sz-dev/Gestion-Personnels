@@ -1228,6 +1228,10 @@
           <details class="cfg-help cfg-sources" id="cfgSources">
         <summary>Sources de données du widget (lecture seule)</summary>
         <div id="cfgSourcesBody"></div>
+        <div class="cfg-link-test">
+          <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-search-line fr-btn--icon-left" id="cfgTestLinkBtn" type="button">Tester la liaison</button>
+          <p class="cfg-link-result" id="cfgLinkResult" aria-live="polite"></p>
+        </div>
       </details>
 
 <form id="settingsForm" novalidate>
@@ -1259,43 +1263,16 @@
 
       </section>
 
-      <section class="cfg-card" aria-labelledby="cfgCardTitle2">
+      <section class="cfg-card" aria-labelledby="cfgCardTitle3">
         <div class="cfg-card__head">
           <span class="cfg-card__num" aria-hidden="true">2</span>
           <div>
-            <h3 class="cfg-card__title" id="cfgCardTitle2">Liaison entre les deux tables</h3>
-            <p class="cfg-card__desc">Les deux tables sont rapprochées par le NID : une ligne de la table Documents correspond à un candidat lorsque leur NID est identique.</p>
+            <h3 class="cfg-card__title" id="cfgCardTitle3">Début de formation</h3>
+            <p class="cfg-card__desc">Date du 1er jour de la formation : sert à calculer le pictogramme « -18 » (mineur). Les autres colonnes (identité, documents, bande patronymique, suivi) sont fixées dans le code : voir « Sources de données du widget » ci-dessus.</p>
           </div>
         </div>
 <div class="cfg-grid">
-  <div class="fr-select-group">
-    <label class="fr-label" for="cand_docs_link" id="cand_docs_link_label">Colonne NID de la table Documents<span class="cfg-req" aria-hidden="true">*</span><span class="fr-sr-only"> (obligatoire)</span>
-      <span class="fr-hint-text">Doit contenir la même valeur de NID que la table des candidats.</span></label>
-    <select class="fr-select" id="cand_docs_link"></select>
-  </div>
-</div>
-<div class="cfg-link-test">
-  <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-search-line fr-btn--icon-left" id="cfgTestLinkBtn" type="button">Tester la liaison</button>
-  <p class="cfg-link-result" id="cfgLinkResult" aria-live="polite"></p>
-</div>
-
-      </section>
-
-      <section class="cfg-card" aria-labelledby="cfgCardTitle3">
-        <div class="cfg-card__head">
-          <span class="cfg-card__num" aria-hidden="true">3</span>
-          <div>
-            <h3 class="cfg-card__title" id="cfgCardTitle3">Identité du candidat</h3>
-            <p class="cfg-card__desc">Colonnes de la table des candidats affichées dans la liste et l'en-tête de la fiche.</p>
-          </div>
-        </div>
-<div class="cfg-grid">
-  <div class="fr-select-group"><label class="fr-label" for="cand_col_nid">NID<span class="cfg-req" aria-hidden="true">*</span><span class="fr-sr-only"> (obligatoire)</span><span class="fr-hint-text">Identifiant unique du candidat.</span></label><select class="fr-select" id="cand_col_nid" data-role="nid"></select></div>
-  <div class="fr-select-group"><label class="fr-label" for="cand_col_stagiaire">Stagiaire<span class="cfg-req" aria-hidden="true">*</span><span class="fr-sr-only"> (obligatoire)</span><span class="fr-hint-text">Nom et prénom (ex. « DUPONT Jean »), utilisés pour l'affichage et le tri.</span></label><select class="fr-select" id="cand_col_stagiaire" data-role="stagiaire"></select></div>
-  <div class="fr-select-group"><label class="fr-label" for="cand_col_email">E-mail<span class="fr-hint-text">Sert à préparer le message quand une pièce est refusée.</span></label><select class="fr-select" id="cand_col_email" data-role="email"></select></div>
-  <div class="fr-select-group"><label class="fr-label" for="cand_col_telephone">Téléphone</label><select class="fr-select" id="cand_col_telephone" data-role="telephone"></select></div>
-  <div class="fr-select-group"><label class="fr-label" for="cand_col_dateNaissance">Date de naissance<span class="fr-hint-text">Colonne de type Date ; sert au calcul du pictogramme « mineur ».</span></label><select class="fr-select" id="cand_col_dateNaissance" data-role="dateNaissance"></select></div>
-  <div class="fr-input-group" id="cand_dateDebutFormation_group">
+<div class="fr-input-group" id="cand_dateDebutFormation_group">
     <label class="fr-label" for="cand_dateDebutFormation">Début de formation le
       <span class="fr-hint-text">Saisie manuelle, format JJ/MM/AAAA.</span></label>
     <input class="fr-input" type="text" id="cand_dateDebutFormation" inputmode="numeric" maxlength="10" placeholder="JJ/MM/AAAA" autocomplete="off" aria-describedby="cand_dateDebutFormation_err">
@@ -1305,33 +1282,12 @@
 
       </section>
 
-      <section class="cfg-card" aria-labelledby="cfgCardTitle4">
-        <div class="cfg-card__head">
-          <span class="cfg-card__num" aria-hidden="true">4</span>
-          <div>
-            <h3 class="cfg-card__title" id="cfgCardTitle4">Documents</h3>
-            <p class="cfg-card__desc">Pour chaque document : la colonne qui contient le fichier (type « Pièces jointes ») et la colonne qui porte sa validation (type « Case à cocher » : coché = accepté, décoché = refusé, vide = en attente). Colonnes lues dans la table Documents.</p>
-          </div>
-        </div>
-<div class="cfg-table-wrap">
-  <table class="cfg-doc-table">
-    <thead><tr><th scope="col">Document</th><th scope="col">Colonne du fichier</th><th scope="col">Colonne de validation</th></tr></thead>
-    <tbody>
-      <tr><th scope="row">Reconnaissance de responsabilité — Réseaux sociaux</th><td data-label="Colonne du fichier"><select class="fr-select" id="cand_col_usageRS" data-role="usageRS" aria-label="Colonne du fichier — Reconnaissance de responsabilité — Réseaux sociaux"></select></td><td data-label="Colonne de validation"><select class="fr-select" id="cand_col_validationUsageRS" data-role="validationUsageRS" aria-label="Colonne de validation — Reconnaissance de responsabilité — Réseaux sociaux"></select></td></tr>
-      <tr><th scope="row">Droit à l'image</th><td data-label="Colonne du fichier"><select class="fr-select" id="cand_col_formImage" data-role="formImage" aria-label="Colonne du fichier — Droit à l'image"></select></td><td data-label="Colonne de validation"><select class="fr-select" id="cand_col_validationFormImage" data-role="validationFormImage" aria-label="Colonne de validation — Droit à l'image"></select></td></tr>
-      <tr><th scope="row">EAD - Bloc 1</th><td data-label="Colonne du fichier"><select class="fr-select" id="cand_col_ead" data-role="ead" aria-label="Colonne du fichier — EAD - Bloc 1"></select></td><td data-label="Colonne de validation"><select class="fr-select" id="cand_col_validationEAD" data-role="validationEAD" aria-label="Colonne de validation — EAD - Bloc 1"></select></td></tr>
-    </tbody>
-  </table>
-</div>
-
-      </section>
-
       <section class="cfg-card" aria-labelledby="cfgCardTitle5">
         <div class="cfg-card__head">
-          <span class="cfg-card__num" aria-hidden="true">5</span>
+          <span class="cfg-card__num" aria-hidden="true">3</span>
           <div>
             <h3 class="cfg-card__title" id="cfgCardTitle5">Courriel « EAD - Bloc 1 »</h3>
-            <p class="cfg-card__desc">Message pré-rempli ouvert dans la messagerie quand on clique sur l'icône courriel de la carte « EAD - Bloc 1 ». Il est adressé à l'e-mail du candidat (colonne E-mail de la carte 3). À l'ouverture du courriel, le widget ajoute « Identifiants GendForm envoyés le JJ/MM/AAAA » dans « Blocages / Infos » (carte 7), si cette colonne est réglée.</p>
+            <p class="cfg-card__desc">Message pré-rempli ouvert dans la messagerie quand on clique sur l'icône courriel de la carte « EAD - Bloc 1 ». Il est adressé à l'e-mail du candidat (colonne « Email perso » de la table des candidats). À l'ouverture du courriel, le widget ajoute « Identifiants GendForm envoyés le JJ/MM/AAAA » dans « Blocages / Infos » de la table Documents.</p>
           </div>
         </div>
         <div class="fr-input-group">
@@ -1350,38 +1306,6 @@
             <li><button class="cfg-var-btn" type="button" data-var="{{STAGIAIRE}}">{{STAGIAIRE}}</button> affiche le nom du stagiaire au format « Prénom NOM » (ex. « DUPONT Jean » devient « Jean DUPONT »).</li>
           </ul>
         </div>
-      </section>
-
-      <section class="cfg-card" aria-labelledby="cfgCardTitle6">
-        <div class="cfg-card__head">
-          <span class="cfg-card__num" aria-hidden="true">6</span>
-          <div>
-            <h3 class="cfg-card__title" id="cfgCardTitle6">Bande patronymique et paiement</h3>
-            <p class="cfg-card__desc">Colonnes lues dans la table Documents. L'inscription, la quantité et l'encaissé sont modifiables depuis la fiche ; le dû reste en lecture seule.</p>
-          </div>
-        </div>
-<div class="cfg-grid">
-  <div class="fr-select-group"><label class="fr-label" for="cand_col_inscriptionBande">Inscription<span class="fr-hint-text">Texte ou choix (éviter une colonne Référence).</span></label><select class="fr-select" id="cand_col_inscriptionBande" data-role="inscriptionBande"></select></div>
-  <div class="fr-select-group"><label class="fr-label" for="cand_col_qteBandes">Quantité<span class="fr-hint-text">Colonne numérique.</span></label><select class="fr-select" id="cand_col_qteBandes" data-role="qteBandes"></select></div>
-  <div class="fr-select-group"><label class="fr-label" for="cand_col_du">Dû<span class="fr-hint-text">Lecture seule dans la fiche.</span></label><select class="fr-select" id="cand_col_du" data-role="du"></select></div>
-  <div class="fr-select-group"><label class="fr-label" for="cand_col_encaisse">Encaissé<span class="fr-hint-text">Colonne numérique (montant en €).</span></label><select class="fr-select" id="cand_col_encaisse" data-role="encaisse"></select></div>
-</div>
-
-      </section>
-
-      <section class="cfg-card" aria-labelledby="cfgCardTitle7">
-        <div class="cfg-card__head">
-          <span class="cfg-card__num" aria-hidden="true">7</span>
-          <div>
-            <h3 class="cfg-card__title" id="cfgCardTitle7">Suivi du dossier</h3>
-            <p class="cfg-card__desc">Colonnes lues dans la table Documents.</p>
-          </div>
-        </div>
-<div class="cfg-grid">
-  <div class="fr-select-group"><label class="fr-label" for="cand_col_photos">Photos<span class="fr-hint-text">Autorisation photo : coché = Oui, sinon Non. « Non » n'est pas bloquant. Modifiable depuis la carte « Droit à l'image ».</span></label><select class="fr-select" id="cand_col_photos" data-role="photos"></select></div>
-  <div class="fr-select-group"><label class="fr-label" for="cand_col_blocagesInfos">Blocages / Infos<span class="fr-hint-text">Texte libre, modifiable. Le widget y ajoute aussi « Identifiants GendForm envoyés le … » à l'envoi du courriel EAD.</span></label><select class="fr-select" id="cand_col_blocagesInfos" data-role="blocagesInfos"></select></div>
-</div>
-
       </section>
 
       <div class="cfg-bar">
@@ -1431,7 +1355,7 @@
     'nomUrgence', 'prenomUrgence', 'telUrgence', 'allergies', 'traitements', 'lateralite', 'modeTransport', 'immatriculation',
     'usageRS', 'validationUsageRS', 'formImage', 'validationFormImage', 'ead', 'validationEAD',
     'photos', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
-  var REQUIRED_ROLES = ['nid', 'stagiaire'];
+  var REQUIRED_ROLES = []; // plus de colonne obligatoire à régler : toutes les colonnes sont fixées (FIXED_COLS)
   var OPTIONAL_ROLES = ROLES.filter(function (r) { return REQUIRED_ROLES.indexOf(r) === -1; });
   // Rôles qui vivent dans la table "Documents" plutôt que dans la table des
   // candidats, quand les deux sont distinctes (voir DOC_TABLE_ROLES plus
@@ -1559,9 +1483,9 @@
   // moins un rôle "Documents" (pièce jointe ou validation) est réglé —
   // rien n'empêche un usage sans aucun document.
   function isConfigComplete(cfg) {
-    if (!cfg.table || !REQUIRED_ROLES.every(function (role) { return !!cfg.col[role]; })) return false;
+    if (!cfg.table) return false;
     var usesDocsTable = DOC_TABLE_ROLES.some(function (role) { return HARD_DOCS_ROLES.indexOf(role) === -1 && !!cfg.col[role]; });
-    if (usesDocsTable && (!cfg.docsTable || !cfg.docsLinkCol)) return false;
+    if (usesDocsTable && !cfg.docsTable) return false;
     return true;
   }
   // Crée, dans la table Documents, la ligne (même NID) de ce candidat qui
@@ -1576,6 +1500,7 @@
   // pièce jointe, voir importDocument).
   function ensureDocRowId(row) {
     if (row.__docRowId) return Promise.resolve(row.__docRowId);
+    if (!settings.docsLinkCol) return Promise.reject(new Error('La table Documents n’a pas de colonne « NID » : impossible de créer la ligne du stagiaire.'));
     var fields = {};
     // La nouvelle ligne reçoit le NID du candidat (c'est la clé de liaison).
     fields[settings.docsLinkCol] = row.nid;
@@ -1596,7 +1521,7 @@
     if (DOC_TABLE_ROLES.indexOf(role) === -1) {
       return Promise.resolve({ table: settings.table, rowId: row.id });
     }
-    if (!settings.docsTable || !settings.docsLinkCol) {
+    if (!settings.docsTable) {
       return Promise.reject(new Error('Aucune table Documents réglée. Ouvrez la Configuration (5 clics sur le bloc marque du header) et choisissez-la.'));
     }
     return ensureDocRowId(row).then(function (docRowId) {
@@ -1667,7 +1592,6 @@
   var cfgLinkResult = document.getElementById('cfgLinkResult');
   var candTableEl = document.getElementById('cand_table');
   var docsTableEl = document.getElementById('cand_docs_table');
-  var linkColEl = document.getElementById('cand_docs_link');
   var startDateEl = document.getElementById('cand_dateDebutFormation');
   var startDateErrEl = document.getElementById('cand_dateDebutFormation_err');
   var mailSubjectEl = document.getElementById('cfg_mail_subject');
@@ -1818,7 +1742,7 @@
   // colonne quand le champ n'est pas encore réglé — colonnes de la table
   // « Stagiaires » et champs d'identité.
   var SUGGEST_LABELS = {
-    nid: ['NID'], telephone: ['TELEPHONE'], email: ['EMAIL PERSO'], dateNaissance: ['DDN'],
+    docsNid: ['NID'], nid: ['NID'], telephone: ['TELEPHONE'], email: ['EMAIL PERSO'], dateNaissance: ['DDN'],
     pon: ['PON'], civilite: ['CIVILITE'], nom: ['NOM'], prenom: ['PRENOM'], affectation: ['AFFECTATION'],
     lieuNaissance: ['LIEU DE NAISSANCE'], dpt: ['DPT'], nigend: ['NIGEND'], fonction: ['FONCTION'],
     batiment: ['BAT.', 'BAT'], chambre: ['CH.', 'CH'], autorise: ['AUTORISE'],
@@ -1883,25 +1807,6 @@
     });
   }
 
-  // Colonne de liaison : la colonne NID de la table Documents.
-  var linkListSeq = 0;
-  function refreshLinkColumnList() {
-    var tableId = docsTableEl.value;
-    var current = settings.docsLinkCol;
-    if (!tableId) {
-      fillSelectWithOptions(linkColEl, [], '', 'Choisir la table Documents d’abord…');
-      return Promise.resolve();
-    }
-    var seq = ++linkListSeq;
-    return Promise.all([grist.docApi.fetchTable(tableId), loadColumnTypes()]).then(function (res) {
-      if (seq !== linkListSeq) return;
-      var types = res[1][tableId] || null;
-      fillSelectWithOptions(linkColEl, columnOptions(tableColumns(res[0]), types, null, '', tableId), current, 'Choisir une colonne…');
-    }).catch(function (e) {
-      showSettingsStatus('error', 'Impossible de lire les colonnes de la table « ' + tableId + ' » : ' + friendlyErrorMessage(e));
-    });
-  }
-
   function refreshTableList() {
     return grist.docApi.listTables().then(function (tables) {
       allTableIds = tables || [];
@@ -1913,8 +1818,7 @@
       mailBodyEl.value = settings.eadMail.body;
       return Promise.all([
         refreshRoleSelects(candTableEl.value, MAIN_TABLE_ROLES, settings.table, 'Choisir la table des candidats d’abord…'),
-        refreshRoleSelects(docsTableEl.value, DOC_TABLE_ROLES, settings.docsTable, 'Choisir la table Documents d’abord…'),
-        refreshLinkColumnList()
+        refreshRoleSelects(docsTableEl.value, DOC_TABLE_ROLES, settings.docsTable, 'Choisir la table Documents d’abord…')
       ]);
     }).then(function () {
       setConfigDirty(suggestionsApplied); // colonnes présélectionnées : à enregistrer
@@ -1927,14 +1831,12 @@
 
   candTableEl.addEventListener('change', function () {
     Promise.all([
-      refreshRoleSelects(candTableEl.value, MAIN_TABLE_ROLES, settings.table, 'Choisir la table des candidats d’abord…'),
-      refreshLinkColumnList()
+      refreshRoleSelects(candTableEl.value, MAIN_TABLE_ROLES, settings.table, 'Choisir la table des candidats d’abord…')
     ]).then(renderConfigSummary);
   });
   docsTableEl.addEventListener('change', function () {
     Promise.all([
-      refreshRoleSelects(docsTableEl.value, DOC_TABLE_ROLES, settings.docsTable, 'Choisir la table Documents d’abord…'),
-      refreshLinkColumnList()
+      refreshRoleSelects(docsTableEl.value, DOC_TABLE_ROLES, settings.docsTable, 'Choisir la table Documents d’abord…')
     ]).then(renderConfigSummary);
   });
 
@@ -1975,7 +1877,6 @@
     cfg.docsTable = docsTableEl.value;
     // Colonne de liaison : lue seule (jamais écrite par le widget), pas
     // besoin qu'elle passe isWritableColId comme les colonnes de rôle.
-    cfg.docsLinkCol = linkColEl.value || '';
     cfg.hideEtuteur = document.getElementById('cfg_hideEtuteur').checked;
     cfg.dateDebutFormation = startDateEl.value.trim();
     cfg.eadMail = { subject: mailSubjectEl.value.trim(), body: mailBodyEl.value };
@@ -1990,30 +1891,9 @@
   function validateConfig(cfg) {
     var errors = [];
     if (!cfg.table) errors.push('Choisissez la table des candidats.');
-    REQUIRED_ROLES.forEach(function (role) {
-      if (!cfg.col[role]) errors.push('Choisissez la colonne « ' + ROLE_LABELS[role] + ' » (obligatoire).');
-    });
     if (cfg.dateDebutFormation && !parseFrDate(cfg.dateDebutFormation)) {
       errors.push('« Début de formation le » doit être une date valide au format JJ/MM/AAAA (par ex. 15/09/2026).');
     }
-    var usesDocs = DOC_TABLE_ROLES.some(function (role) { return !!cfg.col[role]; });
-    if (usesDocs && !cfg.docsTable) errors.push('Choisissez la table Documents : des colonnes Documents sont sélectionnées.');
-    if (usesDocs && cfg.docsTable && !cfg.docsLinkCol) errors.push('Choisissez la colonne NID de la table Documents.');
-    ATTACHMENT_ROLES.forEach(function (role) {
-      if (!cfg.col[role] && cfg.col[ATTACH_VALIDATION_ROLE[role]]) {
-        errors.push('Une colonne de validation est choisie pour « ' + ROLE_LABELS[role] + ' » sans colonne de fichier.');
-      }
-    });
-    // Une même colonne ne peut pas servir à deux champs d'une même table.
-    [MAIN_TABLE_ROLES, DOC_TABLE_ROLES].forEach(function (group) {
-      var seen = {};
-      group.forEach(function (role) {
-        var col = cfg.col[role];
-        if (!col) return;
-        if (seen[col]) errors.push('La colonne « ' + col + ' » est utilisée à la fois pour « ' + ROLE_LABELS[seen[col]] + ' » et « ' + ROLE_LABELS[role] + ' ».');
-        else seen[col] = role;
-      });
-    });
     // Variables du courriel : seules celles de MAIL_VARIABLES existent.
     var used = (cfg.eadMail.subject + '\n' + cfg.eadMail.body).match(/\{\{[^{}]*\}\}/g) || [];
     var unknown = {};
@@ -2049,22 +1929,16 @@
     function chip(kind, text) { chips.push('<span class="cfg-chip' + (kind ? ' cfg-chip--' + kind : '') + '">' + escapeHtml(text) + '</span>'); }
 
     if (cfg.table) chip('ok', 'Candidats : ' + cfg.table); else chip('warn', 'Table des candidats à choisir');
-    if (REQUIRED_ROLES.every(function (r) { return !!cfg.col[r]; })) chip('ok', 'NID et Stagiaire réglés');
-    else chip('warn', 'NID / Stagiaire à choisir');
+    if (cfg.docsTable) chip('ok', 'Documents : ' + cfg.docsTable + ' (liaison par NID)'); else chip('', 'Table Documents : non réglée');
 
-    var usesDocs = DOC_TABLE_ROLES.some(function (role) { return !!cfg.col[role]; });
-    if (!usesDocs) chip('', 'Table Documents : non utilisée');
-    else if (cfg.docsTable && cfg.docsLinkCol) chip('ok', 'Documents : ' + cfg.docsTable + ' (liaison par NID)');
-    else chip('warn', 'Table Documents et liaison à régler');
+    // Colonnes fixes (code) : état d'après les dernières données chargées.
+    var missingFixed = Object.keys(FIXED_COLS).filter(function (r) { return !settings.col[r]; }).length;
+    if (!candidates.loaded) chip('', 'Colonnes fixes : non vérifiées');
+    else if (missingFixed) chip('warn', missingFixed + ' colonne(s) fixe(s) introuvable(s)');
+    else chip('ok', 'Colonnes fixes trouvées');
 
-    var docCount = ATTACHMENT_ROLES.filter(function (r) { return !!cfg.col[r]; }).length;
-    var validCount = ATTACHMENT_ROLES.filter(function (r) { return !!cfg.col[r] && !!cfg.col[ATTACH_VALIDATION_ROLE[r]]; }).length;
-    if (!docCount) chip('', 'Aucun document configuré');
-    else if (validCount === docCount) chip('ok', docCount + ' document(s), validation réglée');
-    else chip('warn', (docCount - validCount) + ' document(s) sans colonne de validation');
-
-    if (cfg.col.ead) {
-      if (!cfg.col.email) chip('warn', 'Courriel EAD : colonne E-mail à choisir');
+    if (settings.col.ead) {
+      if (!settings.col.email) chip('warn', 'Courriel EAD : colonne « Email perso » introuvable');
       else chip('ok', 'Courriel EAD prêt');
     }
 
@@ -2096,6 +1970,24 @@
   // code (N_Cand, Photo, Infos, Pieces, Pieces_noms), colonnes de la page Stagiaires
   // retrouvées par libellé, et colonnes réglées dans la Configuration. Chaque colonne
   // est vérifiée dans les données chargées en dernier (candidates.mainCols / docsCols).
+  // Libellé attendu tel qu'on l'écrit dans Grist (première lettre en majuscule, accents
+  // conservés, sigles en majuscules). La comparaison, elle, ignore casse et accents
+  // (voir SUGGEST_LABELS) : ce texte n'est là que pour l'affichage.
+  var EXPECTED_LABEL_SHOWN = {
+    pon: 'PON', civilite: 'Civilité', nom: 'Nom', prenom: 'Prénom', affectation: 'Affectation',
+    lieuNaissance: 'Lieu de naissance', dpt: 'Dpt', nigend: 'Nigend', fonction: 'Fonction',
+    batiment: 'Bât.', chambre: 'Ch.', autorise: 'Autorisé', identiteComplete: 'Identité complète',
+    droitImage: 'Droit à l\'image', qualifSecourisme: 'Qualif. secourisme', regimeAlimentaire: 'Régime alimentaire',
+    nomUrgence: 'Nom contact urgence', prenomUrgence: 'Prenom contact urgence', telUrgence: 'Tel contact urgence',
+    allergies: 'Allergies', traitements: 'Traitements/Maladies', lateralite: 'Lateralite',
+    modeTransport: 'Mode de transport', immatriculation: 'Immatriculation'
+  };
+  function expectedLabelShown(role) {
+    if (EXPECTED_LABEL_SHOWN[role]) return EXPECTED_LABEL_SHOWN[role];
+    var raw = (SUGGEST_LABELS[role] || [''])[0].toLowerCase();
+    return raw.charAt(0).toUpperCase() + raw.slice(1);
+  }
+
   function renderSourcesPanel() {
     var body = document.getElementById('cfgSourcesBody');
     if (!body) return;
@@ -2110,7 +2002,7 @@
       return ok ? '<span class="cfg-pill cfg-pill--ok">trouvée</span>' : '<span class="cfg-pill cfg-pill--ko">absente</span>';
     }
     function colCell(colId, cols, labels) {
-      if (!colId) return '<span class="cfg-pill cfg-pill--na">non réglée</span>';
+      if (!colId) return '<span class="cfg-pill cfg-pill--ko">non trouvée</span>';
       var lbl = labels[colId] && labels[colId] !== colId ? ' <span class="cfg-sources__grist">« ' + escapeHtml(labels[colId]) + ' »</span>' : '';
       return '<span class="cfg-sources__col">' + escapeHtml(colId) + '</span>' + lbl + pill(cols.indexOf(colId) !== -1);
     }
@@ -2121,7 +2013,7 @@
     }
     function tableName(t) { return t ? '<span class="cfg-sources__col">' + escapeHtml(t) + '</span>' : '<span class="cfg-pill cfg-pill--na">non réglée</span>'; }
 
-    var html = '<p class="cfg-sources__note">Rappel des tables et colonnes lues (et écrites) par le widget. Rien ne se modifie ici : les tables se règlent dans les cartes 1 et 2, les colonnes fixes sont dans le code. ' +
+    var html = '<p class="cfg-sources__note">Rappel des tables et colonnes lues (et écrites) par le widget. Rien ne se modifie ici : la table des candidats et la table Documents se règlent dans la carte 1 ; la liaison par le NID est fixe, les colonnes fixes sont dans le code. ' +
       (known ? 'État vérifié sur les dernières données chargées.' : 'Les données ne sont pas encore chargées : l\'état des colonnes n\'est pas vérifié.') + '</p>';
 
     html += '<h4>Tables</h4>' + table([
@@ -2140,16 +2032,16 @@
     ]);
 
     html += '<h4>Page Stagiaires — colonnes retrouvées par libellé Grist (candidats, ou Documents pour les colonnes ETuteur)</h4>' + table(HARD_STG_ROLES.map(function (role) {
-      var expected = (SUGGEST_LABELS[role] || [''])[0];
+      var expected = expectedLabelShown(role);
       var col = settings.col[role];
       var inDocs = HARD_DOCS_ROLES.indexOf(role) !== -1;
       var cell = col ? colCell(col, inDocs ? docsCols : mainCols, inDocs ? labelsDocs : labelsMain) : '<span class="cfg-pill cfg-pill--ko">non trouvée</span> <span class="cfg-sources__grist">libellé attendu « ' + escapeHtml(expected) + ' »</span>';
       return [ROLE_LABELS[role] + (inDocs ? ' (Documents)' : ''), cell];
     }));
 
-    var setMain = ['nid', 'stagiaire', 'email', 'telephone', 'dateNaissance'];
+    var setMain = ['nid', 'email', 'telephone', 'dateNaissance'];
     var setDocs = ['usageRS', 'validationUsageRS', 'formImage', 'validationFormImage', 'ead', 'validationEAD', 'photos', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
-    html += '<h4>Colonnes réglées dans la Configuration</h4>' + table(
+    html += '<h4>Autres colonnes fixes — identité, documents, bande patronymique, suivi</h4>' + table(
       setMain.map(function (role) { return [ROLE_LABELS[role] + ' (candidats)', colCell(settings.col[role], mainCols, labelsMain)]; })
         .concat(setDocs.map(function (role) { return [ROLE_LABELS[role] + ' (Documents)', colCell(settings.col[role], docsCols, labelsDocs)]; }))
     );
@@ -2168,10 +2060,11 @@
     if (!cfg.table) missing.push('la table des candidats');
     if (!cfg.col.nid) missing.push('la colonne NID');
     if (!cfg.docsTable) missing.push('la table Documents');
-    if (!cfg.docsLinkCol) missing.push('la colonne NID de la table Documents');
     if (missing.length) { setLinkResult('warn', 'Renseignez d’abord ' + missing.join(', ') + '.'); return; }
     setLinkResult('info', 'Vérification en cours…');
     Promise.all([grist.docApi.fetchTable(cfg.table), grist.docApi.fetchTable(cfg.docsTable)]).then(function (res) {
+      cfg.docsLinkCol = suggestColumn('docsNid', tableColumns(res[1]), cfg.docsTable);
+      if (!cfg.docsLinkCol) { setLinkResult('error', 'La table Documents n’a pas de colonne « NID ».'); return; }
       var rows = columnarToRows(res[0], cfg);
       var linked = mergeDocsTable(rows, res[1], cfg);
       var distinctDocRows = {};
@@ -2240,7 +2133,7 @@
       renderAll();
       return;
     }
-    var usesDocsTable = !!(settings.docsTable && settings.docsLinkCol);
+    var usesDocsTable = !!settings.docsTable;
     var mainPromise = grist.docApi.fetchTable(settings.table);
     var docsPromise = usesDocsTable ? grist.docApi.fetchTable(settings.docsTable) : Promise.resolve(null);
     Promise.all([mainPromise, docsPromise, loadColumnTypes()]).then(function (results) {
@@ -2478,7 +2371,7 @@
   function matchesFilters(row, skipDocFilter) {
     if (searchText.trim()) {
       var q = normalizeKey(searchText);
-      var hay = normalizeKey(textOf(row.nid) + ' ' + textOfRef(row.stagiaire) + ' ' + textOfRef(row.inscriptionBande) + ' ' + textOf(row.numCand));
+      var hay = normalizeKey(textOf(row.nid) + ' ' + stagiaireDisplayName(row) + ' ' + textOfRef(row.inscriptionBande) + ' ' + textOf(row.numCand));
       if (hay.indexOf(q) === -1) return false;
     }
     if (!skipDocFilter && !DOC_FILTERS[docFilter](docStatusesOf(row))) return false;
@@ -2572,7 +2465,7 @@
 
     var nameEl = document.createElement('span');
     nameEl.className = 'cand-row__name';
-    nameEl.textContent = textOfRef(row.stagiaire) || '(Stagiaire non renseigné)';
+    nameEl.textContent = stagiaireDisplayName(row);
     btn.appendChild(nameEl);
 
     var tags = document.createElement('span');
@@ -2886,22 +2779,49 @@
   var HARD_STG_ROLES = ['pon', 'civilite', 'nom', 'prenom', 'affectation', 'lieuNaissance', 'dpt', 'nigend', 'fonction',
     'batiment', 'chambre', 'autorise', 'identiteComplete', 'droitImage', 'qualifSecourisme', 'regimeAlimentaire',
     'nomUrgence', 'prenomUrgence', 'telUrgence', 'allergies', 'traitements', 'lateralite', 'modeTransport', 'immatriculation'];
-  // Champs d'identité communs aux deux pages, réglables dans la carte 3 : le
-  // libellé Grist ne sert que s'ils ne sont pas réglés.
-  var SOFT_STG_ROLES = ['telephone', 'email', 'dateNaissance'];
+  // Colonnes EN DUR par identifiant Grist (identité, documents et validations, bande
+  // patronymique, suivi). Plusieurs valeurs = essais successifs : identifiant exact, puis
+  // identifiant commençant par la valeur (les identifiants sont comparés sans casse ni
+  // accents). Les colonnes d'identité sont dans la table des candidats, les autres dans la
+  // table Documents. Non réglables dans la Configuration.
+  var FIXED_COLS = {
+    nid: ['NID'], email: ['Email_perso'], telephone: ['Telephone'], dateNaissance: ['DDN'],
+    usageRS: ['Usage_RS'], validationUsageRS: ['Validation_doc_RS'],
+    formImage: ['Form_image'], validationFormImage: ['Validation_doc_Photos', 'Validation_doc_Ph'],
+    ead: ['EAD'], validationEAD: ['Validation_EAD'],
+    photos: ['Photos'], inscriptionBande: ['Inscription_bande', 'Inscription_ba'], qteBandes: ['Qte_bandes'],
+    du: ['Du'], encaisse: ['Encaisse'], blocagesInfos: ['Blocages_Infos']
+  };
+  var FIXED_MAIN_ROLES = ['nid', 'email', 'telephone', 'dateNaissance'];
+  function fixedColumn(role, cols) {
+    var wanted = FIXED_COLS[role] || [];
+    var norm = cols.map(function (c) { return normalizeKey(c); });
+    for (var i = 0; i < wanted.length; i++) {
+      var k = normalizeKey(wanted[i]);
+      var at = norm.indexOf(k);
+      if (at !== -1) return cols[at];
+    }
+    for (var j = 0; j < wanted.length; j++) {
+      var p = normalizeKey(wanted[j]);
+      for (var m = 0; m < cols.length; m++) if (norm[m].indexOf(p) === 0) return cols[m];
+    }
+    return '';
+  }
   function applySuggestedColumns(data, docsData) {
     var cols = tableColumns(data);
     var docsCols = docsData ? tableColumns(docsData) : [];
+    // Liaison des deux tables EN DUR : par le NID. Colonne « NID » de la table Documents.
+    settings.docsLinkCol = suggestColumn('docsNid', docsCols, settings.docsTable);
     HARD_STG_ROLES.forEach(function (role) {
       // Colonnes ETuteur : cherchées dans la table Documents ; les autres dans la table des candidats.
       settings.col[role] = HARD_DOCS_ROLES.indexOf(role) !== -1
         ? suggestColumn(role, docsCols, settings.docsTable)
         : suggestColumn(role, cols, settings.table);
     });
-    SOFT_STG_ROLES.forEach(function (role) {
-      if (settings.col[role]) return;
-      var found = suggestColumn(role, cols, settings.table);
-      if (found) settings.col[role] = found;
+    Object.keys(FIXED_COLS).forEach(function (role) {
+      var inMain = FIXED_MAIN_ROLES.indexOf(role) !== -1;
+      var pool = inMain ? cols : docsCols;
+      settings.col[role] = fixedColumn(role, pool) || suggestColumn(role, pool, inMain ? settings.table : settings.docsTable);
     });
   }
 
@@ -3773,7 +3693,7 @@
   // de la ligne + icône de suppression en bas à droite du volet le plus ancien.
   function buildModalPanel(view, compare, isOldest) {
     var row = view.row;
-    var name = textOfRef(row.stagiaire) || '(Stagiaire non renseigné)';
+    var name = stagiaireDisplayName(row);
     var dlg = document.createElement('div');
     dlg.className = 'cand-modal-dialog';
     dlg.setAttribute('role', 'dialog');
