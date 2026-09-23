@@ -465,6 +465,7 @@
     cursor: pointer;
   }
   .cand-doc-slot__import:hover { border-color: var(--bleu-france); color: var(--bleu-france); }
+  .cand-doc-slot__zone--busy .cand-doc-slot__import { pointer-events: none; opacity: 0.7; border-style: solid; }
   .cand-doc-slot__zone--drag .cand-doc-slot__import { border-color: var(--bleu-france); background: #f0f0f5; color: var(--bleu-france); }
 
   /* ---- Aperçu au survol (popover) --------------------------------------- */
@@ -1979,11 +1980,25 @@
     importLabel.className = 'cand-doc-slot__import';
     importLabel.innerHTML = '<span class="fr-icon-upload-2-line" aria-hidden="true"></span><span>' +
       (ids.length ? 'Glisser un fichier ou cliquer pour remplacer' : 'Glisser un fichier ou cliquer pour importer') + '</span>';
+    // Retour visuel pendant l'envoi (sans lui, un envoi un peu long donne
+    // l'impression que rien ne se passe) ; la fiche est de toute façon
+    // reconstruite à la fin d'un envoi réussi (voir importDocument).
+    var importText = importLabel.lastElementChild;
+    var importIdleText = importText.textContent;
+    function startImport(file) {
+      if (zone.classList.contains('cand-doc-slot__zone--busy')) return;
+      zone.classList.add('cand-doc-slot__zone--busy');
+      importText.textContent = 'Envoi en cours…';
+      importDocument(row, role, file, function () {
+        zone.classList.remove('cand-doc-slot__zone--busy');
+        importText.textContent = importIdleText;
+      });
+    }
     var fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.hidden = true;
     fileInput.addEventListener('change', function () {
-      if (fileInput.files && fileInput.files[0]) importDocument(row, role, fileInput.files[0]);
+      if (fileInput.files && fileInput.files[0]) startImport(fileInput.files[0]);
       fileInput.value = '';
     });
     importLabel.appendChild(fileInput);
@@ -1997,7 +2012,7 @@
     });
     zone.addEventListener('drop', function (e) {
       var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-      if (file) importDocument(row, role, file);
+      if (file) startImport(file);
     });
     slot.appendChild(zone);
 
@@ -2135,7 +2150,7 @@
         window.alert('Le navigateur a bloqué l’ouverture d’un nouvel onglet. Autorisez les pop-ups pour ce site, puis réessayez.');
         return;
       }
-      newTab.location.href = attachmentUrl(tokenInfo, attachmentId, cell);
+      newTab.location.href = attachmentSessionUrl(tokenInfo, attachmentId, cell);
     }).catch(function (e) {
       if (newTab) newTab.close();
       window.alert('Impossible d’ouvrir le fichier : ' + friendlyErrorMessage(e));
@@ -2197,101 +2212,43 @@
   }
 
   // Envoie le fichier dans le magasin de pièces jointes du document et
-  // renvoie l'identifiant créé. Premier essai : fetch() (réponse lisible).
-  // Si le navigateur le refuse au niveau réseau ("Load failed" sous
-  // Safari, "Failed to fetch" ailleurs — typiquement un blocage CORS, le
-  // widget n'étant pas servi depuis l'origine de Grist), on retombe sur un
-  // envoi par formulaire HTML classique, qui n'est pas soumis à CORS.
+  // renvoie l'identifiant créé. Grist rejette (401) toute requête en
+  // écriture authentifiée par jeton qui ne porte pas un en-tête déclenchant
+  // un pré-contrôle CORS ('X-Requested-With' ou 'Content-Type:
+  // application/json') : on ajoute donc X-Requested-With. Le Content-Type
+  // multipart, lui, ne doit PAS être fixé à la main (le navigateur y ajoute
+  // la "boundary" du FormData).
   function uploadAttachment(tokenInfo, file) {
     var url = tokenInfo.baseUrl + '/attachments?auth=' + encodeURIComponent(tokenInfo.token);
     var formData = new FormData();
     formData.append('upload', file, file.name);
-    return fetch(url, { method: 'POST', body: formData }).then(function (resp) {
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return fetch(url, {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      body: formData
+    }).then(function (resp) {
+      if (!resp.ok) {
+        return resp.text().then(function (t) { throw new Error('HTTP ' + resp.status + (t ? ' — ' + t.slice(0, 200) : '')); });
+      }
       return resp.json();
+    }, function () {
+      // Erreur réseau brute ("Load failed" sous Safari, "Failed to fetch"
+      // ailleurs) : le navigateur a bloqué la requête (CORS) avant même
+      // d'obtenir une réponse de Grist.
+      throw new Error('le navigateur a bloqué la requête vers Grist (envoi inter-origine refusé). ' +
+        'Ajoutez le fichier directement dans la cellule concernée de la table Documents, dans Grist.');
     }).then(function (result) {
       var first = Array.isArray(result) ? result[0] : result;
       return (first && typeof first === 'object') ? first.id : first;
-    }, function (err) {
-      if (err instanceof TypeError) return uploadAttachmentViaForm(url, file);
-      throw err;
     });
   }
 
-  function fetchAttachmentRows() {
-    return grist.docApi.fetchTable('_grist_Attachments').then(function (data) {
-      var rows = [];
-      if (data && data.id) {
-        for (var i = 0; i < data.id.length; i++) {
-          rows.push({ id: data.id[i], fileName: data.fileName ? data.fileName[i] : '' });
-        }
-      }
-      return rows;
-    });
-  }
-
-  // Envoi par <form> (multipart) dans une iframe cachée : la réponse d'une
-  // requête inter-origine n'est pas lisible, donc l'identifiant du fichier
-  // créé est retrouvé ensuite dans _grist_Attachments (nouvelle ligne, id
-  // supérieur à tous les précédents, même nom de fichier), en relisant la
-  // table jusqu'à ce qu'elle apparaisse.
-  function uploadAttachmentViaForm(url, file) {
-    var maxBefore = 0;
-    var iframe = null, form = null;
-    function cleanup() {
-      if (iframe && iframe.parentNode) iframe.parentNode.removeChild(iframe);
-      if (form && form.parentNode) form.parentNode.removeChild(form);
-    }
-    return fetchAttachmentRows().then(function (rows) {
-      rows.forEach(function (r) { if (r.id > maxBefore) maxBefore = r.id; });
-      var frameName = 'attachUploadFrame_' + Date.now();
-      iframe = document.createElement('iframe');
-      iframe.name = frameName;
-      iframe.hidden = true;
-      form = document.createElement('form');
-      form.method = 'POST';
-      form.enctype = 'multipart/form-data';
-      form.action = url;
-      form.target = frameName;
-      form.hidden = true;
-      var input = document.createElement('input');
-      input.type = 'file';
-      input.name = 'upload';
-      try {
-        var dt = new DataTransfer();
-        dt.items.add(file);
-        input.files = dt.files;
-      } catch (e) {
-        throw new Error('ce navigateur ne permet pas l’envoi de fichier depuis le widget.');
-      }
-      form.appendChild(input);
-      document.body.appendChild(iframe);
-      document.body.appendChild(form);
-      form.submit();
-
-      var deadline = Date.now() + 90000;
-      return new Promise(function (resolve, reject) {
-        (function poll() {
-          window.setTimeout(function () {
-            fetchAttachmentRows().then(function (rowsNow) {
-              var found = rowsNow.filter(function (r) { return r.id > maxBefore && r.fileName === file.name; });
-              if (found.length) { resolve(found[found.length - 1].id); return; }
-              if (Date.now() > deadline) {
-                reject(new Error('le fichier n’a pas été reçu par Grist (droits d’écriture insuffisants sur le document ?).'));
-                return;
-              }
-              poll();
-            }).catch(reject);
-          }, 800);
-        })();
-      });
-    }).then(function (id) { cleanup(); return id; }, function (e) { cleanup(); throw e; });
-  }
-
-  function importDocument(row, role, file) {
+  function importDocument(row, role, file, onSettled) {
+    onSettled = onSettled || function () {};
     var colId = settings.col[role];
     if (!isWritableColId(colId)) {
       window.alert('Le champ « ' + ROLE_LABELS[role] + ' » pointe vers une colonne technique de Grist, qui ne peut pas être modifiée.');
+      onSettled();
       return;
     }
     getWriteAccessTokenInfo().then(function (tokenInfo) {
@@ -2312,7 +2269,10 @@
       attachmentsMetaPromise = null; // un nouveau fichier vient d'être ajouté : on force une relecture des métadonnées
       renderCandidates();
       if (currentModalRowId === row.id) renderModalContent();
-    }).catch(function (e) {
+    }).then(function () {
+      onSettled();
+    }, function (e) {
+      onSettled();
       window.alert('Impossible d’importer le fichier pour « ' + ROLE_LABELS[role] + ' » : ' + friendlyErrorMessage(e));
     });
   }
@@ -2378,9 +2338,22 @@
   // d'accès, le téléchargement est refusé ({"error":"Cannot access
   // attachment"}), même pour un utilisateur qui voit le fichier dans Grist.
   function attachmentUrl(tokenInfo, attachmentId, cell) {
-    var url = tokenInfo.baseUrl + '/attachments/' + attachmentId + '/download?auth=' + encodeURIComponent(tokenInfo.token);
+    return attachmentBaseUrl(tokenInfo, attachmentId, cell, '?auth=' + encodeURIComponent(tokenInfo.token));
+  }
+  // Même URL SANS jeton : à ouvrir dans un onglet (navigation de premier
+  // niveau), Grist authentifie alors la requête par la session de
+  // connexion de l'utilisateur — exactement comme quand il ouvre un
+  // fichier depuis Grist lui-même. Avec le jeton du widget, Grist évalue
+  // les règles d'accès pour une identité restreinte (le jeton ne permet
+  // pas d'agir pleinement en tant que l'utilisateur), d'où « Cannot access
+  // cell » sur un document qui a des règles d'accès.
+  function attachmentSessionUrl(tokenInfo, attachmentId, cell) {
+    return attachmentBaseUrl(tokenInfo, attachmentId, cell, '');
+  }
+  function attachmentBaseUrl(tokenInfo, attachmentId, cell, query) {
+    var url = tokenInfo.baseUrl + '/attachments/' + attachmentId + '/download' + query;
     if (cell && cell.tableId && cell.colId && cell.rowId) {
-      url += '&tableId=' + encodeURIComponent(cell.tableId) + '&colId=' + encodeURIComponent(cell.colId) + '&rowId=' + encodeURIComponent(cell.rowId);
+      url += (query ? '&' : '?') + 'tableId=' + encodeURIComponent(cell.tableId) + '&colId=' + encodeURIComponent(cell.colId) + '&rowId=' + encodeURIComponent(cell.rowId);
     }
     return url;
   }
@@ -2448,9 +2421,15 @@
       el.title = (meta && meta.fileName) || ('Pièce jointe #' + attachmentId);
       if (isImageType(meta)) {
         getAccessTokenInfo().then(function (tokenInfo) {
-          el.style.backgroundImage = "url('" + attachmentUrl(tokenInfo, attachmentId, cell) + "')";
-          el.classList.add('cand-doc-thumb--image');
-          el.textContent = '';
+          var thumbUrl = attachmentUrl(tokenInfo, attachmentId, cell);
+          var probe = new Image();
+          probe.onload = function () {
+            el.style.backgroundImage = "url('" + thumbUrl + "')";
+            el.classList.add('cand-doc-thumb--image');
+            el.textContent = '';
+          };
+          probe.onerror = function () { el.textContent = fileExtensionLabel(meta); };
+          probe.src = thumbUrl;
         }).catch(function () { el.textContent = fileExtensionLabel(meta); });
       } else {
         el.textContent = fileExtensionLabel(meta);
@@ -2545,10 +2524,15 @@
   // n'est possible (le popover affiche alors le lien d'ouverture seul).
   function buildPreviewBody(url, meta, fileName) {
     if (isImageType(meta)) {
-      var img = document.createElement('img');
-      img.src = url;
-      img.alt = fileName;
-      return Promise.resolve(img);
+      // null (=> message "Aperçu non disponible") si Grist refuse l'accès
+      // avec le jeton du widget, plutôt qu'une image cassée.
+      return new Promise(function (resolve) {
+        var img = document.createElement('img');
+        img.alt = fileName;
+        img.onload = function () { resolve(img); };
+        img.onerror = function () { resolve(null); };
+        img.src = url;
+      });
     }
     if (meta && meta.fileType && !isPdfType(meta)) return Promise.resolve(null);
     return fetch(url).then(function (resp) {
@@ -2591,7 +2575,7 @@
 
       attachPreview.innerHTML = '<p class="attach-preview__name">' + escapeHtml(fileName) + '</p>' +
         '<div class="attach-preview__body"><p class="attach-preview__loading">Chargement de l’aperçu…</p></div>' +
-        '<a class="attach-preview__link fr-link" href="' + escapeAttr(url) + '" target="_blank" rel="noopener">Ouvrir dans un nouvel onglet</a>';
+        '<a class="attach-preview__link fr-link" href="' + escapeAttr(attachmentSessionUrl(tokenInfo, attachmentId, cell)) + '" target="_blank" rel="noopener">Ouvrir dans un nouvel onglet</a>';
       positionPreview(rect);
 
       return buildPreviewBody(url, meta, fileName).then(function (bodyEl) {
@@ -2603,7 +2587,7 @@
           body.appendChild(bodyEl);
         } else {
           body.innerHTML = '<div class="attach-preview__fallback"><span class="fr-icon-file-line" aria-hidden="true" style="font-size:2rem;"></span>' +
-            '<span>Aperçu non disponible pour ce fichier.</span></div>';
+            '<span>Aperçu non disponible pour ce fichier. Cliquez sur son nom pour l’ouvrir.</span></div>';
         }
         positionPreview(rect); // la taille du contenu vient de changer (image/PDF) : on repositionne pour rester dans l'écran
       });
