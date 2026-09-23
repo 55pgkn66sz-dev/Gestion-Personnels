@@ -109,6 +109,9 @@
   .cand-count--push { margin-left: auto; }
   .cand-toolbar .fr-search-bar { flex: 1 1 16rem; max-width: 22rem; margin: 0; }
   .cand-toolbar .fr-checkbox-group { margin: 0; }
+  .cand-toolbar .fr-segmented { margin: 0; }
+  .cand-doc-filter[hidden] { display: none; }
+  .cand-filter-count { font-weight: 400; opacity: 0.8; margin-left: 0.3rem; }
   .cand-toolbar .fr-checkbox-group label { font-size: 0.85em; padding-left: 1.75rem; }
 
   /* ---- Vue en bandes (page eTuteur) : une ligne compacte par candidat
@@ -141,8 +144,8 @@
      seul le bout de ligne (pictogramme "mineur" + chevron) est repoussé à
      droite, par la marge automatique du premier des deux. */
   .cand-row__name { margin: 0; font-size: 1em; font-weight: 700; flex: 0 0 auto; }
-  .cand-row__chevron { color: var(--text-mention-grey); flex: none; margin-left: auto; }
-  .cand-row__minor + .cand-row__chevron { margin-left: 0; }
+  .cand-row__chevron { color: var(--text-mention-grey); flex: none; }
+  .cand-row__end { margin-left: auto; display: inline-flex; align-items: center; gap: 0.5rem; flex: none; }
   /* Nom du candidat, puis un tag DSFR par document (voir buildCandidateRow),
      puis, en bout de ligne, le pictogramme "mineur" et le chevron. */
   .cand-row__tags { display: flex; flex-wrap: wrap; gap: 0.4rem; flex: 0 1 auto; min-width: 0; }
@@ -157,8 +160,19 @@
     color: #716200;
     font-size: 0.9rem;
     flex: none;
-    margin-left: auto;
   }
+  /* Doublon (même NID sur plusieurs lignes) : pastille rouge pastel. */
+  .cand-row__dup,
+  .cand-modal-dialog__dup-flag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: #ffe9e9;
+    color: #ce0500;
+    flex: none;
+  }
+  .cand-row__dup { width: 1.75rem; height: 1.75rem; font-size: 0.9rem; }
 
   /* Tags de statut des documents : le tag DSFR (.fr-tag) recoloré selon l'état.
      Vert = OK, orange = refusé, rouge = manquant, gris = fichier présent mais
@@ -252,6 +266,9 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   }
   .cand-modal-dialog__minor-flag[hidden] { display: none; }
+  /* Icône de doublon, en haut à droite de la modale (à gauche du pictogramme "mineur"). */
+  .cand-modal-dialog__dup-flag { width: 2.1rem; height: 2.1rem; font-size: 1.05rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); }
+  .cand-modal-dialog__dup-flag[hidden] { display: none; }
 
   /* Titres de section à l'intérieur de la modale uniquement (ne touche pas
      .section-title du panneau Configuration) : plus aérés, sans
@@ -730,7 +747,6 @@
 .cfg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1.1rem 1.4rem; align-items: start; }
 .cfg-grid .fr-select-group, .cfg-grid .fr-input-group { margin-bottom: 0; }
 .cfg-req { color: var(--statut-refusee); margin-left: 0.2rem; font-weight: 700; }
-  .cfg-grid--after-table { margin-top: 1.1rem; }
   /* Le style DSFR de .fr-error-text impose un display qui écrase l'attribut
      [hidden] : sans cette règle, le message d'erreur de la date restait
      affiché même pour une date valide. */
@@ -858,10 +874,31 @@
         <input class="fr-input" type="search" id="candSearchInput" placeholder="NID, nom, N° CAND…">
         <button class="fr-btn fr-btn--sm" id="candSearchBtn" title="Rechercher">Rechercher</button>
       </div>
-      <div class="fr-checkbox-group fr-checkbox-group--sm">
-        <input type="checkbox" id="candFilterPending">
-        <label class="fr-label" for="candFilterPending">Dossiers à traiter uniquement</label>
-      </div>
+      <fieldset class="fr-segmented fr-segmented--sm cand-doc-filter" id="candDocFilter">
+        <legend class="fr-segmented__legend fr-sr-only">Filtrer selon l'état des documents</legend>
+        <div class="fr-segmented__elements">
+        <div class="fr-segmented__element">
+          <input type="radio" id="candDocFilter_all" name="candDocFilter" value="all" checked>
+          <label class="fr-label" for="candDocFilter_all">Tous <span class="cand-filter-count" data-count="all"></span></label>
+        </div>
+        <div class="fr-segmented__element">
+          <input type="radio" id="candDocFilter_complete" name="candDocFilter" value="complete">
+          <label class="fr-label" for="candDocFilter_complete">Dossiers complets <span class="cand-filter-count" data-count="complete"></span></label>
+        </div>
+        <div class="fr-segmented__element">
+          <input type="radio" id="candDocFilter_rejected" name="candDocFilter" value="rejected">
+          <label class="fr-label" for="candDocFilter_rejected">Documents rejetés <span class="cand-filter-count" data-count="rejected"></span></label>
+        </div>
+        <div class="fr-segmented__element">
+          <input type="radio" id="candDocFilter_toValidate" name="candDocFilter" value="toValidate">
+          <label class="fr-label" for="candDocFilter_toValidate">Documents à valider <span class="cand-filter-count" data-count="toValidate"></span></label>
+        </div>
+        <div class="fr-segmented__element">
+          <input type="radio" id="candDocFilter_missing" name="candDocFilter" value="missing">
+          <label class="fr-label" for="candDocFilter_missing">Documents manquants <span class="cand-filter-count" data-count="missing"></span></label>
+        </div>
+        </div>
+      </fieldset>
       <div class="fr-checkbox-group fr-checkbox-group--sm">
         <input type="checkbox" id="candFilterBlocages">
         <label class="fr-label" for="candFilterBlocages">Avec blocages uniquement</label>
@@ -994,9 +1031,6 @@
     </tbody>
   </table>
 </div>
-<div class="cfg-grid cfg-grid--after-table">
-  <div class="fr-select-group"><label class="fr-label" for="cand_col_numCand">N° CAND (EAD - Bloc 1)<span class="fr-hint-text">Zone de texte modifiable dans la carte « EAD - Bloc 1 » ; colonne Texte recommandée.</span></label><select class="fr-select" id="cand_col_numCand" data-role="numCand"></select></div>
-</div>
 
       </section>
 
@@ -1005,7 +1039,7 @@
           <span class="cfg-card__num" aria-hidden="true">5</span>
           <div>
             <h3 class="cfg-card__title" id="cfgCardTitle5">Courriel « EAD - Bloc 1 »</h3>
-            <p class="cfg-card__desc">Message pré-rempli ouvert dans la messagerie quand on clique sur l'icône courriel de la carte « EAD - Bloc 1 ». Il est adressé à l'e-mail du candidat (colonne E-mail de la carte 3).</p>
+            <p class="cfg-card__desc">Message pré-rempli ouvert dans la messagerie quand on clique sur l'icône courriel de la carte « EAD - Bloc 1 ». Il est adressé à l'e-mail du candidat (colonne E-mail de la carte 3). À l'ouverture du courriel, le widget ajoute « Identifiants GendForm envoyés le JJ/MM/AAAA » dans « Blocages / Infos » (carte 7), si cette colonne est réglée.</p>
           </div>
         </div>
         <div class="fr-input-group">
@@ -1020,7 +1054,7 @@
         <div class="cfg-vars">
           <p class="cfg-vars__title">Variables disponibles <span>(cliquez pour insérer à l'emplacement du curseur)</span></p>
           <ul class="cfg-vars__list">
-            <li><button class="cfg-var-btn" type="button" data-var="{{N_CAND}}">{{N_CAND}}</button> affiche le n° CAND du candidat (champ « N° CAND » de la carte EAD - Bloc 1).</li>
+            <li><button class="cfg-var-btn" type="button" data-var="{{N_CAND}}">{{N_CAND}}</button> affiche le n° CAND du candidat (colonne N_Cand de la table Stagiaires, modifiable dans la carte « EAD - Bloc 1 »).</li>
             <li><button class="cfg-var-btn" type="button" data-var="{{STAGIAIRE}}">{{STAGIAIRE}}</button> affiche le nom du stagiaire au format « Prénom NOM » (ex. « DUPONT Jean » devient « Jean DUPONT »).</li>
           </ul>
         </div>
@@ -1053,7 +1087,7 @@
         </div>
 <div class="cfg-grid">
   <div class="fr-select-group"><label class="fr-label" for="cand_col_photos">Photos<span class="fr-hint-text">Autorisation photo : coché = Oui, sinon Non. « Non » n'est pas bloquant. Modifiable depuis la carte « Droit à l'image ».</span></label><select class="fr-select" id="cand_col_photos" data-role="photos"></select></div>
-  <div class="fr-select-group"><label class="fr-label" for="cand_col_blocagesInfos">Blocages / Infos<span class="fr-hint-text">Texte libre, modifiable ; signale les dossiers bloqués dans la liste.</span></label><select class="fr-select" id="cand_col_blocagesInfos" data-role="blocagesInfos"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_blocagesInfos">Blocages / Infos<span class="fr-hint-text">Texte libre, modifiable ; alimente le filtre « Avec blocages uniquement ». Le widget y ajoute aussi « Identifiants GendForm envoyés le … » (non compté comme blocage).</span></label><select class="fr-select" id="cand_col_blocagesInfos" data-role="blocagesInfos"></select></div>
 </div>
 
       </section>
@@ -1083,6 +1117,10 @@
         <p class="cand-modal-dialog__contact" id="candModalContact" hidden></p>
       </div>
       <div class="cand-modal-dialog__header-actions">
+        <span class="cand-modal-dialog__dup-flag" id="candModalDupFlag" hidden>
+          <span class="fr-icon-error-warning-line" aria-hidden="true"></span>
+          <span class="fr-sr-only" id="candModalDupText"></span>
+        </span>
         <span class="cand-modal-dialog__minor-flag" id="candModalMinorFlag" hidden title="Sera mineur au premier jour de la formation">
           <span class="fr-icon-alert-line" aria-hidden="true"></span>
         </span>
@@ -1112,7 +1150,7 @@
   // (La date "Début de formation le" n'est PAS un rôle de colonne : elle est
   // saisie à la main dans la Configuration, voir settings.dateDebutFormation.)
   var ROLES = ['nid', 'stagiaire', 'email', 'telephone', 'dateNaissance',
-    'usageRS', 'validationUsageRS', 'formImage', 'validationFormImage', 'ead', 'validationEAD', 'numCand',
+    'usageRS', 'validationUsageRS', 'formImage', 'validationFormImage', 'ead', 'validationEAD',
     'photos', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
   var REQUIRED_ROLES = ['nid', 'stagiaire'];
   var OPTIONAL_ROLES = ROLES.filter(function (r) { return REQUIRED_ROLES.indexOf(r) === -1; });
@@ -1139,7 +1177,7 @@
   // Blocages/Infos), qui vivent dans la même table que les documents.
   // Tous les autres rôles de ROLES (identité du candidat) restent
   // lus/écrits dans la table principale (candidats).
-  var DOC_TABLE_ROLES = ['usageRS', 'validationUsageRS', 'formImage', 'validationFormImage', 'ead', 'validationEAD', 'numCand',
+  var DOC_TABLE_ROLES = ['usageRS', 'validationUsageRS', 'formImage', 'validationFormImage', 'ead', 'validationEAD',
     'photos', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
   var MAIN_TABLE_ROLES = ROLES.filter(function (r) { return DOC_TABLE_ROLES.indexOf(r) === -1; });
   // Rôles rendus éditables directement depuis la fiche candidat (voir
@@ -1155,6 +1193,10 @@
   // porte leurs boutons Accepter/Refuser : chaque document a sa propre
   // colonne de validation (réglée dans la Configuration, section
   // « Documents »).
+  // N° CAND : source de données fixe (non configurable) — colonne N_Cand de la
+  // table des candidats (Stagiaires). Lue par columnarToRows dans row.numCand,
+  // modifiable depuis la carte « EAD - Bloc 1 » (voir buildNumCandField).
+  var NUM_CAND_COL = 'N_Cand';
   var ATTACHMENT_ROLES = ['usageRS', 'formImage', 'ead'];
   var ATTACH_VALIDATION_ROLE = { usageRS: 'validationUsageRS', formImage: 'validationFormImage', ead: 'validationEAD' };
   var CURRENCY_ROLES = ['du', 'encaisse'];
@@ -1272,7 +1314,7 @@
   var candidates = { rows: [], loaded: false };
   var allTableIds = [];
   var searchText = '';
-  var filterPendingOnly = false;
+  var docFilter = 'all'; // 'all' | 'complete' | 'rejected' | 'toValidate' | 'missing' (voir DOC_FILTERS)
   var filterBlocagesOnly = false;
 
   // ---- Références DOM ----------------------------------------------------
@@ -1287,7 +1329,7 @@
   var candCount = document.getElementById('candCount');
   var candSearchInput = document.getElementById('candSearchInput');
   var candSearchBtn = document.getElementById('candSearchBtn');
-  var candFilterPending = document.getElementById('candFilterPending');
+  var candDocFilterEl = document.getElementById('candDocFilter');
   var candFilterBlocages = document.getElementById('candFilterBlocages');
   var candReloadBtn = document.getElementById('candReloadBtn');
   var attachPreview = document.getElementById('attachPreview');
@@ -1297,6 +1339,8 @@
   var candModalTitle = document.getElementById('candModalTitle');
   var candModalContact = document.getElementById('candModalContact');
   var candModalMinorFlag = document.getElementById('candModalMinorFlag');
+  var candModalDupFlag = document.getElementById('candModalDupFlag');
+  var candModalDupText = document.getElementById('candModalDupText');
   var candModalBody = document.getElementById('candModalBody');
   var currentModalRowId = null; // id de la ligne actuellement affichée dans la modale, ou null si fermée
 
@@ -1650,9 +1694,7 @@ function refreshLinkColumnList() {
     else chip('warn', (docCount - validCount) + ' document(s) sans colonne de validation');
 
     if (cfg.col.ead) {
-      var mailUsesNumCand = /\{\{\s*N_CAND\s*\}\}/i.test(cfg.eadMail.subject + cfg.eadMail.body);
       if (!cfg.col.email) chip('warn', 'Courriel EAD : colonne E-mail à choisir');
-      else if (mailUsesNumCand && !cfg.col.numCand) chip('warn', 'Courriel EAD : colonne N° CAND à choisir');
       else chip('ok', 'Courriel EAD prêt');
     }
 
@@ -1758,7 +1800,10 @@ function refreshLinkColumnList() {
     Promise.all([mainPromise, docsPromise]).then(function (results) {
       var rows = columnarToRows(results[0]);
       var linked = mergeDocsTable(rows, results[1]);
-      candidates = { rows: rows, loaded: true };
+      markDuplicates(rows);
+      // hasNumCand : la table des candidats possède bien la colonne N_Cand
+      // (sinon le champ « N° CAND » n'est pas affiché dans la fiche).
+      candidates = { rows: rows, loaded: true, hasNumCand: !!(results[0] && results[0][NUM_CAND_COL]) };
       // Aucune ligne Documents rattachée alors que des candidats existent :
       // presque toujours un sens de liaison ou une colonne de liaison mal
       // réglés — on le signale plutôt que d'afficher des fiches vides sans
@@ -1793,19 +1838,24 @@ function refreshLinkColumnList() {
       rows.forEach(function (row) { row.__docRowId = null; });
       return 0;
     }
-var docIndexByCandidateId = {};
-var nidValues = docsData[cfg.docsLinkCol] || [];
-var docIndexByNid = {};
-for (var n = 0; n < docsData.id.length; n++) {
-  var key = nidKey(nidValues[n]);
-  if (key && !(key in docIndexByNid)) docIndexByNid[key] = n;
-}
-rows.forEach(function (row) {
-  var k = nidKey(row.nid);
-  if (k && k in docIndexByNid) docIndexByCandidateId[row.id] = docIndexByNid[k];
-});
+    var docIndexByCandidateId = {};
+    var nidValues = docsData[cfg.docsLinkCol] || [];
+    var docIndexByNid = {};
+    var docCountByNid = {};
+    for (var n = 0; n < docsData.id.length; n++) {
+      var key = nidKey(nidValues[n]);
+      if (!key) continue;
+      docCountByNid[key] = (docCountByNid[key] || 0) + 1;
+      if (!(key in docIndexByNid)) docIndexByNid[key] = n;
+    }
+    rows.forEach(function (row) {
+      var k = nidKey(row.nid);
+      // __docRowCount : nombre de lignes Documents portant ce NID (doublon si > 1).
+      row.__docRowCount = k ? (docCountByNid[k] || 0) : 0;
+      if (k && k in docIndexByNid) docIndexByCandidateId[row.id] = docIndexByNid[k];
+    });
 
-var linked = 0;
+    var linked = 0;
     rows.forEach(function (row) {
       var idx = docIndexByCandidateId[row.id];
       if (idx === undefined) { row.__docRowId = null; return; }
@@ -1819,6 +1869,28 @@ var linked = 0;
     return linked;
   }
 
+  // Doublons : un même NID sur plusieurs lignes de la table des candidats
+  // (marqué ici) ou de la table Documents (marqué par mergeDocsTable, qui
+  // n'utilise alors que la première ligne). Affichés par une icône dans la
+  // liste et dans la modale — voir duplicateReasons.
+  function markDuplicates(rows) {
+    var counts = {};
+    rows.forEach(function (r) {
+      var k = nidKey(r.nid);
+      if (k) counts[k] = (counts[k] || 0) + 1;
+    });
+    rows.forEach(function (r) {
+      var k = nidKey(r.nid);
+      r.__candRowCount = k ? counts[k] : 0;
+    });
+  }
+  function duplicateReasons(row) {
+    var reasons = [];
+    var nid = textOf(row.nid);
+    if (row.__candRowCount > 1) reasons.push('Doublon : le NID ' + nid + ' figure sur ' + row.__candRowCount + ' lignes de la table des candidats.');
+    if (row.__docRowCount > 1) reasons.push('Doublon : le NID ' + nid + ' figure sur ' + row.__docRowCount + ' lignes de la table Documents (seule la première est utilisée).');
+    return reasons;
+  }
   function columnarToRows(data, cfg) {
     cfg = cfg || settings;
     if (!data || !data.id) return [];
@@ -1829,6 +1901,7 @@ var linked = 0;
         var colName = cfg.col[role];
         row[role] = (colName && data[colName]) ? data[colName][i] : null;
       });
+      row.numCand = data[NUM_CAND_COL] ? data[NUM_CAND_COL][i] : null;
       rows.push(row);
     }
     return rows;
@@ -1837,7 +1910,11 @@ var linked = 0;
   candReloadBtn.addEventListener('click', loadCandidates);
   candSearchBtn.addEventListener('click', function () { searchText = candSearchInput.value; renderCandidates(); });
   candSearchInput.addEventListener('input', function () { searchText = candSearchInput.value; renderCandidates(); });
-  candFilterPending.addEventListener('change', function () { filterPendingOnly = candFilterPending.checked; renderCandidates(); });
+  Array.prototype.forEach.call(candDocFilterEl.querySelectorAll('input[name="candDocFilter"]'), function (input) {
+    input.addEventListener('change', function () {
+      if (input.checked) { docFilter = input.value; renderCandidates(); }
+    });
+  });
   candFilterBlocages.addEventListener('change', function () { filterBlocagesOnly = candFilterBlocages.checked; renderCandidates(); });
 
   // ---- Rendu de la page eTuteur -------------------------------------------
@@ -1878,22 +1955,61 @@ var linked = 0;
     return tag;
   }
 
-  // Le candidat a-t-il au moins un document (configuré) qui n'est pas encore
-  // "OK" — manquant, refusé ou pas encore validé ?
-  function hasPendingDocs(row) {
-    return ATTACHMENT_ROLES.some(function (role) {
-      return !!settings.col[role] && docStatus(row, role) !== 'ok';
+  // Commentaire ajouté automatiquement dans "Blocages / Infos" à l'envoi du
+  // courriel EAD (voir logGendFormSent). Ce n'est pas un blocage : il est
+  // ignoré par le filtre « Avec blocages uniquement ».
+  var GENDFORM_LOG_PREFIX = 'Identifiants GendForm envoyés le ';
+  function hasBlocages(row) {
+    return textOf(row.blocagesInfos).split(/\r?\n/).some(function (line) {
+      var t = line.trim();
+      return !!t && t.indexOf(GENDFORM_LOG_PREFIX) !== 0;
+    });
+  }
+  // Filtres sur l'état des documents (voir docStatus), évalués sur les seuls
+  // documents configurés du candidat :
+  //  - complete   : tous ses documents sont OK (validés) ;
+  //  - rejected   : au moins un document refusé ;
+  //  - toValidate : au moins un document déposé, en attente de validation ;
+  //  - missing    : au moins un document manquant.
+  function docStatusesOf(row) {
+    return ATTACHMENT_ROLES.filter(function (role) { return !!settings.col[role]; })
+      .map(function (role) { return docStatus(row, role); });
+  }
+  var DOC_FILTERS = {
+    all: function () { return true; },
+    complete: function (st) { return st.length > 0 && st.every(function (x) { return x === 'ok'; }); },
+    rejected: function (st) { return st.indexOf('rejected') !== -1; },
+    toValidate: function (st) { return st.indexOf('pending') !== -1; },
+    missing: function (st) { return st.indexOf('missing') !== -1; }
+  };
+  // Effectifs affichés sur chaque filtre : calculés sur les candidats qui
+  // passent déjà la recherche et le filtre « blocages », pour que les
+  // nombres correspondent à ce qu'un clic afficherait. Le sélecteur est
+  // masqué tant qu'aucun document n'est configuré.
+  function updateDocFilterCounts() {
+    var hasDocs = ATTACHMENT_ROLES.some(function (role) { return !!settings.col[role]; });
+    candDocFilterEl.hidden = !hasDocs;
+    if (!hasDocs && docFilter !== 'all') {
+      docFilter = 'all';
+      candDocFilterEl.querySelector('#candDocFilter_all').checked = true;
+    }
+    var base = candidates.rows.filter(function (r) { return matchesFilters(r, true); });
+    Object.keys(DOC_FILTERS).forEach(function (key) {
+      var el = candDocFilterEl.querySelector('[data-count="' + key + '"]');
+      if (!el) return;
+      var n = base.filter(function (r) { return DOC_FILTERS[key](docStatusesOf(r)); }).length;
+      el.textContent = '(' + n + ')';
     });
   }
 
-  function matchesFilters(row) {
+  function matchesFilters(row, skipDocFilter) {
     if (searchText.trim()) {
       var q = normalizeKey(searchText);
       var hay = normalizeKey(textOf(row.nid) + ' ' + textOfRef(row.stagiaire) + ' ' + textOfRef(row.inscriptionBande) + ' ' + textOf(row.numCand));
       if (hay.indexOf(q) === -1) return false;
     }
-    if (filterPendingOnly && !hasPendingDocs(row)) return false;
-    if (filterBlocagesOnly && !textOf(row.blocagesInfos)) return false;
+    if (!skipDocFilter && !DOC_FILTERS[docFilter](docStatusesOf(row))) return false;
+    if (filterBlocagesOnly && !hasBlocages(row)) return false;
     return true;
   }
 
@@ -1938,7 +2054,8 @@ var linked = 0;
       candCount.textContent = '';
       return;
     }
-    var rows = candidates.rows.filter(matchesFilters).sort(compareCandidatesByName);
+    updateDocFilterCounts();
+    var rows = candidates.rows.filter(function (r) { return matchesFilters(r); }).sort(compareCandidatesByName);
     candCount.textContent = rows.length + ' candidat(s) affiché(s) sur ' + candidates.rows.length;
     if (candidates.warning) {
       candZone.innerHTML = '<div class="fr-alert fr-alert--warning fr-alert--sm fr-mb-2w"><p>' + escapeHtml(candidates.warning) + '</p></div>';
@@ -1984,18 +2101,33 @@ var linked = 0;
     });
     btn.appendChild(tags);
 
+    // Bout de ligne : icône de doublon, pictogramme "mineur", chevron.
+    var end = document.createElement('span');
+    end.className = 'cand-row__end';
+
+    var dupReasons = duplicateReasons(row);
+    if (dupReasons.length) {
+      var dup = document.createElement('span');
+      dup.className = 'cand-row__dup';
+      dup.title = dupReasons.join(' ');
+      dup.innerHTML = '<span class="fr-icon-error-warning-line" aria-hidden="true"></span><span class="fr-sr-only"></span>';
+      dup.lastChild.textContent = dupReasons.join(' ');
+      end.appendChild(dup);
+    }
+
     if (willBeMinor(row.dateNaissance, parseFrDate(settings.dateDebutFormation))) {
       var minor = document.createElement('span');
       minor.className = 'cand-row__minor';
       minor.title = 'Sera mineur au premier jour de la formation';
       minor.innerHTML = '<span class="fr-icon-alert-line" aria-hidden="true"></span><span class="fr-sr-only">Sera mineur au premier jour de la formation</span>';
-      btn.appendChild(minor);
+      end.appendChild(minor);
     }
 
     var chevron = document.createElement('span');
     chevron.className = 'cand-row__chevron fr-icon-arrow-right-s-line';
     chevron.setAttribute('aria-hidden', 'true');
-    btn.appendChild(chevron);
+    end.appendChild(chevron);
+    btn.appendChild(end);
 
     btn.addEventListener('click', function () { openCandidateModal(row.id); });
     return btn;
@@ -2059,6 +2191,10 @@ var linked = 0;
 
     var isMinor = willBeMinor(row.dateNaissance, parseFrDate(settings.dateDebutFormation));
     candModalMinorFlag.hidden = !isMinor;
+    var dupReasons = duplicateReasons(row);
+    candModalDupFlag.hidden = !dupReasons.length;
+    candModalDupFlag.title = dupReasons.join(' ');
+    candModalDupText.textContent = dupReasons.join(' ');
 
     candModalBody.innerHTML = '';
     buildCandidateDetails(row).forEach(function (el) { candModalBody.appendChild(el); });
@@ -2292,7 +2428,7 @@ var linked = 0;
   // modale, plutôt que de laisser affiché un texte qui n'a en réalité pas
   // été enregistré.
   function saveFieldEdit(role, row, inputEl, kind, previousValue) {
-    var colId = settings.col[role];
+    var colId = (role === 'numCand') ? NUM_CAND_COL : settings.col[role];
     if (!isWritableColId(colId)) {
       window.alert('Le champ « ' + ROLE_LABELS[role] + ' » pointe vers une colonne technique de Grist, qui ne peut pas être modifiée. ' +
         'Ouvrez la Configuration (5 clics sur le bloc marque du header) et choisissez la vraie colonne, puis enregistrez.');
@@ -2398,6 +2534,33 @@ var linked = 0;
     if (usesNumCand && !textOf(row.numCand) &&
         !window.confirm('Le N° CAND n’est pas renseigné pour ce candidat : le courriel s’ouvrira sans numéro. Continuer ?')) return;
     openMailto(email, fillMailTemplate(tpl.subject, row), fillMailTemplate(tpl.body, row));
+    logGendFormSent(row);
+  }
+
+  // Trace l'envoi des identifiants : ajoute « Identifiants GendForm envoyés le
+  // JJ/MM/AAAA » (date du jour) à la fin de « Blocages / Infos » de la fiche.
+  // Sans effet si cette colonne n'est pas réglée dans la Configuration ; pas
+  // de doublon si la même ligne (même jour) est déjà présente.
+  function logGendFormSent(row) {
+    var colId = settings.col.blocagesInfos;
+    if (!isWritableColId(colId)) return;
+    var now = new Date();
+    var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+    var line = GENDFORM_LOG_PREFIX + pad(now.getDate()) + '/' + pad(now.getMonth() + 1) + '/' + now.getFullYear();
+    var current = textOf(row.blocagesInfos);
+    if (current.split(/\r?\n/).some(function (l) { return l.trim() === line; })) return;
+    var next = current ? current + '\n' + line : line;
+    resolveWriteTarget('blocagesInfos', row).then(function (target) {
+      var fields = {};
+      fields[colId] = next;
+      return grist.docApi.applyUserActions([['UpdateRecord', target.table, target.rowId, fields]]);
+    }).then(function () {
+      row.blocagesInfos = next;
+      renderCandidates();
+      if (currentModalRowId === row.id) renderModalContent();
+    }).catch(function (e) {
+      window.alert('Le courriel a été ouvert, mais le commentaire « ' + line + ' » n’a pas pu être enregistré dans « Blocages / Infos » : ' + friendlyErrorMessage(e));
+    });
   }
 
   // ---- Emplacement "Document" : interrupteur de validation, fichier
@@ -2436,7 +2599,7 @@ var linked = 0;
     }
     // "EAD - Bloc 1" embarque le champ N° CAND, au même endroit que
     // Photos dans la carte "Droit à l'image".
-    if (role === 'ead' && settings.col.numCand) {
+    if (role === 'ead' && candidates.hasNumCand) {
       slot.appendChild(buildNumCandField(row));
     }
 
@@ -2597,7 +2760,8 @@ var linked = 0;
   }
 
   // Champ "N° CAND" (carte EAD - Bloc 1) : zone de texte modifiable,
-  // enregistrée au blur dans la table Documents (voir saveFieldEdit).
+  // enregistrée au blur dans la colonne N_Cand de la table des candidats
+  // (voir saveFieldEdit).
   function buildNumCandField(row) {
     var wrap = document.createElement('div');
     wrap.className = 'cand-doc-slot__photos';
