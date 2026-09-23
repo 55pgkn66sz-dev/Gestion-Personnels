@@ -160,6 +160,10 @@
     font-size: 0.9rem;
     flex: none;
   }
+  /* Pictogramme « -18 » (mineur au 1er jour de la formation) : pastille ambre cerclée. */
+  .age-18 { font-weight: 800; font-size: 0.66rem; letter-spacing: -0.03em; line-height: 1; }
+  .cand-row__minor, .cand-modal-dialog__minor-flag { border: 2px solid #b58900; box-sizing: border-box; }
+  .cand-modal-dialog__minor-flag .age-18 { font-size: 0.78rem; }
   /* Doublon (même NID sur plusieurs lignes) : pastille rouge pastel. */
   .cand-row__dup,
   .cand-modal-dialog__dup-flag {
@@ -1073,10 +1077,10 @@
       <nav class="fr-nav" id="header-navigation" role="navigation" aria-label="Menu principal">
         <ul class="fr-nav__list">
           <li class="fr-nav__item">
-            <button class="fr-nav__link" id="navEtuteur" type="button" aria-current="page">eTuteur</button>
+            <button class="fr-nav__link" id="navStagiaires" type="button" aria-current="page">Stagiaires</button>
           </li>
           <li class="fr-nav__item">
-            <button class="fr-nav__link" id="navStagiaires" type="button">Stagiaires</button>
+            <button class="fr-nav__link" id="navEtuteur" type="button">eTuteur</button>
           </li>
         </ul>
       </nav>
@@ -1090,7 +1094,7 @@
        rapport à la capture d'écran d'origine (identité en tête, documents
        groupés avec leurs actions, informations complémentaires en bas,
        blocages mis en évidence). -->
-  <div id="panelEtuteur">
+  <div id="panelEtuteur" hidden>
     <h2 class="fr-h6">Candidats au stage</h2>
 
     <div class="cand-toolbar fr-mb-2w">
@@ -1123,7 +1127,7 @@
 
   <!-- Page "Stagiaires" : même table que eTuteur, même vue liste (nom, tags PON
        et Fonction, icônes d'alerte) ; fiche « profil » au clic. -->
-  <div id="panelStagiaires" hidden>
+  <div id="panelStagiaires">
     <h2 class="fr-h6">Stagiaires</h2>
 
     <div class="cand-toolbar fr-mb-2w">
@@ -1134,19 +1138,19 @@
       </div>
       <div class="stg-multi" id="stgPonGroup">
         <details>
-          <summary class="fr-select stg-multi__summary" id="stgPonSummary">Tous les pelotons</summary>
+          <summary class="fr-select stg-multi__summary" id="stgPonSummary">Peloton</summary>
           <div class="stg-multi__panel" id="stgPonPanel"></div>
         </details>
       </div>
       <div class="stg-multi" id="stgAffectationGroup">
         <details>
-          <summary class="fr-select stg-multi__summary" id="stgAffectationSummary">Toutes les affectations</summary>
+          <summary class="fr-select stg-multi__summary" id="stgAffectationSummary">Affectation</summary>
           <div class="stg-multi__panel" id="stgAffectationPanel"></div>
         </details>
       </div>
       <div class="stg-multi" id="stgFonctionGroup">
         <details>
-          <summary class="fr-select stg-multi__summary" id="stgFonctionSummary">Toutes les fonctions</summary>
+          <summary class="fr-select stg-multi__summary" id="stgFonctionSummary">Fonction</summary>
           <div class="stg-multi__panel" id="stgFonctionPanel"></div>
         </details>
       </div>
@@ -1572,7 +1576,7 @@
   var panelEtuteur = document.getElementById('panelEtuteur');
   var navEtuteur = document.getElementById('navEtuteur');
   var navStagiaires = document.getElementById('navStagiaires');
-  var currentPage = 'etuteur'; // 'etuteur' | 'stagiaires'
+  var currentPage = 'stagiaires'; // 'stagiaires' (page d'arrivée, 1er onglet) | 'etuteur'
   var settingsOpen = false;
   var panelSettings = document.getElementById('panelSettings');
   var brandGesture = document.getElementById('brandGesture');
@@ -2557,7 +2561,7 @@
       var minor = document.createElement('span');
       minor.className = 'cand-row__minor';
       minor.title = 'Sera mineur au premier jour de la formation';
-      minor.innerHTML = '<span class="fr-icon-alert-line" aria-hidden="true"></span><span class="fr-sr-only">Sera mineur au premier jour de la formation</span>';
+      minor.innerHTML = '<span class="age-18" aria-hidden="true">-18</span><span class="fr-sr-only">Sera mineur au premier jour de la formation</span>';
       end.appendChild(minor);
     }
 
@@ -2595,9 +2599,9 @@
   // valeurs présentes avec leur effectif, et plusieurs valeurs peuvent être
   // cochées (OU au sein d'une liste, ET entre les listes).
   var STG_FILTER_DEFS = [
-    { role: 'pon', all: 'Tous les pelotons', noun: 'pelotons', groupId: 'stgPonGroup', summaryId: 'stgPonSummary', panelId: 'stgPonPanel' },
-    { role: 'affectation', all: 'Toutes les affectations', noun: 'affectations', groupId: 'stgAffectationGroup', summaryId: 'stgAffectationSummary', panelId: 'stgAffectationPanel' },
-    { role: 'fonction', all: 'Toutes les fonctions', noun: 'fonctions', groupId: 'stgFonctionGroup', summaryId: 'stgFonctionSummary', panelId: 'stgFonctionPanel' }
+    { role: 'pon', all: 'Peloton', noun: 'pelotons', groupId: 'stgPonGroup', summaryId: 'stgPonSummary', panelId: 'stgPonPanel' },
+    { role: 'affectation', all: 'Affectation', noun: 'affectations', groupId: 'stgAffectationGroup', summaryId: 'stgAffectationSummary', panelId: 'stgAffectationPanel' },
+    { role: 'fonction', all: 'Fonction', noun: 'fonctions', groupId: 'stgFonctionGroup', summaryId: 'stgFonctionSummary', panelId: 'stgFonctionPanel' }
   ];
   // Une seule liste ouverte à la fois ; fermeture au clic à l'extérieur et avec Échap.
   STG_FILTER_DEFS.forEach(function (def) {
@@ -2720,7 +2724,7 @@
       // Résumé affiché dans le bouton de la liste.
       var sel = stgFilters[def.role];
       summary.classList.toggle('stg-multi__summary--active', sel.length > 0);
-      summary.textContent = !sel.length ? def.all + ' (' + base.length + ')'
+      summary.textContent = !sel.length ? def.all
         : (sel.length <= 2 ? sel.join(', ') : sel.length + ' ' + def.noun + ' sélectionnés');
     });
     if (focusedId) { var back = document.getElementById(focusedId); if (back && back.focus) back.focus(); }
@@ -3437,7 +3441,7 @@
       var minorFlag = document.createElement('span');
       minorFlag.className = 'cand-modal-dialog__minor-flag';
       minorFlag.title = 'Sera mineur au premier jour de la formation';
-      minorFlag.innerHTML = '<span class="fr-icon-alert-line" aria-hidden="true"></span>';
+      minorFlag.innerHTML = '<span class="age-18" aria-hidden="true">-18</span><span class="fr-sr-only">Sera mineur au premier jour de la formation</span>';
       flags.appendChild(minorFlag);
     }
     if (settings.col.droitImage && !isYes(row.droitImage)) {
@@ -3555,12 +3559,14 @@
     btn.addEventListener('click', function () { goToNeighbor(step); });
     return btn;
   }
-  // Ajoute « Précédent  ✕  Suivant » : la fermeture au centre, la navigation de
-  // part et d'autre (sur le premier volet seulement quand il y en a plusieurs).
+  // Ajoute « Précédent  Suivant  ✕ » : les deux flèches puis la croix de
+  // fermeture (navigation sur le premier volet seulement quand il y en a plusieurs).
   function appendCloseWithNav(actions, closeBtn, withNav) {
-    if (withNav) actions.appendChild(buildNavButton(-1));
+    if (withNav) {
+      actions.appendChild(buildNavButton(-1));
+      actions.appendChild(buildNavButton(1));
+    }
     actions.appendChild(closeBtn);
-    if (withNav) actions.appendChild(buildNavButton(1));
   }
 
   function findCandidateRow(rowId) {
@@ -3675,6 +3681,10 @@
     title.className = 'cand-modal-dialog__title';
     title.textContent = name;
     identity.appendChild(title);
+    // Icônes d'alerte (doublon, mineur) : sous le nom.
+    var flags = document.createElement('div');
+    flags.className = 'stg-flags';
+    identity.appendChild(flags);
 
     // Ligne de contact, sous le titre : e-mail et téléphone séparés par un
     // point médian, chacun cliquable (mailto:/tel:) quand il est
@@ -3709,14 +3719,14 @@
       dupFlag.title = dupReasons.join(' ');
       dupFlag.innerHTML = '<span class="fr-icon-error-warning-line" aria-hidden="true"></span><span class="fr-sr-only"></span>';
       dupFlag.lastChild.textContent = dupReasons.join(' ');
-      actions.appendChild(dupFlag);
+      flags.appendChild(dupFlag);
     }
     if (willBeMinor(row.dateNaissance, parseFrDate(settings.dateDebutFormation))) {
       var minorFlag = document.createElement('span');
       minorFlag.className = 'cand-modal-dialog__minor-flag';
       minorFlag.title = 'Sera mineur au premier jour de la formation';
-      minorFlag.innerHTML = '<span class="fr-icon-alert-line" aria-hidden="true"></span>';
-      actions.appendChild(minorFlag);
+      minorFlag.innerHTML = '<span class="age-18" aria-hidden="true">-18</span><span class="fr-sr-only">Sera mineur au premier jour de la formation</span>';
+      flags.appendChild(minorFlag);
     }
     var closeBtn = document.createElement('button');
     closeBtn.type = 'button';
@@ -5057,11 +5067,6 @@
     return raw;
   }
 
-})();
-</script>
-
-</body>
-</html>
 })();
 </script>
 
