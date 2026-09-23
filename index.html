@@ -191,16 +191,14 @@
   }
   .cand-modal-overlay[hidden] { display: none; }
   .cand-modal-overlay.is-open { opacity: 1; }
-  /* Fond de la modale : reprend la teinte de la colonne "NID" de la fiche
-     d'origine (le liseré rose/saumon visible sur la capture d'écran) —
-     déjà disponible comme --uv-pastel-over, utilisée ailleurs dans le
-     widget pour les états "refusé". Les cartes internes (documents,
-     bloc "Bande") restent en blanc pour se détacher de ce fond teinté.
+  /* Fond de la modale : dégradé bleu pastel (bleu France très clair, teintes
+     du DSFR). Les cartes internes (documents, bloc "Bande") restent en blanc
+     pour se détacher de ce fond teinté.
      Transition d'ouverture discrète (fondu + léger zoom) pilotée par la
      classe .is-open, ajoutée en double rAF après retrait de [hidden] —
      voir openCandidateModal / closeCandidateModal. */
   .cand-modal-dialog {
-    background: linear-gradient(180deg, var(--uv-pastel-over) 0%, #fdf0ef 100%);
+    background: linear-gradient(180deg, #e3e3fd 0%, #f3f3fe 100%);
     max-width: 46rem;
     width: 100%;
     padding: 1.85rem 2rem 2rem;
@@ -566,6 +564,15 @@
     border: 1px solid var(--border-default-grey);
     border-radius: 0.25rem;
   }
+  .attach-preview__frame {
+    display: block;
+    width: 17rem;
+    height: 22rem;
+    border: 1px solid var(--border-default-grey);
+    border-radius: 0.25rem;
+    background: #fff;
+  }
+  .attach-preview__reason { font-size: 0.85em; color: var(--text-mention-grey); }
   .attach-preview__pages { margin: 0.3rem 0 0; font-size: 0.75em; color: var(--text-mention-grey); text-align: center; }
   .attach-preview__fallback {
     display: flex;
@@ -1014,7 +1021,7 @@
           <p class="cfg-vars__title">Variables disponibles <span>(cliquez pour insérer à l'emplacement du curseur)</span></p>
           <ul class="cfg-vars__list">
             <li><button class="cfg-var-btn" type="button" data-var="{{N_CAND}}">{{N_CAND}}</button> affiche le n° CAND du candidat (champ « N° CAND » de la carte EAD - Bloc 1).</li>
-            <li><button class="cfg-var-btn" type="button" data-var="{{STAGIAIRE}}">{{STAGIAIRE}}</button> affiche le nom du stagiaire.</li>
+            <li><button class="cfg-var-btn" type="button" data-var="{{STAGIAIRE}}">{{STAGIAIRE}}</button> affiche le nom du stagiaire au format « Prénom NOM » (ex. « DUPONT Jean » devient « Jean DUPONT »).</li>
           </ul>
         </div>
       </section>
@@ -1904,6 +1911,12 @@ var linked = 0;
     if (!nom.length && tokens.length) { nom = [tokens[0]]; prenom = tokens.slice(1); }
     return { nom: nom.join(' '), prenom: prenom.join(' ') };
   }
+  // Nom du stagiaire pour les courriels : "DUPONT Jean" -> "Jean DUPONT"
+  // (prénom puis NOM), même repérage du NOM que pour le tri.
+  function formatPrenomNom(full) {
+    var parts = splitStagiaireName(full);
+    return [parts.prenom, parts.nom].filter(Boolean).join(' ');
+  }
   function compareCandidatesByName(a, b) {
     var na = splitStagiaireName(textOfRef(a.stagiaire));
     var nb = splitStagiaireName(textOfRef(b.stagiaire));
@@ -2335,7 +2348,7 @@ var linked = 0;
         'impossible de préparer le message de relance.');
       return;
     }
-    var name = textOfRef(row.stagiaire) || '';
+    var name = formatPrenomNom(textOfRef(row.stagiaire));
     var subject = 'Pièce à renvoyer : ' + docLabel;
     var body = [
       'Bonjour' + (name ? ' ' + name : '') + ',',
@@ -2367,7 +2380,7 @@ var linked = 0;
     return String(text || '').replace(/\{\{\s*([^{}]*?)\s*\}\}/g, function (whole, name) {
       var key = name.toUpperCase();
       if (key === 'N_CAND') return textOf(row.numCand);
-      if (key === 'STAGIAIRE') return textOfRef(row.stagiaire);
+      if (key === 'STAGIAIRE') return formatPrenomNom(textOfRef(row.stagiaire));
       return whole;
     });
   }
@@ -3056,22 +3069,54 @@ var linked = 0;
   // pdf.js. Si le type n'est pas connu (métadonnées illisibles), on le
   // déduit du Content-Type de la réponse. Renvoie null si aucun aperçu
   // n'est possible (le popover affiche alors le lien d'ouverture seul).
+  //
+  // Chaîne de repli pour un PDF (le navigateur peut refuser chaque étape) :
+  //  1. fetch + rendu pdf.js (image nette, indépendante du navigateur) ;
+  //  2. si la requête est bloquée par le navigateur (CORS — cas de Safari,
+  //     "Load failed") ou si pdf.js est indisponible : visionneuse PDF native
+  //     du navigateur dans un cadre (<iframe>), qui n'a pas besoin de CORS ;
+  //  3. si Grist répond par un refus (401/403/404, règles d'accès du
+  //     document appliquées au jeton du widget) : message explicite.
+  // La promesse est rejetée avec une Error dont le message explique
+  // pourquoi l'aperçu est impossible (affiché dans le popover).
+  function previewFailure(text) {
+    var e = new Error(text);
+    e.isPreviewFailure = true;
+    return e;
+  }
+  function buildPdfFrame(url) {
+    var frame = document.createElement('iframe');
+    frame.className = 'attach-preview__frame';
+    frame.title = 'Aperçu du document';
+    // inline=1 : Grist sert le fichier "en ligne" (sinon en téléchargement).
+    frame.src = url + '&inline=1#toolbar=0&view=FitH';
+    return frame;
+  }
   function buildPreviewBody(url, meta, fileName) {
+    var looksPdf = isPdfType(meta) || /\.pdf$/i.test(fileName || '');
     if (isImageType(meta)) {
-      // null (=> message "Aperçu non disponible") si Grist refuse l'accès
-      // avec le jeton du widget, plutôt qu'une image cassée.
-      return new Promise(function (resolve) {
+      return new Promise(function (resolve, reject) {
         var img = document.createElement('img');
         img.alt = fileName;
         img.onload = function () { resolve(img); };
-        img.onerror = function () { resolve(null); };
+        img.onerror = function () {
+          reject(previewFailure('Grist n’a pas fourni l’image (accès refusé au jeton du widget ?).'));
+        };
         img.src = url;
       });
     }
-    if (meta && meta.fileType && !isPdfType(meta)) return Promise.resolve(null);
+    if (meta && meta.fileType && !looksPdf) {
+      return Promise.reject(previewFailure('Pas d’aperçu pour ce type de fichier.'));
+    }
     return fetch(url).then(function (resp) {
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      if (!resp.ok) {
+        throw previewFailure('Grist a refusé l’accès au fichier (HTTP ' + resp.status + ') : les règles d’accès du document ne l’autorisent pas avec le jeton du widget.');
+      }
       return resp.blob();
+    }, function () {
+      var blocked = new Error('blocked');
+      blocked.blocked = true;
+      throw blocked;
     }).then(function (blob) {
       var type = (meta && meta.fileType) || blob.type || '';
       if (type.indexOf('image/') === 0) {
@@ -3080,9 +3125,17 @@ var linked = 0;
         img2.alt = fileName;
         return img2;
       }
-      if (type.indexOf('pdf') !== -1) return blob.arrayBuffer().then(renderPdfFirstPage);
-      return null;
-    }).catch(function () { return null; });
+      if (type.indexOf('pdf') !== -1 || looksPdf) {
+        return blob.arrayBuffer().then(renderPdfFirstPage).catch(function () { return buildPdfFrame(url); });
+      }
+      throw previewFailure('Pas d’aperçu pour ce type de fichier.');
+    }).catch(function (e) {
+      if (e && e.blocked) {
+        if (looksPdf) return buildPdfFrame(url);
+        throw previewFailure('Requête bloquée par le navigateur (accès inter-origine).');
+      }
+      throw (e && e.isPreviewFailure) ? e : previewFailure('Lecture du fichier impossible.');
+    });
   }
 
   var previewRequestSeq = 0;
@@ -3117,13 +3170,16 @@ var linked = 0;
         var body = attachPreview.querySelector('.attach-preview__body');
         if (!body) return;
         body.innerHTML = '';
-        if (bodyEl) {
-          body.appendChild(bodyEl);
-        } else {
-          body.innerHTML = '<div class="attach-preview__fallback"><span class="fr-icon-file-line" aria-hidden="true" style="font-size:2rem;"></span>' +
-            '<span>Aperçu non disponible pour ce fichier. Cliquez sur son nom pour l’ouvrir.</span></div>';
-        }
+        body.appendChild(bodyEl);
         positionPreview(rect); // la taille du contenu vient de changer (image/PDF) : on repositionne pour rester dans l'écran
+      }, function (failure) {
+        if (seq !== previewRequestSeq) return;
+        var body = attachPreview.querySelector('.attach-preview__body');
+        if (!body) return;
+        body.innerHTML = '<div class="attach-preview__fallback"><span class="fr-icon-file-line" aria-hidden="true" style="font-size:2rem;"></span>' +
+          '<span>Aperçu non disponible pour ce fichier. Cliquez sur son nom pour l’ouvrir.</span>' +
+          '<span class="attach-preview__reason">' + escapeHtml(failure && failure.message ? failure.message : '') + '</span></div>';
+        positionPreview(rect);
       });
     }).catch(function (e) {
       if (seq !== previewRequestSeq) return;
