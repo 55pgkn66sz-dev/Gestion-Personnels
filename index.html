@@ -613,28 +613,95 @@
     .cand-bande-row { flex-direction: column; }
   }
 
-  /* ---- Zone "Configuration" (geste caché) -------------------------------- */
-  .config-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-  .config-header h2 { margin: 0; }
-  .settings-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1rem 1.25rem;
-  }
-  .settings-grid .fr-select-group { margin-bottom: 0; }
-  .settings-section + .settings-section { margin-top: 1.75rem; }
-  .settings-footer {
-    display: flex;
-    gap: 0.75rem;
-    justify-content: flex-end;
-    margin-top: 1.75rem;
-  }
+/* ---- Zone "Configuration" (backoffice, geste caché) --------------------- */
+.cfg { max-width: 64rem; margin: 0 auto; }
+.cfg-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.cfg-header h2 { margin: 0; }
+.cfg-header p { margin: 0.25rem 0 0; color: var(--text-mention-grey); font-size: 0.9em; }
+
+/* Résumé d'état : une pastille par point de contrôle (vert = prêt,
+   ambre = à compléter, gris = information). */
+.cfg-summary { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+.cfg-chip {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  font-size: 0.8em; font-weight: 600;
+  padding: 0.28rem 0.75rem; border-radius: 999px;
+  background: #f0f0f3; color: #3a3a45;
+}
+.cfg-chip::before { content: ''; width: 0.5rem; height: 0.5rem; border-radius: 999px; background: #8b8b96; flex: none; }
+.cfg-chip--ok { background: var(--uv-pastel-full); color: var(--statut-validee); }
+.cfg-chip--ok::before { background: var(--statut-validee); }
+.cfg-chip--warn { background: var(--statut-pastel-attente); color: #716200; }
+.cfg-chip--warn::before { background: #b58900; }
+
+.cfg-help {
+  margin-bottom: 1.25rem; padding: 0.65rem 1rem;
+  border: 1px solid var(--border-default-grey); border-radius: 0.5rem; background: #f7f7fb; font-size: 0.85em;
+}
+.cfg-help summary { cursor: pointer; font-weight: 700; color: var(--bleu-france); }
+.cfg-help ul { margin: 0.6rem 0 0.2rem; padding-left: 1.1rem; }
+.cfg-help li { margin-bottom: 0.4rem; }
+
+.cfg-card {
+  background: #fff; border: 1px solid var(--border-default-grey); border-radius: 0.6rem;
+  padding: 1.25rem 1.4rem 1.4rem; margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(20, 10, 30, 0.05);
+}
+.cfg-card__head { display: flex; align-items: flex-start; gap: 0.85rem; margin-bottom: 1.1rem; }
+.cfg-card__num {
+  flex: none; width: 1.8rem; height: 1.8rem; border-radius: 999px;
+  background: var(--bleu-france); color: #fff; font-weight: 700; font-size: 0.85rem;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.cfg-card__title { margin: 0; font-size: 1.05rem; font-weight: 700; }
+.cfg-card__desc { margin: 0.2rem 0 0; font-size: 0.85em; color: var(--text-mention-grey); }
+.cfg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1.1rem 1.4rem; align-items: start; }
+.cfg-grid .fr-select-group, .cfg-grid .fr-input-group { margin-bottom: 0; }
+.cfg-req { color: var(--statut-refusee); margin-left: 0.2rem; font-weight: 700; }
+.cfg-hint { margin: 0.9rem 0 0; font-size: 0.85em; color: var(--text-mention-grey); }
+
+.cfg-link-test { display: flex; align-items: center; flex-wrap: wrap; gap: 0.9rem; margin-top: 0.9rem; }
+.cfg-link-result { margin: 0; font-size: 0.88em; font-weight: 600; }
+.cfg-link-result--info { color: var(--text-mention-grey); font-weight: 400; }
+.cfg-link-result--success { color: var(--statut-validee); }
+.cfg-link-result--warn { color: #716200; }
+.cfg-link-result--error { color: var(--statut-refusee); }
+
+/* Documents : un tableau (une ligne par document, deux colonnes de
+   réglage) plutôt qu'une grille de sélecteurs sans lien visuel. */
+.cfg-table-wrap { overflow-x: auto; }
+.cfg-doc-table { width: 100%; border-collapse: collapse; }
+.cfg-doc-table th, .cfg-doc-table td { padding: 0.6rem 0.6rem; text-align: left; vertical-align: middle; }
+.cfg-doc-table thead th {
+  font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.02em; font-weight: 700;
+  color: var(--text-mention-grey); border-bottom: 2px solid var(--border-default-grey);
+}
+.cfg-doc-table tbody th { font-size: 0.9em; font-weight: 700; width: 30%; }
+.cfg-doc-table tbody tr + tr > * { border-top: 1px solid var(--border-default-grey); }
+.cfg-doc-table select { width: 100%; min-width: 11rem; }
+
+/* Barre d'enregistrement : reste visible en bas de l'écran pendant qu'on
+   parcourt les cartes. */
+.cfg-bar {
+  position: sticky; bottom: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  margin: 1.25rem -0.25rem 0; padding: 0.8rem 1rem;
+  background: rgba(255, 255, 255, 0.97); border-top: 1px solid var(--border-default-grey);
+  box-shadow: 0 -4px 14px rgba(20, 10, 30, 0.08);
+}
+.cfg-bar__state { font-size: 0.85em; color: var(--text-mention-grey); }
+.cfg-bar__state--dirty { color: #716200; font-weight: 700; }
+.cfg-bar__state--dirty::before { content: '● '; }
+.cfg-bar__actions { display: flex; gap: 0.75rem; }
+
+@media (max-width: 40rem) {
+  .cfg-card { padding: 1rem; }
+  .cfg-doc-table thead { display: none; }
+  .cfg-doc-table, .cfg-doc-table tbody, .cfg-doc-table tr, .cfg-doc-table th, .cfg-doc-table td { display: block; width: 100% !important; box-sizing: border-box; }
+  .cfg-doc-table tbody tr { padding: 0.6rem 0; border-top: 1px solid var(--border-default-grey); }
+  .cfg-doc-table tbody tr + tr > * { border-top: none; }
+  .cfg-doc-table td::before { content: attr(data-label); display: block; font-size: 0.75em; color: var(--text-mention-grey); margin-bottom: 0.2rem; }
+}
 
   /* Pied de page du widget : crédit, comme dans les widgets précédents. */
   .widget-footer {
@@ -716,171 +783,178 @@
     <div id="candZone"></div>
   </div>
 
-  <!-- Zone "Configuration" : accessible uniquement via le geste caché sur
-       le bloc marque du header (5 clics rapprochés) — voir brandGesture
-       dans le script. Associe la table Grist de référence (candidats) et
-       le rôle de chacune de ses colonnes, selon les libellés visibles sur
-       la fiche candidat. -->
-  <div id="panelSettings" hidden>
-    <div class="config-header">
-      <h2 class="fr-h6">Configuration</h2>
+<!-- Zone "Configuration" (backoffice) : accessible uniquement via le geste
+     caché sur le bloc marque du header (5 clics rapprochés) — voir
+     brandGesture dans le script. Organisée en cartes numérotées (sources,
+     liaison, identité, documents, bande, suivi), avec un résumé d'état en
+     tête, un test de la liaison entre les deux tables et une barre
+     d'enregistrement toujours visible. Les listes de colonnes sont
+     filtrées selon le type attendu (pièces jointes, case à cocher, date). -->
+<div id="panelSettings" hidden>
+  <div class="cfg">
+    <div class="cfg-header">
+      <div>
+        <h2 class="fr-h5">Configuration</h2>
+        <p>Paramétrage du widget « Administration des candidats ». Réservé à l'équipe projet.</p>
+      </div>
       <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-line" id="closeConfigBtn" type="button">Fermer</button>
     </div>
 
-    <div class="fr-alert fr-alert--info fr-alert--sm fr-mb-3w">
-      <p>Associez la table Grist des candidats et le rôle de chacune de ses colonnes, d'après les libellés
-      de la fiche candidat (NID, Stagiaire, Usage RS…). Les documents (pièces jointes et leur validation)
-      ainsi que les informations complémentaires (Photos, Inscription (bande patronymique), Quantité, Dû, Encaissé,
-      Blocages/Infos) peuvent vivre dans une table Grist séparée de celle des candidats : indiquez alors,
-      dans la section « Documents », la table concernée, le mode de liaison entre les deux tables et la
-      colonne de liaison correspondante — soit la colonne NID de la table Documents (mode « même NID » :
-      les deux tables portent la même valeur de NID) ; soit une colonne Référence, dans la table Documents,
-      qui pointe vers la ligne du candidat ; soit une colonne Référence, dans la table des candidats, qui
-      pointe vers sa ligne dans la table Documents. Si les champs Documents/Informations complémentaires
-      restent vides pour tous les candidats après enregistrement alors que les données existent bien dans
-      Grist, un bandeau d'avertissement s'affiche sur la liste : vérifiez alors le mode et la colonne de
-      liaison. Si un candidat n'a pas encore de ligne dans la table Documents, le premier import d'un
-      fichier ou la première modification d'un champ « Informations complémentaires » depuis sa fiche en
-      crée une automatiquement (modes « même NID » et « La ligne Documents référence le candidat »).
-      « Validation admin » pilote le bouton de validation des pièces jointes « Usage RS » et « Form. image » ;
-      « Validation EAD » pilote celui de la pièce jointe « EAD ». Passer une pièce en Refusé ouvre
-      automatiquement un e-mail pré-rempli vers l'adresse « E-mail » du candidat : sans cette colonne, le
-      refus reste enregistré mais aucun e-mail ne s'ouvre. Importer ou remplacer un fichier dans la fiche
-      envoie le nouveau document dans le magasin de pièces jointes du document Grist, ce qui nécessite les
-      droits d'écriture sur le document. Le pictogramme « mineur » à côté du nom du candidat, dans la
-      fiche, n'est pas saisi à la main pour chaque candidat : il est calculé en comparant l'âge du candidat
-      (colonne Date « Date de naissance du stagiaire ») à la date « Début de formation le », que vous
-      saisissez ici à la main au format JJ/MM/AAAA (elle ne correspond à aucune colonne de la table) ;
-      sans l'une des deux informations, le pictogramme reste masqué (impossible de savoir). « Inscription », « Quantité » et « Encaissé » sont modifiables
-      directement depuis la fiche candidat — préférez des colonnes Texte ou Numérique (pas une colonne
-      Référence) pour que l'enregistrement fonctionne ; « Dû » reste en lecture seule. Ces réglages sont
-      mémorisés avec le widget.</p>
-    </div>
+    <div class="cfg-summary" id="cfgSummary" aria-live="polite"></div>
+    <div id="settingsStatusZone" class="fr-mb-2w" aria-live="polite"></div>
 
-    <div id="settingsStatusZone" class="fr-mb-2w"></div>
+    <details class="cfg-help">
+      <summary>Aide au paramétrage</summary>
+      <ul>
+        <li><strong>Liaison :</strong> « Même NID » suppose que la colonne NID de la table Documents contient la même valeur que celle des candidats. Le bouton « Tester la liaison » indique combien de candidats sont rattachés. Si un candidat n'a pas encore de ligne Documents, elle est créée à la première saisie ou au premier import (modes « Même NID » et « La table Documents référence le candidat »).</li>
+        <li><strong>Validation des pièces :</strong> passer un document en « Refusé » ouvre un e-mail pré-rempli vers l'adresse du candidat ; sans colonne E-mail, le refus est enregistré mais aucun message ne s'ouvre.</li>
+        <li><strong>Import de fichiers :</strong> déposer ou remplacer un fichier depuis la fiche nécessite les droits d'écriture sur le document Grist.</li>
+        <li><strong>Pictogramme « mineur » :</strong> calculé en comparant la date de naissance du candidat à la date « Début de formation le » saisie ici ; il reste masqué si l'une des deux manque.</li>
+        <li><strong>Champs modifiables depuis la fiche :</strong> inscription, quantité, encaissé, blocages/infos, photos et validations. Le dû est en lecture seule. Ces réglages sont mémorisés avec le widget.</li>
+      </ul>
+    </details>
 
-    <form id="settingsForm">
-      <div class="settings-section">
-        <p class="section-title">Table de référence</p>
-        <div class="settings-grid">
-          <div class="fr-select-group">
-            <label class="fr-label" for="cand_table">Table Grist des candidats</label>
-            <select class="fr-select" id="cand_table"></select>
+    <form id="settingsForm" novalidate>
+      <section class="cfg-card" aria-labelledby="cfgCardTitle1">
+        <div class="cfg-card__head">
+          <span class="cfg-card__num" aria-hidden="true">1</span>
+          <div>
+            <h3 class="cfg-card__title" id="cfgCardTitle1">Sources de données</h3>
+            <p class="cfg-card__desc">Les tables Grist utilisées par le widget : celle qui recense les candidats et, si elle est distincte, celle qui porte leurs documents et informations complémentaires.</p>
           </div>
         </div>
-      </div>
+<div class="cfg-grid">
+  <div class="fr-select-group">
+    <label class="fr-label" for="cand_table">Table des candidats<span class="cfg-req" aria-hidden="true">*</span><span class="fr-sr-only"> (obligatoire)</span>
+      <span class="fr-hint-text">Une ligne par candidat (NID, nom, coordonnées…).</span></label>
+    <select class="fr-select" id="cand_table"></select>
+  </div>
+  <div class="fr-select-group">
+    <label class="fr-label" for="cand_docs_table">Table Documents
+      <span class="fr-hint-text">Documents, bande patronymique, paiement, blocages. Obligatoire dès qu'un de ces champs est utilisé.</span></label>
+    <select class="fr-select" id="cand_docs_table"></select>
+  </div>
+</div>
 
-      <div class="settings-section">
-        <p class="section-title">Identité</p>
-        <div class="settings-grid">
-          <div class="fr-select-group">
-            <label class="fr-label" for="cand_col_nid">NID</label>
-            <select class="fr-select" id="cand_col_nid" data-role="nid"></select>
-          </div>
-          <div class="fr-select-group">
-            <label class="fr-label" for="cand_col_stagiaire">Stagiaire</label>
-            <select class="fr-select" id="cand_col_stagiaire" data-role="stagiaire"></select>
-          </div>
-          <div class="fr-select-group">
-            <label class="fr-label" for="cand_col_email">E-mail du stagiaire (optionnel)</label>
-            <select class="fr-select" id="cand_col_email" data-role="email"></select>
-          </div>
-          <div class="fr-select-group">
-            <label class="fr-label" for="cand_col_telephone">Téléphone du stagiaire (optionnel)</label>
-            <select class="fr-select" id="cand_col_telephone" data-role="telephone"></select>
-          </div>
-          <div class="fr-select-group">
-            <label class="fr-label" for="cand_col_dateNaissance">Date de naissance du stagiaire (optionnel, colonne Date)</label>
-            <select class="fr-select" id="cand_col_dateNaissance" data-role="dateNaissance"></select>
-          </div>
-          <div class="fr-input-group" id="cand_dateDebutFormation_group">
-            <label class="fr-label" for="cand_dateDebutFormation">Début de formation le (optionnel)
-              <span class="fr-hint-text">Saisie manuelle au format JJ/MM/AAAA — ne correspond à aucune colonne de la table.</span>
-            </label>
-            <input class="fr-input" type="text" id="cand_dateDebutFormation" inputmode="numeric" maxlength="10" placeholder="JJ/MM/AAAA" autocomplete="off">
+      </section>
+
+      <section class="cfg-card" aria-labelledby="cfgCardTitle2">
+        <div class="cfg-card__head">
+          <span class="cfg-card__num" aria-hidden="true">2</span>
+          <div>
+            <h3 class="cfg-card__title" id="cfgCardTitle2">Liaison entre les deux tables</h3>
+            <p class="cfg-card__desc">Comment retrouver, pour chaque candidat, sa ligne dans la table Documents.</p>
           </div>
         </div>
-      </div>
+<div class="cfg-grid">
+  <div class="fr-select-group">
+    <label class="fr-label" for="cand_docs_link_dir">Mode de liaison</label>
+    <select class="fr-select" id="cand_docs_link_dir">
+      <option value="byNid">Même NID dans les deux tables (recommandé)</option>
+      <option value="docsToMain">La table Documents référence le candidat</option>
+      <option value="mainToDocs">Le candidat référence sa ligne Documents</option>
+    </select>
+  </div>
+  <div class="fr-select-group">
+    <label class="fr-label" for="cand_docs_link" id="cand_docs_link_label">Colonne de liaison</label>
+    <select class="fr-select" id="cand_docs_link"></select>
+  </div>
+</div>
+<p class="cfg-hint" id="cfgLinkHint"></p>
+<div class="cfg-link-test">
+  <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-search-line fr-btn--icon-left" id="cfgTestLinkBtn" type="button">Tester la liaison</button>
+  <p class="cfg-link-result" id="cfgLinkResult" aria-live="polite"></p>
+</div>
 
-      <div class="settings-section">
-        <p class="section-title">Documents</p>
-        <div class="settings-grid">
-          <div class="fr-select-group">
-            <label class="fr-label" for="cand_docs_table">Table Grist des documents (si différente de celle des candidats)</label>
-            <select class="fr-select" id="cand_docs_table"></select>
-          </div>
-          <div class="fr-select-group">
-            <label class="fr-label" for="cand_docs_link_dir">Sens de la liaison entre les deux tables</label>
-            <select class="fr-select" id="cand_docs_link_dir">
-              <option value="byNid">Les deux tables ont le même NID (valeur identique)</option>
-              <option value="docsToMain">La ligne Documents référence le candidat</option>
-              <option value="mainToDocs">Le candidat référence sa ligne Documents</option>
-            </select>
-          </div>
-          <div class="fr-select-group">
-            <label class="fr-label" for="cand_docs_link" id="cand_docs_link_label">Colonne de liaison (Référence)</label>
-            <select class="fr-select" id="cand_docs_link"></select>
-          </div>
-          <div class="fr-select-group">
-            <label class="fr-label" for="cand_col_usageRS">Usage RS (pièce jointe, optionnel)</label>
-            <select class="fr-select" id="cand_col_usageRS" data-role="usageRS"></select>
-          </div>
-          <div class="fr-select-group">
-            <label class="fr-label" for="cand_col_formImage">Form. image (pièce jointe, optionnel)</label>
-            <select class="fr-select" id="cand_col_formImage" data-role="formImage"></select>
-          </div>
-          <div class="fr-select-group">
-            <label class="fr-label" for="cand_col_validationAdmin">Validation admin (optionnel, case à cocher)</label>
-            <select class="fr-select" id="cand_col_validationAdmin" data-role="validationAdmin"></select>
-          </div>
-          <div class="fr-select-group">
-            <label class="fr-label" for="cand_col_ead">EAD (pièce jointe, optionnel)</label>
-            <select class="fr-select" id="cand_col_ead" data-role="ead"></select>
-          </div>
-          <div class="fr-select-group">
-            <label class="fr-label" for="cand_col_validationEAD">Validation EAD (optionnel, case à cocher)</label>
-            <select class="fr-select" id="cand_col_validationEAD" data-role="validationEAD"></select>
+      </section>
+
+      <section class="cfg-card" aria-labelledby="cfgCardTitle3">
+        <div class="cfg-card__head">
+          <span class="cfg-card__num" aria-hidden="true">3</span>
+          <div>
+            <h3 class="cfg-card__title" id="cfgCardTitle3">Identité du candidat</h3>
+            <p class="cfg-card__desc">Colonnes de la table des candidats affichées dans la liste et l'en-tête de la fiche.</p>
           </div>
         </div>
-      </div>
+<div class="cfg-grid">
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_nid">NID<span class="cfg-req" aria-hidden="true">*</span><span class="fr-sr-only"> (obligatoire)</span><span class="fr-hint-text">Identifiant unique du candidat.</span></label><select class="fr-select" id="cand_col_nid" data-role="nid"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_stagiaire">Stagiaire<span class="cfg-req" aria-hidden="true">*</span><span class="fr-sr-only"> (obligatoire)</span><span class="fr-hint-text">Nom et prénom (ex. « DUPONT Jean »), utilisés pour l'affichage et le tri.</span></label><select class="fr-select" id="cand_col_stagiaire" data-role="stagiaire"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_email">E-mail<span class="fr-hint-text">Sert à préparer le message quand une pièce est refusée.</span></label><select class="fr-select" id="cand_col_email" data-role="email"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_telephone">Téléphone</label><select class="fr-select" id="cand_col_telephone" data-role="telephone"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_dateNaissance">Date de naissance<span class="fr-hint-text">Colonne de type Date ; sert au calcul du pictogramme « mineur ».</span></label><select class="fr-select" id="cand_col_dateNaissance" data-role="dateNaissance"></select></div>
+  <div class="fr-input-group" id="cand_dateDebutFormation_group">
+    <label class="fr-label" for="cand_dateDebutFormation">Début de formation le
+      <span class="fr-hint-text">Saisie manuelle, format JJ/MM/AAAA (ne correspond à aucune colonne).</span></label>
+    <input class="fr-input" type="text" id="cand_dateDebutFormation" inputmode="numeric" maxlength="10" placeholder="JJ/MM/AAAA" autocomplete="off" aria-describedby="cand_dateDebutFormation_err">
+    <p class="fr-error-text" id="cand_dateDebutFormation_err" hidden>Date invalide : utilisez le format JJ/MM/AAAA (par ex. 15/09/2026).</p>
+  </div>
+</div>
 
-      <div class="settings-section">
-        <p class="section-title">Informations complémentaires</p>
-        <p class="fr-hint-text fr-mb-2w">Colonnes lues dans la table Documents réglée ci-dessus (section « Documents »), pas dans la table des candidats.</p>
-        <div class="settings-grid">
-          <div class="fr-select-group">
-            <label class="fr-label" for="cand_col_photos">Photos (optionnel)</label>
-            <select class="fr-select" id="cand_col_photos" data-role="photos"></select>
-          </div>
-          <div class="fr-select-group">
-            <label class="fr-label" for="cand_col_inscriptionBande">Inscription (bande patronymique, optionnel)</label>
-            <select class="fr-select" id="cand_col_inscriptionBande" data-role="inscriptionBande"></select>
-          </div>
-          <div class="fr-select-group">
-            <label class="fr-label" for="cand_col_qteBandes">Quantité (optionnel)</label>
-            <select class="fr-select" id="cand_col_qteBandes" data-role="qteBandes"></select>
-          </div>
-          <div class="fr-select-group">
-            <label class="fr-label" for="cand_col_du">Dû (optionnel, non éditable dans la fiche)</label>
-            <select class="fr-select" id="cand_col_du" data-role="du"></select>
-          </div>
-          <div class="fr-select-group">
-            <label class="fr-label" for="cand_col_encaisse">Encaissé (optionnel)</label>
-            <select class="fr-select" id="cand_col_encaisse" data-role="encaisse"></select>
-          </div>
-          <div class="fr-select-group">
-            <label class="fr-label" for="cand_col_blocagesInfos">Blocages / Infos (optionnel)</label>
-            <select class="fr-select" id="cand_col_blocagesInfos" data-role="blocagesInfos"></select>
+      </section>
+
+      <section class="cfg-card" aria-labelledby="cfgCardTitle4">
+        <div class="cfg-card__head">
+          <span class="cfg-card__num" aria-hidden="true">4</span>
+          <div>
+            <h3 class="cfg-card__title" id="cfgCardTitle4">Documents</h3>
+            <p class="cfg-card__desc">Pour chaque document : la colonne qui contient le fichier (type « Pièces jointes ») et la colonne qui porte sa validation (type « Case à cocher » : coché = accepté, décoché = refusé, vide = en attente). Colonnes lues dans la table Documents.</p>
           </div>
         </div>
-      </div>
+<div class="cfg-table-wrap">
+  <table class="cfg-doc-table">
+    <thead><tr><th scope="col">Document</th><th scope="col">Colonne du fichier</th><th scope="col">Colonne de validation</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Reconnaissance de responsabilité — Réseaux sociaux</th><td data-label="Colonne du fichier"><select class="fr-select" id="cand_col_usageRS" data-role="usageRS" aria-label="Colonne du fichier — Reconnaissance de responsabilité — Réseaux sociaux"></select></td><td data-label="Colonne de validation"><select class="fr-select" id="cand_col_validationUsageRS" data-role="validationUsageRS" aria-label="Colonne de validation — Reconnaissance de responsabilité — Réseaux sociaux"></select></td></tr>
+      <tr><th scope="row">Droit à l'image</th><td data-label="Colonne du fichier"><select class="fr-select" id="cand_col_formImage" data-role="formImage" aria-label="Colonne du fichier — Droit à l'image"></select></td><td data-label="Colonne de validation"><select class="fr-select" id="cand_col_validationFormImage" data-role="validationFormImage" aria-label="Colonne de validation — Droit à l'image"></select></td></tr>
+      <tr><th scope="row">Enseignement à distance — Bloc 1</th><td data-label="Colonne du fichier"><select class="fr-select" id="cand_col_ead" data-role="ead" aria-label="Colonne du fichier — Enseignement à distance — Bloc 1"></select></td><td data-label="Colonne de validation"><select class="fr-select" id="cand_col_validationEAD" data-role="validationEAD" aria-label="Colonne de validation — Enseignement à distance — Bloc 1"></select></td></tr>
+    </tbody>
+  </table>
+</div>
 
-      <div class="settings-footer">
-        <button class="fr-btn fr-btn--tertiary" id="cancelSettingsBtn" type="button">Annuler</button>
-        <button class="fr-btn" id="saveSettingsBtn" type="button">Enregistrer</button>
+      </section>
+
+      <section class="cfg-card" aria-labelledby="cfgCardTitle5">
+        <div class="cfg-card__head">
+          <span class="cfg-card__num" aria-hidden="true">5</span>
+          <div>
+            <h3 class="cfg-card__title" id="cfgCardTitle5">Bande patronymique et paiement</h3>
+            <p class="cfg-card__desc">Colonnes lues dans la table Documents. L'inscription, la quantité et l'encaissé sont modifiables depuis la fiche ; le dû reste en lecture seule.</p>
+          </div>
+        </div>
+<div class="cfg-grid">
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_inscriptionBande">Inscription<span class="fr-hint-text">Texte ou choix (éviter une colonne Référence).</span></label><select class="fr-select" id="cand_col_inscriptionBande" data-role="inscriptionBande"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_qteBandes">Quantité<span class="fr-hint-text">Colonne numérique.</span></label><select class="fr-select" id="cand_col_qteBandes" data-role="qteBandes"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_du">Dû<span class="fr-hint-text">Lecture seule dans la fiche.</span></label><select class="fr-select" id="cand_col_du" data-role="du"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_encaisse">Encaissé<span class="fr-hint-text">Colonne numérique (montant en €).</span></label><select class="fr-select" id="cand_col_encaisse" data-role="encaisse"></select></div>
+</div>
+
+      </section>
+
+      <section class="cfg-card" aria-labelledby="cfgCardTitle6">
+        <div class="cfg-card__head">
+          <span class="cfg-card__num" aria-hidden="true">6</span>
+          <div>
+            <h3 class="cfg-card__title" id="cfgCardTitle6">Suivi du dossier</h3>
+            <p class="cfg-card__desc">Colonnes lues dans la table Documents.</p>
+          </div>
+        </div>
+<div class="cfg-grid">
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_photos">Photos<span class="fr-hint-text">Autorisation photo (Oui / Non), modifiable depuis la carte « Droit à l'image ».</span></label><select class="fr-select" id="cand_col_photos" data-role="photos"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_blocagesInfos">Blocages / Infos<span class="fr-hint-text">Texte libre, modifiable ; signale les dossiers bloqués dans la liste.</span></label><select class="fr-select" id="cand_col_blocagesInfos" data-role="blocagesInfos"></select></div>
+</div>
+
+      </section>
+
+      <div class="cfg-bar">
+        <span class="cfg-bar__state" id="cfgBarState">Configuration à jour</span>
+        <div class="cfg-bar__actions">
+          <button class="fr-btn fr-btn--tertiary" id="cancelSettingsBtn" type="button">Annuler</button>
+          <button class="fr-btn" id="saveSettingsBtn" type="button">Enregistrer</button>
+        </div>
       </div>
     </form>
   </div>
+</div>
 
 </div>
 
@@ -924,8 +998,9 @@
   // visibles sur la fiche candidat (capture d'écran) --------------------
   // (La date "Début de formation le" n'est PAS un rôle de colonne : elle est
   // saisie à la main dans la Configuration, voir settings.dateDebutFormation.)
-  var ROLES = ['nid', 'stagiaire', 'email', 'telephone', 'dateNaissance', 'usageRS', 'formImage',
-    'photos', 'validationAdmin', 'ead', 'validationEAD', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
+  var ROLES = ['nid', 'stagiaire', 'email', 'telephone', 'dateNaissance',
+    'usageRS', 'validationUsageRS', 'formImage', 'validationFormImage', 'ead', 'validationEAD',
+    'photos', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
   var REQUIRED_ROLES = ['nid', 'stagiaire'];
   var OPTIONAL_ROLES = ROLES.filter(function (r) { return REQUIRED_ROLES.indexOf(r) === -1; });
   // Rôles qui vivent dans la table "Documents" plutôt que dans la table des
@@ -936,7 +1011,10 @@
     nid: 'NID', stagiaire: 'Stagiaire', email: 'E-mail', telephone: 'Téléphone',
     dateNaissance: 'Date de naissance',
     usageRS: 'Reconnaissance de responsabilité - Réseaux sociaux', formImage: 'Droit à l\'image',
-    photos: 'Photos', validationAdmin: 'Validation admin', ead: 'Enseignement à distance Bloc 1', validationEAD: 'Validation EAD',
+    ead: 'Enseignement à distance Bloc 1',
+    validationUsageRS: 'Validation — Reconnaissance de responsabilité', validationFormImage: 'Validation — Droit à l\'image',
+    validationEAD: 'Validation — Enseignement à distance Bloc 1',
+    photos: 'Photos',
     inscriptionBande: 'Inscription', qteBandes: 'Quantité', du: 'Dû', encaisse: 'Encaissé',
     blocagesInfos: 'Blocages / Infos'
   };
@@ -948,7 +1026,7 @@
   // Blocages/Infos), qui vivent dans la même table que les documents.
   // Tous les autres rôles de ROLES (identité du candidat) restent
   // lus/écrits dans la table principale (candidats).
-  var DOC_TABLE_ROLES = ['usageRS', 'formImage', 'validationAdmin', 'ead', 'validationEAD',
+  var DOC_TABLE_ROLES = ['usageRS', 'validationUsageRS', 'formImage', 'validationFormImage', 'ead', 'validationEAD',
     'photos', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
   var MAIN_TABLE_ROLES = ROLES.filter(function (r) { return DOC_TABLE_ROLES.indexOf(r) === -1; });
   // Rôles rendus éditables directement depuis la fiche candidat (voir
@@ -961,13 +1039,11 @@
   // les interrupteurs/import dédiés aux documents.
   var EDITABLE_ROLE_KIND = { inscriptionBande: 'text', qteBandes: 'number', encaisse: 'currency' };
   // Champs "pièce jointe" et colonne de validation (case à cocher) qui
-  // porte leurs boutons Accepter/Refuser — voir le texte d'aide du panneau
-  // Configuration : Usage RS et Form. image partagent "Validation admin"
-  // (un seul interrupteur les couvre tous les deux sur la fiche d'origine),
-  // EAD a son propre "Validation EAD".
+  // porte leurs boutons Accepter/Refuser : chaque document a sa propre
+  // colonne de validation (réglée dans la Configuration, section
+  // « Documents »).
   var ATTACHMENT_ROLES = ['usageRS', 'formImage', 'ead'];
-  var ATTACH_VALIDATION_ROLE = { usageRS: 'validationAdmin', formImage: 'validationAdmin', ead: 'validationEAD' };
-  var BOOL_ROLES = ['validationAdmin', 'validationEAD'];
+  var ATTACH_VALIDATION_ROLE = { usageRS: 'validationUsageRS', formImage: 'validationFormImage', ead: 'validationEAD' };
   var CURRENCY_ROLES = ['du', 'encaisse'];
 
   // gristHelper_Display / gristHelper_Display2… sont des colonnes formule
@@ -1015,6 +1091,15 @@
         var v = loaded.col[k];
         if (isWritableColId(v)) cfg.col[k] = v;
       });
+      // Migration : l'ancienne version partageait une seule colonne
+      // "Validation admin" entre « Reconnaissance de responsabilité » et
+      // « Droit à l'image » — on la reporte sur les deux nouvelles colonnes
+      // tant qu'elles ne sont pas réglées explicitement.
+      var legacyAdmin = loaded.col.validationAdmin;
+      if (isWritableColId(legacyAdmin)) {
+        if (!cfg.col.validationUsageRS) cfg.col.validationUsageRS = legacyAdmin;
+        if (!cfg.col.validationFormImage) cfg.col.validationFormImage = legacyAdmin;
+      }
     }
     return cfg;
   }
@@ -1141,21 +1226,51 @@
     }
   });
 
+  // ==== Configuration (backoffice) ==========================================
+
+  var settingsForm = document.getElementById('settingsForm');
+  var cfgBarState = document.getElementById('cfgBarState');
+  var cfgSummary = document.getElementById('cfgSummary');
+  var cfgLinkHint = document.getElementById('cfgLinkHint');
+  var cfgLinkResult = document.getElementById('cfgLinkResult');
+  var candTableEl = document.getElementById('cand_table');
+  var docsTableEl = document.getElementById('cand_docs_table');
+  var linkDirEl = document.getElementById('cand_docs_link_dir');
+  var linkColEl = document.getElementById('cand_docs_link');
+  var startDateEl = document.getElementById('cand_dateDebutFormation');
+  var startDateErrEl = document.getElementById('cand_dateDebutFormation_err');
+  var configDirty = false;
+
+  // Indicateur "modifications non enregistrées" de la barre du bas.
+  function setConfigDirty(dirty) {
+    configDirty = dirty;
+    cfgBarState.textContent = dirty ? 'Modifications non enregistrées' : 'Configuration à jour';
+    cfgBarState.classList.toggle('cfg-bar__state--dirty', dirty);
+  }
+
   function openSettings() {
     panelEtuteur.hidden = true;
     panelSettings.hidden = false;
     settingsStatusZone.innerHTML = '';
+    cfgLinkResult.textContent = '';
+    cfgLinkResult.className = 'cfg-link-result';
+    columnTypesPromise = null; // types de colonnes relus à chaque ouverture (la structure a pu changer)
     refreshTableList();
   }
   function closeSettings() {
+    if (configDirty && !window.confirm('Des modifications ne sont pas enregistrées. Fermer sans enregistrer ?')) return;
+    setConfigDirty(false);
     panelSettings.hidden = true;
     panelEtuteur.hidden = false;
   }
   cancelSettingsBtn.addEventListener('click', closeSettings);
   closeConfigBtn.addEventListener('click', closeSettings);
+  settingsForm.addEventListener('submit', function (e) { e.preventDefault(); });
 
-  // ---- Panneau Configuration : choix de la table et des colonnes --------
+  // ---- Listes déroulantes -------------------------------------------------
 
+  // `options` : chaînes, ou objets { value, label } (libellé enrichi du type
+  // de la colonne, par exemple).
   function fillSelectWithOptions(selectEl, options, currentValue, placeholder) {
     var current = currentValue || selectEl.value;
     selectEl.innerHTML = '';
@@ -1163,115 +1278,71 @@
     optEmpty.value = '';
     optEmpty.textContent = placeholder;
     selectEl.appendChild(optEmpty);
+    var values = [];
     options.forEach(function (opt) {
+      var value = (typeof opt === 'string') ? opt : opt.value;
       var o = document.createElement('option');
-      o.value = opt;
-      o.textContent = opt;
+      o.value = value;
+      o.textContent = (typeof opt === 'string') ? opt : opt.label;
       selectEl.appendChild(o);
+      values.push(value);
     });
-    if (current && options.indexOf(current) !== -1) selectEl.value = current;
-    else selectEl.value = '';
+    selectEl.value = (current && values.indexOf(current) !== -1) ? current : '';
   }
 
-  function refreshTableList() {
-    grist.docApi.listTables().then(function (tables) {
-      allTableIds = tables || [];
-      var sel = document.getElementById('cand_table');
-      fillSelectWithOptions(sel, allTableIds, settings.table, 'Choisir une table…');
-      if (sel.value) refreshMainColumnLists(sel.value);
-      var docsSel = document.getElementById('cand_docs_table');
-      // La table Documents est optionnelle : placeholder différent pour
-      // signaler qu'elle peut simplement rester non réglée si les
-      // documents vivent dans la table des candidats elle-même... en
-      // pratique on l'exige dès qu'un rôle "Documents" est mappé (voir
-      // isConfigComplete), mais rien n'empêche de la laisser vide sinon.
-      fillSelectWithOptions(docsSel, allTableIds, settings.docsTable, '(même table que les candidats / non réglée)');
-      if (docsSel.value) refreshDocsColumnLists(docsSel.value);
-      else refreshDocsColumnLists('');
-      document.getElementById('cand_docs_link_dir').value = settings.docsLinkDir;
-      document.getElementById('cand_dateDebutFormation').value = settings.dateDebutFormation;
-      refreshLinkColumnList();
-    }).catch(function (e) {
-      showSettingsStatus('error', 'Impossible de lister les tables du document : ' + friendlyErrorMessage(e));
-    });
-  }
-
-  function refreshMainColumnLists(tableId) {
-    if (!tableId) {
-      MAIN_TABLE_ROLES.forEach(function (role) {
-        var el = document.getElementById('cand_col_' + role);
-        if (el) fillSelectWithOptions(el, [], '', 'Choisir une table d’abord…');
-      });
-      return;
+  // Types des colonnes de chaque table, lus dans les tables internes
+  // _grist_Tables / _grist_Tables_column (même principe que
+  // _grist_Attachments plus bas) : { tableId: { colId: 'Attachments' } }.
+  // Sert à ne proposer, pour un champ donné, que les colonnes du bon type
+  // (pièce jointe, case à cocher, date) et à annoter les autres. En cas
+  // d'échec de lecture : aucun filtre, rien n'est bloqué.
+  var columnTypesPromise = null;
+  function loadColumnTypes() {
+    if (!columnTypesPromise) {
+      columnTypesPromise = Promise.all([
+        grist.docApi.fetchTable('_grist_Tables'),
+        grist.docApi.fetchTable('_grist_Tables_column')
+      ]).then(function (res) {
+        var tables = res[0], cols = res[1];
+        var tableNameById = {};
+        for (var i = 0; i < tables.id.length; i++) tableNameById[tables.id[i]] = tables.tableId[i];
+        var map = {};
+        for (var j = 0; j < cols.id.length; j++) {
+          var tableName = tableNameById[cols.parentId[j]];
+          if (!tableName) continue;
+          (map[tableName] = map[tableName] || {})[cols.colId[j]] = cols.type[j];
+        }
+        return map;
+      }).catch(function () { return {}; });
     }
-    grist.docApi.fetchTable(tableId).then(function (data) {
-      var columns = tableColumns(data);
-      MAIN_TABLE_ROLES.forEach(function (role) {
-        var el = document.getElementById('cand_col_' + role);
-        if (!el) return;
-        var current = (settings.table === tableId) ? settings.col[role] : '';
-        fillSelectWithOptions(el, columns, current, OPTIONAL_ROLES.indexOf(role) !== -1 ? '(aucune)' : 'Choisir une colonne…');
-      });
-    }).catch(function (e) {
-      showSettingsStatus('error', 'Impossible de lire les colonnes de la table « ' + tableId + ' » : ' + friendlyErrorMessage(e));
+    return columnTypesPromise;
+  }
+  var TYPE_LABELS = {
+    Attachments: 'Pièces jointes', Bool: 'Case à cocher', Date: 'Date', DateTime: 'Date et heure',
+    Text: 'Texte', Numeric: 'Numérique', Int: 'Entier', Choice: 'Choix', ChoiceList: 'Choix multiples',
+    Ref: 'Référence', RefList: 'Liste de références', Any: 'Tout type'
+  };
+  function typeLabel(type) {
+    var base = String(type || '').split(':')[0];
+    return TYPE_LABELS[base] || base;
+  }
+  // Type imposé pour certains champs : seules les colonnes de ce type sont
+  // proposées (plus la colonne déjà enregistrée, même si elle ne
+  // correspond pas, pour ne jamais la perdre silencieusement).
+  var ROLE_TYPE_FILTER = {
+    usageRS: 'Attachments', formImage: 'Attachments', ead: 'Attachments',
+    validationUsageRS: 'Bool', validationFormImage: 'Bool', validationEAD: 'Bool',
+    dateNaissance: 'Date'
+  };
+  function columnOptions(columns, types, expectedType, keepValue) {
+    return columns.filter(function (c) {
+      var t = types && types[c];
+      return !expectedType || !t || String(t).indexOf(expectedType) === 0 || c === keepValue;
+    }).map(function (c) {
+      return { value: c, label: (types && types[c]) ? c + '  ·  ' + typeLabel(types[c]) : c };
     });
   }
-
-  // Remplit les sélecteurs de colonnes "Documents" (pièces jointes,
-  // validations, informations complémentaires), tous lus dans la table
-  // Documents. La colonne de liaison a sa propre fonction (voir
-  // refreshLinkColumnList) : selon le sens de la liaison, elle est lue
-  // dans la table Documents OU dans la table des candidats.
-  function refreshDocsColumnLists(tableId) {
-    if (!tableId) {
-      DOC_TABLE_ROLES.forEach(function (role) {
-        var el = document.getElementById('cand_col_' + role);
-        if (el) fillSelectWithOptions(el, [], '', 'Choisir la table Documents d’abord…');
-      });
-      return;
-    }
-    grist.docApi.fetchTable(tableId).then(function (data) {
-      var columns = tableColumns(data);
-      DOC_TABLE_ROLES.forEach(function (role) {
-        var el = document.getElementById('cand_col_' + role);
-        if (!el) return;
-        var current = (settings.docsTable === tableId) ? settings.col[role] : '';
-        fillSelectWithOptions(el, columns, current, OPTIONAL_ROLES.indexOf(role) !== -1 ? '(aucune)' : 'Choisir une colonne…');
-      });
-    }).catch(function (e) {
-      showSettingsStatus('error', 'Impossible de lire les colonnes de la table « ' + tableId + ' » : ' + friendlyErrorMessage(e));
-    });
-  }
-
-  // Colonne de liaison : « La ligne Documents référence le candidat »
-  // (docsToMain) => colonne de la table Documents ; « Le candidat référence
-  // sa ligne Documents » (mainToDocs) => colonne de la table des candidats.
-  var linkListSeq = 0;
-  function refreshLinkColumnList() {
-    var linkEl = document.getElementById('cand_docs_link');
-    var labelEl = document.getElementById('cand_docs_link_label');
-    var dir = normalizeLinkDir(document.getElementById('cand_docs_link_dir').value);
-    var tableId = dir === 'mainToDocs'
-      ? document.getElementById('cand_table').value
-      : document.getElementById('cand_docs_table').value;
-    labelEl.textContent = dir === 'mainToDocs'
-      ? 'Colonne de liaison (Référence, dans la table des candidats)'
-      : dir === 'byNid'
-        ? 'Colonne NID dans la table Documents'
-        : 'Colonne de liaison (Référence, dans la table Documents)';
-    var current = (settings.docsLinkDir === dir) ? settings.docsLinkCol : '';
-    if (!tableId) {
-      fillSelectWithOptions(linkEl, [], '', dir === 'mainToDocs' ? 'Choisir la table des candidats d’abord…' : 'Choisir la table Documents d’abord…');
-      return;
-    }
-    var seq = ++linkListSeq;
-    grist.docApi.fetchTable(tableId).then(function (data) {
-      if (seq !== linkListSeq) return;
-      fillSelectWithOptions(linkEl, tableColumns(data), current, 'Choisir une colonne…');
-    }).catch(function (e) {
-      showSettingsStatus('error', 'Impossible de lire les colonnes de la table « ' + tableId + ' » : ' + friendlyErrorMessage(e));
-    });
-  }
+  function roleSelect(role) { return document.getElementById('cand_col_' + role); }
 
   function tableColumns(data) {
     return Object.keys(data || {}).filter(function (c) {
@@ -1279,11 +1350,114 @@
     }).sort(function (a, b) { return a.localeCompare(b, 'fr'); });
   }
 
-  document.getElementById('cand_table').addEventListener('change', function () { refreshMainColumnLists(this.value); refreshLinkColumnList(); });
-  document.getElementById('cand_docs_table').addEventListener('change', function () { refreshDocsColumnLists(this.value); refreshLinkColumnList(); });
-  document.getElementById('cand_docs_link_dir').addEventListener('change', refreshLinkColumnList);
+  // Remplit les sélecteurs de colonnes d'un groupe de rôles (table des
+  // candidats ou table Documents) d'après la table choisie.
+  function refreshRoleSelects(tableId, roles, savedTable, noTableMessage) {
+    if (!tableId) {
+      roles.forEach(function (role) {
+        var el = roleSelect(role);
+        if (el) fillSelectWithOptions(el, [], '', noTableMessage);
+      });
+      return Promise.resolve();
+    }
+    return Promise.all([grist.docApi.fetchTable(tableId), loadColumnTypes()]).then(function (res) {
+      var columns = tableColumns(res[0]);
+      var types = res[1][tableId] || null;
+      roles.forEach(function (role) {
+        var el = roleSelect(role);
+        if (!el) return;
+        var current = (savedTable === tableId) ? settings.col[role] : '';
+        var expected = ROLE_TYPE_FILTER[role];
+        var opts = columnOptions(columns, types, expected, current || el.value);
+        var placeholder = REQUIRED_ROLES.indexOf(role) !== -1 ? 'Choisir une colonne…' : '(non utilisé)';
+        if (!opts.length && expected) placeholder = 'Aucune colonne « ' + typeLabel(expected) + ' » dans cette table';
+        fillSelectWithOptions(el, opts, current, placeholder);
+      });
+    }).catch(function (e) {
+      showSettingsStatus('error', 'Impossible de lire les colonnes de la table « ' + tableId + ' » : ' + friendlyErrorMessage(e));
+    });
+  }
 
-  // Date saisie à la main, au format JJ/MM/AAAA (voir settings.dateDebutFormation).
+  // Colonne de liaison : dans la table Documents (modes « même NID » et
+  // « la table Documents référence le candidat ») ou dans la table des
+  // candidats (mode « le candidat référence sa ligne Documents »).
+  var LINK_MODE_TEXT = {
+    byNid: {
+      label: 'Colonne NID (table Documents)',
+      hint: 'Les deux tables contiennent le même NID. Choisissez la colonne NID de la table Documents.'
+    },
+    docsToMain: {
+      label: 'Colonne Référence (table Documents)',
+      hint: 'Choisissez la colonne Référence de la table Documents qui pointe vers la ligne du candidat.'
+    },
+    mainToDocs: {
+      label: 'Colonne Référence (table des candidats)',
+      hint: 'Choisissez la colonne Référence de la table des candidats qui pointe vers sa ligne dans la table Documents.'
+    }
+  };
+  var linkListSeq = 0;
+  function refreshLinkColumnList() {
+    var dir = normalizeLinkDir(linkDirEl.value);
+    var tableId = dir === 'mainToDocs' ? candTableEl.value : docsTableEl.value;
+    document.getElementById('cand_docs_link_label').innerHTML = escapeHtml(LINK_MODE_TEXT[dir].label) +
+      '<span class="cfg-req" aria-hidden="true">*</span>';
+    cfgLinkHint.textContent = LINK_MODE_TEXT[dir].hint;
+    var current = (settings.docsLinkDir === dir) ? settings.docsLinkCol : '';
+    if (!tableId) {
+      fillSelectWithOptions(linkColEl, [], '', dir === 'mainToDocs' ? 'Choisir la table des candidats d’abord…' : 'Choisir la table Documents d’abord…');
+      return Promise.resolve();
+    }
+    var seq = ++linkListSeq;
+    return Promise.all([grist.docApi.fetchTable(tableId), loadColumnTypes()]).then(function (res) {
+      if (seq !== linkListSeq) return;
+      var types = res[1][tableId] || null;
+      // Les modes "Référence" ne proposent que des colonnes Référence.
+      var expected = dir === 'byNid' ? null : 'Ref';
+      fillSelectWithOptions(linkColEl, columnOptions(tableColumns(res[0]), types, expected, current || linkColEl.value), current, 'Choisir une colonne…');
+    }).catch(function (e) {
+      showSettingsStatus('error', 'Impossible de lire les colonnes de la table « ' + tableId + ' » : ' + friendlyErrorMessage(e));
+    });
+  }
+
+  function refreshTableList() {
+    return grist.docApi.listTables().then(function (tables) {
+      allTableIds = tables || [];
+      fillSelectWithOptions(candTableEl, allTableIds, settings.table, 'Choisir une table…');
+      fillSelectWithOptions(docsTableEl, allTableIds, settings.docsTable, 'Choisir une table…');
+      linkDirEl.value = settings.docsLinkDir;
+      startDateEl.value = settings.dateDebutFormation;
+      return Promise.all([
+        refreshRoleSelects(candTableEl.value, MAIN_TABLE_ROLES, settings.table, 'Choisir la table des candidats d’abord…'),
+        refreshRoleSelects(docsTableEl.value, DOC_TABLE_ROLES, settings.docsTable, 'Choisir la table Documents d’abord…'),
+        refreshLinkColumnList()
+      ]);
+    }).then(function () {
+      setConfigDirty(false);
+      renderConfigSummary();
+    }).catch(function (e) {
+      showSettingsStatus('error', 'Impossible de lister les tables du document : ' + friendlyErrorMessage(e));
+    });
+  }
+
+  candTableEl.addEventListener('change', function () {
+    Promise.all([
+      refreshRoleSelects(candTableEl.value, MAIN_TABLE_ROLES, settings.table, 'Choisir la table des candidats d’abord…'),
+      refreshLinkColumnList()
+    ]).then(renderConfigSummary);
+  });
+  docsTableEl.addEventListener('change', function () {
+    Promise.all([
+      refreshRoleSelects(docsTableEl.value, DOC_TABLE_ROLES, settings.docsTable, 'Choisir la table Documents d’abord…'),
+      refreshLinkColumnList()
+    ]).then(renderConfigSummary);
+  });
+  linkDirEl.addEventListener('change', function () {
+    cfgLinkResult.textContent = '';
+    refreshLinkColumnList().then(renderConfigSummary);
+  });
+
+  // ---- Date "Début de formation le" (saisie manuelle JJ/MM/AAAA) ---------
+
   // Renvoie un Date en UTC minuit, ou null si le texte n'est pas une date
   // de calendrier valide (ex. 31/02/2026 est refusé, pas "corrigé" en mars).
   function parseFrDate(text) {
@@ -1294,42 +1468,169 @@
     if (date.getUTCFullYear() !== y || date.getUTCMonth() !== mo - 1 || date.getUTCDate() !== d) return null;
     return date;
   }
+  // Ajoute les "/" pendant la frappe : 15092026 -> 15/09/2026.
+  startDateEl.addEventListener('input', function () {
+    var digits = startDateEl.value.replace(/\D/g, '').slice(0, 8);
+    var out = digits.slice(0, 2);
+    if (digits.length > 2) out += '/' + digits.slice(2, 4);
+    if (digits.length > 4) out += '/' + digits.slice(4);
+    if (startDateEl.value !== out) startDateEl.value = out;
+  });
+
+  // ---- Lecture / validation du formulaire --------------------------------
 
   function showSettingsStatus(type, message) {
-    settingsStatusZone.innerHTML = '<div class="fr-alert fr-alert--' + type + ' fr-alert--sm"><p>' + escapeHtml(message) + '</p></div>';
+    var body = Array.isArray(message)
+      ? '<ul>' + message.map(function (m) { return '<li>' + escapeHtml(m) + '</li>'; }).join('') + '</ul>'
+      : '<p>' + escapeHtml(message) + '</p>';
+    settingsStatusZone.innerHTML = '<div class="fr-alert fr-alert--' + type + ' fr-alert--sm">' + body + '</div>';
+    if (type === 'error' && settingsStatusZone.scrollIntoView) settingsStatusZone.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
 
   function configFromForm() {
     var cfg = defaultConfig();
-    cfg.table = document.getElementById('cand_table').value;
-    cfg.docsTable = document.getElementById('cand_docs_table').value;
+    cfg.table = candTableEl.value;
+    cfg.docsTable = docsTableEl.value;
     // Colonne de liaison : lue seule (jamais écrite par le widget), pas
     // besoin qu'elle passe isWritableColId comme les colonnes de rôle.
-    var linkEl = document.getElementById('cand_docs_link');
-    cfg.docsLinkCol = (linkEl && linkEl.value) ? linkEl.value : '';
-    cfg.docsLinkDir = normalizeLinkDir(document.getElementById('cand_docs_link_dir').value);
-    cfg.dateDebutFormation = document.getElementById('cand_dateDebutFormation').value.trim();
+    cfg.docsLinkCol = linkColEl.value || '';
+    cfg.docsLinkDir = normalizeLinkDir(linkDirEl.value);
+    cfg.dateDebutFormation = startDateEl.value.trim();
     ROLES.forEach(function (role) {
-      var el = document.getElementById('cand_col_' + role);
+      var el = roleSelect(role);
       if (el && isWritableColId(el.value)) cfg.col[role] = el.value;
     });
     return cfg;
   }
 
+  // Liste des problèmes qui empêchent d'enregistrer (vide = OK).
+  function validateConfig(cfg) {
+    var errors = [];
+    if (!cfg.table) errors.push('Choisissez la table des candidats.');
+    REQUIRED_ROLES.forEach(function (role) {
+      if (!cfg.col[role]) errors.push('Choisissez la colonne « ' + ROLE_LABELS[role] + ' » (obligatoire).');
+    });
+    if (cfg.dateDebutFormation && !parseFrDate(cfg.dateDebutFormation)) {
+      errors.push('« Début de formation le » doit être une date valide au format JJ/MM/AAAA (par ex. 15/09/2026).');
+    }
+    var usesDocs = DOC_TABLE_ROLES.some(function (role) { return !!cfg.col[role]; });
+    if (usesDocs && !cfg.docsTable) errors.push('Choisissez la table Documents : des colonnes Documents sont sélectionnées.');
+    if (usesDocs && cfg.docsTable && !cfg.docsLinkCol) errors.push('Choisissez la colonne de liaison entre les deux tables.');
+    ATTACHMENT_ROLES.forEach(function (role) {
+      if (!cfg.col[role] && cfg.col[ATTACH_VALIDATION_ROLE[role]]) {
+        errors.push('Une colonne de validation est choisie pour « ' + ROLE_LABELS[role] + ' » sans colonne de fichier.');
+      }
+    });
+    // Une même colonne ne peut pas servir à deux champs d'une même table.
+    [MAIN_TABLE_ROLES, DOC_TABLE_ROLES].forEach(function (group) {
+      var seen = {};
+      group.forEach(function (role) {
+        var col = cfg.col[role];
+        if (!col) return;
+        if (seen[col]) errors.push('La colonne « ' + col + ' » est utilisée à la fois pour « ' + ROLE_LABELS[seen[col]] + ' » et « ' + ROLE_LABELS[role] + ' ».');
+        else seen[col] = role;
+      });
+    });
+    return errors;
+  }
+
+  // ---- Résumé d'état -------------------------------------------------------
+
+  var LINK_MODE_SHORT = { byNid: 'même NID', docsToMain: 'Documents → candidat', mainToDocs: 'candidat → Documents' };
+  function renderConfigSummary() {
+    var cfg = configFromForm();
+    var chips = [];
+    function chip(kind, text) { chips.push('<span class="cfg-chip' + (kind ? ' cfg-chip--' + kind : '') + '">' + escapeHtml(text) + '</span>'); }
+
+    if (cfg.table) chip('ok', 'Candidats : ' + cfg.table); else chip('warn', 'Table des candidats à choisir');
+    if (REQUIRED_ROLES.every(function (r) { return !!cfg.col[r]; })) chip('ok', 'NID et Stagiaire réglés');
+    else chip('warn', 'NID / Stagiaire à choisir');
+
+    var usesDocs = DOC_TABLE_ROLES.some(function (role) { return !!cfg.col[role]; });
+    if (!usesDocs) chip('', 'Table Documents : non utilisée');
+    else if (cfg.docsTable && cfg.docsLinkCol) chip('ok', 'Documents : ' + cfg.docsTable + ' (' + LINK_MODE_SHORT[cfg.docsLinkDir] + ')');
+    else chip('warn', 'Table Documents et liaison à régler');
+
+    var docCount = ATTACHMENT_ROLES.filter(function (r) { return !!cfg.col[r]; }).length;
+    var validCount = ATTACHMENT_ROLES.filter(function (r) { return !!cfg.col[r] && !!cfg.col[ATTACH_VALIDATION_ROLE[r]]; }).length;
+    if (!docCount) chip('', 'Aucun document configuré');
+    else if (validCount === docCount) chip('ok', docCount + ' document(s), validation réglée');
+    else chip('warn', (docCount - validCount) + ' document(s) sans colonne de validation');
+
+    var dateInvalid = !!cfg.dateDebutFormation && !parseFrDate(cfg.dateDebutFormation);
+    if (!cfg.dateDebutFormation) chip('', 'Début de formation : non renseigné');
+    else if (dateInvalid) chip('warn', 'Début de formation : date invalide');
+    else chip('ok', 'Début de formation : ' + cfg.dateDebutFormation);
+    // Message d'erreur du champ date seulement quand la saisie est complète.
+    var showDateErr = dateInvalid && cfg.dateDebutFormation.length === 10;
+    startDateErrEl.hidden = !showDateErr;
+    startDateEl.setAttribute('aria-invalid', showDateErr ? 'true' : 'false');
+    startDateEl.closest('.fr-input-group').classList.toggle('fr-input-group--error', showDateErr);
+
+    cfgSummary.innerHTML = chips.join('');
+  }
+
+  function onFormEdited() {
+    setConfigDirty(true);
+    renderConfigSummary();
+  }
+  settingsForm.addEventListener('input', onFormEdited);
+  settingsForm.addEventListener('change', onFormEdited);
+
+  // ---- Test de la liaison entre les deux tables ---------------------------
+
+  function setLinkResult(kind, text) {
+    cfgLinkResult.className = 'cfg-link-result cfg-link-result--' + kind;
+    cfgLinkResult.textContent = text;
+  }
+  document.getElementById('cfgTestLinkBtn').addEventListener('click', function () {
+    var cfg = configFromForm();
+    var missing = [];
+    if (!cfg.table) missing.push('la table des candidats');
+    if (!cfg.col.nid) missing.push('la colonne NID');
+    if (!cfg.docsTable) missing.push('la table Documents');
+    if (!cfg.docsLinkCol) missing.push('la colonne de liaison');
+    if (missing.length) { setLinkResult('warn', 'Renseignez d’abord ' + missing.join(', ') + '.'); return; }
+    setLinkResult('info', 'Vérification en cours…');
+    Promise.all([grist.docApi.fetchTable(cfg.table), grist.docApi.fetchTable(cfg.docsTable)]).then(function (res) {
+      var rows = columnarToRows(res[0], cfg);
+      var linked = mergeDocsTable(rows, res[1], cfg);
+      var distinctDocRows = {};
+      rows.forEach(function (r) { if (r.__docRowId) distinctDocRows[r.__docRowId] = true; });
+      var docsCount = (res[1] && res[1].id) ? res[1].id.length : 0;
+      var orphans = docsCount - Object.keys(distinctDocRows).length;
+      var without = rows.length - linked;
+      var text = linked + ' candidat(s) sur ' + rows.length + ' rattaché(s) à une ligne de la table Documents.';
+      if (without) text += ' ' + without + ' sans ligne Documents' + (cfg.docsLinkDir === 'mainToDocs' ? '.' : ' (créée à la première saisie ou au premier import).');
+      if (orphans > 0) text += ' ' + orphans + ' ligne(s) Documents sans candidat correspondant.';
+      var kind = (rows.length && linked === 0) ? 'error' : ((without || orphans > 0) ? 'warn' : 'success');
+      if (kind === 'error') text += ' Vérifiez le mode et la colonne de liaison.';
+      setLinkResult(kind, text);
+    }).catch(function (e) {
+      setLinkResult('error', 'Test impossible : ' + friendlyErrorMessage(e));
+    });
+  });
+
+  // ---- Enregistrement ------------------------------------------------------
+
   saveSettingsBtn.addEventListener('click', function () {
     var next = configFromForm();
-    if (next.dateDebutFormation && !parseFrDate(next.dateDebutFormation)) {
-      showSettingsStatus('error', '« Début de formation le » doit être une date valide au format JJ/MM/AAAA (par ex. 15/09/2026).');
-      document.getElementById('cand_dateDebutFormation').focus();
+    var errors = validateConfig(next);
+    if (errors.length) {
+      showSettingsStatus('error', errors);
       return;
     }
+    saveSettingsBtn.disabled = true;
     grist.setOption('candidatsStageConfig', next).then(function () {
       settings = next;
-      showSettingsStatus('success', 'Paramètres enregistrés.');
+      setConfigDirty(false);
+      showSettingsStatus('success', 'Configuration enregistrée.');
       attachmentsMetaPromise = null; // la table peut avoir changé, on force une relecture des métadonnées
       loadCandidates();
     }).catch(function (e) {
       showSettingsStatus('error', 'Enregistrement impossible : ' + friendlyErrorMessage(e));
+    }).then(function () {
+      saveSettingsBtn.disabled = false;
     });
   });
 
@@ -1392,7 +1693,8 @@
   //    (lue par columnarToRows dans row.__docLinkValue) et pointe vers sa
   //    ligne Documents.
   // Renvoie le nombre de candidats rattachés à une ligne Documents.
-  function mergeDocsTable(rows, docsData) {
+  function mergeDocsTable(rows, docsData, cfg) {
+    cfg = cfg || settings;
     if (!docsData || !docsData.id) {
       rows.forEach(function (row) { row.__docRowId = null; });
       return 0;
@@ -1401,11 +1703,11 @@
     for (var i = 0; i < docsData.id.length; i++) docIndexById[docsData.id[i]] = i;
 
     var docIndexByCandidateId = {};
-    if (settings.docsLinkDir === 'byNid') {
+    if (cfg.docsLinkDir === 'byNid') {
       // Même NID dans les deux tables : on indexe les lignes Documents par
       // NID (première ligne trouvée en cas de doublon), puis on cherche celle
       // de chaque candidat.
-      var nidValues = docsData[settings.docsLinkCol] || [];
+      var nidValues = docsData[cfg.docsLinkCol] || [];
       var docIndexByNid = {};
       for (var n = 0; n < docsData.id.length; n++) {
         var key = nidKey(nidValues[n]);
@@ -1415,7 +1717,7 @@
         var k = nidKey(row.nid);
         if (k && k in docIndexByNid) docIndexByCandidateId[row.id] = docIndexByNid[k];
       });
-    } else if (settings.docsLinkDir === 'mainToDocs') {
+    } else if (cfg.docsLinkDir === 'mainToDocs') {
       rows.forEach(function (row) {
         var ids = refRowIdsOf(row.__docLinkValue);
         for (var k = 0; k < ids.length; k++) {
@@ -1423,7 +1725,7 @@
         }
       });
     } else {
-      var linkValues = docsData[settings.docsLinkCol] || [];
+      var linkValues = docsData[cfg.docsLinkCol] || [];
       for (var j = 0; j < docsData.id.length; j++) {
         var candidateIds = refRowIdsOf(linkValues[j]);
         candidateIds.forEach(function (candidateId) {
@@ -1439,24 +1741,25 @@
       linked++;
       row.__docRowId = docsData.id[idx];
       DOC_TABLE_ROLES.forEach(function (role) {
-        var colName = settings.col[role];
+        var colName = cfg.col[role];
         row[role] = (colName && docsData[colName]) ? docsData[colName][idx] : null;
       });
     });
     return linked;
   }
 
-  function columnarToRows(data) {
+  function columnarToRows(data, cfg) {
+    cfg = cfg || settings;
     if (!data || !data.id) return [];
     var rows = [];
     for (var i = 0; i < data.id.length; i++) {
       var row = { id: data.id[i] };
       MAIN_TABLE_ROLES.forEach(function (role) {
-        var colName = settings.col[role];
+        var colName = cfg.col[role];
         row[role] = (colName && data[colName]) ? data[colName][i] : null;
       });
-      if (settings.docsLinkDir === 'mainToDocs' && settings.docsLinkCol && data[settings.docsLinkCol]) {
-        row.__docLinkValue = data[settings.docsLinkCol][i];
+      if (cfg.docsLinkDir === 'mainToDocs' && cfg.docsLinkCol && data[cfg.docsLinkCol]) {
+        row.__docLinkValue = data[cfg.docsLinkCol][i];
       }
       rows.push(row);
     }
@@ -1477,19 +1780,46 @@
     return 'pending'; // colonne vide/non réglée : ni acceptée ni explicitement refusée
   }
 
+  // Le candidat a-t-il au moins un document (configuré, avec sa colonne de
+  // validation) qui n'est pas encore accepté ?
+  function hasPendingDocs(row) {
+    return ATTACHMENT_ROLES.some(function (role) {
+      var validationRole = ATTACH_VALIDATION_ROLE[role];
+      return !!settings.col[role] && !!settings.col[validationRole] && boolState(row[validationRole]) !== 'accepted';
+    });
+  }
+
   function matchesFilters(row) {
     if (searchText.trim()) {
       var q = normalizeKey(searchText);
       var hay = normalizeKey(textOf(row.nid) + ' ' + textOfRef(row.stagiaire) + ' ' + textOfRef(row.inscriptionBande));
       if (hay.indexOf(q) === -1) return false;
     }
-    if (filterPendingOnly) {
-      var adminOk = boolState(row.validationAdmin) === 'accepted';
-      var eadOk = boolState(row.validationEAD) === 'accepted';
-      if (adminOk && eadOk) return false;
-    }
+    if (filterPendingOnly && !hasPendingDocs(row)) return false;
     if (filterBlocagesOnly && !textOf(row.blocagesInfos)) return false;
     return true;
+  }
+
+  // Tri alphabétique par nom puis prénom. La colonne "Stagiaire" est un
+  // texte unique : le NOM est repéré par ses mots entièrement en majuscules
+  // (convention "DUPONT Jean-Pierre" ou "Jean-Pierre DUPONT"), le reste
+  // formant le prénom. Sans mot en majuscules, le 1er mot fait office de
+  // nom. Comparaison insensible à la casse et aux accents, en français.
+  var nameCollator = new Intl.Collator('fr', { sensitivity: 'base', numeric: true });
+  function splitStagiaireName(full) {
+    var tokens = String(full || '').trim().split(/\s+/).filter(Boolean);
+    var isUpper = function (t) { return /\p{L}/u.test(t) && t === t.toUpperCase(); };
+    var nom = tokens.filter(isUpper);
+    var prenom = tokens.filter(function (t) { return !isUpper(t); });
+    if (!nom.length && tokens.length) { nom = [tokens[0]]; prenom = tokens.slice(1); }
+    return { nom: nom.join(' '), prenom: prenom.join(' ') };
+  }
+  function compareCandidatesByName(a, b) {
+    var na = splitStagiaireName(textOfRef(a.stagiaire));
+    var nb = splitStagiaireName(textOfRef(b.stagiaire));
+    // Stagiaires sans nom renseigné : en fin de liste.
+    if (!na.nom !== !nb.nom) return na.nom ? -1 : 1;
+    return nameCollator.compare(na.nom, nb.nom) || nameCollator.compare(na.prenom, nb.prenom);
   }
 
   function renderCandidates() {
@@ -1505,7 +1835,7 @@
       candCount.textContent = '';
       return;
     }
-    var rows = candidates.rows.filter(matchesFilters);
+    var rows = candidates.rows.filter(matchesFilters).sort(compareCandidatesByName);
     candCount.textContent = rows.length + ' candidat(s) affiché(s) sur ' + candidates.rows.length;
     if (candidates.warning) {
       candZone.innerHTML = '<div class="fr-alert fr-alert--warning fr-alert--sm fr-mb-2w"><p>' + escapeHtml(candidates.warning) + '</p></div>';
@@ -1548,11 +1878,7 @@
 
     var flags = document.createElement('span');
     flags.className = 'cand-row__flags';
-    var adminConfigured = !!settings.col.validationAdmin;
-    var eadConfigured = !!settings.col.validationEAD;
-    var toTraiter = (adminConfigured && boolState(row.validationAdmin) !== 'accepted') ||
-      (eadConfigured && boolState(row.validationEAD) !== 'accepted');
-    if (toTraiter) {
+    if (hasPendingDocs(row)) {
       var flagPending = document.createElement('span');
       flagPending.className = 'cand-row__flag';
       flagPending.title = 'Documents à traiter';
