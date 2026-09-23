@@ -468,6 +468,44 @@
   .cand-doc-slot__zone--busy .cand-doc-slot__import { pointer-events: none; opacity: 0.7; border-style: solid; }
   .cand-doc-slot__zone--drag .cand-doc-slot__import { border-color: var(--bleu-france); background: #f0f0f5; color: var(--bleu-france); }
 
+  /* Champ "N° CAND" (carte Enseignement à distance) : même bandeau que "Photos"
+     (voir buildNumCandField), avec une zone de texte à la place des boutons. */
+  .cand-doc-slot__numcand-input {
+    flex: 1 1 5rem;
+    min-width: 0;
+    box-sizing: border-box;
+    border: none;
+    border-bottom: 1px solid var(--border-default-grey);
+    border-radius: 0.25rem 0.25rem 0 0;
+    background: #fff;
+    padding: 0.3rem 0.45rem;
+    font: inherit;
+    font-weight: 600;
+    text-align: right;
+  }
+  .cand-doc-slot__numcand-input:focus { outline: 2px solid var(--bleu-france); outline-offset: 1px; }
+  .cand-doc-slot__numcand-input:disabled { opacity: 0.6; }
+  .cand-doc-slot__footer { align-items: center; gap: 0.5rem; }
+  /* Icône courriel, à gauche du bouton de validation (voir buildMailButton). */
+  .cand-doc-mail-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border: none;
+    border-radius: 999px;
+    background: #f2f2f6;
+    color: var(--bleu-france);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+  .cand-doc-mail-btn:hover:not(:disabled) { background: rgba(0, 0, 145, 0.12); }
+  .cand-doc-mail-btn:active:not(:disabled) { transform: scale(0.92); }
+  .cand-doc-mail-btn:focus-visible { outline: 2px solid var(--bleu-france); outline-offset: 1px; }
+  .cand-doc-mail-btn:disabled { color: #b5b5c0; cursor: not-allowed; }
+
   /* ---- Aperçu au survol (popover) --------------------------------------- */
   .attach-preview {
     position: fixed;
@@ -658,6 +696,22 @@
 .cfg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1.1rem 1.4rem; align-items: start; }
 .cfg-grid .fr-select-group, .cfg-grid .fr-input-group { margin-bottom: 0; }
 .cfg-req { color: var(--statut-refusee); margin-left: 0.2rem; font-weight: 700; }
+  .cfg-grid--after-table { margin-top: 1.1rem; }
+  .cfg-mail-body { min-height: 9rem; resize: vertical; }
+  .cfg-vars { margin-top: 1rem; padding: 0.75rem 1rem; background: #f7f7fb; border: 1px solid var(--border-default-grey); border-radius: 0.5rem; font-size: 0.85em; }
+  .cfg-vars__title { margin: 0 0 0.5rem; font-weight: 700; }
+  .cfg-vars__title span { font-weight: 400; color: var(--text-mention-grey); }
+  .cfg-vars__list { margin: 0; padding: 0; list-style: none; }
+  .cfg-vars__list li { margin-bottom: 0.4rem; }
+  .cfg-var-btn {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.95em; font-weight: 700;
+    padding: 0.1rem 0.5rem; margin-right: 0.35rem;
+    border: 1px solid var(--bleu-france); border-radius: 0.3rem;
+    background: #fff; color: var(--bleu-france); cursor: pointer;
+  }
+  .cfg-var-btn:hover { background: var(--bleu-france); color: #fff; }
+
 .cfg-hint { margin: 0.9rem 0 0; font-size: 0.85em; color: var(--text-mention-grey); }
 
 .cfg-link-test { display: flex; align-items: center; flex-wrap: wrap; gap: 0.9rem; margin-top: 0.9rem; }
@@ -763,7 +817,7 @@
     <div class="cand-toolbar fr-mb-2w">
       <div class="fr-search-bar fr-search-bar--sm" id="candSearchBar" role="search">
         <label class="fr-label" for="candSearchInput">Rechercher un candidat</label>
-        <input class="fr-input" type="search" id="candSearchInput" placeholder="NID, nom du stagiaire…">
+        <input class="fr-input" type="search" id="candSearchInput" placeholder="NID, nom, N° CAND…">
         <button class="fr-btn fr-btn--sm" id="candSearchBtn" title="Rechercher">Rechercher</button>
       </div>
       <div class="fr-checkbox-group fr-checkbox-group--sm">
@@ -806,7 +860,7 @@
     <details class="cfg-help">
       <summary>Aide au paramétrage</summary>
       <ul>
-        <li><strong>Liaison :</strong> « Même NID » suppose que la colonne NID de la table Documents contient la même valeur que celle des candidats. Le bouton « Tester la liaison » indique combien de candidats sont rattachés. Si un candidat n'a pas encore de ligne Documents, elle est créée à la première saisie ou au premier import (modes « Même NID » et « La table Documents référence le candidat »).</li>
+        <li><strong>Liaison :</strong> les tables sont rapprochées par le NID (la colonne NID de la table Documents doit contenir la même valeur que celle des candidats). Le bouton « Tester la liaison » indique combien de candidats sont rattachés. Si un candidat n'a pas encore de ligne Documents, elle est créée à la première saisie ou au premier import.</li>
         <li><strong>Validation des pièces :</strong> passer un document en « Refusé » ouvre un e-mail pré-rempli vers l'adresse du candidat ; sans colonne E-mail, le refus est enregistré mais aucun message ne s'ouvre.</li>
         <li><strong>Import de fichiers :</strong> déposer ou remplacer un fichier depuis la fiche nécessite les droits d'écriture sur le document Grist.</li>
         <li><strong>Pictogramme « mineur » :</strong> calculé en comparant la date de naissance du candidat à la date « Début de formation le » saisie ici ; il reste masqué si l'une des deux manque.</li>
@@ -843,24 +897,16 @@
           <span class="cfg-card__num" aria-hidden="true">2</span>
           <div>
             <h3 class="cfg-card__title" id="cfgCardTitle2">Liaison entre les deux tables</h3>
-            <p class="cfg-card__desc">Comment retrouver, pour chaque candidat, sa ligne dans la table Documents.</p>
+            <p class="cfg-card__desc">Les deux tables sont rapprochées par le NID : une ligne de la table Documents correspond à un candidat lorsque leur NID est identique.</p>
           </div>
         </div>
 <div class="cfg-grid">
   <div class="fr-select-group">
-    <label class="fr-label" for="cand_docs_link_dir">Mode de liaison</label>
-    <select class="fr-select" id="cand_docs_link_dir">
-      <option value="byNid">Même NID dans les deux tables (recommandé)</option>
-      <option value="docsToMain">La table Documents référence le candidat</option>
-      <option value="mainToDocs">Le candidat référence sa ligne Documents</option>
-    </select>
-  </div>
-  <div class="fr-select-group">
-    <label class="fr-label" for="cand_docs_link" id="cand_docs_link_label">Colonne de liaison</label>
+    <label class="fr-label" for="cand_docs_link" id="cand_docs_link_label">Colonne NID de la table Documents<span class="cfg-req" aria-hidden="true">*</span><span class="fr-sr-only"> (obligatoire)</span>
+      <span class="fr-hint-text">Doit contenir la même valeur de NID que la table des candidats.</span></label>
     <select class="fr-select" id="cand_docs_link"></select>
   </div>
 </div>
-<p class="cfg-hint" id="cfgLinkHint"></p>
 <div class="cfg-link-test">
   <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-search-line fr-btn--icon-left" id="cfgTestLinkBtn" type="button">Tester la liaison</button>
   <p class="cfg-link-result" id="cfgLinkResult" aria-live="polite"></p>
@@ -908,16 +954,40 @@
       <tr><th scope="row">Droit à l'image</th><td data-label="Colonne du fichier"><select class="fr-select" id="cand_col_formImage" data-role="formImage" aria-label="Colonne du fichier — Droit à l'image"></select></td><td data-label="Colonne de validation"><select class="fr-select" id="cand_col_validationFormImage" data-role="validationFormImage" aria-label="Colonne de validation — Droit à l'image"></select></td></tr>
       <tr><th scope="row">Enseignement à distance — Bloc 1</th><td data-label="Colonne du fichier"><select class="fr-select" id="cand_col_ead" data-role="ead" aria-label="Colonne du fichier — Enseignement à distance — Bloc 1"></select></td><td data-label="Colonne de validation"><select class="fr-select" id="cand_col_validationEAD" data-role="validationEAD" aria-label="Colonne de validation — Enseignement à distance — Bloc 1"></select></td></tr>
     </tbody>
-  </table>
+  \1<div class="cfg-grid cfg-grid--after-table">
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_numCand">N° CAND (Enseignement à distance)<span class="fr-hint-text">Zone de texte modifiable dans la carte « Enseignement à distance Bloc 1 » ; colonne Texte recommandée.</span></label><select class="fr-select" id="cand_col_numCand" data-role="numCand"></select></div>
 </div>
-
-      </section>
-
-      <section class="cfg-card" aria-labelledby="cfgCardTitle5">
+\2      <section class="cfg-card" aria-labelledby="cfgCardTitle5">
         <div class="cfg-card__head">
           <span class="cfg-card__num" aria-hidden="true">5</span>
           <div>
-            <h3 class="cfg-card__title" id="cfgCardTitle5">Bande patronymique et paiement</h3>
+            <h3 class="cfg-card__title" id="cfgCardTitle5">Courriel « Enseignement à distance »</h3>
+            <p class="cfg-card__desc">Message pré-rempli ouvert dans la messagerie quand on clique sur l'icône courriel de la carte « Enseignement à distance Bloc 1 ». Il est adressé à l'e-mail du candidat (colonne E-mail de la carte 3).</p>
+          </div>
+        </div>
+        <div class="fr-input-group">
+          <label class="fr-label" for="cfg_mail_subject">Objet du courriel</label>
+          <input class="fr-input" type="text" id="cfg_mail_subject" autocomplete="off">
+        </div>
+        <div class="fr-input-group fr-mt-2w">
+          <label class="fr-label" for="cfg_mail_body">Corps du courriel
+            <span class="fr-hint-text">Rédigez le message ; les variables ci-dessous sont remplacées par les données du candidat au moment de l'envoi.</span></label>
+          <textarea class="fr-input cfg-mail-body" id="cfg_mail_body" rows="9"></textarea>
+        </div>
+        <div class="cfg-vars">
+          <p class="cfg-vars__title">Variables disponibles <span>(cliquez pour insérer à l'emplacement du curseur)</span></p>
+          <ul class="cfg-vars__list">
+            <li><button class="cfg-var-btn" type="button" data-var="{{N_CAND}}">{{N_CAND}}</button> affiche le n° CAND du candidat (champ « N° CAND » de la carte Enseignement à distance).</li>
+            <li><button class="cfg-var-btn" type="button" data-var="{{STAGIAIRE}}">{{STAGIAIRE}}</button> affiche le nom du stagiaire.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="cfg-card" aria-labelledby="cfgCardTitle6">
+        <div class="cfg-card__head">
+          <span class="cfg-card__num" aria-hidden="true">6</span>
+          <div>
+            <h3 class="cfg-card__title" id="cfgCardTitle6">Bande patronymique et paiement</h3>
             <p class="cfg-card__desc">Colonnes lues dans la table Documents. L'inscription, la quantité et l'encaissé sont modifiables depuis la fiche ; le dû reste en lecture seule.</p>
           </div>
         </div>
@@ -930,11 +1000,11 @@
 
       </section>
 
-      <section class="cfg-card" aria-labelledby="cfgCardTitle6">
+      <section class="cfg-card" aria-labelledby="cfgCardTitle7">
         <div class="cfg-card__head">
-          <span class="cfg-card__num" aria-hidden="true">6</span>
+          <span class="cfg-card__num" aria-hidden="true">7</span>
           <div>
-            <h3 class="cfg-card__title" id="cfgCardTitle6">Suivi du dossier</h3>
+            <h3 class="cfg-card__title" id="cfgCardTitle7">Suivi du dossier</h3>
             <p class="cfg-card__desc">Colonnes lues dans la table Documents.</p>
           </div>
         </div>
@@ -999,7 +1069,7 @@
   // (La date "Début de formation le" n'est PAS un rôle de colonne : elle est
   // saisie à la main dans la Configuration, voir settings.dateDebutFormation.)
   var ROLES = ['nid', 'stagiaire', 'email', 'telephone', 'dateNaissance',
-    'usageRS', 'validationUsageRS', 'formImage', 'validationFormImage', 'ead', 'validationEAD',
+    'usageRS', 'validationUsageRS', 'formImage', 'validationFormImage', 'ead', 'validationEAD', 'numCand',
     'photos', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
   var REQUIRED_ROLES = ['nid', 'stagiaire'];
   var OPTIONAL_ROLES = ROLES.filter(function (r) { return REQUIRED_ROLES.indexOf(r) === -1; });
@@ -1014,7 +1084,7 @@
     ead: 'Enseignement à distance Bloc 1',
     validationUsageRS: 'Validation — Reconnaissance de responsabilité', validationFormImage: 'Validation — Droit à l\'image',
     validationEAD: 'Validation — Enseignement à distance Bloc 1',
-    photos: 'Photos',
+    numCand: 'N° CAND', photos: 'Photos',
     inscriptionBande: 'Inscription', qteBandes: 'Quantité', du: 'Dû', encaisse: 'Encaissé',
     blocagesInfos: 'Blocages / Infos'
   };
@@ -1026,7 +1096,7 @@
   // Blocages/Infos), qui vivent dans la même table que les documents.
   // Tous les autres rôles de ROLES (identité du candidat) restent
   // lus/écrits dans la table principale (candidats).
-  var DOC_TABLE_ROLES = ['usageRS', 'validationUsageRS', 'formImage', 'validationFormImage', 'ead', 'validationEAD',
+  var DOC_TABLE_ROLES = ['usageRS', 'validationUsageRS', 'formImage', 'validationFormImage', 'ead', 'validationEAD', 'numCand',
     'photos', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
   var MAIN_TABLE_ROLES = ROLES.filter(function (r) { return DOC_TABLE_ROLES.indexOf(r) === -1; });
   // Rôles rendus éditables directement depuis la fiche candidat (voir
@@ -1056,27 +1126,28 @@
     return !!colId && colId.indexOf('gristHelper_') !== 0;
   }
 
-  // Modes de liaison entre la table des candidats et la table Documents :
-  //  - byNid      : les deux tables contiennent le même NID (valeur
-  //                 identique) — la colonne de liaison est la colonne NID
-  //                 de la table Documents ;
-  //  - docsToMain : colonne Référence, dans la table Documents, vers le
-  //                 candidat ;
-  //  - mainToDocs : colonne Référence, dans la table des candidats, vers sa
-  //                 ligne Documents.
-  function normalizeLinkDir(v) {
-    return (v === 'docsToMain' || v === 'mainToDocs') ? v : 'byNid';
-  }
+  // La table Documents est rattachée aux candidats par le NID (mode de liaison
+  // fixe : la colonne NID de la table Documents, settings.docsLinkCol, doit
+  // contenir la même valeur que la colonne NID des candidats).
   // Clé de comparaison d'un NID : texte normalisé (espaces, casse), pour que
   // "12345" (texte) et 12345 (numérique) se rejoignent.
   function nidKey(v) {
     return normalizeKey(textOf(v));
   }
 
+  // Courriel adressé au candidat depuis la carte « Enseignement à distance »
+  // (icône courriel) : objet et corps rédigés dans la Configuration, avec des
+  // variables {{…}} remplacées à l'envoi (voir fillMailTemplate).
+  var MAIL_VARIABLES = ['N_CAND', 'STAGIAIRE'];
+  var DEFAULT_EAD_MAIL = {
+    subject: 'Enseignement à distance – Bloc 1',
+    body: 'Bonjour {{STAGIAIRE}},\n\nVotre numéro de candidat pour l’enseignement à distance (Bloc 1) est : {{N_CAND}}.\n\nCordialement,'
+  };
+
   function defaultConfig() {
     var col = {};
     ROLES.forEach(function (role) { col[role] = ''; });
-    return { table: '', docsTable: '', docsLinkCol: '', docsLinkDir: 'byNid', dateDebutFormation: '', col: col };
+    return { table: '', docsTable: '', docsLinkCol: '', dateDebutFormation: '', eadMail: { subject: DEFAULT_EAD_MAIL.subject, body: DEFAULT_EAD_MAIL.body }, col: col };
   }
   function mergeConfig(loaded) {
     var cfg = defaultConfig();
@@ -1084,8 +1155,10 @@
     cfg.table = loaded.table || '';
     cfg.docsTable = loaded.docsTable || '';
     cfg.docsLinkCol = loaded.docsLinkCol || '';
-    cfg.docsLinkDir = normalizeLinkDir(loaded.docsLinkDir);
     cfg.dateDebutFormation = (typeof loaded.dateDebutFormation === 'string') ? loaded.dateDebutFormation : '';
+    if (loaded.eadMail && typeof loaded.eadMail.subject === 'string' && typeof loaded.eadMail.body === 'string') {
+      cfg.eadMail = { subject: loaded.eadMail.subject, body: loaded.eadMail.body };
+    }
     if (loaded.col) {
       Object.keys(cfg.col).forEach(function (k) {
         var v = loaded.col[k];
@@ -1112,24 +1185,7 @@
     if (usesDocsTable && (!cfg.docsTable || !cfg.docsLinkCol)) return false;
     return true;
   }
-  // Une colonne Référence simple (voir aussi textOfRef) est renvoyée par
-  // fetchTable() comme un entier (l'id de la ligne pointée, 0 = vide) ;
-  // certaines versions de Grist peuvent la renvoyer sous forme étiquetée
-  // ['R', id] (même principe que les colonnes Pièces jointes/Liste) — les
-  // deux formes sont donc acceptées ici, pour rester robuste.
-  // Renvoie la liste des identifiants de lignes pointés (une Référence
-  // simple en donne au plus un ; une Liste de références ['L', id, id…] en
-  // donne plusieurs).
-  function refRowIdsOf(v) {
-    if (typeof v === 'number') return v > 0 ? [v] : [];
-    if (Array.isArray(v)) {
-      var items = v.slice();
-      if (items.length && (items[0] === 'R' || items[0] === 'r' || items[0] === 'L' || items[0] === 'l')) items = items.slice(1);
-      return items.filter(function (x) { return typeof x === 'number' && x > 0; });
-    }
-    return [];
-  }
-  // Crée, dans la table Documents, la ligne liée à ce candidat qui
+  // Crée, dans la table Documents, la ligne (même NID) de ce candidat qui
   // manque encore (voir settings.docsLinkCol) — utilisé aussi bien pour
   // importer un premier fichier que pour enregistrer un premier champ
   // "Informations complémentaires" (Bande patro., Quantité, Encaissé,
@@ -1141,14 +1197,9 @@
   // pièce jointe, voir importDocument).
   function ensureDocRowId(row) {
     if (row.__docRowId) return Promise.resolve(row.__docRowId);
-    if (settings.docsLinkDir === 'mainToDocs') {
-      return Promise.reject(new Error('Aucune ligne Documents n’est liée à ce candidat. Avec le sens de liaison « Le candidat référence sa ligne Documents », ' +
-        'cette ligne ne peut pas être créée automatiquement : créez-la dans Grist et rattachez-la au candidat.'));
-    }
     var fields = {};
-    // byNid : la nouvelle ligne reçoit le NID du candidat ; sinon une
-    // Référence vers sa ligne.
-    fields[settings.docsLinkCol] = settings.docsLinkDir === 'byNid' ? row.nid : row.id;
+    // La nouvelle ligne reçoit le NID du candidat (c'est la clé de liaison).
+    fields[settings.docsLinkCol] = row.nid;
     return grist.docApi.applyUserActions([['AddRecord', settings.docsTable, null, fields]]).then(function (result) {
       var createdId = (result && Array.isArray(result.retValues)) ? result.retValues[0] :
         (typeof result === 'number' ? result : null);
@@ -1231,14 +1282,14 @@
   var settingsForm = document.getElementById('settingsForm');
   var cfgBarState = document.getElementById('cfgBarState');
   var cfgSummary = document.getElementById('cfgSummary');
-  var cfgLinkHint = document.getElementById('cfgLinkHint');
   var cfgLinkResult = document.getElementById('cfgLinkResult');
   var candTableEl = document.getElementById('cand_table');
   var docsTableEl = document.getElementById('cand_docs_table');
-  var linkDirEl = document.getElementById('cand_docs_link_dir');
   var linkColEl = document.getElementById('cand_docs_link');
   var startDateEl = document.getElementById('cand_dateDebutFormation');
   var startDateErrEl = document.getElementById('cand_dateDebutFormation_err');
+  var mailSubjectEl = document.getElementById('cfg_mail_subject');
+  var mailBodyEl = document.getElementById('cfg_mail_body');
   var configDirty = false;
 
   // Indicateur "modifications non enregistrées" de la barre du bas.
@@ -1378,54 +1429,33 @@
     });
   }
 
-  // Colonne de liaison : dans la table Documents (modes « même NID » et
-  // « la table Documents référence le candidat ») ou dans la table des
-  // candidats (mode « le candidat référence sa ligne Documents »).
-  var LINK_MODE_TEXT = {
-    byNid: {
-      label: 'Colonne NID (table Documents)',
-      hint: 'Les deux tables contiennent le même NID. Choisissez la colonne NID de la table Documents.'
-    },
-    docsToMain: {
-      label: 'Colonne Référence (table Documents)',
-      hint: 'Choisissez la colonne Référence de la table Documents qui pointe vers la ligne du candidat.'
-    },
-    mainToDocs: {
-      label: 'Colonne Référence (table des candidats)',
-      hint: 'Choisissez la colonne Référence de la table des candidats qui pointe vers sa ligne dans la table Documents.'
-    }
-  };
-  var linkListSeq = 0;
-  function refreshLinkColumnList() {
-    var dir = normalizeLinkDir(linkDirEl.value);
-    var tableId = dir === 'mainToDocs' ? candTableEl.value : docsTableEl.value;
-    document.getElementById('cand_docs_link_label').innerHTML = escapeHtml(LINK_MODE_TEXT[dir].label) +
-      '<span class="cfg-req" aria-hidden="true">*</span>';
-    cfgLinkHint.textContent = LINK_MODE_TEXT[dir].hint;
-    var current = (settings.docsLinkDir === dir) ? settings.docsLinkCol : '';
-    if (!tableId) {
-      fillSelectWithOptions(linkColEl, [], '', dir === 'mainToDocs' ? 'Choisir la table des candidats d’abord…' : 'Choisir la table Documents d’abord…');
-      return Promise.resolve();
-    }
-    var seq = ++linkListSeq;
-    return Promise.all([grist.docApi.fetchTable(tableId), loadColumnTypes()]).then(function (res) {
-      if (seq !== linkListSeq) return;
-      var types = res[1][tableId] || null;
-      // Les modes "Référence" ne proposent que des colonnes Référence.
-      var expected = dir === 'byNid' ? null : 'Ref';
-      fillSelectWithOptions(linkColEl, columnOptions(tableColumns(res[0]), types, expected, current || linkColEl.value), current, 'Choisir une colonne…');
-    }).catch(function (e) {
-      showSettingsStatus('error', 'Impossible de lire les colonnes de la table « ' + tableId + ' » : ' + friendlyErrorMessage(e));
-    });
+// Colonne de liaison : la colonne NID de la table Documents.
+var linkListSeq = 0;
+function refreshLinkColumnList() {
+  var tableId = docsTableEl.value;
+  var current = settings.docsLinkCol;
+  if (!tableId) {
+    fillSelectWithOptions(linkColEl, [], '', 'Choisir la table Documents d’abord…');
+    return Promise.resolve();
   }
+  var seq = ++linkListSeq;
+  return Promise.all([grist.docApi.fetchTable(tableId), loadColumnTypes()]).then(function (res) {
+    if (seq !== linkListSeq) return;
+    var types = res[1][tableId] || null;
+    fillSelectWithOptions(linkColEl, columnOptions(tableColumns(res[0]), types, null, ''), current, 'Choisir une colonne…');
+  }).catch(function (e) {
+    showSettingsStatus('error', 'Impossible de lire les colonnes de la table « ' + tableId + ' » : ' + friendlyErrorMessage(e));
+  });
+}
 
   function refreshTableList() {
     return grist.docApi.listTables().then(function (tables) {
       allTableIds = tables || [];
       fillSelectWithOptions(candTableEl, allTableIds, settings.table, 'Choisir une table…');
       fillSelectWithOptions(docsTableEl, allTableIds, settings.docsTable, 'Choisir une table…');
-      linkDirEl.value = settings.docsLinkDir;
       startDateEl.value = settings.dateDebutFormation;
+      mailSubjectEl.value = settings.eadMail.subject;
+      mailBodyEl.value = settings.eadMail.body;
       return Promise.all([
         refreshRoleSelects(candTableEl.value, MAIN_TABLE_ROLES, settings.table, 'Choisir la table des candidats d’abord…'),
         refreshRoleSelects(docsTableEl.value, DOC_TABLE_ROLES, settings.docsTable, 'Choisir la table Documents d’abord…'),
@@ -1450,10 +1480,6 @@
       refreshRoleSelects(docsTableEl.value, DOC_TABLE_ROLES, settings.docsTable, 'Choisir la table Documents d’abord…'),
       refreshLinkColumnList()
     ]).then(renderConfigSummary);
-  });
-  linkDirEl.addEventListener('change', function () {
-    cfgLinkResult.textContent = '';
-    refreshLinkColumnList().then(renderConfigSummary);
   });
 
   // ---- Date "Début de formation le" (saisie manuelle JJ/MM/AAAA) ---------
@@ -1494,8 +1520,8 @@
     // Colonne de liaison : lue seule (jamais écrite par le widget), pas
     // besoin qu'elle passe isWritableColId comme les colonnes de rôle.
     cfg.docsLinkCol = linkColEl.value || '';
-    cfg.docsLinkDir = normalizeLinkDir(linkDirEl.value);
     cfg.dateDebutFormation = startDateEl.value.trim();
+    cfg.eadMail = { subject: mailSubjectEl.value.trim(), body: mailBodyEl.value };
     ROLES.forEach(function (role) {
       var el = roleSelect(role);
       if (el && isWritableColId(el.value)) cfg.col[role] = el.value;
@@ -1515,7 +1541,7 @@
     }
     var usesDocs = DOC_TABLE_ROLES.some(function (role) { return !!cfg.col[role]; });
     if (usesDocs && !cfg.docsTable) errors.push('Choisissez la table Documents : des colonnes Documents sont sélectionnées.');
-    if (usesDocs && cfg.docsTable && !cfg.docsLinkCol) errors.push('Choisissez la colonne de liaison entre les deux tables.');
+    if (usesDocs && cfg.docsTable && !cfg.docsLinkCol) errors.push('Choisissez la colonne NID de la table Documents.');
     ATTACHMENT_ROLES.forEach(function (role) {
       if (!cfg.col[role] && cfg.col[ATTACH_VALIDATION_ROLE[role]]) {
         errors.push('Une colonne de validation est choisie pour « ' + ROLE_LABELS[role] + ' » sans colonne de fichier.');
@@ -1531,12 +1557,35 @@
         else seen[col] = role;
       });
     });
+    // Variables du courriel : seules celles de MAIL_VARIABLES existent.
+    var used = (cfg.eadMail.subject + '\n' + cfg.eadMail.body).match(/\{\{[^{}]*\}\}/g) || [];
+    var unknown = {};
+    used.forEach(function (v) {
+      var name = v.slice(2, -2).trim().toUpperCase();
+      if (MAIL_VARIABLES.indexOf(name) === -1) unknown[v] = true;
+    });
+    Object.keys(unknown).forEach(function (v) {
+      errors.push('Courriel : la variable ' + v + ' n’existe pas (variables disponibles : ' +
+        MAIL_VARIABLES.map(function (n) { return '{{' + n + '}}'; }).join(', ') + ').');
+    });
     return errors;
   }
 
+  // Insertion d'une variable à l'emplacement du curseur dans le corps du courriel.
+  Array.prototype.forEach.call(document.querySelectorAll('.cfg-var-btn'), function (btn) {
+    btn.addEventListener('click', function () {
+      var token = btn.dataset.var;
+      var start = mailBodyEl.selectionStart, end = mailBodyEl.selectionEnd;
+      if (typeof start !== 'number') { start = end = mailBodyEl.value.length; }
+      mailBodyEl.value = mailBodyEl.value.slice(0, start) + token + mailBodyEl.value.slice(end);
+      mailBodyEl.focus();
+      mailBodyEl.setSelectionRange(start + token.length, start + token.length);
+      mailBodyEl.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+  });
+
   // ---- Résumé d'état -------------------------------------------------------
 
-  var LINK_MODE_SHORT = { byNid: 'même NID', docsToMain: 'Documents → candidat', mainToDocs: 'candidat → Documents' };
   function renderConfigSummary() {
     var cfg = configFromForm();
     var chips = [];
@@ -1548,7 +1597,7 @@
 
     var usesDocs = DOC_TABLE_ROLES.some(function (role) { return !!cfg.col[role]; });
     if (!usesDocs) chip('', 'Table Documents : non utilisée');
-    else if (cfg.docsTable && cfg.docsLinkCol) chip('ok', 'Documents : ' + cfg.docsTable + ' (' + LINK_MODE_SHORT[cfg.docsLinkDir] + ')');
+    else if (cfg.docsTable && cfg.docsLinkCol) chip('ok', 'Documents : ' + cfg.docsTable + ' (liaison par NID)');
     else chip('warn', 'Table Documents et liaison à régler');
 
     var docCount = ATTACHMENT_ROLES.filter(function (r) { return !!cfg.col[r]; }).length;
@@ -1556,6 +1605,13 @@
     if (!docCount) chip('', 'Aucun document configuré');
     else if (validCount === docCount) chip('ok', docCount + ' document(s), validation réglée');
     else chip('warn', (docCount - validCount) + ' document(s) sans colonne de validation');
+
+    if (cfg.col.ead) {
+      var mailUsesNumCand = /\{\{\s*N_CAND\s*\}\}/i.test(cfg.eadMail.subject + cfg.eadMail.body);
+      if (!cfg.col.email) chip('warn', 'Courriel EAD : colonne E-mail à choisir');
+      else if (mailUsesNumCand && !cfg.col.numCand) chip('warn', 'Courriel EAD : colonne N° CAND à choisir');
+      else chip('ok', 'Courriel EAD prêt');
+    }
 
     var dateInvalid = !!cfg.dateDebutFormation && !parseFrDate(cfg.dateDebutFormation);
     if (!cfg.dateDebutFormation) chip('', 'Début de formation : non renseigné');
@@ -1589,7 +1645,7 @@
     if (!cfg.table) missing.push('la table des candidats');
     if (!cfg.col.nid) missing.push('la colonne NID');
     if (!cfg.docsTable) missing.push('la table Documents');
-    if (!cfg.docsLinkCol) missing.push('la colonne de liaison');
+    if (!cfg.docsLinkCol) missing.push('la colonne NID de la table Documents');
     if (missing.length) { setLinkResult('warn', 'Renseignez d’abord ' + missing.join(', ') + '.'); return; }
     setLinkResult('info', 'Vérification en cours…');
     Promise.all([grist.docApi.fetchTable(cfg.table), grist.docApi.fetchTable(cfg.docsTable)]).then(function (res) {
@@ -1601,10 +1657,10 @@
       var orphans = docsCount - Object.keys(distinctDocRows).length;
       var without = rows.length - linked;
       var text = linked + ' candidat(s) sur ' + rows.length + ' rattaché(s) à une ligne de la table Documents.';
-      if (without) text += ' ' + without + ' sans ligne Documents' + (cfg.docsLinkDir === 'mainToDocs' ? '.' : ' (créée à la première saisie ou au premier import).');
+      if (without) text += ' ' + without + ' sans ligne Documents (créée à la première saisie ou au premier import).';
       if (orphans > 0) text += ' ' + orphans + ' ligne(s) Documents sans candidat correspondant.';
       var kind = (rows.length && linked === 0) ? 'error' : ((without || orphans > 0) ? 'warn' : 'success');
-      if (kind === 'error') text += ' Vérifiez le mode et la colonne de liaison.';
+      if (kind === 'error') text += ' Vérifiez la colonne NID de la table Documents.';
       setLinkResult(kind, text);
     }).catch(function (e) {
       setLinkResult('error', 'Test impossible : ' + friendlyErrorMessage(e));
@@ -1667,7 +1723,7 @@
       if (usesDocsTable && rows.length && results[1] && results[1].id && results[1].id.length && linked === 0) {
         candidates.warning = 'Aucune ligne de la table Documents n’a pu être rattachée à un candidat : les pièces jointes et les informations ' +
           'complémentaires (inscription, quantité, blocages…) restent donc vides. Ouvrez la Configuration (5 clics sur le bloc marque du header) ' +
-          'et vérifiez le mode de liaison ainsi que la colonne de liaison (par exemple, la colonne NID de la table Documents).';
+          'et vérifiez la colonne NID de la table Documents (elle doit contenir les mêmes NID que la table des candidats).';
       }
       renderCandidates();
     }).catch(function (e) {
@@ -1684,57 +1740,29 @@
   // cas ces rôles restent simplement vides pour chaque candidat. Un seul
   // document par candidat est attendu : en cas de doublon, seul le
   // premier trouvé est retenu.
-  //
-  // Deux sens de liaison sont gérés (settings.docsLinkDir) :
-  //  - byNid : les deux tables portent le même NID (voir nidKey) ;
-  //  - docsToMain : la colonne de liaison est dans la table Documents et
-  //    pointe vers la ligne du candidat ;
-  //  - mainToDocs : la colonne de liaison est dans la table des candidats
-  //    (lue par columnarToRows dans row.__docLinkValue) et pointe vers sa
-  //    ligne Documents.
-  // Renvoie le nombre de candidats rattachés à une ligne Documents.
+  // Liaison par NID : les lignes Documents sont indexées par NID (première
+  // ligne trouvée en cas de doublon, voir nidKey), puis on cherche celle de
+  // chaque candidat. Renvoie le nombre de candidats rattachés à une ligne
+  // Documents.
   function mergeDocsTable(rows, docsData, cfg) {
     cfg = cfg || settings;
     if (!docsData || !docsData.id) {
       rows.forEach(function (row) { row.__docRowId = null; });
       return 0;
     }
-    var docIndexById = {};
-    for (var i = 0; i < docsData.id.length; i++) docIndexById[docsData.id[i]] = i;
+var docIndexByCandidateId = {};
+var nidValues = docsData[cfg.docsLinkCol] || [];
+var docIndexByNid = {};
+for (var n = 0; n < docsData.id.length; n++) {
+  var key = nidKey(nidValues[n]);
+  if (key && !(key in docIndexByNid)) docIndexByNid[key] = n;
+}
+rows.forEach(function (row) {
+  var k = nidKey(row.nid);
+  if (k && k in docIndexByNid) docIndexByCandidateId[row.id] = docIndexByNid[k];
+});
 
-    var docIndexByCandidateId = {};
-    if (cfg.docsLinkDir === 'byNid') {
-      // Même NID dans les deux tables : on indexe les lignes Documents par
-      // NID (première ligne trouvée en cas de doublon), puis on cherche celle
-      // de chaque candidat.
-      var nidValues = docsData[cfg.docsLinkCol] || [];
-      var docIndexByNid = {};
-      for (var n = 0; n < docsData.id.length; n++) {
-        var key = nidKey(nidValues[n]);
-        if (key && !(key in docIndexByNid)) docIndexByNid[key] = n;
-      }
-      rows.forEach(function (row) {
-        var k = nidKey(row.nid);
-        if (k && k in docIndexByNid) docIndexByCandidateId[row.id] = docIndexByNid[k];
-      });
-    } else if (cfg.docsLinkDir === 'mainToDocs') {
-      rows.forEach(function (row) {
-        var ids = refRowIdsOf(row.__docLinkValue);
-        for (var k = 0; k < ids.length; k++) {
-          if (ids[k] in docIndexById) { docIndexByCandidateId[row.id] = docIndexById[ids[k]]; break; }
-        }
-      });
-    } else {
-      var linkValues = docsData[cfg.docsLinkCol] || [];
-      for (var j = 0; j < docsData.id.length; j++) {
-        var candidateIds = refRowIdsOf(linkValues[j]);
-        candidateIds.forEach(function (candidateId) {
-          if (!(candidateId in docIndexByCandidateId)) docIndexByCandidateId[candidateId] = j;
-        });
-      }
-    }
-
-    var linked = 0;
+var linked = 0;
     rows.forEach(function (row) {
       var idx = docIndexByCandidateId[row.id];
       if (idx === undefined) { row.__docRowId = null; return; }
@@ -1758,9 +1786,6 @@
         var colName = cfg.col[role];
         row[role] = (colName && data[colName]) ? data[colName][i] : null;
       });
-      if (cfg.docsLinkDir === 'mainToDocs' && cfg.docsLinkCol && data[cfg.docsLinkCol]) {
-        row.__docLinkValue = data[cfg.docsLinkCol][i];
-      }
       rows.push(row);
     }
     return rows;
@@ -1792,7 +1817,7 @@
   function matchesFilters(row) {
     if (searchText.trim()) {
       var q = normalizeKey(searchText);
-      var hay = normalizeKey(textOf(row.nid) + ' ' + textOfRef(row.stagiaire) + ' ' + textOfRef(row.inscriptionBande));
+      var hay = normalizeKey(textOf(row.nid) + ' ' + textOfRef(row.stagiaire) + ' ' + textOfRef(row.inscriptionBande) + ' ' + textOf(row.numCand));
       if (hay.indexOf(q) === -1) return false;
     }
     if (filterPendingOnly && !hasPendingDocs(row)) return false;
@@ -2252,13 +2277,46 @@
       '',
       'Cordialement,'
     ].join('\n');
-    var url = 'mailto:' + email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    openMailto(email, subject, body);
+  }
+
+  // Ouvre le client de messagerie sur un message pré-rempli. Les retours à la
+  // ligne sont envoyés en CRLF, comme l'attend la norme mailto:.
+  function openMailto(email, subject, body) {
+    var url = 'mailto:' + email + '?subject=' + encodeURIComponent(subject) +
+      '&body=' + encodeURIComponent(String(body).replace(/\r?\n/g, '\r\n'));
     var a = document.createElement('a');
     a.href = url;
     a.style.display = 'none';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+  }
+
+  // Remplace les variables {{N_CAND}} / {{STAGIAIRE}} (insensible à la casse
+  // et aux espaces) ; une variable inconnue est laissée telle quelle.
+  function fillMailTemplate(text, row) {
+    return String(text || '').replace(/\{\{\s*([^{}]*?)\s*\}\}/g, function (whole, name) {
+      var key = name.toUpperCase();
+      if (key === 'N_CAND') return textOf(row.numCand);
+      if (key === 'STAGIAIRE') return textOfRef(row.stagiaire);
+      return whole;
+    });
+  }
+
+  // Courriel « Enseignement à distance » : objet et corps rédigés dans la
+  // Configuration (settings.eadMail), adressé à l'e-mail du candidat.
+  function openEadMail(row) {
+    var email = settings.col.email ? textOf(row.email) : '';
+    if (!email) {
+      window.alert('Aucune adresse e-mail n’est renseignée pour ce candidat (ou la colonne « E-mail » n’est pas réglée dans la Configuration).');
+      return;
+    }
+    var tpl = settings.eadMail;
+    var usesNumCand = /\{\{\s*N_CAND\s*\}\}/i.test(tpl.subject + tpl.body);
+    if (usesNumCand && !textOf(row.numCand) &&
+        !window.confirm('Le N° CAND n’est pas renseigné pour ce candidat : le courriel s’ouvrira sans numéro. Continuer ?')) return;
+    openMailto(email, fillMailTemplate(tpl.subject, row), fillMailTemplate(tpl.body, row));
   }
 
   // ---- Emplacement "Document" : interrupteur de validation, fichier
@@ -2289,6 +2347,11 @@
     // pair (voir mergeDocsTable/ROLE_LABELS.photos).
     if (role === 'formImage' && settings.col.photos) {
       slot.appendChild(buildPhotosField(row));
+    }
+    // "Enseignement à distance" embarque le champ N° CAND, au même endroit que
+    // Photos dans la carte "Droit à l'image".
+    if (role === 'ead' && settings.col.numCand) {
+      slot.appendChild(buildNumCandField(row));
     }
 
     var ids = extractAttachmentIds(row[role]);
@@ -2347,10 +2410,14 @@
     // plus courte que ses voisines (pas de fichier déposé, pas de champ
     // Photos…) : les trois boutons de validation restent ainsi alignés sur
     // la même ligne d'une carte à l'autre.
-    if (validationRole && settings.col[validationRole]) {
+    var hasValidation = !!(validationRole && settings.col[validationRole]);
+    var hasMail = role === 'ead';
+    if (hasValidation || hasMail) {
       var footer = document.createElement('div');
       footer.className = 'cand-doc-slot__footer';
-      footer.appendChild(buildValidationControl(row, validationRole, ROLE_LABELS[role]));
+      // Icône courriel à GAUCHE du bouton de validation.
+      if (hasMail) footer.appendChild(buildMailButton(row));
+      if (hasValidation) footer.appendChild(buildValidationControl(row, validationRole, ROLE_LABELS[role]));
       slot.appendChild(footer);
     }
 
@@ -2416,6 +2483,49 @@
     wrap.appendChild(label);
     wrap.appendChild(buildValidationControl(row, 'photos', null, { yes: 'Oui', no: 'Non' }));
     return wrap;
+  }
+
+  // Champ "N° CAND" (carte Enseignement à distance) : zone de texte modifiable,
+  // enregistrée au blur dans la table Documents (voir saveFieldEdit).
+  function buildNumCandField(row) {
+    var wrap = document.createElement('div');
+    wrap.className = 'cand-doc-slot__photos';
+    var inputId = 'candEdit_numCand_' + row.id;
+    var label = document.createElement('label');
+    label.className = 'cand-doc-slot__photos-label';
+    label.setAttribute('for', inputId);
+    label.textContent = ROLE_LABELS.numCand;
+    wrap.appendChild(label);
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.id = inputId;
+    input.className = 'cand-doc-slot__numcand-input';
+    input.value = textOf(row.numCand);
+    var initialValue = input.value;
+    input.addEventListener('blur', function () {
+      if (input.value === initialValue) return;
+      saveFieldEdit('numCand', row, input, 'text', initialValue);
+    });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') input.blur();
+    });
+    wrap.appendChild(input);
+    return wrap;
+  }
+
+  // Icône courriel (carte Enseignement à distance) : ouvre le courriel rédigé
+  // dans la Configuration ; inactive tant que le candidat n'a pas d'adresse.
+  function buildMailButton(row) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cand-doc-mail-btn';
+    btn.innerHTML = '<span class="fr-icon-mail-line" aria-hidden="true"></span>';
+    var hasEmail = !!(settings.col.email && textOf(row.email));
+    btn.disabled = !hasEmail;
+    btn.title = hasEmail ? 'Envoyer un courriel au candidat' : 'Aucune adresse e-mail pour ce candidat';
+    btn.setAttribute('aria-label', btn.title);
+    btn.addEventListener('click', function () { openEadMail(row); });
+    return btn;
   }
 
   // Carte du fichier actuellement attaché : vignette (survol = aperçu,
