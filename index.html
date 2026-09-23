@@ -109,9 +109,8 @@
   .cand-count--push { margin-left: auto; }
   .cand-toolbar .fr-search-bar { flex: 1 1 16rem; max-width: 22rem; margin: 0; }
   .cand-toolbar .fr-checkbox-group { margin: 0; }
-  .cand-toolbar .fr-segmented { margin: 0; }
+  .cand-toolbar .fr-select-group { margin: 0; flex: 0 1 15rem; }
   .cand-doc-filter[hidden] { display: none; }
-  .cand-filter-count { font-weight: 400; opacity: 0.8; margin-left: 0.3rem; }
   .cand-toolbar .fr-checkbox-group label { font-size: 0.85em; padding-left: 1.75rem; }
 
   /* ---- Vue en bandes (page eTuteur) : une ligne compacte par candidat
@@ -874,35 +873,19 @@
         <input class="fr-input" type="search" id="candSearchInput" placeholder="NID, nom, N° CAND…">
         <button class="fr-btn fr-btn--sm" id="candSearchBtn" title="Rechercher">Rechercher</button>
       </div>
-      <fieldset class="fr-segmented fr-segmented--sm cand-doc-filter" id="candDocFilter">
-        <legend class="fr-segmented__legend fr-sr-only">Filtrer selon l'état des documents</legend>
-        <div class="fr-segmented__elements">
-        <div class="fr-segmented__element">
-          <input type="radio" id="candDocFilter_all" name="candDocFilter" value="all" checked>
-          <label class="fr-label" for="candDocFilter_all">Tous <span class="cand-filter-count" data-count="all"></span></label>
-        </div>
-        <div class="fr-segmented__element">
-          <input type="radio" id="candDocFilter_complete" name="candDocFilter" value="complete">
-          <label class="fr-label" for="candDocFilter_complete">Dossiers complets <span class="cand-filter-count" data-count="complete"></span></label>
-        </div>
-        <div class="fr-segmented__element">
-          <input type="radio" id="candDocFilter_rejected" name="candDocFilter" value="rejected">
-          <label class="fr-label" for="candDocFilter_rejected">Documents rejetés <span class="cand-filter-count" data-count="rejected"></span></label>
-        </div>
-        <div class="fr-segmented__element">
-          <input type="radio" id="candDocFilter_toValidate" name="candDocFilter" value="toValidate">
-          <label class="fr-label" for="candDocFilter_toValidate">Documents à valider <span class="cand-filter-count" data-count="toValidate"></span></label>
-        </div>
-        <div class="fr-segmented__element">
-          <input type="radio" id="candDocFilter_missing" name="candDocFilter" value="missing">
-          <label class="fr-label" for="candDocFilter_missing">Documents manquants <span class="cand-filter-count" data-count="missing"></span></label>
-        </div>
-        </div>
-      </fieldset>
-      <div class="fr-checkbox-group fr-checkbox-group--sm">
-        <input type="checkbox" id="candFilterBlocages">
-        <label class="fr-label" for="candFilterBlocages">Avec blocages uniquement</label>
+      <div class="fr-select-group cand-doc-filter" id="candDocFilterGroup">
+        <label class="fr-label fr-sr-only" for="candDocFilter">Filtrer selon l'état des documents</label>
+        <select class="fr-select" id="candDocFilter">
+          <option value="all">Tous les dossiers</option>
+          <option value="complete">Dossiers complets</option>
+          <option value="rejected">Documents rejetés</option>
+          <option value="toValidate">Documents à valider</option>
+          <option value="missing">Documents manquants</option>
+        </select>
       </div>
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-circle-line fr-btn--icon-left" id="candResetBtn" type="button" disabled title="Efface la recherche et le filtre sur les documents">
+        Réinitialiser les filtres
+      </button>
       <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-refresh-line fr-btn--icon-left" id="candReloadBtn" type="button" title="Recharger les candidats depuis la table Grist">
         Actualiser
       </button>
@@ -1087,7 +1070,7 @@
         </div>
 <div class="cfg-grid">
   <div class="fr-select-group"><label class="fr-label" for="cand_col_photos">Photos<span class="fr-hint-text">Autorisation photo : coché = Oui, sinon Non. « Non » n'est pas bloquant. Modifiable depuis la carte « Droit à l'image ».</span></label><select class="fr-select" id="cand_col_photos" data-role="photos"></select></div>
-  <div class="fr-select-group"><label class="fr-label" for="cand_col_blocagesInfos">Blocages / Infos<span class="fr-hint-text">Texte libre, modifiable ; alimente le filtre « Avec blocages uniquement ». Le widget y ajoute aussi « Identifiants GendForm envoyés le … » (non compté comme blocage).</span></label><select class="fr-select" id="cand_col_blocagesInfos" data-role="blocagesInfos"></select></div>
+  <div class="fr-select-group"><label class="fr-label" for="cand_col_blocagesInfos">Blocages / Infos<span class="fr-hint-text">Texte libre, modifiable. Le widget y ajoute aussi « Identifiants GendForm envoyés le … » à l'envoi du courriel EAD.</span></label><select class="fr-select" id="cand_col_blocagesInfos" data-role="blocagesInfos"></select></div>
 </div>
 
       </section>
@@ -1315,7 +1298,6 @@
   var allTableIds = [];
   var searchText = '';
   var docFilter = 'all'; // 'all' | 'complete' | 'rejected' | 'toValidate' | 'missing' (voir DOC_FILTERS)
-  var filterBlocagesOnly = false;
 
   // ---- Références DOM ----------------------------------------------------
   var panelEtuteur = document.getElementById('panelEtuteur');
@@ -1329,8 +1311,9 @@
   var candCount = document.getElementById('candCount');
   var candSearchInput = document.getElementById('candSearchInput');
   var candSearchBtn = document.getElementById('candSearchBtn');
+  var candDocFilterGroup = document.getElementById('candDocFilterGroup');
   var candDocFilterEl = document.getElementById('candDocFilter');
-  var candFilterBlocages = document.getElementById('candFilterBlocages');
+  var candResetBtn = document.getElementById('candResetBtn');
   var candReloadBtn = document.getElementById('candReloadBtn');
   var attachPreview = document.getElementById('attachPreview');
   var candModalOverlay = document.getElementById('candModalOverlay');
@@ -1910,12 +1893,15 @@ function refreshLinkColumnList() {
   candReloadBtn.addEventListener('click', loadCandidates);
   candSearchBtn.addEventListener('click', function () { searchText = candSearchInput.value; renderCandidates(); });
   candSearchInput.addEventListener('input', function () { searchText = candSearchInput.value; renderCandidates(); });
-  Array.prototype.forEach.call(candDocFilterEl.querySelectorAll('input[name="candDocFilter"]'), function (input) {
-    input.addEventListener('change', function () {
-      if (input.checked) { docFilter = input.value; renderCandidates(); }
-    });
+  candDocFilterEl.addEventListener('change', function () { docFilter = candDocFilterEl.value; renderCandidates(); });
+  // Réinitialise tous les filtres : recherche et état des documents.
+  candResetBtn.addEventListener('click', function () {
+    searchText = '';
+    candSearchInput.value = '';
+    docFilter = 'all';
+    candDocFilterEl.value = 'all';
+    renderCandidates();
   });
-  candFilterBlocages.addEventListener('change', function () { filterBlocagesOnly = candFilterBlocages.checked; renderCandidates(); });
 
   // ---- Rendu de la page eTuteur -------------------------------------------
 
@@ -1956,15 +1942,8 @@ function refreshLinkColumnList() {
   }
 
   // Commentaire ajouté automatiquement dans "Blocages / Infos" à l'envoi du
-  // courriel EAD (voir logGendFormSent). Ce n'est pas un blocage : il est
-  // ignoré par le filtre « Avec blocages uniquement ».
+  // courriel EAD (voir logGendFormSent).
   var GENDFORM_LOG_PREFIX = 'Identifiants GendForm envoyés le ';
-  function hasBlocages(row) {
-    return textOf(row.blocagesInfos).split(/\r?\n/).some(function (line) {
-      var t = line.trim();
-      return !!t && t.indexOf(GENDFORM_LOG_PREFIX) !== 0;
-    });
-  }
   // Filtres sur l'état des documents (voir docStatus), évalués sur les seuls
   // documents configurés du candidat :
   //  - complete   : tous ses documents sont OK (validés) ;
@@ -1983,23 +1962,28 @@ function refreshLinkColumnList() {
     missing: function (st) { return st.indexOf('missing') !== -1; }
   };
   // Effectifs affichés sur chaque filtre : calculés sur les candidats qui
-  // passent déjà la recherche et le filtre « blocages », pour que les
-  // nombres correspondent à ce qu'un clic afficherait. Le sélecteur est
+  // passent déjà la recherche, pour que les nombres correspondent à ce
+  // qu'un clic afficherait. Le sélecteur est
   // masqué tant qu'aucun document n'est configuré.
+  var DOC_FILTER_LABELS = {
+    all: 'Tous les dossiers', complete: 'Dossiers complets', rejected: 'Documents rejetés',
+    toValidate: 'Documents à valider', missing: 'Documents manquants'
+  };
   function updateDocFilterCounts() {
     var hasDocs = ATTACHMENT_ROLES.some(function (role) { return !!settings.col[role]; });
-    candDocFilterEl.hidden = !hasDocs;
+    candDocFilterGroup.hidden = !hasDocs;
     if (!hasDocs && docFilter !== 'all') {
       docFilter = 'all';
-      candDocFilterEl.querySelector('#candDocFilter_all').checked = true;
+      candDocFilterEl.value = 'all';
     }
     var base = candidates.rows.filter(function (r) { return matchesFilters(r, true); });
-    Object.keys(DOC_FILTERS).forEach(function (key) {
-      var el = candDocFilterEl.querySelector('[data-count="' + key + '"]');
-      if (!el) return;
+    Array.prototype.forEach.call(candDocFilterEl.options, function (opt) {
+      var key = opt.value;
       var n = base.filter(function (r) { return DOC_FILTERS[key](docStatusesOf(r)); }).length;
-      el.textContent = '(' + n + ')';
+      opt.textContent = DOC_FILTER_LABELS[key] + ' (' + n + ')';
     });
+    // Le bouton n'est actif que si un filtre (recherche ou documents) l'est.
+    candResetBtn.disabled = docFilter === 'all' && !searchText.trim();
   }
 
   function matchesFilters(row, skipDocFilter) {
@@ -2009,7 +1993,6 @@ function refreshLinkColumnList() {
       if (hay.indexOf(q) === -1) return false;
     }
     if (!skipDocFilter && !DOC_FILTERS[docFilter](docStatusesOf(row))) return false;
-    if (filterBlocagesOnly && !hasBlocages(row)) return false;
     return true;
   }
 
