@@ -1506,6 +1506,33 @@
         </div>
       </section>
 
+      <section class="cfg-card" aria-labelledby="cfgCardTitle6">
+        <div class="cfg-card__head">
+          <span class="cfg-card__num" aria-hidden="true">4</span>
+          <div>
+            <h3 class="cfg-card__title" id="cfgCardTitle6">Courriel de refus d'une pièce</h3>
+            <p class="cfg-card__desc">Message pré-rempli ouvert dans la messagerie quand on refuse une pièce (Attestation RS, Droit à l'image, EAD - Bloc 1). Il est adressé à l'e-mail du candidat pour lui demander de renvoyer la pièce.</p>
+          </div>
+        </div>
+        <div class="fr-input-group">
+          <label class="fr-label" for="cfg_refusal_subject">Objet du courriel</label>
+          <input class="fr-input" type="text" id="cfg_refusal_subject" autocomplete="off">
+        </div>
+        <div class="fr-input-group fr-mt-2w">
+          <label class="fr-label" for="cfg_refusal_body">Corps du courriel
+            <span class="fr-hint-text">Rédigez le message ; les variables ci-dessous sont remplacées au moment de l'envoi.</span></label>
+          <textarea class="fr-input cfg-mail-body" id="cfg_refusal_body" rows="9"></textarea>
+        </div>
+        <div class="cfg-vars" data-target="cfg_refusal_body">
+          <p class="cfg-vars__title">Variables disponibles <span>(cliquez pour insérer à l'emplacement du curseur)</span></p>
+          <ul class="cfg-vars__list">
+            <li><button class="cfg-var-btn" type="button" data-var="{{DOCUMENT}}">{{DOCUMENT}}</button> affiche le nom de la pièce refusée (ex. « Attestation RS »).</li>
+            <li><button class="cfg-var-btn" type="button" data-var="{{STAGIAIRE}}">{{STAGIAIRE}}</button> affiche le nom du stagiaire au format « Prénom NOM ».</li>
+            <li><button class="cfg-var-btn" type="button" data-var="{{N_CAND}}">{{N_CAND}}</button> affiche le n° CAND du candidat.</li>
+          </ul>
+        </div>
+      </section>
+
       <div class="cfg-bar">
         <span class="cfg-bar__state" id="cfgBarState">Configuration à jour</span>
         <div class="cfg-bar__actions">
@@ -1536,7 +1563,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 2.7</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 2.8</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -1640,6 +1667,13 @@
   // (icône courriel) : objet et corps rédigés dans la Configuration, avec des
   // variables {{…}} remplacées à l'envoi (voir fillMailTemplate).
   var MAIL_VARIABLES = ['N_CAND', 'STAGIAIRE'];
+  // Courriel de refus d'une pièce (ouvert après un clic sur « Refuser la pièce ») : mêmes variables,
+  // plus {{DOCUMENT}} (libellé de la pièce refusée).
+  var REFUSAL_MAIL_VARIABLES = ['N_CAND', 'STAGIAIRE', 'DOCUMENT'];
+  var DEFAULT_REFUSAL_MAIL = {
+    subject: 'Pièce à renvoyer : {{DOCUMENT}}',
+    body: 'Bonjour {{STAGIAIRE}},\n\nLe document « {{DOCUMENT}} » que vous nous avez transmis n’a pas pu être validé.\nMerci de bien vouloir nous renvoyer ce document dûment complété dans les meilleurs délais.\n\nCordialement,'
+  };
   var DEFAULT_EAD_MAIL = {
     subject: 'EAD - Bloc 1',
     body: 'Bonjour {{STAGIAIRE}},\n\nVotre numéro de candidat pour l’enseignement à distance (Bloc 1) est : {{N_CAND}}.\n\nCordialement,'
@@ -1648,7 +1682,8 @@
   function defaultConfig() {
     var col = {};
     ROLES.forEach(function (role) { col[role] = ''; });
-    return { table: '', docsTable: '', docsLinkCol: '', hideEtuteur: false, dateDebutFormation: '', eadMail: { subject: DEFAULT_EAD_MAIL.subject, body: DEFAULT_EAD_MAIL.body, attachment: null }, col: col };
+    return { table: '', docsTable: '', docsLinkCol: '', hideEtuteur: false, dateDebutFormation: '', eadMail: { subject: DEFAULT_EAD_MAIL.subject, body: DEFAULT_EAD_MAIL.body, attachment: null },
+      refusalMail: { subject: DEFAULT_REFUSAL_MAIL.subject, body: DEFAULT_REFUSAL_MAIL.body }, col: col };
   }
   function mergeConfig(loaded) {
     var cfg = defaultConfig();
@@ -1665,6 +1700,9 @@
         // Pièce jointe : { name, type, data } (data = contenu en base64), stockée avec la configuration.
         attachment: (att && typeof att.name === 'string' && typeof att.data === 'string' && att.data) ? { name: att.name, type: String(att.type || ''), data: att.data } : null
       };
+    }
+    if (loaded.refusalMail && typeof loaded.refusalMail.subject === 'string' && typeof loaded.refusalMail.body === 'string') {
+      cfg.refusalMail = { subject: loaded.refusalMail.subject, body: loaded.refusalMail.body };
     }
     if (loaded.col) {
       Object.keys(cfg.col).forEach(function (k) {
@@ -1802,6 +1840,8 @@
   var startDateErrEl = document.getElementById('cand_dateDebutFormation_err');
   var mailSubjectEl = document.getElementById('cfg_mail_subject');
   var mailBodyEl = document.getElementById('cfg_mail_body');
+  var refusalSubjectEl = document.getElementById('cfg_refusal_subject');
+  var refusalBodyEl = document.getElementById('cfg_refusal_body');
   var mailAttachment = null; // pièce jointe en cours d'édition dans la Configuration : { name, type, data } ou null
   var MAIL_ATT_MAX_BYTES = 1.5 * 1024 * 1024;
   var mailAttFileEl = document.getElementById('cfg_mail_att_file');
@@ -2071,6 +2111,8 @@
       document.getElementById('cfg_hideEtuteur').checked = !!settings.hideEtuteur;
       mailSubjectEl.value = settings.eadMail.subject;
       mailBodyEl.value = settings.eadMail.body;
+      refusalSubjectEl.value = settings.refusalMail.subject;
+      refusalBodyEl.value = settings.refusalMail.body;
       mailAttachment = settings.eadMail.attachment || null;
       mailAttErrorEl.hidden = true;
       renderMailAttachment();
@@ -2138,6 +2180,7 @@
     cfg.hideEtuteur = document.getElementById('cfg_hideEtuteur').checked;
     cfg.dateDebutFormation = startDateEl.value.trim();
     cfg.eadMail = { subject: mailSubjectEl.value.trim(), body: mailBodyEl.value, attachment: mailAttachment };
+    cfg.refusalMail = { subject: refusalSubjectEl.value.trim(), body: refusalBodyEl.value };
     ROLES.forEach(function (role) {
       var el = roleSelect(role);
       if (el && isWritableColId(el.value)) cfg.col[role] = el.value;
@@ -2152,16 +2195,17 @@
     if (cfg.dateDebutFormation && !parseFrDate(cfg.dateDebutFormation)) {
       errors.push('« Début de formation le » doit être une date valide au format JJ/MM/AAAA (par ex. 15/09/2026).');
     }
-    // Variables du courriel : seules celles de MAIL_VARIABLES existent.
-    var used = (cfg.eadMail.subject + '\n' + cfg.eadMail.body).match(/\{\{[^{}]*\}\}/g) || [];
-    var unknown = {};
-    used.forEach(function (v) {
-      var name = v.slice(2, -2).trim().toUpperCase();
-      if (MAIL_VARIABLES.indexOf(name) === -1) unknown[v] = true;
-    });
-    Object.keys(unknown).forEach(function (v) {
-      errors.push('Courriel : la variable ' + v + ' n’existe pas (variables disponibles : ' +
-        MAIL_VARIABLES.map(function (n) { return '{{' + n + '}}'; }).join(', ') + ').');
+    // Variables des courriels : seules celles de la liste du courriel concerné existent.
+    [['Courriel EAD', cfg.eadMail, MAIL_VARIABLES], ['Courriel de refus', cfg.refusalMail, REFUSAL_MAIL_VARIABLES]].forEach(function (def) {
+      var used = (def[1].subject + '\n' + def[1].body).match(/\{\{[^{}]*\}\}/g) || [];
+      var unknown = {};
+      used.forEach(function (v) {
+        if (def[2].indexOf(v.slice(2, -2).trim().toUpperCase()) === -1) unknown[v] = true;
+      });
+      Object.keys(unknown).forEach(function (v) {
+        errors.push(def[0] + ' : la variable ' + v + ' n’existe pas (variables disponibles : ' +
+          def[2].map(function (n) { return '{{' + n + '}}'; }).join(', ') + ').');
+      });
     });
     return errors;
   }
@@ -2170,12 +2214,14 @@
   Array.prototype.forEach.call(document.querySelectorAll('.cfg-var-btn'), function (btn) {
     btn.addEventListener('click', function () {
       var token = btn.dataset.var;
-      var start = mailBodyEl.selectionStart, end = mailBodyEl.selectionEnd;
-      if (typeof start !== 'number') { start = end = mailBodyEl.value.length; }
-      mailBodyEl.value = mailBodyEl.value.slice(0, start) + token + mailBodyEl.value.slice(end);
-      mailBodyEl.focus();
-      mailBodyEl.setSelectionRange(start + token.length, start + token.length);
-      mailBodyEl.dispatchEvent(new Event('input', { bubbles: true }));
+      var block = btn.closest('.cfg-vars');
+      var target = (block && block.dataset.target && document.getElementById(block.dataset.target)) || mailBodyEl; // éditeur ciblé par le bloc de variables
+      var start = target.selectionStart, end = target.selectionEnd;
+      if (typeof start !== 'number') { start = end = target.value.length; }
+      target.value = target.value.slice(0, start) + token + target.value.slice(end);
+      target.focus();
+      target.setSelectionRange(start + token.length, start + token.length);
+      target.dispatchEvent(new Event('input', { bubbles: true }));
     });
   });
 
@@ -5324,16 +5370,11 @@
         'impossible de préparer le message de relance.');
       return;
     }
-    var name = fullNamePrenomNom(row);
-    var subject = 'Pièce à renvoyer : ' + docLabel;
-    var body = [
-      'Bonjour' + (name ? ' ' + name : '') + ',',
-      '',
-      'Le document « ' + docLabel + ' » que vous nous avez transmis n’a pas pu être validé.',
-      'Merci de bien vouloir nous renvoyer ce document dûment complété dans les meilleurs délais.',
-      '',
-      'Cordialement,'
-    ].join('\n');
+    // Objet et corps rédigés dans la Configuration (courriel de refus), variables remplacées.
+    var tpl = settings.refusalMail || DEFAULT_REFUSAL_MAIL;
+    var extra = { DOCUMENT: docLabel };
+    var subject = fillMailTemplate(tpl.subject || DEFAULT_REFUSAL_MAIL.subject, row, extra);
+    var body = fillMailTemplate(tpl.body || DEFAULT_REFUSAL_MAIL.body, row, extra);
     openMailto(email, subject, body);
   }
 
@@ -5403,9 +5444,10 @@
 
   // Remplace les variables {{N_CAND}} / {{STAGIAIRE}} (insensible à la casse
   // et aux espaces) ; une variable inconnue est laissée telle quelle.
-  function fillMailTemplate(text, row) {
+  function fillMailTemplate(text, row, extra) {
     return String(text || '').replace(/\{\{\s*([^{}]*?)\s*\}\}/g, function (whole, name) {
       var key = name.toUpperCase();
+      if (extra && Object.prototype.hasOwnProperty.call(extra, key)) return extra[key]; // ex. {{DOCUMENT}} du courriel de refus
       if (key === 'N_CAND') return textOf(row.numCand);
       if (key === 'STAGIAIRE') return fullNamePrenomNom(row);
       return whole;
