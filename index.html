@@ -1212,6 +1212,7 @@
           <option value="rejected">Documents rejetés</option>
           <option value="toValidate">Documents à valider</option>
           <option value="missing">Documents manquants</option>
+          <option value="eadMailNotSent">Email EAD non envoyé</option>
         </select>
       </div>
       <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-circle-line fr-btn--icon-left" id="candResetBtn" type="button" disabled title="Efface la recherche et le filtre sur les documents">
@@ -1570,7 +1571,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 2.10</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 2.11</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -1799,7 +1800,7 @@
   var candidates = { rows: [], loaded: false };
   var allTableIds = [];
   var searchText = '';
-  var docFilter = 'all'; // 'all' | 'complete' | 'rejected' | 'toValidate' | 'missing' (voir DOC_FILTERS)
+  var docFilter = 'all'; // 'all' | 'complete' | 'rejected' | 'toValidate' | 'missing' | 'eadMailNotSent' (voir DOC_FILTERS)
 
   // ---- Références DOM ----------------------------------------------------
   var panelEtuteur = document.getElementById('panelEtuteur');
@@ -2782,7 +2783,9 @@
     complete: function (st) { return st.length > 0 && st.every(function (x) { return x === 'ok'; }); },
     rejected: function (st) { return st.indexOf('rejected') !== -1; },
     toValidate: function (st) { return st.indexOf('pending') !== -1; },
-    missing: function (st) { return st.indexOf('missing') !== -1; }
+    missing: function (st) { return st.indexOf('missing') !== -1; },
+    // Identifiants GendForm pas encore envoyés (aucune mention dans Blocages / Infos, voir gendFormAlreadySent).
+    eadMailNotSent: function (st, row) { return !gendFormAlreadySent(row); }
   };
   // Effectifs affichés sur chaque filtre : calculés sur les candidats qui
   // passent déjà la recherche, pour que les nombres correspondent à ce
@@ -2790,7 +2793,7 @@
   // masqué tant qu'aucun document n'est configuré.
   var DOC_FILTER_LABELS = {
     all: 'Tous les dossiers', complete: 'Dossiers complets', rejected: 'Documents rejetés',
-    toValidate: 'Documents à valider', missing: 'Documents manquants'
+    toValidate: 'Documents à valider', missing: 'Documents manquants', eadMailNotSent: 'Email EAD non envoyé'
   };
   function updateDocFilterCounts() {
     var hasDocs = ATTACHMENT_ROLES.some(function (role) { return !!settings.col[role]; });
@@ -2802,7 +2805,7 @@
     var base = candidates.rows.filter(function (r) { return matchesFilters(r, true); });
     Array.prototype.forEach.call(candDocFilterEl.options, function (opt) {
       var key = opt.value;
-      var n = base.filter(function (r) { return DOC_FILTERS[key](docStatusesOf(r)); }).length;
+      var n = base.filter(function (r) { return DOC_FILTERS[key](docStatusesOf(r), r); }).length;
       opt.textContent = DOC_FILTER_LABELS[key] + ' (' + n + ')';
     });
     // Le bouton n'est actif que si un filtre (recherche ou documents) l'est.
@@ -2815,7 +2818,7 @@
       var hay = normalizeKey(textOf(row.nid) + ' ' + stagiaireDisplayName(row) + ' ' + textOfRef(row.inscriptionBande) + ' ' + textOf(row.numCand));
       if (hay.indexOf(q) === -1) return false;
     }
-    if (!skipDocFilter && !DOC_FILTERS[docFilter](docStatusesOf(row))) return false;
+    if (!skipDocFilter && !DOC_FILTERS[docFilter](docStatusesOf(row), row)) return false;
     return true;
   }
 
