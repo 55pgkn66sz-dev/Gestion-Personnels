@@ -5847,3 +5847,534 @@
 
 </body>
 </html>
+r vide ou inexploitable renvoie null
+  // plutôt que de faire planter le calcul de minorité.
+  function dateOf(v) {
+    if (typeof v === 'number' && isFinite(v)) return new Date(v * 1000);
+    if (typeof v === 'string' && v.trim()) {
+      var t = Date.parse(v);
+      if (!isNaN(t)) return new Date(t);
+    }
+    return null;
+  }
+  // Le stagiaire sera-t-il mineur au premier jour de la formation ?
+  // Calculé à partir de sa date de naissance (colonne Date de Grist, voir
+  // settings.col.dateNaissance) et de la date "Début de formation le",
+  // saisie à la main dans la Configuration (settings.dateDebutFormation,
+  // déjà convertie en Date UTC par parseFrDate) — pas une colonne.
+  // Renvoie false si l'une des deux dates manque ou n'est pas exploitable :
+  // le pictogramme reste alors masqué plutôt que d'afficher une fausse
+  // certitude.
+  function willBeMinor(birthValue, start) {
+    var birth = dateOf(birthValue);
+    if (!birth || !start) return false;
+    var age = start.getUTCFullYear() - birth.getUTCFullYear();
+    var monthDiff = start.getUTCMonth() - birth.getUTCMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && start.getUTCDate() < birth.getUTCDate())) age--;
+    return age < 18;
+  }
+  function escapeHtml(s) {
+    var div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+  }
+  function escapeAttr(s) {
+    return escapeHtml(s).replace(/"/g, '&quot;');
+  }
+  // Grist renvoie un message technique en anglais lorsque les règles
+  // d'accès du document interdisent l'écriture demandée : on le remplace
+  // par un texte compréhensible, comme dans le widget Réservations.
+  function friendlyErrorMessage(e) {
+    var raw = (e && e.message) ? e.message : String(e || '');
+    if (/blocked by .*access rules/i.test(raw)) {
+      return 'Vous ne disposez pas des droits nécessaires. Contactez l\'équipe projet si vous pensez qu\'il s\'agit d\'une erreur.';
+    }
+    return raw;
+  }
+
+})();
+</script>
+
+</body>
+</html>
+2, maximumFractionDigits: 2 }) + ' €';
+  }
+  // Regroupe un numéro de téléphone par paires de chiffres ("0102030405"
+  // ou "01.02.03.04.05" ou "01-02-03-04-05" -> "01 02 03 04 05"), quel que
+  // soit le séparateur saisi dans Grist. Un éventuel "+" initial (indicatif
+  // international) est conservé devant le premier groupe. Si la valeur ne
+  // contient aucun chiffre, elle est affichée telle quelle plutôt que
+  // perdue.
+  function fmtPhoneFr(v) {
+    var raw = textOf(v);
+    if (!raw) return '';
+    var trimmed = raw.trim();
+    var hasPlus = trimmed.charAt(0) === '+';
+    var digits = trimmed.replace(/\D/g, '');
+    if (!digits) return raw;
+    // Un numéro français stocké dans une colonne Numérique perd son 0
+    // initial (ex. 612345678 au lieu de 0612345678) : on le rajoute
+    // lorsque le compte de chiffres (9, sans indicatif international)
+    // correspond à un numéro français privé de ce 0.
+    if (!hasPlus && digits.length === 9) digits = '0' + digits;
+    var groups = digits.match(/\d{1,2}/g) || [];
+    return (hasPlus ? '+' : '') + groups.join(' ');
+  }
+  // Grist renvoie les colonnes Date/DateTime comme un nombre de secondes
+  // depuis l'epoch Unix (UTC), jamais comme une chaîne — d'où la
+  // conversion ×1000 pour obtenir un objet Date JavaScript (qui travaille
+  // en millisecondes). Une valeur vide ou inexploitable renvoie null
+  // plutôt que de faire planter le calcul de minorité.
+  function dateOf(v) {
+    if (typeof v === 'number' && isFinite(v)) return new Date(v * 1000);
+    if (typeof v === 'string' && v.trim()) {
+      var t = Date.parse(v);
+      if (!isNaN(t)) return new Date(t);
+    }
+    return null;
+  }
+  // Le stagiaire sera-t-il mineur au premier jour de la formation ?
+  // Calculé à partir de sa date de naissance (colonne Date de Grist, voir
+  // settings.col.dateNaissance) et de la date "Début de formation le",
+  // saisie à la main dans la Configuration (settings.dateDebutFormation,
+  // déjà convertie en Date UTC par parseFrDate) — pas une colonne.
+  // Renvoie false si l'une des deux dates manque ou n'est pas exploitable :
+  // le pictogramme reste alors masqué plutôt que d'afficher une fausse
+  // certitude.
+  function willBeMinor(birthValue, start) {
+    var birth = dateOf(birthValue);
+    if (!birth || !start) return false;
+    var age = start.getUTCFullYear() - birth.getUTCFullYear();
+    var monthDiff = start.getUTCMonth() - birth.getUTCMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && start.getUTCDate() < birth.getUTCDate())) age--;
+    return age < 18;
+  }
+  function escapeHtml(s) {
+    var div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+  }
+  function escapeAttr(s) {
+    return escapeHtml(s).replace(/"/g, '&quot;');
+  }
+  // Grist renvoie un message technique en anglais lorsque les règles
+  // d'accès du document interdisent l'écriture demandée : on le remplace
+  // par un texte compréhensible, comme dans le widget Réservations.
+  function friendlyErrorMessage(e) {
+    var raw = (e && e.message) ? e.message : String(e || '');
+    if (/blocked by .*access rules/i.test(raw)) {
+      return 'Vous ne disposez pas des droits nécessaires. Contactez l\'équipe projet si vous pensez qu\'il s\'agit d\'une erreur.';
+    }
+    return raw;
+  }
+
+})();
+</script>
+
+</body>
+</html>
+lonne Référence simple non résolue en texte représente une
+  // référence "vide" par l'entier 0 côté Grist, pas par une chaîne vide —
+  // sans ce traitement, "Stagiaire" ou "Inscription bande" afficheraient
+  // "0" tant que la ligne visée n'a pas de valeur.
+  function textOfRef(v) {
+    return v === 0 ? '' : textOf(v);
+  }
+  function numOf(v) {
+    var t = textOf(v);
+    if (t === '') return NaN;
+    var n = Number(t);
+    return isNaN(n) ? NaN : n;
+  }
+  function fmtCurrency(v) {
+    var n = numOf(v);
+    if (isNaN(n)) return '—';
+    return n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+  }
+  // Regroupe un numéro de téléphone par paires de chiffres ("0102030405"
+  // ou "01.02.03.04.05" ou "01-02-03-04-05" -> "01 02 03 04 05"), quel que
+  // soit le séparateur saisi dans Grist. Un éventuel "+" initial (indicatif
+  // international) est conservé devant le premier groupe. Si la valeur ne
+  // contient aucun chiffre, elle est affichée telle quelle plutôt que
+  // perdue.
+  function fmtPhoneFr(v) {
+    var raw = textOf(v);
+    if (!raw) return '';
+    var trimmed = raw.trim();
+    var hasPlus = trimmed.charAt(0) === '+';
+    var digits = trimmed.replace(/\D/g, '');
+    if (!digits) return raw;
+    // Un numéro français stocké dans une colonne Numérique perd son 0
+    // initial (ex. 612345678 au lieu de 0612345678) : on le rajoute
+    // lorsque le compte de chiffres (9, sans indicatif international)
+    // correspond à un numéro français privé de ce 0.
+    if (!hasPlus && digits.length === 9) digits = '0' + digits;
+    var groups = digits.match(/\d{1,2}/g) || [];
+    return (hasPlus ? '+' : '') + groups.join(' ');
+  }
+  // Grist renvoie les colonnes Date/DateTime comme un nombre de secondes
+  // depuis l'epoch Unix (UTC), jamais comme une chaîne — d'où la
+  // conversion ×1000 pour obtenir un objet Date JavaScript (qui travaille
+  // en millisecondes). Une valeur vide ou inexploitable renvoie null
+  // plutôt que de faire planter le calcul de minorité.
+  function dateOf(v) {
+    if (typeof v === 'number' && isFinite(v)) return new Date(v * 1000);
+    if (typeof v === 'string' && v.trim()) {
+      var t = Date.parse(v);
+      if (!isNaN(t)) return new Date(t);
+    }
+    return null;
+  }
+  // Le stagiaire sera-t-il mineur au premier jour de la formation ?
+  // Calculé à partir de sa date de naissance (colonne Date de Grist, voir
+  // settings.col.dateNaissance) et de la date "Début de formation le",
+  // saisie à la main dans la Configuration (settings.dateDebutFormation,
+  // déjà convertie en Date UTC par parseFrDate) — pas une colonne.
+  // Renvoie false si l'une des deux dates manque ou n'est pas exploitable :
+  // le pictogramme reste alors masqué plutôt que d'afficher une fausse
+  // certitude.
+  function willBeMinor(birthValue, start) {
+    var birth = dateOf(birthValue);
+    if (!birth || !start) return false;
+    var age = start.getUTCFullYear() - birth.getUTCFullYear();
+    var monthDiff = start.getUTCMonth() - birth.getUTCMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && start.getUTCDate() < birth.getUTCDate())) age--;
+    return age < 18;
+  }
+  function escapeHtml(s) {
+    var div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+  }
+  function escapeAttr(s) {
+    return escapeHtml(s).replace(/"/g, '&quot;');
+  }
+  // Grist renvoie un message technique en anglais lorsque les règles
+  // d'accès du document interdisent l'écriture demandée : on le remplace
+  // par un texte compréhensible, comme dans le widget Réservations.
+  function friendlyErrorMessage(e) {
+    var raw = (e && e.message) ? e.message : String(e || '');
+    if (/blocked by .*access rules/i.test(raw)) {
+      return 'Vous ne disposez pas des droits nécessaires. Contactez l\'équipe projet si vous pensez qu\'il s\'agit d\'une erreur.';
+    }
+    return raw;
+  }
+
+})();
+</script>
+
+</body>
+</html>
+igine (le CDN).
+  var PDFJS_BASE = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/';
+  var pdfjsPromise = null;
+  function loadPdfJs() {
+    if (!pdfjsPromise) {
+      pdfjsPromise = new Promise(function (resolve, reject) {
+        var s = document.createElement('script');
+        s.src = PDFJS_BASE + 'pdf.min.js';
+        s.onload = function () {
+          var lib = window.pdfjsLib || window['pdfjs-dist/build/pdf'];
+          if (!lib) { reject(new Error('pdf.js indisponible')); return; }
+          fetch(PDFJS_BASE + 'pdf.worker.min.js').then(function (r) { return r.text(); }).then(function (code) {
+            lib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([code], { type: 'text/javascript' }));
+            resolve(lib);
+          }).catch(reject);
+        };
+        s.onerror = function () { reject(new Error('pdf.js indisponible')); };
+        document.head.appendChild(s);
+      });
+      pdfjsPromise.catch(function () { pdfjsPromise = null; }); // permet de réessayer au prochain survol
+    }
+    return pdfjsPromise;
+  }
+  function renderPdfFirstPage(buffer) {
+    return loadPdfJs().then(function (lib) {
+      return lib.getDocument({ data: buffer }).promise;
+    }).then(function (pdf) {
+      return pdf.getPage(1).then(function (page) {
+        var cssWidth = 272; // 17rem, comme la largeur du popover
+        var base = page.getViewport({ scale: 1 });
+        var viewport = page.getViewport({ scale: (cssWidth / base.width) * 2 }); // ×2 : netteté sur écran dense
+        var canvas = document.createElement('canvas');
+        canvas.width = Math.floor(viewport.width);
+        canvas.height = Math.floor(viewport.height);
+        return page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport }).promise.then(function () {
+          var wrap = document.createElement('div');
+          wrap.appendChild(canvas);
+          if (pdf.numPages > 1) {
+            var note = document.createElement('p');
+            note.className = 'attach-preview__pages';
+            note.textContent = 'Page 1 sur ' + pdf.numPages;
+            wrap.appendChild(note);
+          }
+          return wrap;
+        });
+      });
+    });
+  }
+
+  // Corps du popover : image directe, ou PDF téléchargé puis rendu par
+  // pdf.js. Si le type n'est pas connu (métadonnées illisibles), on le
+  // déduit du Content-Type de la réponse. Renvoie null si aucun aperçu
+  // n'est possible (le popover affiche alors le lien d'ouverture seul).
+  //
+  // Chaîne de repli pour un PDF (le navigateur peut refuser chaque étape) :
+  //  1. fetch + rendu pdf.js (image nette, indépendante du navigateur) ;
+  //  2. si la requête est bloquée par le navigateur (CORS — cas de Safari,
+  //     "Load failed") ou si pdf.js est indisponible : visionneuse PDF native
+  //     du navigateur dans un cadre (<iframe>), qui n'a pas besoin de CORS ;
+  //  3. si Grist répond par un refus (401/403/404, règles d'accès du
+  //     document appliquées au jeton du widget) : message explicite.
+  // La promesse est rejetée avec une Error dont le message explique
+  // pourquoi l'aperçu est impossible (affiché dans le popover).
+  function previewFailure(text) {
+    var e = new Error(text);
+    e.isPreviewFailure = true;
+    return e;
+  }
+  function buildPdfFrame(url) {
+    var frame = document.createElement('iframe');
+    frame.className = 'attach-preview__frame';
+    frame.title = 'Aperçu du document';
+    // inline=1 : Grist sert le fichier "en ligne" (sinon en téléchargement).
+    frame.src = url + '&inline=1#toolbar=0&view=FitH';
+    return frame;
+  }
+  function buildPreviewBody(url, meta, fileName, cell) {
+    var looksPdf = isPdfType(meta) || /\.pdf$/i.test(fileName || '');
+    if (isImageType(meta)) {
+      return new Promise(function (resolve, reject) {
+        var img = document.createElement('img');
+        img.alt = fileName;
+        img.onload = function () { resolve(img); };
+        img.onerror = function () {
+          reject(previewFailure('Grist n’a pas fourni l’image (accès refusé au jeton du widget ?).'));
+        };
+        img.src = url;
+      });
+    }
+    if (meta && meta.fileType && !looksPdf) {
+      return Promise.reject(previewFailure('Pas d’aperçu pour ce type de fichier.'));
+    }
+    return fetch(url).then(function (resp) {
+      if (!resp.ok) {
+        // Grist répond 404 (et non 403) quand ses règles d'accès interdisent la
+        // lecture de la cellule : ce n'est pas un fichier introuvable.
+        throw previewFailure('Grist a refusé l’accès au fichier (HTTP ' + resp.status + ') : les règles d’accès du document ne permettent pas de lire cette cellule avec le jeton du widget' +
+          (cell ? ' — table « ' + cell.tableId + ' », colonne « ' + cell.colId + ' », ligne ' + cell.rowId : '') + '.');
+      }
+      return resp.blob();
+    }, function () {
+      var blocked = new Error('blocked');
+      blocked.blocked = true;
+      throw blocked;
+    }).then(function (blob) {
+      var type = (meta && meta.fileType) || blob.type || '';
+      if (type.indexOf('image/') === 0) {
+        var img2 = document.createElement('img');
+        img2.src = URL.createObjectURL(blob);
+        img2.alt = fileName;
+        return img2;
+      }
+      if (type.indexOf('pdf') !== -1 || looksPdf) {
+        return blob.arrayBuffer().then(renderPdfFirstPage).catch(function () { return buildPdfFrame(url); });
+      }
+      throw previewFailure('Pas d’aperçu pour ce type de fichier.');
+    }).catch(function (e) {
+      if (e && e.blocked) {
+        if (looksPdf) return buildPdfFrame(url);
+        throw previewFailure('Requête bloquée par le navigateur (accès inter-origine).');
+      }
+      throw (e && e.isPreviewFailure) ? e : previewFailure('Lecture du fichier impossible.');
+    });
+  }
+
+  var previewRequestSeq = 0;
+  function showAttachPreview(anchorEl, attachmentId, cell) {
+    // Déjà affiché pour ce même fichier (passage de la vignette au nom) :
+    // on se contente de repositionner, sans tout recharger.
+    if (!attachPreview.hidden && attachPreview.dataset.attachmentId === String(attachmentId)) {
+      positionPreview(anchorEl.getBoundingClientRect());
+      return;
+    }
+    var seq = ++previewRequestSeq;
+    var rect = anchorEl.getBoundingClientRect();
+    attachPreview.dataset.attachmentId = attachmentId;
+    attachPreview.innerHTML = '<p class="attach-preview__loading">Chargement de l’aperçu…</p>';
+    attachPreview.hidden = false;
+    positionPreview(rect);
+
+    Promise.all([loadAttachmentsMeta(), getAccessTokenInfo()]).then(function (results) {
+      if (seq !== previewRequestSeq) return; // un autre survol a entre-temps pris le relais
+      var meta = results[0][attachmentId];
+      var tokenInfo = results[1];
+      var url = attachmentUrl(tokenInfo, attachmentId, cell);
+      var fileName = (meta && meta.fileName) || ('Pièce jointe #' + attachmentId);
+
+      attachPreview.innerHTML = '<p class="attach-preview__name">' + escapeHtml(fileName) + '</p>' +
+        '<div class="attach-preview__body"><p class="attach-preview__loading">Chargement de l’aperçu…</p></div>' +
+        '<a class="attach-preview__link fr-link" href="' + escapeAttr(attachmentSessionUrl(tokenInfo, attachmentId, cell)) + '" target="_blank" rel="noopener">Ouvrir dans un nouvel onglet</a>';
+      positionPreview(rect);
+
+      return buildPreviewBody(url, meta, fileName, cell).then(function (bodyEl) {
+        if (seq !== previewRequestSeq) return;
+        var body = attachPreview.querySelector('.attach-preview__body');
+        if (!body) return;
+        body.innerHTML = '';
+        body.appendChild(bodyEl);
+        positionPreview(rect); // la taille du contenu vient de changer (image/PDF) : on repositionne pour rester dans l'écran
+      }, function (failure) {
+        if (seq !== previewRequestSeq) return;
+        var body = attachPreview.querySelector('.attach-preview__body');
+        if (!body) return;
+        body.innerHTML = '<div class="attach-preview__fallback"><span class="fr-icon-file-line" aria-hidden="true" style="font-size:2rem;"></span>' +
+          '<span>Aperçu non disponible pour ce fichier. Cliquez sur son nom pour l’ouvrir.</span>' +
+          '<span class="attach-preview__reason">' + escapeHtml(failure && failure.message ? failure.message : '') + '</span></div>';
+        positionPreview(rect);
+      });
+    }).catch(function (e) {
+      if (seq !== previewRequestSeq) return;
+      attachPreview.innerHTML = '<p class="attach-preview__loading">Aperçu indisponible : ' + escapeHtml(friendlyErrorMessage(e)) + '</p>';
+    });
+  }
+  function hideAttachPreview() {
+    previewRequestSeq++; // invalide toute requête d'aperçu encore en cours
+    attachPreview.hidden = true;
+    delete attachPreview.dataset.attachmentId;
+  }
+  function positionPreview(rect) {
+    // Positionne le popover juste sous la vignette, en le ramenant dans la
+    // fenêtre visible s'il déborderait à droite ou en bas (même logique
+    // simple que les menus déroulants : pas de bibliothèque de
+    // positionnement, un ajustement suffisant pour la taille du popover).
+    var top = rect.bottom + 8;
+    var left = rect.left;
+    var maxLeft = window.innerWidth - attachPreview.offsetWidth - 12;
+    var maxTop = window.innerHeight - attachPreview.offsetHeight - 12;
+    if (left > maxLeft) left = Math.max(12, maxLeft);
+    if (top > maxTop) top = Math.max(12, rect.top - attachPreview.offsetHeight - 8);
+    attachPreview.style.left = left + 'px';
+    attachPreview.style.top = top + 'px';
+  }
+
+  // ---- Utilitaires génériques (repris du widget Réservations) -----------
+
+  function normalizeKey(v) {
+    return String(v || '').normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toUpperCase();
+  }
+  function textOf(v) {
+    if (v === null || v === undefined) return '';
+    if (Array.isArray(v)) {
+      // Une cellule en erreur (formule cassée, référence invalide…) est
+      // renvoyée par fetchTable() comme un tableau étiqueté
+      // ['E', nomErreur, message?] — sans ce traitement, elle s'affichait
+      // littéralement "E, SyntaxError" au lieu d'un message compréhensible
+      // (c'est ce que provoquait l'affichage "E, SyntaxError" sur le nom
+      // du stagiaire : la colonne mappée sur "Stagiaire" contient une
+      // formule en erreur côté Grist — un signal à corriger dans le
+      // document, que le widget se contente maintenant de signaler
+      // clairement plutôt que de le rendre illisible).
+      if (v.length && (v[0] === 'E' || v[0] === 'e')) {
+        return '⚠ Erreur de formule (' + String(v[1] || '?') + ')';
+      }
+      var items = v.slice();
+      if (items.length && (items[0] === 'L' || items[0] === 'l' || items[0] === 'R' || items[0] === 'r')) {
+        items = items.slice(1);
+      }
+      return items.map(function (x) { return String(x).trim(); }).filter(function (x) { return x.length > 0; }).join(', ');
+    }
+    return String(v).trim();
+  }
+  // Une colonne Référence simple non résolue en texte représente une
+  // référence "vide" par l'entier 0 côté Grist, pas par une chaîne vide —
+  // sans ce traitement, "Stagiaire" ou "Inscription bande" afficheraient
+  // "0" tant que la ligne visée n'a pas de valeur.
+  function textOfRef(v) {
+    return v === 0 ? '' : textOf(v);
+  }
+  function numOf(v) {
+    var t = textOf(v);
+    if (t === '') return NaN;
+    var n = Number(t);
+    return isNaN(n) ? NaN : n;
+  }
+  function fmtCurrency(v) {
+    var n = numOf(v);
+    if (isNaN(n)) return '—';
+    return n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+  }
+  // Regroupe un numéro de téléphone par paires de chiffres ("0102030405"
+  // ou "01.02.03.04.05" ou "01-02-03-04-05" -> "01 02 03 04 05"), quel que
+  // soit le séparateur saisi dans Grist. Un éventuel "+" initial (indicatif
+  // international) est conservé devant le premier groupe. Si la valeur ne
+  // contient aucun chiffre, elle est affichée telle quelle plutôt que
+  // perdue.
+  function fmtPhoneFr(v) {
+    var raw = textOf(v);
+    if (!raw) return '';
+    var trimmed = raw.trim();
+    var hasPlus = trimmed.charAt(0) === '+';
+    var digits = trimmed.replace(/\D/g, '');
+    if (!digits) return raw;
+    // Un numéro français stocké dans une colonne Numérique perd son 0
+    // initial (ex. 612345678 au lieu de 0612345678) : on le rajoute
+    // lorsque le compte de chiffres (9, sans indicatif international)
+    // correspond à un numéro français privé de ce 0.
+    if (!hasPlus && digits.length === 9) digits = '0' + digits;
+    var groups = digits.match(/\d{1,2}/g) || [];
+    return (hasPlus ? '+' : '') + groups.join(' ');
+  }
+  // Grist renvoie les colonnes Date/DateTime comme un nombre de secondes
+  // depuis l'epoch Unix (UTC), jamais comme une chaîne — d'où la
+  // conversion ×1000 pour obtenir un objet Date JavaScript (qui travaille
+  // en millisecondes). Une valeur vide ou inexploitable renvoie null
+  // plutôt que de faire planter le calcul de minorité.
+  function dateOf(v) {
+    if (typeof v === 'number' && isFinite(v)) return new Date(v * 1000);
+    if (typeof v === 'string' && v.trim()) {
+      var t = Date.parse(v);
+      if (!isNaN(t)) return new Date(t);
+    }
+    return null;
+  }
+  // Le stagiaire sera-t-il mineur au premier jour de la formation ?
+  // Calculé à partir de sa date de naissance (colonne Date de Grist, voir
+  // settings.col.dateNaissance) et de la date "Début de formation le",
+  // saisie à la main dans la Configuration (settings.dateDebutFormation,
+  // déjà convertie en Date UTC par parseFrDate) — pas une colonne.
+  // Renvoie false si l'une des deux dates manque ou n'est pas exploitable :
+  // le pictogramme reste alors masqué plutôt que d'afficher une fausse
+  // certitude.
+  function willBeMinor(birthValue, start) {
+    var birth = dateOf(birthValue);
+    if (!birth || !start) return false;
+    var age = start.getUTCFullYear() - birth.getUTCFullYear();
+    var monthDiff = start.getUTCMonth() - birth.getUTCMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && start.getUTCDate() < birth.getUTCDate())) age--;
+    return age < 18;
+  }
+  function escapeHtml(s) {
+    var div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+  }
+  function escapeAttr(s) {
+    return escapeHtml(s).replace(/"/g, '&quot;');
+  }
+  // Grist renvoie un message technique en anglais lorsque les règles
+  // d'accès du document interdisent l'écriture demandée : on le remplace
+  // par un texte compréhensible, comme dans le widget Réservations.
+  function friendlyErrorMessage(e) {
+    var raw = (e && e.message) ? e.message : String(e || '');
+    if (/blocked by .*access rules/i.test(raw)) {
+      return 'Vous ne disposez pas des droits nécessaires. Contactez l\'équipe projet si vous pensez qu\'il s\'agit d\'une erreur.';
+    }
+    return raw;
+  }
+
+})();
+</script>
+
+</body>
+</html>
