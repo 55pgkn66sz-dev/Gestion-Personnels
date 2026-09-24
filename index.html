@@ -5900,3 +5900,25 @@ mErreur, message?] — sans ce traitement, elle s'affichait
 </html>
 ody>
 </html>
+   div.textContent = s;
+    return div.innerHTML;
+  }
+  function escapeAttr(s) {
+    return escapeHtml(s).replace(/"/g, '&quot;');
+  }
+  // Grist renvoie un message technique en anglais lorsque les règles
+  // d'accès du document interdisent l'écriture demandée : on le remplace
+  // par un texte compréhensible, comme dans le widget Réservations.
+  function friendlyErrorMessage(e) {
+    var raw = (e && e.message) ? e.message : String(e || '');
+    if (/blocked by .*access rules/i.test(raw)) {
+      return 'Vous ne disposez pas des droits nécessaires. Contactez l\'équipe projet si vous pensez qu\'il s\'agit d\'une erreur.';
+    }
+    return raw;
+  }
+
+})();
+</script>
+
+</body>
+</html>
