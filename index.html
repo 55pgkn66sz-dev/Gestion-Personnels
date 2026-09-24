@@ -326,6 +326,7 @@
   /* Accents de la page Stagiaires en kaki foncé : on redéfinit ici les variables de couleur
      « bleu » (titres de blocs, onglet actif, liens, icônes, tags) pour la liste et pour la fiche. */
   .stg-hero__subtitle { margin: 0.1rem 0 0; font-size: 0.95rem; font-weight: 500; color: var(--text-mention-grey); }
+  .enc-bygroup { align-self: center; margin: 0; }
   .enc-group-title { margin: 1.2rem 0 0.5rem; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-mention-grey); }
   .enc-group-title:first-child { margin-top: 0; }
   #panelStagiaires, #panelEncadrement, .stg-dialog { --bleu-france: #5c5a2b; --text-action-high-blue-france: #5c5a2b; }
@@ -1253,17 +1254,21 @@
           <div class="stg-multi__panel" id="encAffectationPanel"></div>
         </details>
       </div>
+      <div class="stg-multi" id="encGroupeGroup">
+        <details>
+          <summary class="fr-select stg-multi__summary" id="encGroupeSummary">Groupe</summary>
+          <div class="stg-multi__panel" id="encGroupePanel"></div>
+        </details>
+      </div>
       <div class="stg-multi" id="encFonctionGroup">
         <details>
           <summary class="fr-select stg-multi__summary" id="encFonctionSummary">Fonction</summary>
           <div class="stg-multi__panel" id="encFonctionPanel"></div>
         </details>
       </div>
-      <div class="stg-multi" id="encGroupeGroup">
-        <details>
-          <summary class="fr-select stg-multi__summary" id="encGroupeSummary">Groupe</summary>
-          <div class="stg-multi__panel" id="encGroupePanel"></div>
-        </details>
+      <div class="fr-checkbox-group fr-checkbox-group--sm enc-bygroup" id="encByGroupWrap" hidden>
+        <input type="checkbox" id="encByGroup">
+        <label class="fr-label" for="encByGroup">Afficher par groupe</label>
       </div>
       <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-circle-line fr-btn--icon-left" id="encResetBtn" type="button" disabled title="Efface la recherche et décoche tous les filtres">
         Réinitialiser les filtres
@@ -1323,7 +1328,7 @@
         </div>
         <div class="bulk-gen">
           <div class="bulk-gen__head">
-            <div class="fr-checkbox-group"><input type="checkbox" id="bulkGenAll" checked><label class="fr-label" for="bulkGenAll">Tous les stagiaires</label></div>
+            <div class="fr-checkbox-group"><input type="checkbox" id="bulkGenAll" checked><label class="fr-label" for="bulkGenAll" id="bulkGenAllLabel">Tous les stagiaires</label></div>
             <span class="fr-text--sm" id="bulkGenCount"></span>
           </div>
           <div class="bulk-gen__list" id="bulkGenList"></div>
@@ -1618,7 +1623,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 3.7</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 4.1</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -2061,6 +2066,7 @@
   var columnLabels = {}; // { tableId: { colId: libellé } }, lus avec les types
   var columnTypesMap = {}; // { tableId: { colId: type } }, idem
   var columnChoicesMap = {}; // { tableId: { colId: [choix…] } } pour les colonnes Choix, idem
+  var columnChoiceOptionsMap = {}; // { tableId: { colId: { valeur: { fillColor, textColor, fontBold } } } } : couleurs des choix, idem
   var suggestionsApplied = false; // une colonne a été présélectionnée d'après son libellé
   function loadColumnTypes() {
     if (!columnTypesPromise) {
@@ -2074,18 +2080,24 @@
         var map = {};
         var labels = {};
         var choicesMap = {};
+        var choiceOptionsMap = {};
         for (var j = 0; j < cols.id.length; j++) {
           var tableName = tableNameById[cols.parentId[j]];
           if (!tableName) continue;
           (map[tableName] = map[tableName] || {})[cols.colId[j]] = cols.type[j];
           (labels[tableName] = labels[tableName] || {})[cols.colId[j]] = cols.label ? cols.label[j] : '';
           if (/^Choice/.test(cols.type[j]) && cols.widgetOptions) {
-            try { (choicesMap[tableName] = choicesMap[tableName] || {})[cols.colId[j]] = JSON.parse(cols.widgetOptions[j] || '{}').choices || []; } catch (e) { /* choix illisibles : valeurs par défaut */ }
+            try {
+              var wo = JSON.parse(cols.widgetOptions[j] || '{}');
+              (choicesMap[tableName] = choicesMap[tableName] || {})[cols.colId[j]] = wo.choices || [];
+              if (wo.choiceOptions) (choiceOptionsMap[tableName] = choiceOptionsMap[tableName] || {})[cols.colId[j]] = wo.choiceOptions;
+            } catch (e) { /* choix illisibles : valeurs par défaut */ }
           }
         }
         columnLabels = labels;
         columnTypesMap = map;
         columnChoicesMap = choicesMap;
+        columnChoiceOptionsMap = choiceOptionsMap;
         return map;
       }).catch(function () { return {}; });
     }
@@ -3281,15 +3293,26 @@
     var tags = document.createElement('span');
     tags.className = 'cand-row__tags';
     var pon = settings.col.pon ? textOf(row.pon) : '';
-    if (pon) tags.appendChild(buildPlainTag(pon, 'stg-tag--pon', 'PON : ' + pon));
+    if (pon) tags.appendChild(applyChoiceColors(buildPlainTag(pon, 'stg-tag--pon', 'PON : ' + pon), tableChoiceOptions(settings.table, settings.col.pon), pon));
     var fonction = settings.col.fonction ? textOf(row.fonction) : '';
-    if (fonction) tags.appendChild(buildPlainTag(fonction, 'stg-tag--fonction', 'Fonction : ' + fonction));
+    if (fonction) tags.appendChild(applyChoiceColors(buildPlainTag(fonction, 'stg-tag--fonction', 'Fonction : ' + fonction), tableChoiceOptions(settings.table, settings.col.fonction), fonction));
     btn.appendChild(tags);
 
     btn.appendChild(buildRowEnd(row, true));
     btn.addEventListener('click', function () { openCandidateModal(row.id, 'stagiaire'); });
     return btn;
   }
+  // Couleur d'un tag d'après la valeur dans sa colonne source : les couleurs de fond / de texte définies pour
+  // ce choix dans Grist (colonne Choix ou Choix multiples). Sans couleur définie, le tag garde son style.
+  function applyChoiceColors(tag, choiceOptions, value) {
+    var o = choiceOptions && choiceOptions[value];
+    if (!o) return tag;
+    if (o.fillColor) tag.style.backgroundColor = o.fillColor;
+    if (o.textColor) tag.style.color = o.textColor;
+    if (o.fontBold) tag.style.fontWeight = '700';
+    return tag;
+  }
+  function tableChoiceOptions(tableId, colId) { return (columnChoiceOptionsMap[tableId] || {})[colId] || null; }
   function buildPlainTag(text, modifier, title) {
     var tag = document.createElement('span');
     tag.className = 'fr-tag fr-tag--sm ' + modifier;
@@ -4112,13 +4135,17 @@
   };
   var ENC_FILTER_DEFS = [
     { key: 'affectation', all: 'Affectation', noun: 'affectations', groupId: 'encAffectationGroup', summaryId: 'encAffectationSummary', panelId: 'encAffectationPanel' },
-    { key: 'fonction', all: 'Fonction', noun: 'fonctions', groupId: 'encFonctionGroup', summaryId: 'encFonctionSummary', panelId: 'encFonctionPanel' },
-    { key: 'groupe', all: 'Groupe', noun: 'groupes', groupId: 'encGroupeGroup', summaryId: 'encGroupeSummary', panelId: 'encGroupePanel' }
+    { key: 'groupe', all: 'Groupe', noun: 'groupes', groupId: 'encGroupeGroup', summaryId: 'encGroupeSummary', panelId: 'encGroupePanel' },
+    { key: 'fonction', all: 'Fonction', noun: 'fonctions', groupId: 'encFonctionGroup', summaryId: 'encFonctionSummary', panelId: 'encFonctionPanel' }
   ];
 
   var enc = { loaded: false, error: '', tableId: '', cols: {}, rows: [] };
   var encSearchText = '';
   var encFilters = { affectation: [], fonction: [], groupe: [] };
+  var encByGroup = false; // « Afficher par groupe » : regroupement par Gpe
+  var encByGroupEl = document.getElementById('encByGroup');
+  encByGroupEl.addEventListener('change', function () { encByGroup = encByGroupEl.checked; renderEncadrement(); });
+  var gpeCollator = new Intl.Collator('fr', { numeric: true, sensitivity: 'base' });
   var panelEncadrement = document.getElementById('panelEncadrement');
   var encZone = document.getElementById('encZone');
   var encCount = document.getElementById('encCount');
@@ -4144,7 +4171,9 @@
       var cols = [];
       for (var j = 0; j < meta.id.length; j++) {
         if (meta.parentId[j] !== tableRowId || /^gristHelper_|^manualSort$/.test(meta.colId[j])) continue;
-        cols.push({ id: meta.colId[j], label: meta.label[j] || meta.colId[j], type: bulkBaseType(meta.type[j]) });
+        var choiceOptions = null;
+        try { choiceOptions = JSON.parse(meta.widgetOptions[j] || '{}').choiceOptions || null; } catch (e) { choiceOptions = null; }
+        cols.push({ id: meta.colId[j], label: meta.label[j] || meta.colId[j], type: bulkBaseType(meta.type[j]), choiceOptions: choiceOptions });
       }
       return grist.docApi.fetchTable(tableId).then(function (data) { return { tableId: tableId, cols: cols, data: data }; });
     }).then(function (r) {
@@ -4298,10 +4327,22 @@
     encResetBtn.disabled = !anyFilter && !encSearchText.trim();
 
     var rows = enc.rows.filter(function (r) { return encMatches(r); }).sort(compareEncRows);
-    // Affichage par « Identité complète » (identités incomplètes d'abord : ce sont elles qui demandent une
-    // action), chaque groupe restant trié par nom. Sans cette colonne : une seule liste triée par nom.
-    var groups = enc.cols.identiteComplete ? [
-      { title: 'Identité incomplète', rows: rows.filter(function (r) { return !isYes(r.f.identiteComplete); }) },
+    // Affichage par « Identité complète » (identités incomplètes d'abord, sans titre ; puis le groupe « Identité
+    // complète », titré), chaque groupe restant trié par nom. Sans cette colonne : une seule liste triée par nom.
+    // « Afficher par groupe » : une section par valeur de Gpe (sections triées, membres triés par nom).
+    var byGroupAvailable = !!enc.cols.gpe;
+    document.getElementById('encByGroupWrap').hidden = !byGroupAvailable;
+    encByGroupEl.checked = encByGroup && byGroupAvailable;
+    var groups;
+    if (encByGroup && byGroupAvailable) {
+      var byGpe = {};
+      rows.forEach(function (r) { var g = encText(r, 'gpe'); (byGpe[g] = byGpe[g] || []).push(r); });
+      groups = Object.keys(byGpe).sort(function (a, b) {
+        if (!a !== !b) return a ? -1 : 1; // « sans Gpe » en dernier
+        return gpeCollator.compare(a, b);
+      }).map(function (g) { return { title: g ? 'Gpe ' + g : 'Sans Gpe', rows: byGpe[g] }; });
+    } else groups = enc.cols.identiteComplete ? [
+      { title: '', rows: rows.filter(function (r) { return !isYes(r.f.identiteComplete); }) },
       { title: 'Identité complète', rows: rows.filter(function (r) { return isYes(r.f.identiteComplete); }) }
     ] : [{ title: '', rows: rows }];
     displayedIds.encadrement = [];
@@ -4361,8 +4402,8 @@
     btn.appendChild(nameEl);
     var tags = document.createElement('span');
     tags.className = 'cand-row__tags';
-    // Tags : valeurs de la colonne Groupe.
-    encGroupTags(row).forEach(function (g) { tags.appendChild(buildPlainTag(g, 'stg-tag--pon', 'Groupe : ' + g)); });
+    // Tags : valeurs de la colonne Groupe, dans la couleur définie pour chaque valeur dans Grist.
+    encGroupTags(row).forEach(function (g) { tags.appendChild(applyChoiceColors(buildPlainTag(g, 'stg-tag--pon', 'Groupe : ' + g), enc.cols.groupe && enc.cols.groupe.choiceOptions, g)); });
     btn.appendChild(tags);
     var end = document.createElement('span');
     end.className = 'cand-row__end';
@@ -4641,9 +4682,16 @@
     }
     return textOf(v);
   }
-  function bulkVisibleRows() {
+  // Ligne virtuelle « Trombinoscope » (document intégré, absent du tableau Grist) : affichée sur la page
+  // Documents uniquement, avec les seules actions Télécharger / Imprimer.
+  function bulkBuiltinRows() {
+    var values = {};
+    values[bulk.nameCol.id] = TROMBI_NAME;
+    return [{ id: 'builtin:trombi', builtin: 'trombi', values: values }];
+  }
+  function bulkVisibleRows(withBuiltin) {
     var q = normalizeKey(bulkSearchText);
-    return bulk.rows.filter(function (r) {
+    return bulk.rows.concat(withBuiltin ? bulkBuiltinRows() : []).filter(function (r) {
       if (!q) return true;
       return normalizeKey(bulk.cols.concat([bulk.nameCol]).map(function (c) { return bulkCellText(c, r.values[c.id]); }).join(' ')).indexOf(q) !== -1;
     }).sort(function (a, b) {
@@ -4675,8 +4723,8 @@
     bulk.rows.forEach(function (r) { existing[r.id] = true; });
     Object.keys(bulkSelected).forEach(function (id) { if (!existing[id]) delete bulkSelected[id]; });
 
-    var rows = bulkVisibleRows();
-    countEl.textContent = rows.length + ' document(s) affiché(s) sur ' + bulk.rows.length;
+    var rows = bulkVisibleRows(!manage);
+    countEl.textContent = rows.length + ' document(s) affiché(s) sur ' + (bulk.rows.length + (manage ? 0 : 1));
     resetBtn.disabled = !bulkSearchText.trim();
     if (!rows.length) {
       zone.innerHTML = '<p class="cand-empty-state">Aucun document collectif à afficher.</p>';
@@ -4958,6 +5006,7 @@
     var pagePx = Math.floor(297 * ratio);
     for (var y = 0; y < canvas.height; y += pagePx) {
       var h = Math.min(pagePx, canvas.height - y);
+      if (y > 0 && h < 24) break; // reste de quelques pixels d'arrondi : pas de page vide
       var tmp = document.createElement('canvas');
       tmp.width = canvas.width;
       tmp.height = h;
@@ -4970,14 +5019,14 @@
     }
   }
   // PDF (Uint8Array) contenant un exemplaire du modèle par stagiaire de `rows`, chacun sur de nouvelles pages.
-  function generatePdf(template, rows, title, onProgress) {
+  function generatePdf(build, rows, title, onProgress) { // build(rowsSubset, title) -> HTML complet
     return ensurePdfLibs().then(function () {
       var pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', compress: true });
       pdf.setProperties({ title: title });
       return rows.reduce(function (p, r, i) {
         return p.then(function () {
           if (onProgress) onProgress(i + 1, rows.length);
-          return htmlToCanvas(buildGeneratedHtml(template, [r], title)).then(function (canvas) { addCanvasToPdf(pdf, canvas, i === 0); });
+          return htmlToCanvas(build([r], title)).then(function (canvas) { addCanvasToPdf(pdf, canvas, i === 0); });
         });
       }, Promise.resolve()).then(function () { return new Uint8Array(pdf.output('arraybuffer')); });
     });
@@ -5000,37 +5049,191 @@
     });
   }
 
+  // ---- Trombinoscope (document intégré, non modifiable) ----
+  //
+  // Un trombinoscope par Gpe (colonnes Gpe de la table Encadrement) : les cadres du Gpe, puis les stagiaires
+  // dont le PON correspond à ce Gpe. Photos intégrées au document (réduites), sinon initiales.
+  var TROMBI_NAME = 'Trombinoscope';
+  var TROMBI_PAGE_INNER = 1027; // hauteur utile d'une page A4 à 794 px de large (1123 px moins 2 x 48 px de marge)
+  var TROMBI_PER_ROW = 5;
+  // Clé de rapprochement Gpe <-> PON : sans accents, espaces ni ponctuation, et sans préfixe « PON », « Gpe »,
+  // « Groupe », « Peloton » (ou une simple lettre G / P devant un chiffre) : « Gpe 1 », « G1 » et « P-01 » se rejoignent.
+  function trombiKey(v) {
+    var k = normalizeKey(v).replace(/[^A-Z0-9]/g, '').replace(/^(PON|GPE|GROUPE|PELOTON|G|P)(?=\d)/, '').replace(/^0+(?=\d)/, '');
+    return k;
+  }
+  // Ordre d'affichage des groupes (Gpe existants) ; les Gpe absents de cette liste passent après, par ordre alphabétique.
+  var TROMBI_GROUP_ORDER = ['Commandement', 'Adjudant d\'escadron', 'Secrétariat', 'Soutien sanitaire', 'P1', 'P2', 'P3', 'P4',
+    'Formateurs IP', 'Renfort Mess', 'Formateurs secourisme', 'Armurier', 'DRJ', 'Acculturation'].map(function (g) { return trombiKeyFull(g); });
+  function trombiKeyFull(v) { return normalizeKey(v).replace(/[^A-Z0-9]/g, ''); }
+  function trombiRank(label) {
+    var i = TROMBI_GROUP_ORDER.indexOf(trombiKeyFull(label));
+    return i === -1 ? TROMBI_GROUP_ORDER.length : i;
+  }
+  function trombiGroups() {
+    var byKey = {}, order = [];
+    enc.rows.forEach(function (r) {
+      var label = encText(r, 'gpe');
+      var k = trombiKey(label);
+      if (!k) return;
+      if (!byKey[k]) { byKey[k] = { key: k, label: label, members: [], trainees: [] }; order.push(k); }
+      byKey[k].members.push(r);
+    });
+    candidates.rows.forEach(function (r) {
+      var k = settings.col.pon ? trombiKey(textOf(r.pon)) : '';
+      if (k && byKey[k]) byKey[k].trainees.push(r);
+    });
+    return order.map(function (k) {
+      var g = byKey[k];
+      g.members.sort(compareEncRows);
+      g.trainees.sort(compareCandidatesByName);
+      return g;
+    }).sort(function (a, b) { return (trombiRank(a.label) - trombiRank(b.label)) || gpeCollator.compare(a.label, b.label); });
+  }
+
+  // Photo réduite (data URI JPEG, 240 px max) pour l'intégrer au document ; null si absente ou illisible.
+  function trombiPhotoData(row) {
+    if (!extractAttachmentIds(row.portrait).length && !/^https?:\/\//i.test(textOf(row.portrait))) return Promise.resolve(null);
+    return portraitSource(row).then(function (src) {
+      if (!src) return null;
+      return fetch(src.url).then(function (resp) { if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.blob(); });
+    }).then(function (blob) {
+      if (!blob) return null;
+      return new Promise(function (resolve) {
+        var url = URL.createObjectURL(blob), img = new Image();
+        img.onload = function () {
+          var scale = Math.min(1, 240 / Math.max(img.width, img.height));
+          var c = document.createElement('canvas');
+          c.width = Math.max(1, Math.round(img.width * scale));
+          c.height = Math.max(1, Math.round(img.height * scale));
+          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+          URL.revokeObjectURL(url);
+          resolve(c.toDataURL('image/jpeg', 0.85));
+        };
+        img.onerror = function () { URL.revokeObjectURL(url); resolve(null); };
+        img.src = url;
+      });
+    }).catch(function () { return null; });
+  }
+  // Charge les photos de tous les membres des groupes (6 en parallèle) : person.photo = data URI ou null.
+  function trombiLoadPhotos(groups, onProgress) {
+    var people = [];
+    groups.forEach(function (g) {
+      g.members.forEach(function (r) { people.push({ row: r }); });
+      g.trainees.forEach(function (r) { people.push({ row: r }); });
+    });
+    var index = 0, done = 0, cache = {};
+    function worker() {
+      if (index >= people.length) return Promise.resolve();
+      var p = people[index++];
+      var key = (p.row.f ? 'e' : 's') + p.row.id;
+      var job = cache[key] || (cache[key] = trombiPhotoData(p.row));
+      return job.then(function (data) { p.row.__trombiPhoto = data; done++; if (onProgress) onProgress(done, people.length); return worker(); });
+    }
+    var workers = [];
+    for (var i = 0; i < Math.min(6, people.length); i++) workers.push(worker());
+    return Promise.all(workers);
+  }
+
+  function trombiCard(name, line2, line3, photo, initials) {
+    var ph = photo ?
+      '<div class="ph" style="background-image:url(' + photo + ')"></div>' :
+      '<div class="ph ph--none">' + escapeHtml(initials) + '</div>';
+    return '<div class="card">' + ph + '<div class="n1">' + escapeHtml(name) + '</div>' +
+      (line2 ? '<div class="n2">' + escapeHtml(line2) + '</div>' : '') + (line3 ? '<div class="n3">' + escapeHtml(line3) + '</div>' : '') + '</div>';
+  }
+  // Pages d'un groupe : titre, section « Encadrement » puis section « Stagiaires », découpées en pages A4 de
+  // 1123 px (rangées de 5 photos, jamais coupées entre deux pages).
+  function trombiGroupPagesHtml(g) {
+    var pages = [], cur = { h: 0, html: '' };
+    function push(h, html) {
+      if (cur.h > 0 && cur.h + h > TROMBI_PAGE_INNER) { pages.push(cur); cur = { h: 0, html: '' }; }
+      cur.h += h;
+      cur.html += html;
+    }
+    push(70, '<h1>Trombinoscope — ' + escapeHtml(g.label) + '</h1>');
+    function section(title, cards) {
+      for (var i = 0, first = true; i < cards.length; i += TROMBI_PER_ROW, first = false) {
+        push((first ? 38 : 0) + 214, (first ? '<h2>' + escapeHtml(title) + '</h2>' : '') + '<div class="row">' + cards.slice(i, i + TROMBI_PER_ROW).join('') + '</div>');
+      }
+    }
+    var ponLabels = {};
+    g.trainees.forEach(function (r) { var p = textOf(r.pon); if (p) ponLabels[p] = true; });
+    section('Encadrement (' + g.members.length + ')', g.members.map(function (r) {
+      var p = encNameParts(r);
+      return trombiCard([p.nom, p.prenom].filter(Boolean).join(' ') || '?', encText(r, 'grade'), encText(r, 'fonction'), r.__trombiPhoto, encInitials(r));
+    }));
+    if (g.trainees.length) {
+      section('Stagiaires — ' + Object.keys(ponLabels).join(', ') + ' (' + g.trainees.length + ')', g.trainees.map(function (r) {
+        var np = nameParts(r);
+        return trombiCard(stagiaireDisplayName(r), textOf(r.pon), '', r.__trombiPhoto, ((np.prenom || '').charAt(0) + (np.nom || '').charAt(0)).toUpperCase() || '?');
+      }));
+    }
+    pages.push(cur);
+    return pages.map(function (p, i) { return '<div class="tpage"' + (i < pages.length - 1 ? '' : '') + '>' + p.html + '</div>'; }).join('\n');
+  }
+  var TROMBI_CSS = '<style>' +
+    'html,body{margin:0;padding:0;background:#fff}body{width:794px;font-family:Arial,Helvetica,sans-serif;color:#000}' +
+    '.tpage{box-sizing:border-box;width:794px;height:1123px;padding:48px;overflow:hidden;break-after:page;page-break-after:always}' +
+    '.tpage:last-child{break-after:auto;page-break-after:auto}' +
+    'h1{margin:0 0 14px;height:56px;font-size:22px;line-height:56px;border-bottom:2px solid #5c5a2b;color:#3b3a1c}' +
+    'h2{margin:0 0 6px;height:32px;font-size:14px;line-height:32px;text-transform:uppercase;letter-spacing:.04em;color:#5c5a2b}' +
+    '.row{display:flex;gap:12px;height:214px}.card{box-sizing:border-box;width:130px;text-align:center;overflow:hidden}' +
+    '.ph{width:130px;height:150px;border-radius:8px;background:#dcd8b4 center 20%/cover no-repeat}' +
+    '.ph--none{display:flex;align-items:center;justify-content:center;font-size:34px;color:#5c5a2b}' +
+    '.n1{margin-top:6px;font-size:12px;font-weight:700;line-height:14px}.n2,.n3{font-size:10.5px;line-height:13px;color:#444}' +
+    '@media print{.tpage{break-inside:avoid}}</style>';
+  // Document complet : une ou plusieurs pages par groupe.
+  function buildTrombiHtml(groups, title) {
+    return '<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>' + escapeHtml(title) + '</title>' + TROMBI_CSS +
+      '</head><body>' + groups.map(trombiGroupPagesHtml).join('\n') + '</body></html>';
+  }
+
   // --- Fenêtre de génération ---
   function genSelectedRows() {
     var boxes = genDialog.querySelectorAll('.bulk-gen__item input:checked');
     var ids = {};
     Array.prototype.forEach.call(boxes, function (b) { ids[b.value] = true; });
+    if (genState.trombi) return genState.groups.filter(function (g) { return ids[g.key]; });
     return candidates.rows.filter(function (r) { return ids[r.id]; }).sort(compareCandidatesByName);
   }
   function genMode() { return genDialog.querySelector('input[name="bulkGenMode"]:checked').value; }
   function genUpdateUi() {
     var download = genState.action === 'download';
+    var trombi = !!genState.trombi;
     document.getElementById('bulkGenModeGroup').hidden = !download;
+    document.getElementById('bulkGenModeStore').closest('.fr-fieldset__element').hidden = trombi; // pas d'enregistrement dans les pièces
+    if (trombi && download && genMode() === 'store') genDialog.querySelector('input[name="bulkGenMode"][value="single"]').checked = true;
     var mode = download ? genMode() : 'print';
     var nameEl = document.getElementById('bulkGenName');
     var docName = textOf(genState.row.values[bulk.nameCol.id]);
-    if (nameEl.dataset.auto !== 'false') nameEl.value = mode === 'multi' ? docName + ' - {{STAGIAIRE}}' : docName;
+    var variable = trombi ? '{{GPE}}' : '{{STAGIAIRE}}';
+    if (nameEl.dataset.auto !== 'false') nameEl.value = mode === 'multi' ? docName + ' - ' + variable : docName;
     document.getElementById('bulkGenNameHint').textContent =
-      mode === 'multi' ? 'Nom de chaque PDF (extension .pdf ajoutée). Il doit contenir une variable qui distingue les stagiaires, par exemple {{STAGIAIRE}} ou {{' + settings.table + '.NID}}.' :
+      mode === 'multi' ? 'Nom de chaque PDF (extension .pdf ajoutée). Il doit contenir une variable qui distingue les ' + (trombi ? 'groupes, par exemple {{GPE}}.' : 'stagiaires, par exemple {{STAGIAIRE}} ou {{' + settings.table + '.NID}}.') :
       mode === 'store' ? 'Nom de la pièce dans la colonne Pièces (et du fichier .pdf). Les variables sont possibles, par exemple {{STAGIAIRE}}. Une pièce déjà enregistrée sous ce nom est remplacée.' :
       mode === 'single' ? 'Nom du fichier (extension .pdf ajoutée).' :
       'Titre du document imprimé (proposé comme nom de fichier si vous l’enregistrez en PDF).';
     var n = genSelectedRows().length;
-    document.getElementById('bulkGenCount').textContent = n + ' stagiaire(s) sélectionné(s) sur ' + candidates.rows.length;
-    document.getElementById('bulkGenAll').checked = n === candidates.rows.length && n > 0;
+    var total = trombi ? genState.groups.length : candidates.rows.length;
+    document.getElementById('bulkGenCount').textContent = n + (trombi ? ' groupe(s)' : ' stagiaire(s)') + ' sélectionné(s) sur ' + total;
+    document.getElementById('bulkGenAllLabel').textContent = trombi ? 'Tous les groupes' : 'Tous les stagiaires';
+    document.getElementById('bulkGenAll').checked = n === total && n > 0;
     var go = document.getElementById('bulkGenGo');
     go.textContent = { single: 'Télécharger le PDF', multi: 'Télécharger les PDF', store: 'Enregistrer dans les pièces', print: 'Imprimer' }[mode];
     go.disabled = n === 0 || genBusy;
   }
   function openGenDialog(row, action) {
-    if (!bulkDocHtml(row)) { window.alert('Ce document n’a pas de modèle HTML.'); return; }
-    if (!candidates.rows.length) { window.alert('Aucun stagiaire : les données des stagiaires ne sont pas chargées.'); return; }
-    genState = { row: row, action: action };
+    var trombi = row.builtin === 'trombi';
+    var groups = trombi ? trombiGroups() : null;
+    if (trombi) {
+      if (!enc.loaded) { window.alert('La table « Encadrement » n’est pas disponible : impossible de générer le trombinoscope.'); return; }
+      if (!groups.length) { window.alert('Aucun Gpe renseigné dans la table « Encadrement » : impossible de générer le trombinoscope.'); return; }
+    } else {
+      if (!bulkDocHtml(row)) { window.alert('Ce document n’a pas de modèle HTML.'); return; }
+      if (!candidates.rows.length) { window.alert('Aucun stagiaire : les données des stagiaires ne sont pas chargées.'); return; }
+    }
+    genState = { row: row, action: action, trombi: trombi, groups: groups };
     document.getElementById('bulkGenTitle').textContent = (action === 'download' ? 'Télécharger' : 'Imprimer') + ' : ' + textOf(row.values[bulk.nameCol.id]);
     genDialog.querySelector('input[name="bulkGenMode"][value="single"]').checked = true;
     var nameEl = document.getElementById('bulkGenName');
@@ -5039,16 +5242,19 @@
     document.getElementById('bulkGenProgress').hidden = true;
     var list = document.getElementById('bulkGenList');
     list.innerHTML = '';
-    candidates.rows.slice().sort(compareCandidatesByName).forEach(function (r) {
+    var items = trombi ?
+      groups.map(function (g) { return { value: g.key, text: g.label + ' — ' + g.members.length + ' cadre(s), ' + g.trainees.length + ' stagiaire(s)' }; }) :
+      candidates.rows.slice().sort(compareCandidatesByName).map(function (r) { return { value: r.id, text: stagiaireDisplayName(r) }; });
+    items.forEach(function (it) {
       var label = document.createElement('label');
       label.className = 'bulk-gen__item';
       var cb = document.createElement('input');
       cb.type = 'checkbox';
-      cb.value = r.id;
+      cb.value = it.value;
       cb.checked = true;
       cb.addEventListener('change', genUpdateUi);
       label.appendChild(cb);
-      label.appendChild(document.createTextNode(' ' + stagiaireDisplayName(r)));
+      label.appendChild(document.createTextNode(' ' + it.text));
       list.appendChild(label);
     });
     genUpdateUi();
@@ -5074,17 +5280,19 @@
 
   document.getElementById('bulkGenGo').addEventListener('click', function () {
     var rows = genSelectedRows();
-    var template = bulkDocHtml(genState.row);
+    var trombi = !!genState.trombi;
+    var template = trombi ? '' : bulkDocHtml(genState.row);
+    // Construction du HTML : trombinoscope (un jeu de pages par groupe) ou modèle du tableau (un exemplaire par stagiaire).
+    var build = trombi ? function (rs, t) { return buildTrombiHtml(rs, t); } : function (rs, t) { return buildGeneratedHtml(template, rs, t); };
     var pattern = document.getElementById('bulkGenName').value.trim();
     var progress = document.getElementById('bulkGenProgress');
     var goBtn = document.getElementById('bulkGenGo');
     document.getElementById('bulkGenError').hidden = true;
     if (!pattern) { showGenError('Indiquez le nom du fichier.'); return; }
     var mode = genState.action === 'download' ? genMode() : 'print';
-    if (!rows.length) { showGenError('Sélectionnez au moins un stagiaire.'); return; }
+    if (!rows.length) { showGenError(trombi ? 'Sélectionnez au moins un groupe.' : 'Sélectionnez au moins un stagiaire.'); return; }
     if ((mode === 'single' || mode === 'print') && /\{\{/.test(pattern)) { showGenError('Les variables ne sont possibles dans le nom que pour un PDF par stagiaire ou pour les pièces.'); return; }
-    if (mode === 'print') { printGenerated(buildGeneratedHtml(template, rows, pattern)); closeGenDialog(); return; }
-    if (mode === 'multi' && !/\{\{/.test(pattern)) { showGenError('Le nom doit contenir une variable (par exemple {{STAGIAIRE}}) pour que chaque PDF ait un nom différent.'); return; }
+    if (mode === 'multi' && !/\{\{/.test(pattern)) { showGenError('Le nom doit contenir une variable (par exemple ' + (trombi ? '{{GPE}}' : '{{STAGIAIRE}}') + ') pour que chaque PDF ait un nom différent.'); return; }
     if (mode === 'store' && !candidates.hasPieces) {
       showGenError('Les colonnes « ' + PIECES_COL + ' » et « ' + PIECES_NOMS_COL + ' » sont absentes de la table « ' + settings.table + ' » : créez-les depuis l’onglet Documents d’une fiche Stagiaire.');
       return;
@@ -5097,11 +5305,15 @@
     progress.hidden = false;
     var step = function (i, n) { progress.textContent = 'Génération du PDF ' + i + ' / ' + n + '…'; };
     step(0, rows.length);
-    var pdfName = function (r) { return safeFileName(renderTemplateFor(pattern, r, false)) || 'document'; };
+    var pdfName = function (r) { return safeFileName(trombi ? pattern.replace(/\{\{\s*GPE\s*\}\}/gi, r.label) : renderTemplateFor(pattern, r, false)) || 'document'; };
     var withExt = function (n) { return /\.pdf$/i.test(n) ? n : n + '.pdf'; };
     var work;
-    if (mode === 'single') {
-      work = generatePdf(template, rows, pattern, step).then(function (bytes) {
+    // Trombinoscope : photos chargées d'abord (une fois pour tous les groupes).
+    var ready = trombi ? trombiLoadPhotos(rows, function (i, n) { progress.textContent = 'Chargement des photos ' + i + ' / ' + n + '…'; }) : Promise.resolve();
+    if (mode === 'print') {
+      work = ready.then(function () { printGenerated(build(rows, pattern)); });
+    } else if (mode === 'single') {
+      work = ready.then(function () { return generatePdf(build, rows, pattern, step); }).then(function (bytes) {
         saveBlob(new Blob([bytes], { type: 'application/pdf' }), withExt(safeFileName(pattern) || 'document'));
       });
     } else if (mode === 'multi') {
@@ -5112,9 +5324,9 @@
           var base = withExt(pdfName(r)), name = base, n = 1;
           while (used[name.toLowerCase()]) { n++; name = base.replace(/(\.pdf)$/i, ' (' + n + ')$1'); }
           used[name.toLowerCase()] = true;
-          return generatePdf(template, [r], name.replace(/\.pdf$/i, '')).then(function (bytes) { files.push({ name: name, content: bytes }); });
+          return generatePdf(build, [r], name.replace(/\.pdf$/i, '')).then(function (bytes) { files.push({ name: name, content: bytes }); });
         });
-      }, Promise.resolve()).then(function () {
+      }, ready).then(function () {
         if (files.length === 1) saveBlob(new Blob([files[0].content], { type: 'application/pdf' }), files[0].name);
         else saveBlob(makeZip(files), (safeFileName(textOf(genState.row.values[bulk.nameCol.id])) || 'documents') + '.zip');
       });
@@ -5124,7 +5336,7 @@
         return p.then(function () {
           step(i + 1, rows.length);
           var label = pdfName(r);
-          return generatePdf(template, [r], label).then(function (bytes) { return storePdfPiece(r, label, bytes); }).then(function () { saved++; }, function (e) {
+          return generatePdf(build, [r], label).then(function (bytes) { return storePdfPiece(r, label, bytes); }).then(function () { saved++; }, function (e) {
             failures.push(stagiaireDisplayName(r) + ' : ' + friendlyErrorMessage(e));
           });
         });
