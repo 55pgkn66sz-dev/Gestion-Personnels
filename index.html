@@ -313,22 +313,26 @@
   .stg-row-avatar {
     flex: none; width: 2.3rem; height: 2.3rem; border-radius: 999px; overflow: hidden;
     display: inline-flex; align-items: center; justify-content: center;
-    background: #d9d9f5 center / cover no-repeat; color: var(--bleu-france);
+    background: #dcd8b4 center / cover no-repeat; color: var(--bleu-france);
     font-size: 0.8rem; font-weight: 800; letter-spacing: 0.02em;
-    box-shadow: 0 0 0 2px #fff, 0 1px 4px rgba(0, 0, 145, 0.25);
+    box-shadow: 0 0 0 2px #fff, 0 1px 4px rgba(92, 90, 43, 0.3);
   }
-  .fr-tag.stg-tag--pon { background: #e3e3fd; color: var(--bleu-france); font-weight: 700; }
+  .fr-tag.stg-tag--pon { background: #e6e2c4; color: var(--bleu-france); font-weight: 700; }
   .fr-tag.stg-tag--fonction { background: #d5f0ee; color: #006a6f; }
   .fr-tag.stg-tag--nid { background: #eceaf0; color: #3a3a45; }
 
-  .stg-dialog { max-width: 52rem; }
+  /* Page Stagiaires : fond de la fiche en pastel kaki (au lieu du bleu pastel de la fiche eTuteur). */
+  /* Accents de la page Stagiaires en kaki foncé : on redéfinit ici les variables de couleur
+     « bleu » (titres de blocs, onglet actif, liens, icônes, tags) pour la liste et pour la fiche. */
+  #panelStagiaires, .stg-dialog { --bleu-france: #5c5a2b; --text-action-high-blue-france: #5c5a2b; }
+  .stg-dialog { max-width: 52rem; background: linear-gradient(180deg, #e7e3c6 0%, #f6f4e6 100%); }
   .stg-hero { display: flex; align-items: flex-start; gap: 1.1rem; padding-bottom: 1.1rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
   .stg-avatar {
     flex: none; width: 4.2rem; height: 4.2rem; border-radius: 999px;
     background: linear-gradient(135deg, var(--bleu-france), #4a4ad6); color: #fff;
     display: flex; align-items: center; justify-content: center;
     font-size: 1.45rem; font-weight: 800; letter-spacing: 0.02em;
-    box-shadow: 0 4px 12px rgba(0, 0, 145, 0.3);
+    box-shadow: 0 4px 12px rgba(92, 90, 43, 0.3);
   }
   .stg-hero__id { flex: 1 1 auto; min-width: 0; }
   .stg-hero__civ { margin: 0 0 0.1rem; font-size: 0.8em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-mention-grey); }
@@ -387,14 +391,14 @@
   .stg-portrait { position: relative; flex: none; padding-bottom: 0.7rem; }
   .stg-avatar {
     width: 6rem; height: 6rem; border-radius: 1.2rem;
-    background: #d9d9f5; color: var(--bleu-france); font-size: 2.6rem; font-weight: normal; letter-spacing: 0;
-    box-shadow: 0 4px 14px rgba(0, 0, 145, 0.25); overflow: hidden;
+    background: #dcd8b4; color: var(--bleu-france); font-size: 2.6rem; font-weight: normal; letter-spacing: 0;
+    box-shadow: 0 4px 14px rgba(92, 90, 43, 0.3); overflow: hidden;
   }
   .stg-avatar--photo { background-size: cover; background-position: center; background-repeat: no-repeat; cursor: pointer; }
   /* Tag du peloton : à cheval sur le bas de la photo. */
   .stg-portrait__tag {
     position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
-    white-space: nowrap; box-shadow: 0 2px 6px rgba(0, 0, 145, 0.3); border: 2px solid #fff;
+    white-space: nowrap; box-shadow: 0 2px 6px rgba(92, 90, 43, 0.35); border: 2px solid #fff;
   }
   .cand-modal-dialog__noimage-flag {
     display: inline-flex; align-items: center; justify-content: center; width: 2.1rem; height: 2.1rem;
@@ -406,7 +410,7 @@
   .stg-hero__id .cand-modal-dialog__title { font-size: 1.6em; }
 
   /* Onglets (Informations / Notation / Documents). */
-  .stg-tabs { display: flex; gap: 0.25rem; margin: 0.4rem 0 1rem; border-bottom: 2px solid rgba(0, 0, 145, 0.15); }
+  .stg-tabs { display: flex; gap: 0.25rem; margin: 0.4rem 0 1rem; border-bottom: 2px solid rgba(120, 112, 50, 0.28); }
   .stg-tab {
     padding: 0.55rem 1.1rem; border: none; border-bottom: 3px solid transparent; margin-bottom: -2px;
     background: none; font: inherit; font-weight: 700; color: var(--text-mention-grey); cursor: pointer;
@@ -428,7 +432,7 @@
   .stg-transport { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
   .stg-transport__icon { display: inline-flex; color: var(--bleu-france); }
   .stg-plate {
-    display: inline-block; padding: 0.1rem 0.6rem; border: 2px solid #1d1d8b; border-radius: 0.3rem;
+    display: inline-block; padding: 0.1rem 0.6rem; border: 2px solid #4a4923; border-radius: 0.3rem;
     background: #fff; color: #161616; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-weight: 800; letter-spacing: 0.08em; font-size: 0.9em;
   }
@@ -437,7 +441,7 @@
   .stg-freetext__label { margin-top: 0.8rem; }
   .stg-freetext {
     display: block; width: 100%; box-sizing: border-box; resize: vertical; min-height: 5rem;
-    padding: 0.5rem 0.6rem; border: 1px solid var(--border-default-grey); border-radius: 0.4rem; background: #fbfbfe; font: inherit;
+    padding: 0.5rem 0.6rem; border: 1px solid var(--border-default-grey); border-radius: 0.4rem; background: #fcfbf3; font: inherit;
   }
   .stg-freetext:focus { outline: 2px solid var(--bleu-france); outline-offset: 1px; }
 
@@ -448,10 +452,10 @@
   .stg-drop__label {
     display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 1rem 0.8rem;
     border: 2px dashed var(--border-default-grey); border-radius: 0.5rem; color: var(--text-mention-grey);
-    font-size: 0.9em; text-align: center; cursor: pointer; background: #fbfbfe;
+    font-size: 0.9em; text-align: center; cursor: pointer; background: #fcfbf3;
   }
-  .stg-drop__label:hover, .stg-drop--over .stg-drop__label { border-color: var(--bleu-france); color: var(--bleu-france); background: #f0f0ff; }
-  .stg-naming { margin-top: 0.8rem; padding: 0.8rem 0.9rem; background: #f7f7fb; border: 1px solid rgba(0, 0, 0, 0.08); border-radius: 0.5rem; }
+  .stg-drop__label:hover, .stg-drop--over .stg-drop__label { border-color: var(--bleu-france); color: var(--bleu-france); background: #f4f2e0; }
+  .stg-naming { margin-top: 0.8rem; padding: 0.8rem 0.9rem; background: #f8f6ea; border: 1px solid rgba(0, 0, 0, 0.08); border-radius: 0.5rem; }
   .stg-naming__intro { margin: 0 0 0.6rem; font-weight: 700; font-size: 0.9em; }
   .stg-naming__row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.35rem; padding: 0.55rem 0; border-top: 1px solid rgba(0, 0, 0, 0.07); }
   .stg-naming__row:first-of-type { border-top: none; }
@@ -1232,6 +1236,10 @@
           <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-search-line fr-btn--icon-left" id="cfgTestLinkBtn" type="button">Tester la liaison</button>
           <p class="cfg-link-result" id="cfgLinkResult" aria-live="polite"></p>
         </div>
+        <div class="cfg-link-test">
+          <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-image-line fr-btn--icon-left" id="cfgTestPhotoBtn" type="button">Tester l’accès aux photos</button>
+          <p class="cfg-link-result" id="cfgPhotoResult" aria-live="polite"></p>
+        </div>
       </details>
 
 <form id="settingsForm" novalidate>
@@ -1742,7 +1750,7 @@
   // colonne quand le champ n'est pas encore réglé — colonnes de la table
   // « Stagiaires » et champs d'identité.
   var SUGGEST_LABELS = {
-    docsNid: ['NID'], nid: ['NID'], telephone: ['TELEPHONE'], email: ['EMAIL PERSO'], dateNaissance: ['DDN'],
+    photo: ['PHOTO'], docsNid: ['NID'], nid: ['NID'], telephone: ['TELEPHONE'], email: ['EMAIL PERSO'], dateNaissance: ['DDN'],
     pon: ['PON'], civilite: ['CIVILITE'], nom: ['NOM'], prenom: ['PRENOM'], affectation: ['AFFECTATION'],
     lieuNaissance: ['LIEU DE NAISSANCE'], dpt: ['DPT'], nigend: ['NIGEND'], fonction: ['FONCTION'],
     batiment: ['BAT.', 'BAT'], chambre: ['CH.', 'CH'], autorise: ['AUTORISE'],
@@ -1988,6 +1996,15 @@
     return raw.charAt(0).toUpperCase() + raw.slice(1);
   }
 
+  // Complément de la ligne « Photo » : type de la colonne et nombre de stagiaires ayant une photo.
+  function photoInfoHtml() {
+    if (!candidates.loaded) return '';
+    var col = settings.photoCol || PHOTO_COL;
+    var type = (columnTypesMap[settings.table] || {})[col];
+    var withPhoto = candidates.rows.filter(function (r) { return extractAttachmentIds(r.portrait).length || /^https?:\/\//i.test(textOf(r.portrait)); }).length;
+    return ' <span class="cfg-sources__grist">' + (type ? 'type « ' + escapeHtml(typeLabel(type)) + ' » · ' : '') + withPhoto + ' / ' + candidates.rows.length + ' stagiaire(s) avec photo</span>';
+  }
+
   function renderSourcesPanel() {
     var body = document.getElementById('cfgSourcesBody');
     if (!body) return;
@@ -2025,7 +2042,7 @@
 
     html += '<h4>Colonnes fixes — table des candidats</h4>' + table([
       ['N° CAND', colCell(NUM_CAND_COL, mainCols, labelsMain)],
-      ['Photo', colCell(PHOTO_COL, mainCols, labelsMain)],
+      ['Photo', colCell(settings.photoCol || PHOTO_COL, mainCols, labelsMain) + photoInfoHtml()],
       ['Infos (texte libre)', colCell(INFOS_COL, mainCols, labelsMain)],
       ['Pièces complémentaires (fichiers)', colCell(PIECES_COL, mainCols, labelsMain)],
       ['Pièces complémentaires (noms)', colCell(PIECES_NOMS_COL, mainCols, labelsMain)]
@@ -2081,6 +2098,28 @@
     }).catch(function (e) {
       setLinkResult('error', 'Test impossible : ' + friendlyErrorMessage(e));
     });
+  });
+
+  // Test d'accès aux photos : lit la photo du premier stagiaire qui en a une, avec le jeton du
+  // widget, et affiche le résultat (statut HTTP ou chargement direct).
+  document.getElementById('cfgTestPhotoBtn').addEventListener('click', function () {
+    var out = document.getElementById('cfgPhotoResult');
+    function show(kind, text) { out.className = 'cfg-link-result cfg-link-result--' + kind; out.textContent = text; }
+    var row = candidates.rows.filter(function (r) { return extractAttachmentIds(r.portrait).length || /^https?:\/\//i.test(textOf(r.portrait)); })[0];
+    if (!row) { show('warn', 'Aucun stagiaire n’a de photo dans la colonne « ' + (settings.photoCol || PHOTO_COL) + ' » (données non chargées, colonne absente ou vide).'); return; }
+    show('info', 'Test en cours…');
+    portraitSource(row).then(function (src) {
+      function probe(prefix) {
+        var img = new Image();
+        img.onload = function () { show('success', prefix + 'la photo se charge correctement.'); };
+        img.onerror = function () { show('error', prefix + 'la photo ne se charge pas : accès refusé par les règles d’accès du document, ou fichier indisponible.'); };
+        img.src = src.url;
+      }
+      fetch(src.url).then(function (resp) {
+        if (resp.ok) show('success', 'Photo lisible (HTTP ' + resp.status + ').');
+        else show('error', 'Grist refuse l’accès à la photo (HTTP ' + resp.status + ') : ' + (resp.status === 404 || resp.status === 403 ? 'les règles d’accès du document ne permettent pas de lire cette colonne avec le jeton du widget.' : 'réponse inattendue.'));
+      }, function () { probe('Requête bloquée par le navigateur pour la lecture directe ; test par chargement d’image : '); });
+    }).catch(function (e) { show('error', 'Test impossible : ' + friendlyErrorMessage(e)); });
   });
 
   // ---- Enregistrement ------------------------------------------------------
@@ -2246,7 +2285,8 @@
     // Colonnes qu'aucun champ ne consomme : proposées dans la carte « Autres informations » de la fiche Stagiaires.
     var usedCols = {};
     usedCols[NUM_CAND_COL] = true;
-    usedCols[PHOTO_COL] = true;
+    var photoCol = settings.photoCol || PHOTO_COL;
+    usedCols[photoCol] = true;
     usedCols[INFOS_COL] = true;
     usedCols[PIECES_COL] = true;
     usedCols[PIECES_NOMS_COL] = true;
@@ -2261,7 +2301,7 @@
         row[role] = (colName && data[colName]) ? data[colName][i] : null;
       });
       row.numCand = data[NUM_CAND_COL] ? data[NUM_CAND_COL][i] : null;
-      row.portrait = data[PHOTO_COL] ? data[PHOTO_COL][i] : null;
+      row.portrait = data[photoCol] ? data[photoCol][i] : null;
       row.infosLibre = data[INFOS_COL] ? data[INFOS_COL][i] : null;
       row.pieces = data[PIECES_COL] ? data[PIECES_COL][i] : null;
       row.piecesNames = data[PIECES_NOMS_COL] ? data[PIECES_NOMS_COL][i] : null;
@@ -2703,6 +2743,22 @@
   // Avatar rond de la liste Stagiaires : la photo (colonne « Photo ») si elle est
   // lisible avec le jeton du widget, sinon les initiales. On mémorise seulement le
   // résultat (lisible ou non), pas l'URL : le jeton d'accès expire.
+  // Source de la photo d'un stagiaire : première pièce jointe de la colonne « Photo »
+  // (URL avec jeton d'accès) ou, si la colonne contient un lien http(s) en texte, ce lien.
+  // Promesse de { url, ids, cell } ou null s'il n'y a pas de photo.
+  function portraitSource(row) {
+    var ids = extractAttachmentIds(row.portrait);
+    if (ids.length) {
+      var cell = { tableId: settings.table, colId: settings.photoCol || PHOTO_COL, rowId: row.id };
+      return getAccessTokenInfo().then(function (tokenInfo) {
+        return { url: attachmentUrl(tokenInfo, ids[0], cell), ids: ids, cell: cell };
+      });
+    }
+    var raw = textOf(row.portrait);
+    return Promise.resolve(/^https?:\/\//i.test(raw) ? { url: raw, ids: [], cell: null } : null);
+  }
+  var PORTRAIT_FAIL_TEXT = 'Photo non affichable : Grist refuse l’accès au fichier avec le jeton du widget (règles d’accès du document) ou le fichier est indisponible.';
+
   var portraitOk = {}; // "idLigne:idFichier" -> true (image lisible) | false (illisible)
   function buildRowAvatar(row) {
     var np = nameParts(row);
@@ -2711,21 +2767,20 @@
     av.setAttribute('aria-hidden', 'true');
     av.textContent = ((np.prenom || '').charAt(0) + (np.nom || '').charAt(0)).toUpperCase() || '?';
     var ids = extractAttachmentIds(row.portrait);
-    if (!ids.length) return av;
-    var key = row.id + ':' + ids[0];
-    if (portraitOk[key] === false) return av;
+    var key = row.id + ':' + (ids[0] || textOf(row.portrait));
+    if (portraitOk[key] === false || (!ids.length && !/^https?:\/\//i.test(textOf(row.portrait)))) return av;
     function apply(url) {
       av.style.backgroundImage = "url('" + url + "')";
       av.classList.add('stg-row-avatar--photo');
       av.textContent = '';
     }
-    getAccessTokenInfo().then(function (tokenInfo) {
-      var url = attachmentUrl(tokenInfo, ids[0], { tableId: settings.table, colId: PHOTO_COL, rowId: row.id });
-      if (portraitOk[key] === true) { apply(url); return; }
+    portraitSource(row).then(function (src) {
+      if (!src) return;
+      if (portraitOk[key] === true) { apply(src.url); return; }
       var probe = new Image();
-      probe.onload = function () { portraitOk[key] = true; apply(url); };
-      probe.onerror = function () { portraitOk[key] = false; };
-      probe.src = url;
+      probe.onload = function () { portraitOk[key] = true; apply(src.url); };
+      probe.onerror = function () { portraitOk[key] = false; av.title = PORTRAIT_FAIL_TEXT; av.setAttribute('aria-hidden', 'false'); };
+      probe.src = src.url;
     }).catch(function () { /* initiales conservées */ });
     return av;
   }
@@ -2793,6 +2848,10 @@
     du: ['Du'], encaisse: ['Encaisse'], blocagesInfos: ['Blocages_Infos']
   };
   var FIXED_MAIN_ROLES = ['nid', 'email', 'telephone', 'dateNaissance'];
+  function fixedPhotoColumn(cols) {
+    for (var i = 0; i < cols.length; i++) if (normalizeKey(cols[i]) === 'PHOTO') return cols[i];
+    return '';
+  }
   function fixedColumn(role, cols) {
     var wanted = FIXED_COLS[role] || [];
     var norm = cols.map(function (c) { return normalizeKey(c); });
@@ -2810,6 +2869,8 @@
   function applySuggestedColumns(data, docsData) {
     var cols = tableColumns(data);
     var docsCols = docsData ? tableColumns(docsData) : [];
+    // Photo : colonne « Photo » (identifiant, sinon libellé) de la table des candidats.
+    settings.photoCol = fixedPhotoColumn(cols) || suggestColumn('photo', cols, settings.table) || PHOTO_COL;
     // Liaison des deux tables EN DUR : par le NID. Colonne « NID » de la table Documents.
     settings.docsLinkCol = suggestColumn('docsNid', docsCols, settings.docsTable);
     HARD_STG_ROLES.forEach(function (role) {
@@ -2831,23 +2892,23 @@
   // Photo : dans l'avatar, à la place d'une silhouette, si l'image est lisible
   // avec le jeton du widget. Un clic l'ouvre en grand dans un nouvel onglet.
   function loadPortrait(avatarEl, row) {
-    var ids = extractAttachmentIds(row.portrait);
-    if (!ids.length) return;
-    var cell = { tableId: settings.table, colId: PHOTO_COL, rowId: row.id };
-    getAccessTokenInfo().then(function (tokenInfo) {
-      var url = attachmentUrl(tokenInfo, ids[0], cell);
+    portraitSource(row).then(function (src) {
+      if (!src) return;
       var probe = new Image();
       probe.onload = function () {
-        avatarEl.style.backgroundImage = "url('" + url + "')";
+        avatarEl.style.backgroundImage = "url('" + src.url + "')";
         avatarEl.classList.add('stg-avatar--photo');
         avatarEl.innerHTML = '';
         avatarEl.title = 'Ouvrir la photo';
         avatarEl.setAttribute('role', 'button');
         avatarEl.removeAttribute('aria-hidden');
         avatarEl.tabIndex = 0;
-        avatarEl.addEventListener('click', function () { openAttachmentInNewTab(ids[0], cell); });
+        avatarEl.addEventListener('click', function () {
+          if (src.ids.length) openAttachmentInNewTab(src.ids[0], src.cell); else window.open(src.url, '_blank', 'noopener');
+        });
       };
-      probe.src = url;
+      probe.onerror = function () { avatarEl.title = PORTRAIT_FAIL_TEXT; };
+      probe.src = src.url;
     }).catch(function () { /* silhouette conservée */ });
   }
 
@@ -3494,11 +3555,10 @@
     hero.appendChild(actions);
     dlg.appendChild(hero);
 
-    // -- Pastilles d'état positives (les états négatifs ne sont pas affichés) --
+    // -- Pastilles d'état positives (Autorisé, Identité complète) : le droit à l'image n'a pas de pastille, seule son absence est signalée par une icône --
     var chips = [];
     if (settings.col.autorise && isYes(row.autorise)) chips.push(['ok', 'Autorisé']);
     if (settings.col.identiteComplete && isYes(row.identiteComplete)) chips.push(['ok', 'Identité complète']);
-    if (settings.col.droitImage && isYes(row.droitImage)) chips.push(['ok', 'Droit à l’image']);
     if (chips.length) {
       var statusEl = document.createElement('div');
       statusEl.className = 'stg-status';
