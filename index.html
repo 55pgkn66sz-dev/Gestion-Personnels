@@ -1088,7 +1088,7 @@
   .cfg-pill--ko { background: #ffe9e9; color: var(--statut-refusee); }
   .cfg-pill--na { background: #eceaf0; color: #3a3a45; }
 
-  /* Page « Éditer documents en lot ». */
+  /* Page « Edition de documents ». */
   #header-navigation .fr-nav__item[hidden] { display: none; }
   .bulk-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
   .bulk-head h2 { margin: 0; }
@@ -1189,7 +1189,7 @@
             <button class="fr-nav__link" id="navEncadrement" type="button">Encadrement</button>
           </li>
           <li class="fr-nav__item">
-            <button class="fr-nav__link" id="navBulk" type="button">Documents</button>
+            <button class="fr-nav__link" id="navBulk" type="button">Edition de documents</button>
           </li>
         </ul>
       </nav>
@@ -1283,7 +1283,7 @@
        imprimer ou télécharger. La roue crantée ouvre la page cachée « Gestion des documents ». -->
   <div id="panelBulk" hidden>
     <div class="bulk-head">
-      <h2 class="fr-h6">Documents</h2>
+      <h2 class="fr-h6">Edition de documents</h2>
     </div>
 
     <div class="cand-toolbar fr-mb-2w">
@@ -1340,12 +1340,12 @@
     </div>
   </div>
 
-  <!-- Page cachée "Gestion des documents" (accessible par la roue crantée de la page Documents) :
+  <!-- Page cachée "Gestion des documents" (accessible par la roue crantée de la page Edition de documents) :
        ajout, modification et suppression des documents, modification en lot d'une colonne. -->
   <div id="panelDocMgmt" hidden>
     <div class="bulk-head">
       <h2 class="fr-h6">Gestion des documents</h2>
-      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-arrow-left-line fr-btn--icon-left" id="mgmtBackBtn" type="button">Retour aux documents</button>
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-arrow-left-line fr-btn--icon-left" id="mgmtBackBtn" type="button">Retour à l'édition de documents</button>
     </div>
     <p class="fr-text--sm">Ajoutez, modifiez ou supprimez les documents. Cochez des lignes puis modifiez une colonne pour toute la sélection.</p>
 
@@ -1608,7 +1608,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 5.6</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 5.8</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -2360,7 +2360,7 @@
         ' (candidats) = ' + (settings.docsLinkCol ? '<span class="cfg-sources__col">' + escapeHtml(settings.docsLinkCol) + '</span>' : 'colonne NID <span class="cfg-pill cfg-pill--na">non réglée</span>') + ' (Documents)'],
       ['Table EAD (pièce EAD - Bloc 1)', known ? tableState(eadInfo && eadInfo.tableId, 'Alimentation EAD') : tableName('Alimentation EAD') + ' <span class="cfg-pill cfg-pill--na">non vérifiée</span>'],
       ['Table Encadrement (page Encadrement)', enc.loaded || enc.error ? tableState(enc.tableId, 'Encadrement') : tableName('Encadrement') + ' <span class="cfg-pill cfg-pill--na">non vérifiée</span>'],
-      ['Table Editeur de documents (page Documents)', bulk.loaded || bulk.error ? tableState(bulk.tableId, 'Editeur de documents') : tableName('Editeur de documents') + ' <span class="cfg-pill cfg-pill--na">non vérifiée</span>']
+      ['Table Editeur de documents (page Edition de documents)', bulk.loaded || bulk.error ? tableState(bulk.tableId, 'Editeur de documents') : tableName('Editeur de documents') + ' <span class="cfg-pill cfg-pill--na">non vérifiée</span>']
     ]);
 
     html += '<h4>Pièce EAD - Bloc 1 — table « Alimentation EAD »</h4>' + table([
@@ -2374,7 +2374,7 @@
       return [ENC_LABELS[k], enc.loaded ? foundCol(enc.cols[k], ENC_LABELS[k]) : '<span class="cfg-pill cfg-pill--na">non vérifiée</span>'];
     }));
 
-    html += '<h4>Page Documents — table « Editeur de documents »</h4>' + table([
+    html += '<h4>Page Edition de documents — table « Editeur de documents »</h4>' + table([
       ['Nom du document', bulk.loaded ? foundCol(bulk.nameCol, 'Nom du document') : '<span class="cfg-pill cfg-pill--na">non vérifiée</span>'],
       ['Collectif (seules les lignes « Oui » sont affichées)', bulk.loaded ? foundCol(bulk.filterCol, 'Collectif') : '<span class="cfg-pill cfg-pill--na">non vérifiée</span>'],
       ['Modèle HTML', bulk.loaded ? foundCol(bulk.tplCol, 'Modèle HTML') : '<span class="cfg-pill cfg-pill--na">non vérifiée</span>']
@@ -4638,7 +4638,7 @@
     return dlg;
   }
 
-  // ==== Page « Éditer documents en lot » ======================================
+  // ==== Page « Edition de documents » ======================================
   //
   // Sources en dur : table « Editeur de documents », colonne « Nom du document » (libellé de
   // chaque ligne) ; seules les lignes dont la colonne « Collectif » vaut Oui sont affichées.
@@ -5464,7 +5464,12 @@
     });
   });
 
+  // Impression sans en-tête ni pied de page du navigateur (date, titre, adresse, n° de page) : avec une marge de page
+  // nulle (@page { margin: 0 }) les navigateurs ne les impriment pas ; la marge visuelle est alors portée par le
+  // contenu (chaque exemplaire = une section avec son propre retrait ; le trombinoscope gère le sien).
+  var PRINT_NO_HEADER_CSS = '<style>@page{margin:0}@media print{html,body{margin:0}body>section{box-sizing:border-box;padding:15mm 18mm}}</style>';
   function printGenerated(html) {
+    html = html.replace(/<head[^>]*>/i, function (m) { return m + PRINT_NO_HEADER_CSS; });
     var frame = document.createElement('iframe');
     frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
     frame.onload = function () {
