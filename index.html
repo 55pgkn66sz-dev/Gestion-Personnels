@@ -217,7 +217,7 @@
      voir openCandidateModal / closeCandidateModal. */
   .cand-modal-dialog {
     background: linear-gradient(180deg, #e3e3fd 0%, #f3f3fe 100%);
-    max-width: 46rem;
+    max-width: none; /* la largeur est celle de .cand-modal-stack (70 % de l'écran) */
     width: 100%;
     padding: 1.85rem 2rem 2rem;
     border-radius: 1rem;
@@ -311,12 +311,13 @@
   /* ---- Page Stagiaires : tags et fiche profil ---------------------------- */
   /* Avatar rond de la liste Stagiaires : photo, sinon initiales. */
   .stg-row-avatar {
-    flex: none; width: 2.3rem; height: 2.3rem; border-radius: 999px; overflow: hidden;
+    flex: none; width: 2.6rem; height: 2.6rem; border-radius: 999px; overflow: hidden;
     display: inline-flex; align-items: center; justify-content: center;
     background: #dcd8b4 center / cover no-repeat; color: var(--bleu-france);
     font-size: 0.8rem; font-weight: 800; letter-spacing: 0.02em;
     box-shadow: 0 0 0 2px #fff, 0 1px 4px rgba(92, 90, 43, 0.3);
   }
+  .stg-row-avatar--photo { background-position: center 20%; } /* cadrage sur le haut : le visage reste dans le cercle */
   .fr-tag.stg-tag--pon { background: #e6e2c4; color: var(--bleu-france); font-weight: 700; }
   .fr-tag.stg-tag--fonction { background: #d5f0ee; color: #006a6f; }
   .fr-tag.stg-tag--nid { background: #eceaf0; color: #3a3a45; }
@@ -324,8 +325,11 @@
   /* Page Stagiaires : fond de la fiche en pastel kaki (au lieu du bleu pastel de la fiche eTuteur). */
   /* Accents de la page Stagiaires en kaki foncé : on redéfinit ici les variables de couleur
      « bleu » (titres de blocs, onglet actif, liens, icônes, tags) pour la liste et pour la fiche. */
+  .stg-hero__subtitle { margin: 0.1rem 0 0; font-size: 0.95rem; font-weight: 500; color: var(--text-mention-grey); }
+  .enc-group-title { margin: 1.2rem 0 0.5rem; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-mention-grey); }
+  .enc-group-title:first-child { margin-top: 0; }
   #panelStagiaires, #panelEncadrement, .stg-dialog { --bleu-france: #5c5a2b; --text-action-high-blue-france: #5c5a2b; }
-  .stg-dialog { max-width: 52rem; background: linear-gradient(180deg, #e7e3c6 0%, #f6f4e6 100%); }
+  .stg-dialog { max-width: none; background: linear-gradient(180deg, #e7e3c6 0%, #f6f4e6 100%); }
   .stg-hero { display: flex; align-items: flex-start; gap: 1.1rem; padding-bottom: 1.1rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
   .stg-avatar {
     flex: none; width: 4.2rem; height: 4.2rem; border-radius: 999px;
@@ -389,12 +393,13 @@
   /* ---- Fiche profil : en-tête, onglets, blocs (surcharge des styles précédents) ---- */
   .stg-hero { align-items: center; gap: 1.4rem; padding-bottom: 1.6rem; }
   .stg-portrait { position: relative; flex: none; padding-bottom: 0.7rem; }
+  /* Photo en format portrait (4:5) plutôt qu'en carré, cadrée sur le haut (le visage) : beaucoup moins tronquée. */
   .stg-avatar {
-    width: 6rem; height: 6rem; border-radius: 1.2rem;
+    width: 6.4rem; height: 8rem; border-radius: 1.2rem;
     background: #dcd8b4; color: var(--bleu-france); font-size: 2.6rem; font-weight: normal; letter-spacing: 0;
     box-shadow: 0 4px 14px rgba(92, 90, 43, 0.3); overflow: hidden;
   }
-  .stg-avatar--photo { background-size: cover; background-position: center; background-repeat: no-repeat; cursor: pointer; }
+  .stg-avatar--photo { background-size: cover; background-position: center 20%; background-repeat: no-repeat; cursor: pointer; }
   /* Tag du peloton : à cheval sur le bas de la photo. */
   .stg-portrait__tag {
     position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
@@ -489,9 +494,11 @@
   .cand-modal-stack--compare .stg-hero { flex-wrap: wrap; }
 
   /* Doublon : plusieurs volets côte à côte (voir renderModalContent). */
-  .cand-modal-stack { display: flex; align-items: flex-start; justify-content: center; gap: 1rem; width: 100%; }
-  .cand-modal-stack--compare { max-width: 84rem; }
-  .cand-modal-stack--compare .cand-modal-dialog { flex: 1 1 0; min-width: 0; max-width: 42rem; }
+  /* Largeur des modales : 70 % de la largeur de l'écran (au moins 46rem, la largeur d'origine, et jamais plus
+     que l'écran) ; en comparaison de doublons, 90 % pour que chaque volet reste lisible. */
+  .cand-modal-stack { display: flex; align-items: flex-start; justify-content: center; gap: 1rem; width: max(70vw, 46rem); max-width: 100%; }
+  .cand-modal-stack--compare { width: max(90vw, 60rem); max-width: 100%; }
+  .cand-modal-stack--compare .cand-modal-dialog { flex: 1 1 0; min-width: 0; max-width: none; }
   /* Volets étroits : cartes documents et champs de bande empilés. */
   .cand-modal-stack--compare .cand-doc-cols,
   .cand-modal-stack--compare .cand-bande-row { flex-direction: column; }
@@ -1534,11 +1541,8 @@
           <textarea class="fr-input cfg-mail-body" id="cfg_mail_body" rows="9"></textarea>
         </div>
         <div class="fr-input-group fr-mt-2w cfg-mail-att">
-          <div class="fr-checkbox-group">
-            <input type="checkbox" id="cfg_mail_att_enabled" checked>
-            <label class="fr-label" for="cfg_mail_att_enabled">Joindre une pièce au courriel
-              <span class="fr-hint-text">Par défaut, le guide d'authentification forte intégré au widget. Le courriel est alors ouvert sous forme de brouillon (fichier .eml à ouvrir dans Outlook ou Thunderbird), car un lien « mailto » ne permet pas de joindre un fichier.</span></label>
-          </div>
+          <span class="fr-label">Pièce jointe
+            <span class="fr-hint-text">Par défaut, le guide d'authentification forte intégré au widget est joint à chaque courriel. Le courriel est alors ouvert sous forme de brouillon (fichier .eml à ouvrir dans Outlook ou Thunderbird), car un lien « mailto » ne permet pas de joindre un fichier.</span></span>
           <div class="cfg-mail-att__row">
             <input type="file" id="cfg_mail_att_file" hidden>
             <span class="cfg-mail-att__name" id="cfg_mail_att_name">Aucune pièce jointe</span>
@@ -1614,7 +1618,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 3.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 3.7</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -1738,8 +1742,7 @@
     return data ? { name: EAD_DEFAULT_ATTACHMENT_NAME, type: 'application/pdf', data: data } : null;
   }
   function effectiveEadAttachment(mail) {
-    if (!mail || mail.attachEnabled === false) return null;
-    return mail.attachment || embeddedEadAttachment();
+    return (mail && mail.attachment) || embeddedEadAttachment();
   }
   var DEFAULT_EAD_MAIL = {
     subject: 'EAD - Bloc 1',
@@ -1749,7 +1752,7 @@
   function defaultConfig() {
     var col = {};
     ROLES.forEach(function (role) { col[role] = ''; });
-    return { table: '', docsTable: '', docsLinkCol: '', hideEtuteur: false, dateDebutFormation: '', eadMail: { subject: DEFAULT_EAD_MAIL.subject, body: DEFAULT_EAD_MAIL.body, attachment: null, attachEnabled: true },
+    return { table: '', docsTable: '', docsLinkCol: '', hideEtuteur: false, dateDebutFormation: '', eadMail: { subject: DEFAULT_EAD_MAIL.subject, body: DEFAULT_EAD_MAIL.body, attachment: null },
       refusalMail: { subject: DEFAULT_REFUSAL_MAIL.subject, body: DEFAULT_REFUSAL_MAIL.body }, col: col };
   }
   function mergeConfig(loaded) {
@@ -1764,7 +1767,6 @@
       var att = loaded.eadMail.attachment;
       cfg.eadMail = {
         subject: loaded.eadMail.subject, body: loaded.eadMail.body,
-        attachEnabled: loaded.eadMail.attachEnabled !== false, // pièce jointe activée (la pièce intégrée par défaut)
         // Pièce jointe : { name, type, data } (data = contenu en base64), stockée avec la configuration.
         attachment: (att && typeof att.name === 'string' && typeof att.data === 'string' && att.data) ? { name: att.name, type: String(att.type || ''), data: att.data } : null
       };
@@ -1912,7 +1914,6 @@
   var refusalSubjectEl = document.getElementById('cfg_refusal_subject');
   var refusalBodyEl = document.getElementById('cfg_refusal_body');
   var mailAttachment = null; // pièce jointe PERSONNALISÉE en cours d'édition dans la Configuration : { name, type, data } ou null (= pièce intégrée)
-  var mailAttEnabledEl = document.getElementById('cfg_mail_att_enabled');
   var mailAttDownloadEl = document.getElementById('cfg_mail_att_download');
   var MAIL_ATT_MAX_BYTES = 1.5 * 1024 * 1024;
   var mailAttFileEl = document.getElementById('cfg_mail_att_file');
@@ -1921,7 +1922,7 @@
   var mailAttErrorEl = document.getElementById('cfg_mail_att_error');
   // Pièce effectivement jointe d'après l'état du formulaire (activée ? personnalisée ou intégrée).
   function formEadAttachment() {
-    return mailAttEnabledEl.checked ? (mailAttachment || embeddedEadAttachment()) : null;
+    return mailAttachment || embeddedEadAttachment();
   }
   function renderMailAttachment() {
     var att = formEadAttachment();
@@ -1934,9 +1935,7 @@
     mailAttNameEl.classList.toggle('has-file', !!att);
     mailAttDownloadEl.hidden = !att;
     mailAttRemoveEl.hidden = !mailAttachment;
-    document.getElementById('cfg_mail_att_pick').disabled = !mailAttEnabledEl.checked;
   }
-  mailAttEnabledEl.addEventListener('change', renderMailAttachment);
   mailAttDownloadEl.addEventListener('click', function () {
     var att = formEadAttachment();
     if (!att) return;
@@ -2203,7 +2202,6 @@
       refusalSubjectEl.value = settings.refusalMail.subject;
       refusalBodyEl.value = settings.refusalMail.body;
       mailAttachment = settings.eadMail.attachment || null;
-      mailAttEnabledEl.checked = settings.eadMail.attachEnabled !== false;
       mailAttErrorEl.hidden = true;
       renderMailAttachment();
       return Promise.all([
@@ -2269,7 +2267,7 @@
     // besoin qu'elle passe isWritableColId comme les colonnes de rôle.
     cfg.hideEtuteur = document.getElementById('cfg_hideEtuteur').checked;
     cfg.dateDebutFormation = startDateEl.value.trim();
-    cfg.eadMail = { subject: mailSubjectEl.value.trim(), body: mailBodyEl.value, attachment: mailAttachment, attachEnabled: mailAttEnabledEl.checked };
+    cfg.eadMail = { subject: mailSubjectEl.value.trim(), body: mailBodyEl.value, attachment: mailAttachment };
     cfg.refusalMail = { subject: refusalSubjectEl.value.trim(), body: refusalBodyEl.value };
     ROLES.forEach(function (role) {
       var el = roleSelect(role);
@@ -4096,7 +4094,7 @@
   // ==== Page « Encadrement » ==================================================
   //
   // Source EN DUR : table « Encadrement ». Même principe que la page Stagiaires : une bande par
-  // membre de l'encadrement (photo, nom, tags Grade et Fonction), filtres à cocher (Affectation,
+  // membre de l'encadrement (photo, nom, tags = valeurs de la colonne Groupe), filtres à cocher (Affectation,
   // Fonction, Groupe), et une fiche « profil » en lecture seule (photo, onglets Informations et
   // Service) ouverte au clic, avec les mêmes flèches précédent / suivant / fermer. Les colonnes
   // sont retrouvées d'après leur libellé Grist (ou leur identifiant), y compris les colonnes
@@ -4175,6 +4173,23 @@
     var c = enc.cols[key];
     return c ? formatVariableValue(row.f[key], c.type).trim() : '';
   }
+  // Valeurs de la colonne Groupe, une par tag (plusieurs si la colonne est à choix multiples).
+  function encGroupTags(row) {
+    var v = row.f.groupe;
+    var list = (Array.isArray(v) && v[0] === 'L') ? v.slice(1) : [encText(row, 'groupe')];
+    return list.map(function (x) { return String(x === null || x === undefined ? '' : x).trim(); }).filter(Boolean);
+  }
+  // Libellé condensé du groupe pour l'étiquette qui chevauche la photo : « Formateurs IP » -> « IP »,
+  // « Formateur secourisme » -> « Secourisme » (le préfixe « Formateur(s) » est retiré, première lettre en
+  // majuscule). Les autres groupes sont inchangés.
+  function condenseGroup(text) {
+    var m = /^formateurs?\s+(?:de\s+|d')?(.+)$/i.exec(normalizeAccentsKeep(text));
+    if (!m) return text;
+    var rest = m[1].trim();
+    return rest.charAt(0).toUpperCase() + rest.slice(1);
+  }
+  // Comme le texte d'origine, mais avec les espaces normalisés (la casse et les accents sont conservés).
+  function normalizeAccentsKeep(t) { return String(t || '').replace(/\s+/g, ' ').trim(); }
   function encNameParts(row) { return { nom: encText(row, 'nom'), prenom: encText(row, 'prenom') }; }
   function encDisplayName(row) {
     var p = encNameParts(row);
@@ -4283,15 +4298,31 @@
     encResetBtn.disabled = !anyFilter && !encSearchText.trim();
 
     var rows = enc.rows.filter(function (r) { return encMatches(r); }).sort(compareEncRows);
-    displayedIds.encadrement = rows.map(function (r) { return r.id; });
+    // Affichage par « Identité complète » (identités incomplètes d'abord : ce sont elles qui demandent une
+    // action), chaque groupe restant trié par nom. Sans cette colonne : une seule liste triée par nom.
+    var groups = enc.cols.identiteComplete ? [
+      { title: 'Identité incomplète', rows: rows.filter(function (r) { return !isYes(r.f.identiteComplete); }) },
+      { title: 'Identité complète', rows: rows.filter(function (r) { return isYes(r.f.identiteComplete); }) }
+    ] : [{ title: '', rows: rows }];
+    displayedIds.encadrement = [];
+    groups.forEach(function (g) { g.rows.forEach(function (r) { displayedIds.encadrement.push(r.id); }); }); // ordre affiché = ordre des flèches de la modale
     encCount.textContent = rows.length + ' membre(s) affiché(s) sur ' + enc.rows.length;
     if (!rows.length) {
       encZone.innerHTML = '<p class="cand-empty-state">Aucun membre de l’encadrement ne correspond à l’affichage actuel.</p>';
     } else {
-      var list = document.createElement('div');
-      list.className = 'cand-list';
-      rows.forEach(function (row) { list.appendChild(buildEncRow(row)); });
-      encZone.appendChild(list);
+      groups.forEach(function (g) {
+        if (!g.rows.length) return;
+        if (g.title) {
+          var head = document.createElement('h3');
+          head.className = 'enc-group-title';
+          head.textContent = g.title + ' (' + g.rows.length + ')';
+          encZone.appendChild(head);
+        }
+        var list = document.createElement('div');
+        list.className = 'cand-list';
+        g.rows.forEach(function (row) { list.appendChild(buildEncRow(row)); });
+        encZone.appendChild(list);
+      });
     }
     if (currentModalRowId !== null && currentModalKind === 'encadrement') {
       if (findEncRow(currentModalRowId)) renderModalContent(); else closeCandidateModal();
@@ -4330,10 +4361,8 @@
     btn.appendChild(nameEl);
     var tags = document.createElement('span');
     tags.className = 'cand-row__tags';
-    var grade = encText(row, 'grade');
-    if (grade) tags.appendChild(buildPlainTag(grade, 'stg-tag--pon', 'Grade : ' + grade));
-    var fonction = encText(row, 'fonction');
-    if (fonction) tags.appendChild(buildPlainTag(fonction, 'stg-tag--fonction', 'Fonction : ' + fonction));
+    // Tags : valeurs de la colonne Groupe.
+    encGroupTags(row).forEach(function (g) { tags.appendChild(buildPlainTag(g, 'stg-tag--pon', 'Groupe : ' + g)); });
     btn.appendChild(tags);
     var end = document.createElement('span');
     end.className = 'cand-row__end';
@@ -4428,8 +4457,8 @@
     avatar.innerHTML = '<span class="fr-icon-user-fill"></span>';
     loadPortrait(avatar, row);
     portrait.appendChild(avatar);
-    var grade = encText(row, 'grade');
-    if (grade) portrait.appendChild(buildPlainTag(grade, 'stg-tag--pon stg-portrait__tag', 'Grade : ' + grade));
+    var groupTags = encGroupTags(row); // étiquette qui chevauche la photo : le groupe, condensé
+    if (groupTags.length) portrait.appendChild(buildPlainTag(groupTags.map(condenseGroup).join(', '), 'stg-tag--pon stg-portrait__tag', 'Groupe : ' + groupTags.join(', ')));
     hero.appendChild(portrait);
 
     var id = document.createElement('div');
@@ -4438,6 +4467,14 @@
     title.className = 'cand-modal-dialog__title';
     title.textContent = prenomNom;
     id.appendChild(title);
+    // Fonction, sous le nom.
+    var fonctionText = encText(row, 'fonction');
+    if (fonctionText) {
+      var subtitle = document.createElement('p');
+      subtitle.className = 'stg-hero__subtitle';
+      subtitle.textContent = fonctionText;
+      id.appendChild(subtitle);
+    }
     var flags = document.createElement('div');
     flags.className = 'stg-flags';
     id.appendChild(flags);
