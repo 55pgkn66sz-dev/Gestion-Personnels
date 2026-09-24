@@ -242,6 +242,7 @@
   /* Ligne de contact ("Mail · Tél") : grise, non grasse, juste sous le
      titre — les deux coordonnées sont cliquables (mailto:/tel:) quand
      elles sont renseignées, séparées par un point médian. */
+  .cand-modal-dialog__affectation { margin: 0.15rem 0 0; font-size: 0.95rem; font-weight: 500; color: var(--text-mention-grey); }
   .cand-modal-dialog__contact { margin: 0.3rem 0 0; font-size: 0.9em; font-weight: 400; color: var(--text-mention-grey); }
   .cand-modal-dialog__contact a.fr-link { color: inherit; }
   .cand-modal-dialog__header-actions { display: flex; align-items: center; gap: 0.6rem; flex: none; }
@@ -1212,7 +1213,7 @@
     <div class="cand-toolbar fr-mb-2w">
       <div class="fr-search-bar fr-search-bar--sm" id="candSearchBar" role="search">
         <label class="fr-label" for="candSearchInput">Rechercher un candidat</label>
-        <input class="fr-input" type="search" id="candSearchInput" placeholder="NID, nom, N° CAND…">
+        <input class="fr-input" type="search" id="candSearchInput" placeholder="NID, nom, e-mail, N° CAND…">
         <button class="fr-btn fr-btn--sm" id="candSearchBtn" title="Rechercher">Rechercher</button>
       </div>
       <div class="fr-select-group cand-doc-filter" id="candDocFilterGroup">
@@ -1245,7 +1246,7 @@
     <div class="cand-toolbar fr-mb-2w">
       <div class="fr-search-bar fr-search-bar--sm" role="search">
         <label class="fr-label" for="encSearchInput">Rechercher un membre de l'encadrement</label>
-        <input class="fr-input" type="search" id="encSearchInput" placeholder="Nom, grade, Nigend, affectation…">
+        <input class="fr-input" type="search" id="encSearchInput" placeholder="Nom, grade, Nigend, affectation, e-mail…">
         <button class="fr-btn fr-btn--sm" id="encSearchBtn" title="Rechercher">Rechercher</button>
       </div>
       <div class="stg-multi" id="encAffectationGroup">
@@ -1407,7 +1408,7 @@
     <div class="cand-toolbar fr-mb-2w">
       <div class="fr-search-bar fr-search-bar--sm" role="search">
         <label class="fr-label" for="stgSearchInput">Rechercher un stagiaire</label>
-        <input class="fr-input" type="search" id="stgSearchInput" placeholder="Nom, PON, NID, Nigend…">
+        <input class="fr-input" type="search" id="stgSearchInput" placeholder="Nom, PON, NID, e-mail, Nigend…">
         <button class="fr-btn fr-btn--sm" id="stgSearchBtn" title="Rechercher">Rechercher</button>
       </div>
       <div class="stg-multi" id="stgPonGroup">
@@ -1623,7 +1624,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 5.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 5.3</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -2984,7 +2985,7 @@
   function matchesFilters(row, skipDocFilter) {
     if (searchText.trim()) {
       var q = normalizeKey(searchText);
-      var hay = normalizeKey(textOf(row.nid) + ' ' + stagiaireDisplayName(row) + ' ' + textOfRef(row.inscriptionBande) + ' ' + textOf(row.numCand));
+      var hay = normalizeKey(textOf(row.nid) + ' ' + stagiaireDisplayName(row) + ' ' + textOfRef(row.inscriptionBande) + ' ' + textOf(row.numCand) + ' ' + (settings.col.email ? textOf(row.email) : ''));
       if (hay.indexOf(q) === -1) return false;
     }
     if (!skipDocFilter && !DOC_FILTERS[docFilter](docStatusesOf(row), row)) return false;
@@ -3189,7 +3190,7 @@
 
   function stgHay(row) {
     return normalizeKey([textOf(row.nid), textOf(row.nom), textOf(row.prenom), textOfRef(row.stagiaire),
-      textOf(row.pon), textOf(row.fonction), textOf(row.nigend), textOf(row.affectation), textOf(row.numCand)].join(' '));
+      textOf(row.pon), textOf(row.fonction), textOf(row.nigend), textOf(row.affectation), textOf(row.numCand), settings.col.email ? textOf(row.email) : ''].join(' '));
   }
   // skipRole : ignore le filtre de cette colonne (pour calculer les effectifs de
   // sa propre liste, sur les stagiaires qui passent tous les AUTRES filtres).
@@ -5115,29 +5116,31 @@
     return pdfLibsPromise;
   }
   var PDF_PAGE_CSS = '<style>html,body{margin:0;background:#fff}body{width:794px;box-sizing:border-box;padding:48px;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#000}</style>';
-  function htmlToCanvas(html) {
+  // o = { w, h } : taille de la page en pixels (A4 portrait 794 x 1123 par défaut, paysage 1123 x 794).
+  function htmlToCanvas(html, o) {
+    var W = (o && o.w) || 794, H = (o && o.h) || 1123;
     return new Promise(function (resolve, reject) {
       var frame = document.createElement('iframe');
-      frame.style.cssText = 'position:fixed;left:-10000px;top:0;width:794px;height:1123px;border:0;background:#fff';
+      frame.style.cssText = 'position:fixed;left:-10000px;top:0;width:' + W + 'px;height:' + H + 'px;border:0;background:#fff';
       frame.onload = function () {
-        setTimeout(function () {
-          var doc = frame.contentDocument;
+        var doc = frame.contentDocument;
+        // Attend le chargement des polices (ex. Marianne) avant de capturer, sans bloquer plus de 4 s.
+        var fontsReady = (doc.fonts && doc.fonts.ready) ? Promise.race([doc.fonts.ready, new Promise(function (r) { setTimeout(r, 4000); })]) : Promise.resolve();
+        fontsReady.then(function () { return new Promise(function (r) { setTimeout(r, 150); }); }).then(function () {
           var contentH = Math.max(1, doc.body.scrollHeight);
-          frame.style.height = Math.max(1123, contentH) + 'px';
-          window.html2canvas(doc.body, { scale: 2, backgroundColor: '#ffffff', width: 794, height: contentH, windowWidth: 794, windowHeight: Math.max(1123, contentH), useCORS: true }).then(function (canvas) {
-            frame.remove();
-            resolve(canvas);
-          }, function (e) { frame.remove(); reject(e); });
-        }, 150);
+          frame.style.height = Math.max(H, contentH) + 'px';
+          return window.html2canvas(doc.body, { scale: 2, backgroundColor: '#ffffff', width: W, height: contentH, windowWidth: W, windowHeight: Math.max(H, contentH), useCORS: true });
+        }).then(function (canvas) { frame.remove(); resolve(canvas); }, function (e) { frame.remove(); reject(e); });
       };
       frame.srcdoc = html.replace(/<head[^>]*>/i, function (m) { return m + PDF_PAGE_CSS; });
       document.body.appendChild(frame);
     });
   }
-  // Ajoute le canvas au PDF, découpé en pages A4 ; `first` = première page déjà présente dans le PDF.
-  function addCanvasToPdf(pdf, canvas, first) {
-    var ratio = canvas.width / 210; // pixels par millimètre
-    var pagePx = Math.floor(297 * ratio);
+  // Ajoute le canvas au PDF, découpé en pages A4 (portrait ou paysage) ; `first` = première page déjà présente.
+  function addCanvasToPdf(pdf, canvas, first, landscape) {
+    var pageW = landscape ? 297 : 210, pageH = landscape ? 210 : 297;
+    var ratio = canvas.width / pageW; // pixels par millimètre
+    var pagePx = Math.floor(pageH * ratio);
     for (var y = 0; y < canvas.height; y += pagePx) {
       var h = Math.min(pagePx, canvas.height - y);
       if (y > 0 && h < 24) break; // reste de quelques pixels d'arrondi : pas de page vide
@@ -5149,18 +5152,20 @@
       ctx.fillRect(0, 0, tmp.width, tmp.height);
       ctx.drawImage(canvas, 0, y, canvas.width, h, 0, 0, canvas.width, h);
       if (!(first && y === 0)) pdf.addPage();
-      pdf.addImage(tmp.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, 210, h / ratio);
+      pdf.addImage(tmp.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, pageW, h / ratio);
     }
   }
   // PDF (Uint8Array) contenant un exemplaire du modèle par stagiaire de `rows`, chacun sur de nouvelles pages.
-  function generatePdf(build, rows, title, onProgress) { // build(rowsSubset, title) -> HTML complet
+  // opts.landscape : pages A4 paysage.
+  function generatePdf(build, rows, title, onProgress, opts) { // build(rowsSubset, title) -> HTML complet
+    var landscape = !!(opts && opts.landscape);
     return ensurePdfLibs().then(function () {
-      var pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', compress: true });
+      var pdf = new window.jspdf.jsPDF({ orientation: landscape ? 'landscape' : 'portrait', unit: 'mm', format: 'a4', compress: true });
       pdf.setProperties({ title: title });
       return rows.reduce(function (p, r, i) {
         return p.then(function () {
           if (onProgress) onProgress(i + 1, rows.length);
-          return htmlToCanvas(build([r], title)).then(function (canvas) { addCanvasToPdf(pdf, canvas, i === 0); });
+          return htmlToCanvas(build([r], title), landscape ? { w: 1123, h: 794 } : null).then(function (canvas) { addCanvasToPdf(pdf, canvas, i === 0, landscape); });
         });
       }, Promise.resolve()).then(function () { return new Uint8Array(pdf.output('arraybuffer')); });
     });
@@ -5185,24 +5190,39 @@
 
   // ---- Trombinoscope (document intégré, non modifiable) ----
   //
-  // Un trombinoscope par Gpe (colonnes Gpe de la table Encadrement) : les cadres du Gpe, puis les stagiaires
-  // dont le PON correspond à ce Gpe. Photos intégrées au document (réduites), sinon initiales.
+  // Un trombinoscope par groupe (colonne Gpe de la table Encadrement) : les cadres du groupe puis, pour les
+  // groupes P1 à P4, les stagiaires dont le PON correspond. Les groupes CDT, AE, SEC, ARM et SAN sont regroupés
+  // en un seul trombinoscope « Commandement et soutien », sections dans cet ordre. Format paysage, photos
+  // réduites, police Marianne ; cadres classés chef, adjoint, puis les autres (par nom) ; stagiaires par nom.
   var TROMBI_NAME = 'Trombinoscope';
-  var TROMBI_PAGE_INNER = 1027; // hauteur utile d'une page A4 à 794 px de large (1123 px moins 2 x 48 px de marge)
-  var TROMBI_PER_ROW = 5;
-  // Clé de rapprochement Gpe <-> PON : sans accents, espaces ni ponctuation, et sans préfixe « PON », « Gpe »,
-  // « Groupe », « Peloton » (ou une simple lettre G / P devant un chiffre) : « Gpe 1 », « G1 » et « P-01 » se rejoignent.
-  function trombiKey(v) {
-    var k = normalizeKey(v).replace(/[^A-Z0-9]/g, '').replace(/^(PON|GPE|GROUPE|PELOTON|G|P)(?=\d)/, '').replace(/^0+(?=\d)/, '');
-    return k;
-  }
-  // Ordre d'affichage des groupes (Gpe existants) ; les Gpe absents de cette liste passent après, par ordre alphabétique.
-  var TROMBI_GROUP_ORDER = ['Commandement', 'Adjudant d\'escadron', 'Secrétariat', 'Soutien sanitaire', 'P1', 'P2', 'P3', 'P4',
-    'Formateurs IP', 'Renfort Mess', 'Formateurs secourisme', 'Armurier', 'DRJ', 'Acculturation'].map(function (g) { return trombiKeyFull(g); });
+  var TROMBI_W = 1123, TROMBI_H = 794, TROMBI_PAD = 32; // page A4 paysage à 96 dpi
+  var TROMBI_INNER_H = TROMBI_H - 2 * TROMBI_PAD;
+  var TROMBI_PER_ROW = 10;
+  var TROMBI_ROW_H = 172, TROMBI_TITLE_H = 60, TROMBI_HEAD_H = 34;
+  var TROMBI_MERGED_LABEL = 'Commandement et soutien';
+  // Groupes regroupés, dans l'ordre d'affichage : sigle -> libellé du Gpe (l'un ou l'autre est reconnu).
+  var TROMBI_MERGED = [['CDT', 'Commandement'], ['AE', 'Adjudant d\'escadron'], ['SEC', 'Secrétariat'], ['ARM', 'Armurier'], ['SAN', 'Soutien sanitaire']];
+  // Ordre d'affichage des autres groupes ; ceux qui n'y figurent pas passent après, par ordre alphabétique.
+  var TROMBI_GROUP_ORDER = ['P1', 'P2', 'P3', 'P4', 'Formateurs IP', 'Renfort Mess', 'Formateurs secourisme', 'DRJ', 'Acculturation'].map(function (g) { return trombiKeyFull(g); });
   function trombiKeyFull(v) { return normalizeKey(v).replace(/[^A-Z0-9]/g, ''); }
   function trombiRank(label) {
     var i = TROMBI_GROUP_ORDER.indexOf(trombiKeyFull(label));
     return i === -1 ? TROMBI_GROUP_ORDER.length : i;
+  }
+  // Clé de rapprochement Gpe <-> PON : sans accents, espaces ni ponctuation, et sans préfixe « PON », « Gpe »,
+  // « Groupe », « Peloton » (ou une simple lettre G / P devant un chiffre) : « Gpe 1 », « G1 » et « P-01 » se rejoignent.
+  function trombiKey(v) {
+    return normalizeKey(v).replace(/[^A-Z0-9]/g, '').replace(/^(PON|GPE|GROUPE|PELOTON|G|P)(?=\d)/, '').replace(/^0+(?=\d)/, '');
+  }
+  // Cadres : chef d'abord, puis adjoint, puis les autres, chaque rang trié par nom (d'après la Fonction).
+  function encRankByFunction(r) {
+    var f = normalizeKey(encText(r, 'fonction'));
+    if (/ADJOINT|ADJ\b/.test(f)) return 1;
+    if (/\bCHEF|CDT|COMMANDANT/.test(f)) return 0;
+    return 2;
+  }
+  function sortEncadrementMembers(list) {
+    return list.slice().sort(function (a, b) { return (encRankByFunction(a) - encRankByFunction(b)) || compareEncRows(a, b); });
   }
   function trombiGroups() {
     var byKey = {}, order = [];
@@ -5217,15 +5237,31 @@
       var k = settings.col.pon ? trombiKey(textOf(r.pon)) : '';
       if (k && byKey[k]) byKey[k].trainees.push(r);
     });
-    return order.map(function (k) {
+    // Groupes CDT, AE, SEC, ARM, SAN : un seul trombinoscope, une section par groupe, dans l'ordre demandé.
+    var subs = [];
+    TROMBI_MERGED.forEach(function (pair) {
+      var found = null;
+      order.forEach(function (k) {
+        var g = byKey[k], kf = trombiKeyFull(g.label);
+        if (!found && (kf === trombiKeyFull(pair[0]) || kf === trombiKeyFull(pair[1]))) found = k;
+      });
+      if (found) { subs.push({ label: byKey[found].label, members: sortEncadrementMembers(byKey[found].members) }); delete byKey[found]; order = order.filter(function (k) { return k !== found; }); }
+    });
+    var groups = order.map(function (k) {
       var g = byKey[k];
-      g.members.sort(compareEncRows);
-      g.trainees.sort(compareCandidatesByName);
+      g.members = sortEncadrementMembers(g.members);
+      g.trainees.sort(compareCandidatesByName); // stagiaires triés par nom
       return g;
     }).sort(function (a, b) { return (trombiRank(a.label) - trombiRank(b.label)) || gpeCollator.compare(a.label, b.label); });
+    if (subs.length) {
+      var all = [];
+      subs.forEach(function (sg) { sg.members.forEach(function (m) { all.push(m); }); });
+      groups.unshift({ key: '__merged', label: TROMBI_MERGED_LABEL, members: all, trainees: [], subs: subs });
+    }
+    return groups;
   }
 
-  // Photo réduite (data URI JPEG, 240 px max) pour l'intégrer au document ; null si absente ou illisible.
+  // Photo réduite (data URI JPEG, 160 px max) pour l'intégrer au document ; null si absente ou illisible.
   function trombiPhotoData(row) {
     if (!extractAttachmentIds(row.portrait).length && !/^https?:\/\//i.test(textOf(row.portrait))) return Promise.resolve(null);
     return portraitSource(row).then(function (src) {
@@ -5236,7 +5272,7 @@
       return new Promise(function (resolve) {
         var url = URL.createObjectURL(blob), img = new Image();
         img.onload = function () {
-          var scale = Math.min(1, 240 / Math.max(img.width, img.height));
+          var scale = Math.min(1, 160 / Math.max(img.width, img.height));
           var c = document.createElement('canvas');
           c.width = Math.max(1, Math.round(img.width * scale));
           c.height = Math.max(1, Math.round(img.height * scale));
@@ -5249,7 +5285,7 @@
       });
     }).catch(function () { return null; });
   }
-  // Charge les photos de tous les membres des groupes (6 en parallèle) : person.photo = data URI ou null.
+  // Charge les photos de tous les membres des groupes (6 en parallèle) : person.__trombiPhoto = data URI ou null.
   function trombiLoadPhotos(groups, onProgress) {
     var people = [];
     groups.forEach(function (g) {
@@ -5274,48 +5310,61 @@
       '<div class="ph" style="background-image:url(' + photo + ')"></div>' :
       '<div class="ph ph--none">' + escapeHtml(initials) + '</div>';
     return '<div class="card">' + ph + '<div class="n1">' + escapeHtml(name) + '</div>' +
-      (line2 ? '<div class="n2">' + escapeHtml(line2) + '</div>' : '') + (line3 ? '<div class="n3">' + escapeHtml(line3) + '</div>' : '') + '</div>';
+      '<div class="n2">' + escapeHtml(line2 || '') + '</div><div class="n3">' + escapeHtml(line3 || '') + '</div></div>';
   }
-  // Pages d'un groupe : titre, section « Encadrement » puis section « Stagiaires », découpées en pages A4 de
-  // 1123 px (rangées de 5 photos, jamais coupées entre deux pages).
+  function trombiMemberCard(r) {
+    var p = encNameParts(r);
+    return trombiCard([p.nom, p.prenom].filter(Boolean).join(' ') || '?', encText(r, 'grade'), encText(r, 'fonction'), r.__trombiPhoto, encInitials(r));
+  }
+  function trombiTraineeCard(r) {
+    var np = nameParts(r);
+    return trombiCard(stagiaireDisplayName(r), textOf(r.pon), '', r.__trombiPhoto, ((np.prenom || '').charAt(0) + (np.nom || '').charAt(0)).toUpperCase() || '?');
+  }
+  // Pages d'un groupe : titre, puis une section par ensemble de personnes (cadres, stagiaires — ou une section par
+  // groupe regroupé), découpées en pages A4 paysage ; les rangées de photos ne sont jamais coupées entre deux pages.
   function trombiGroupPagesHtml(g) {
     var pages = [], cur = { h: 0, html: '' };
     function push(h, html) {
-      if (cur.h > 0 && cur.h + h > TROMBI_PAGE_INNER) { pages.push(cur); cur = { h: 0, html: '' }; }
+      if (cur.h > 0 && cur.h + h > TROMBI_INNER_H) { pages.push(cur); cur = { h: 0, html: '' }; }
       cur.h += h;
       cur.html += html;
     }
-    push(70, '<h1>Trombinoscope — ' + escapeHtml(g.label) + '</h1>');
+    push(TROMBI_TITLE_H, '<h1>Trombinoscope — ' + escapeHtml(g.label) + '</h1>');
     function section(title, cards) {
       for (var i = 0, first = true; i < cards.length; i += TROMBI_PER_ROW, first = false) {
-        push((first ? 38 : 0) + 214, (first ? '<h2>' + escapeHtml(title) + '</h2>' : '') + '<div class="row">' + cards.slice(i, i + TROMBI_PER_ROW).join('') + '</div>');
+        push((first ? TROMBI_HEAD_H : 0) + TROMBI_ROW_H, (first ? '<h2>' + escapeHtml(title) + '</h2>' : '') + '<div class="row">' + cards.slice(i, i + TROMBI_PER_ROW).join('') + '</div>');
       }
     }
-    var ponLabels = {};
-    g.trainees.forEach(function (r) { var p = textOf(r.pon); if (p) ponLabels[p] = true; });
-    section('Encadrement (' + g.members.length + ')', g.members.map(function (r) {
-      var p = encNameParts(r);
-      return trombiCard([p.nom, p.prenom].filter(Boolean).join(' ') || '?', encText(r, 'grade'), encText(r, 'fonction'), r.__trombiPhoto, encInitials(r));
-    }));
-    if (g.trainees.length) {
-      section('Stagiaires — ' + Object.keys(ponLabels).join(', ') + ' (' + g.trainees.length + ')', g.trainees.map(function (r) {
-        var np = nameParts(r);
-        return trombiCard(stagiaireDisplayName(r), textOf(r.pon), '', r.__trombiPhoto, ((np.prenom || '').charAt(0) + (np.nom || '').charAt(0)).toUpperCase() || '?');
-      }));
+    if (g.subs) {
+      g.subs.forEach(function (sg) { section(sg.label + ' (' + sg.members.length + ')', sg.members.map(trombiMemberCard)); });
+    } else {
+      section('Encadrement (' + g.members.length + ')', g.members.map(trombiMemberCard));
+      if (g.trainees.length) {
+        var ponLabels = {};
+        g.trainees.forEach(function (r) { var p = textOf(r.pon); if (p) ponLabels[p] = true; });
+        section('Stagiaires — ' + Object.keys(ponLabels).join(', ') + ' (' + g.trainees.length + ')', g.trainees.map(trombiTraineeCard));
+      }
     }
     pages.push(cur);
-    return pages.map(function (p, i) { return '<div class="tpage"' + (i < pages.length - 1 ? '' : '') + '>' + p.html + '</div>'; }).join('\n');
+    return pages.map(function (p) { return '<div class="tpage">' + p.html + '</div>'; }).join('\n');
   }
+  // Police Marianne (celle du DSFR, chargée depuis jsDelivr comme le reste du widget), avec repli sur Arial.
+  var TROMBI_FONT_BASE = 'https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.15.3/dist/fonts/';
   var TROMBI_CSS = '<style>' +
-    'html,body{margin:0;padding:0;background:#fff}body{width:794px;font-family:Arial,Helvetica,sans-serif;color:#000}' +
-    '.tpage{box-sizing:border-box;width:794px;height:1123px;padding:48px;overflow:hidden;break-after:page;page-break-after:always}' +
+    '@font-face{font-family:Marianne;font-weight:400;src:url(' + TROMBI_FONT_BASE + 'Marianne-Regular.woff2) format("woff2")}' +
+    '@font-face{font-family:Marianne;font-weight:500;src:url(' + TROMBI_FONT_BASE + 'Marianne-Medium.woff2) format("woff2")}' +
+    '@font-face{font-family:Marianne;font-weight:700;src:url(' + TROMBI_FONT_BASE + 'Marianne-Bold.woff2) format("woff2")}' +
+    '@page{size:A4 landscape;margin:0}' +
+    'html,body{margin:0;padding:0;background:#fff}body{width:' + TROMBI_W + 'px;font-family:Marianne,Arial,Helvetica,sans-serif;color:#161616}' +
+    '.tpage{box-sizing:border-box;width:' + TROMBI_W + 'px;height:' + TROMBI_H + 'px;padding:' + TROMBI_PAD + 'px;overflow:hidden;break-after:page;page-break-after:always}' +
     '.tpage:last-child{break-after:auto;page-break-after:auto}' +
-    'h1{margin:0 0 14px;height:56px;font-size:22px;line-height:56px;border-bottom:2px solid #5c5a2b;color:#3b3a1c}' +
-    'h2{margin:0 0 6px;height:32px;font-size:14px;line-height:32px;text-transform:uppercase;letter-spacing:.04em;color:#5c5a2b}' +
-    '.row{display:flex;gap:12px;height:214px}.card{box-sizing:border-box;width:130px;text-align:center;overflow:hidden}' +
-    '.ph{width:130px;height:150px;border-radius:8px;background:#dcd8b4 center 20%/cover no-repeat}' +
-    '.ph--none{display:flex;align-items:center;justify-content:center;font-size:34px;color:#5c5a2b}' +
-    '.n1{margin-top:6px;font-size:12px;font-weight:700;line-height:14px}.n2,.n3{font-size:10.5px;line-height:13px;color:#444}' +
+    'h1{margin:0 0 10px;height:' + (TROMBI_TITLE_H - 10) + 'px;font-size:22px;font-weight:700;line-height:' + (TROMBI_TITLE_H - 10) + 'px;border-bottom:2px solid #5c5a2b;color:#3b3a1c}' +
+    'h2{margin:0 0 4px;height:' + (TROMBI_HEAD_H - 4) + 'px;font-size:13px;font-weight:700;line-height:' + (TROMBI_HEAD_H - 4) + 'px;text-transform:uppercase;letter-spacing:.04em;color:#5c5a2b}' +
+    '.row{display:flex;gap:10px;height:' + TROMBI_ROW_H + 'px}.card{box-sizing:border-box;width:96px;text-align:center;overflow:hidden}' +
+    '.ph{width:96px;height:112px;border-radius:6px;background:#dcd8b4 center 20%/cover no-repeat}' +
+    '.ph--none{display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:500;color:#5c5a2b}' +
+    '.n1{margin-top:4px;height:25px;overflow:hidden;font-size:10px;font-weight:700;line-height:12px}' +
+    '.n2,.n3{height:12px;overflow:hidden;font-size:9px;line-height:12px;color:#3a3a3a;white-space:nowrap;text-overflow:ellipsis}' +
     '@media print{.tpage{break-inside:avoid}}</style>';
   // Document complet : une ou plusieurs pages par groupe.
   function buildTrombiHtml(groups, title) {
@@ -5447,7 +5496,7 @@
     if (mode === 'print') {
       work = ready.then(function () { printGenerated(build(rows, pattern)); });
     } else if (mode === 'single') {
-      work = ready.then(function () { return generatePdf(build, rows, pattern, step); }).then(function (bytes) {
+      work = ready.then(function () { return generatePdf(build, rows, pattern, step, { landscape: trombi }); }).then(function (bytes) {
         saveBlob(new Blob([bytes], { type: 'application/pdf' }), withExt(safeFileName(pattern) || 'document'));
       });
     } else if (mode === 'multi') {
@@ -5458,7 +5507,7 @@
           var base = withExt(pdfName(r)), name = base, n = 1;
           while (used[name.toLowerCase()]) { n++; name = base.replace(/(\.pdf)$/i, ' (' + n + ')$1'); }
           used[name.toLowerCase()] = true;
-          return generatePdf(build, [r], name.replace(/\.pdf$/i, '')).then(function (bytes) { files.push({ name: name, content: bytes }); });
+          return generatePdf(build, [r], name.replace(/\.pdf$/i, ''), null, { landscape: trombi }).then(function (bytes) { files.push({ name: name, content: bytes }); });
         });
       }, ready).then(function () {
         if (files.length === 1) saveBlob(new Blob([files[0].content], { type: 'application/pdf' }), files[0].name);
@@ -5862,6 +5911,7 @@
     var views = modalViewsFor(base, isStg);
     var compare = views.length > 1;
     var oldest = views[0]; // vues triées par identifiant croissant : la première est la plus ancienne
+    currentModalViews = views; // (pour « Copier les remarques », voir copyRemarksToNewest)
     candModalStack.className = 'cand-modal-stack' + (compare ? ' cand-modal-stack--compare' : '');
     candModalStack.innerHTML = '';
     views.forEach(function (view) {
@@ -5889,6 +5939,15 @@
     title.className = 'cand-modal-dialog__title';
     title.textContent = name;
     identity.appendChild(title);
+    // Affectation du stagiaire, sous le nom.
+    var affectationText = settings.col.affectation ? textOf(row.affectation) : '';
+    if (affectationText) {
+      var affectationEl = document.createElement('p');
+      affectationEl.className = 'cand-modal-dialog__affectation';
+      affectationEl.textContent = affectationText;
+      affectationEl.title = 'Affectation';
+      identity.appendChild(affectationEl);
+    }
     // Icônes d'alerte (doublon, mineur) : sous le nom.
     var flags = document.createElement('div');
     flags.className = 'stg-flags';
@@ -5954,9 +6013,20 @@
   }
 
   // Pied de volet du doublon le plus ancien : icône de suppression en bas à droite.
+  var currentModalViews = [];
   function buildDeleteFooter(view, name) {
     var footer = document.createElement('div');
     footer.className = 'cand-modal-dialog__footer';
+    // « Copier » : reporte les remarques de « Blocages / Infos » de cette fiche dans la même case de la fiche la plus récente.
+    if (settings.col.blocagesInfos && currentModalViews.length > 1) {
+      var copy = document.createElement('button');
+      copy.type = 'button';
+      copy.className = 'fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-file-copy-line cand-modal-dialog__copy';
+      copy.title = 'Copier les remarques (Blocages / Infos) dans la fiche la plus récente';
+      copy.textContent = 'Copier les remarques dans la fiche la plus récente';
+      copy.addEventListener('click', function () { copyRemarksToNewest(view, copy); });
+      footer.appendChild(copy);
+    }
     var del = document.createElement('button');
     del.type = 'button';
     del.className = 'fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-delete-line cand-modal-dialog__delete';
@@ -5965,6 +6035,37 @@
     del.addEventListener('click', function () { deleteDuplicateRecord(view, name); });
     footer.appendChild(del);
     return footer;
+  }
+
+  // Reporte les remarques de « Blocages / Infos » de la fiche la plus ancienne dans la fiche la plus récente : seules les
+  // lignes qui n'y figurent pas déjà sont ajoutées à la suite (rien n'est écrasé).
+  function copyRemarksToNewest(oldView, btn) {
+    var newest = currentModalViews[currentModalViews.length - 1];
+    if (!newest || newest === oldView) return;
+    var oldText = textOf(oldView.row.blocagesInfos);
+    if (!oldText.trim()) { window.alert('Aucune remarque à copier : « Blocages / Infos » est vide sur la fiche la plus ancienne.'); return; }
+    var newText = textOf(newest.row.blocagesInfos);
+    var present = {};
+    newText.split(/\r?\n/).forEach(function (l) { present[l.trim()] = true; });
+    var missing = oldText.split(/\r?\n/).filter(function (l) { return l.trim() && !present[l.trim()]; });
+    if (!missing.length) { window.alert('Les remarques de la fiche la plus ancienne figurent déjà dans « Blocages / Infos » de la fiche la plus récente.'); return; }
+    if (!window.confirm('Copier ' + missing.length + ' ligne(s) de « Blocages / Infos » de la ligne n° ' + oldView.recordId + ' (la plus ancienne) vers la ligne n° ' + newest.recordId + ' (la plus récente) ?\n\n' +
+      missing.join('\n') + (newText.trim() ? '\n\nElles seront ajoutées à la suite du texte existant.' : ''))) return;
+    var next = newText.trim() ? newText.replace(/\s+$/, '') + '\n' + missing.join('\n') : missing.join('\n');
+    var colId = settings.col.blocagesInfos;
+    btn.disabled = true;
+    resolveWriteTarget('blocagesInfos', newest.row).then(function (target) {
+      var fields = {};
+      fields[colId] = next;
+      return grist.docApi.applyUserActions([['UpdateRecord', target.table, target.rowId, fields]]);
+    }).then(function () {
+      newest.row.blocagesInfos = next;
+      renderCandidates();
+      renderModalContent();
+    }).catch(function (e) {
+      btn.disabled = false;
+      window.alert('Impossible de copier les remarques : ' + friendlyErrorMessage(e));
+    });
   }
 
   // Supprime, après confirmation, la ligne en doublon la plus ancienne
@@ -7277,98 +7378,6 @@
     return String(v).trim();
   }
   // Une colonne Référence simple non résolue en texte représente une
-  // référence "vide" par l'entier 0 côté Grist, pas par une chaîne vide —
-  // sans ce traitement, "Stagiaire" ou "Inscription bande" afficheraient
-  // "0" tant que la ligne visée n'a pas de valeur.
-  function textOfRef(v) {
-    return v === 0 ? '' : textOf(v);
-  }
-  function numOf(v) {
-    var t = textOf(v);
-    if (t === '') return NaN;
-    var n = Number(t);
-    return isNaN(n) ? NaN : n;
-  }
-  function fmtCurrency(v) {
-    var n = numOf(v);
-    if (isNaN(n)) return '—';
-    return n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
-  }
-  // Regroupe un numéro de téléphone par paires de chiffres ("0102030405"
-  // ou "01.02.03.04.05" ou "01-02-03-04-05" -> "01 02 03 04 05"), quel que
-  // soit le séparateur saisi dans Grist. Un éventuel "+" initial (indicatif
-  // international) est conservé devant le premier groupe. Si la valeur ne
-  // contient aucun chiffre, elle est affichée telle quelle plutôt que
-  // perdue.
-  function fmtPhoneFr(v) {
-    var raw = textOf(v);
-    if (!raw) return '';
-    var trimmed = raw.trim();
-    var hasPlus = trimmed.charAt(0) === '+';
-    var digits = trimmed.replace(/\D/g, '');
-    if (!digits) return raw;
-    // Un numéro français stocké dans une colonne Numérique perd son 0
-    // initial (ex. 612345678 au lieu de 0612345678) : on le rajoute
-    // lorsque le compte de chiffres (9, sans indicatif international)
-    // correspond à un numéro français privé de ce 0.
-    if (!hasPlus && digits.length === 9) digits = '0' + digits;
-    var groups = digits.match(/\d{1,2}/g) || [];
-    return (hasPlus ? '+' : '') + groups.join(' ');
-  }
-  // Grist renvoie les colonnes Date/DateTime comme un nombre de secondes
-  // depuis l'epoch Unix (UTC), jamais comme une chaîne — d'où la
-  // conversion ×1000 pour obtenir un objet Date JavaScript (qui travaille
-  // en millisecondes). Une valeur vide ou inexploitable renvoie null
-  // plutôt que de faire planter le calcul de minorité.
-  function dateOf(v) {
-    if (typeof v === 'number' && isFinite(v)) return new Date(v * 1000);
-    if (typeof v === 'string' && v.trim()) {
-      var t = Date.parse(v);
-      if (!isNaN(t)) return new Date(t);
-    }
-    return null;
-  }
-  // Le stagiaire sera-t-il mineur au premier jour de la formation ?
-  // Calculé à partir de sa date de naissance (colonne Date de Grist, voir
-  // settings.col.dateNaissance) et de la date "Début de formation le",
-  // saisie à la main dans la Configuration (settings.dateDebutFormation,
-  // déjà convertie en Date UTC par parseFrDate) — pas une colonne.
-  // Renvoie false si l'une des deux dates manque ou n'est pas exploitable :
-  // le pictogramme reste alors masqué plutôt que d'afficher une fausse
-  // certitude.
-  function willBeMinor(birthValue, start) {
-    var birth = dateOf(birthValue);
-    if (!birth || !start) return false;
-    var age = start.getUTCFullYear() - birth.getUTCFullYear();
-    var monthDiff = start.getUTCMonth() - birth.getUTCMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && start.getUTCDate() < birth.getUTCDate())) age--;
-    return age < 18;
-  }
-  function escapeHtml(s) {
-    var div = document.createElement('div');
-    div.textContent = s;
-    return div.innerHTML;
-  }
-  function escapeAttr(s) {
-    return escapeHtml(s).replace(/"/g, '&quot;');
-  }
-  // Grist renvoie un message technique en anglais lorsque les règles
-  // d'accès du document interdisent l'écriture demandée : on le remplace
-  // par un texte compréhensible, comme dans le widget Réservations.
-  function friendlyErrorMessage(e) {
-    var raw = (e && e.message) ? e.message : String(e || '');
-    if (/blocked by .*access rules/i.test(raw)) {
-      return 'Vous ne disposez pas des droits nécessaires. Contactez l\'équipe projet si vous pensez qu\'il s\'agit d\'une erreur.';
-    }
-    return raw;
-  }
-
-})();
-</script>
-
-</body>
-</html>
-férence simple non résolue en texte représente une
   // référence "vide" par l'entier 0 côté Grist, pas par une chaîne vide —
   // sans ce traitement, "Stagiaire" ou "Inscription bande" afficheraient
   // "0" tant que la ligne visée n'a pas de valeur.
