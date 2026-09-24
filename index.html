@@ -1623,7 +1623,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 4.1</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 5.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -1835,6 +1835,9 @@
   // ensureDocRowId), la table principale (et la ligne du candidat,
   // toujours présente) sinon.
   function resolveWriteTarget(role, row) {
+    if (role === 'ead') {
+      return ensureEadRowId(row).then(function (rowId) { return { table: eadSource.tableId, rowId: rowId }; });
+    }
     if (DOC_TABLE_ROLES.indexOf(role) === -1) {
       return Promise.resolve({ table: settings.table, rowId: row.id });
     }
@@ -2426,14 +2429,48 @@
     }
     function tableName(t) { return t ? '<span class="cfg-sources__col">' + escapeHtml(t) + '</span>' : '<span class="cfg-pill cfg-pill--na">non réglée</span>'; }
 
-    var html = '<p class="cfg-sources__note">Rappel des tables et colonnes lues (et écrites) par le widget. Rien ne se modifie ici : la table des candidats et la table Documents se règlent dans la carte 1 ; la liaison par le NID est fixe, les colonnes fixes sont dans le code. ' +
+    var eadInfo = candidates.eadInfo || null;
+    var eadCols = eadInfo && eadInfo.cols ? eadInfo.cols.map(function (c) { return c.id; }) : [];
+    var labelsEad = {};
+    (eadInfo && eadInfo.cols || []).forEach(function (c) { labelsEad[c.id] = c.label; });
+    function tableState(id, expected) {
+      return id ? tableName(id) + ' <span class="cfg-pill cfg-pill--ok">trouvée</span>'
+        : '<span class="cfg-pill cfg-pill--ko">introuvable</span> <span class="cfg-sources__grist">table attendue « ' + escapeHtml(expected) + ' »</span>';
+    }
+    function foundCol(col, expectedLabel) {
+      if (!col) return '<span class="cfg-pill cfg-pill--ko">non trouvée</span> <span class="cfg-sources__grist">libellé attendu « ' + escapeHtml(expectedLabel) + ' »</span>';
+      return '<span class="cfg-sources__col">' + escapeHtml(col.id) + '</span>' +
+        (col.label && col.label !== col.id ? ' <span class="cfg-sources__grist">« ' + escapeHtml(col.label) + ' »</span>' : '') + ' <span class="cfg-pill cfg-pill--ok">trouvée</span>';
+    }
+
+    var html = '<p class="cfg-sources__note">Rappel des tables et colonnes lues (et écrites) par le widget. Rien ne se modifie ici : la table des candidats et la table Documents se règlent dans la carte 1 ; les autres tables (Alimentation EAD, Encadrement, Editeur de documents), la liaison par le NID et les colonnes fixes sont dans le code. ' +
       (known ? 'État vérifié sur les dernières données chargées.' : 'Les données ne sont pas encore chargées : l\'état des colonnes n\'est pas vérifié.') + '</p>';
 
     html += '<h4>Tables</h4>' + table([
       ['Table des candidats (Stagiaires)', tableName(settings.table)],
       ['Table Documents (eTuteur)', tableName(settings.docsTable)],
       ['Liaison des deux tables', 'par le NID : colonne ' + (settings.col.nid ? '<span class="cfg-sources__col">' + escapeHtml(settings.col.nid) + '</span>' : 'NID <span class="cfg-pill cfg-pill--na">non réglée</span>') +
-        ' (candidats) = ' + (settings.docsLinkCol ? '<span class="cfg-sources__col">' + escapeHtml(settings.docsLinkCol) + '</span>' : 'colonne NID <span class="cfg-pill cfg-pill--na">non réglée</span>') + ' (Documents)']
+        ' (candidats) = ' + (settings.docsLinkCol ? '<span class="cfg-sources__col">' + escapeHtml(settings.docsLinkCol) + '</span>' : 'colonne NID <span class="cfg-pill cfg-pill--na">non réglée</span>') + ' (Documents)'],
+      ['Table EAD (pièce EAD - Bloc 1)', known ? tableState(eadInfo && eadInfo.tableId, 'Alimentation EAD') : tableName('Alimentation EAD') + ' <span class="cfg-pill cfg-pill--na">non vérifiée</span>'],
+      ['Table Encadrement (page Encadrement)', enc.loaded || enc.error ? tableState(enc.tableId, 'Encadrement') : tableName('Encadrement') + ' <span class="cfg-pill cfg-pill--na">non vérifiée</span>'],
+      ['Table Editeur de documents (page Documents)', bulk.loaded || bulk.error ? tableState(bulk.tableId, 'Editeur de documents') : tableName('Editeur de documents') + ' <span class="cfg-pill cfg-pill--na">non vérifiée</span>']
+    ]);
+
+    html += '<h4>Pièce EAD - Bloc 1 — table « Alimentation EAD »</h4>' + table([
+      ['Pièce jointe EAD', known ? foundCol(eadInfo && eadInfo.docCol ? { id: eadInfo.docCol, label: labelsEad[eadInfo.docCol] } : null, 'EAD1') : '<span class="cfg-sources__col">EAD1</span> <span class="cfg-pill cfg-pill--na">non vérifiée</span>'],
+      ['Liaison par le NID', known ? (eadInfo && eadInfo.linkCol ? 'colonne <span class="cfg-sources__col">' + escapeHtml(eadInfo.linkCol) + '</span> (Alimentation EAD) = ' + (settings.col.nid ? '<span class="cfg-sources__col">' + escapeHtml(settings.col.nid) + '</span>' : 'NID') + ' (candidats) <span class="cfg-pill cfg-pill--ok">trouvée</span>'
+        : '<span class="cfg-pill cfg-pill--ko">non trouvée</span> <span class="cfg-sources__grist">libellé attendu « NID »</span>') : '<span class="cfg-pill cfg-pill--na">non vérifiée</span>'],
+      ['Validation EAD (reste dans Documents)', colCell(settings.col.validationEAD, docsCols, labelsDocs)]
+    ]);
+
+    html += '<h4>Page Encadrement — colonnes retrouvées par libellé Grist</h4>' + table(Object.keys(ENC_LABELS).map(function (k) {
+      return [ENC_LABELS[k], enc.loaded ? foundCol(enc.cols[k], ENC_LABELS[k]) : '<span class="cfg-pill cfg-pill--na">non vérifiée</span>'];
+    }));
+
+    html += '<h4>Page Documents — table « Editeur de documents »</h4>' + table([
+      ['Nom du document', bulk.loaded ? foundCol(bulk.nameCol, 'Nom du document') : '<span class="cfg-pill cfg-pill--na">non vérifiée</span>'],
+      ['Collectif (seules les lignes « Oui » sont affichées)', bulk.loaded ? foundCol(bulk.filterCol, 'Collectif') : '<span class="cfg-pill cfg-pill--na">non vérifiée</span>'],
+      ['Modèle HTML', bulk.loaded ? foundCol(bulk.tplCol, 'Modèle HTML') : '<span class="cfg-pill cfg-pill--na">non vérifiée</span>']
     ]);
 
     html += '<h4>Colonnes fixes — table des candidats</h4>' + table([
@@ -2470,8 +2507,8 @@
     }
 
     var setMain = ['nid', 'email', 'telephone', 'dateNaissance'];
-    var setDocs = ['usageRS', 'validationUsageRS', 'formImage', 'validationFormImage', 'ead', 'validationEAD', 'photos', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
-    html += '<h4>Autres colonnes fixes — identité, documents, bande patronymique, suivi</h4>' + table(
+    var setDocs = ['usageRS', 'validationUsageRS', 'formImage', 'validationFormImage', 'validationEAD', 'photos', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
+    html += '<h4>Autres colonnes fixes — identité, documents (hors EAD), bande patronymique, suivi</h4>' + table(
       setMain.map(function (role) { return [ROLE_LABELS[role] + ' (candidats)', colCell(settings.col[role], mainCols, labelsMain)]; })
         .concat(setDocs.map(function (role) { return [ROLE_LABELS[role] + ' (Documents)', colCell(settings.col[role], docsCols, labelsDocs)]; }))
     );
@@ -2605,14 +2642,17 @@
     var usesDocsTable = !!settings.docsTable;
     var mainPromise = grist.docApi.fetchTable(settings.table);
     var docsPromise = usesDocsTable ? grist.docApi.fetchTable(settings.docsTable) : Promise.resolve(null);
-    Promise.all([mainPromise, docsPromise, loadColumnTypes()]).then(function (results) {
+    Promise.all([mainPromise, docsPromise, loadColumnTypes(), loadEadSource()]).then(function (results) {
       applySuggestedColumns(results[0], results[1]);
+      eadSource = results[3];
+      settings.col.ead = (eadSource && eadSource.docCol) || ''; // colonne EAD1 de « Alimentation EAD » (et non plus de la table Documents)
       var rows = columnarToRows(results[0]);
       var linked = mergeDocsTable(rows, results[1]);
+      mergeEadTable(rows, eadSource);
       markDuplicates(rows);
       // hasNumCand : la table des candidats possède bien la colonne N_Cand
       // (sinon le champ « N° CAND » n'est pas affiché dans la fiche).
-      candidates = { rows: rows, mainData: results[0], docsData: results[1], loaded: true, mainCols: tableColumns(results[0]), docsCols: results[1] ? tableColumns(results[1]) : [],
+      candidates = { rows: rows, mainData: results[0], docsData: results[1], eadInfo: eadSource, loaded: true, mainCols: tableColumns(results[0]), docsCols: results[1] ? tableColumns(results[1]) : [],
         hasInfos: !!(results[0] && results[0][INFOS_COL]),
         hasPieces: !!(results[0] && results[0][PIECES_COL] && results[0][PIECES_NOMS_COL]),
         missingPieceCols: [PIECES_COL, PIECES_NOMS_COL].filter(function (c) { return !(results[0] && results[0][c]); }), hasNumCand: !!(results[0] && results[0][NUM_CAND_COL]) };
@@ -2625,10 +2665,80 @@
           'complémentaires (inscription, quantité, blocages…) restent donc vides. Ouvrez la Configuration (5 clics sur le bloc marque du header) ' +
           'et vérifiez la colonne NID de la table Documents (elle doit contenir les mêmes NID que la table des candidats).';
       }
+      if (eadSource && eadSource.error) candidates.warning = (candidates.warning ? candidates.warning + ' ' : '') + eadSource.error;
       renderAll();
     }).catch(function (e) {
       candidates = { rows: [], loaded: false, error: friendlyErrorMessage(e) };
       renderAll();
+    });
+  }
+
+  // ---- Table « Alimentation EAD » : pièce jointe « EAD - Bloc 1 » ----
+  //
+  // La pièce EAD n'est plus dans la table Documents : elle est stockée dans la colonne « EAD1 » (Pièces
+  // jointes) de la table « Alimentation EAD », rattachée au stagiaire par le NID (colonne « NID » de cette
+  // table). Plusieurs lignes peuvent porter le même NID : leurs fichiers sont tous affichés. La validation
+  // (Validation_EAD) reste dans la table Documents. Table, colonne et liaison sont en dur.
+  var EAD_TABLE = 'ALIMENTATION EAD'; // comparé à l'identifiant de table, sans accents ni « _ »
+  var EAD_DOC_COL_KEYS = ['EAD1'];
+  var EAD_LINK_COL_KEYS = ['NID'];
+  var eadSource = null; // dernier résultat de loadEadSource : { tableId, data, docCol, linkCol, cols } ou { error }
+  function loadEadSource() {
+    return Promise.all([grist.docApi.listTables(), grist.docApi.fetchTable('_grist_Tables'), grist.docApi.fetchTable('_grist_Tables_column')]).then(function (res) {
+      var tableId = null;
+      res[0].forEach(function (t) { if (!tableId && bulkKey(t) === EAD_TABLE) tableId = t; });
+      if (!tableId) return { error: 'Table « Alimentation EAD » introuvable : la pièce EAD - Bloc 1 ne peut pas être lue.' };
+      var tables = res[1], meta = res[2], tableRowId = null;
+      for (var i = 0; i < tables.id.length; i++) if (tables.tableId[i] === tableId) tableRowId = tables.id[i];
+      var cols = [];
+      for (var j = 0; j < meta.id.length; j++) {
+        if (meta.parentId[j] !== tableRowId || /^gristHelper_|^manualSort$/.test(meta.colId[j])) continue;
+        cols.push({ id: meta.colId[j], label: meta.label[j] || meta.colId[j] });
+      }
+      function find(keys) {
+        var found = null;
+        cols.forEach(function (c) { if (!found && (keys.indexOf(bulkKey(c.id)) !== -1 || keys.indexOf(bulkKey(c.label)) !== -1)) found = c; });
+        return found;
+      }
+      var docCol = find(EAD_DOC_COL_KEYS), linkCol = find(EAD_LINK_COL_KEYS);
+      if (!docCol) return { error: 'Colonne « EAD1 » introuvable dans la table « ' + tableId + ' » : la pièce EAD - Bloc 1 ne peut pas être lue.', tableId: tableId, cols: cols };
+      if (!linkCol) return { error: 'Colonne « NID » introuvable dans la table « ' + tableId + ' » : impossible de rattacher les pièces EAD aux stagiaires.', tableId: tableId, cols: cols, docCol: docCol.id };
+      return grist.docApi.fetchTable(tableId).then(function (data) { return { tableId: tableId, data: data, docCol: docCol.id, linkCol: linkCol.id, cols: cols }; });
+    }).catch(function (e) { return { error: 'Table « Alimentation EAD » illisible : ' + friendlyErrorMessage(e) }; });
+  }
+  // Rattache à chaque candidat les fichiers EAD de la table « Alimentation EAD » (par le NID) :
+  // row.ead = tous les fichiers ; row.__eadCells = [{ rowId, ids }] par ligne de cette table.
+  function mergeEadTable(rows, info) {
+    rows.forEach(function (row) { row.ead = null; row.__eadCells = []; });
+    if (!info || !info.data || !info.data[info.linkCol]) return;
+    var byNid = {};
+    info.data.id.forEach(function (id, i) {
+      var k = nidKey(info.data[info.linkCol][i]);
+      if (k) (byNid[k] = byNid[k] || []).push(i);
+    });
+    rows.forEach(function (row) {
+      var k = nidKey(row.nid);
+      var idxs = k ? (byNid[k] || []) : [];
+      var all = [];
+      row.__eadCells = idxs.map(function (i) {
+        var ids = extractAttachmentIds(info.data[info.docCol] ? info.data[info.docCol][i] : null);
+        ids.forEach(function (x) { all.push(x); });
+        return { rowId: info.data.id[i], ids: ids };
+      });
+      row.ead = idxs.length ? ['L'].concat(all) : null;
+    });
+  }
+  // Ligne de « Alimentation EAD » où écrire la pièce d'un candidat : la première ligne de son NID, créée si besoin.
+  function ensureEadRowId(row) {
+    if (!eadSource || !eadSource.linkCol) return Promise.reject(new Error(eadSource && eadSource.error ? eadSource.error : 'Table « Alimentation EAD » indisponible.'));
+    if (row.__eadCells && row.__eadCells.length) return Promise.resolve(row.__eadCells[0].rowId);
+    var fields = {};
+    fields[eadSource.linkCol] = row.nid; // la nouvelle ligne reçoit le NID (clé de liaison)
+    return grist.docApi.applyUserActions([['AddRecord', eadSource.tableId, null, fields]]).then(function (result) {
+      var createdId = (result && Array.isArray(result.retValues)) ? result.retValues[0] : (typeof result === 'number' ? result : null);
+      if (!createdId) throw new Error('Impossible de déterminer l’identifiant de la nouvelle ligne créée dans « Alimentation EAD ».');
+      row.__eadCells = [{ rowId: createdId, ids: [] }];
+      return createdId;
     });
   }
 
@@ -2678,6 +2788,7 @@
       linked++;
       row.__docRowId = docsData.id[idx];
       DOC_TABLE_ROLES.forEach(function (role) {
+        if (role === 'ead') return; // la pièce EAD vient de la table « Alimentation EAD » (voir mergeEadTable)
         var colName = cfg.col[role];
         row[role] = (colName && docsData[colName]) ? docsData[colName][idx] : null;
       });
@@ -3498,12 +3609,12 @@
   // Type de trajet d'après la réponse (insensible à la casse et aux accents) :
   //  voiture : « Voiture », « Auto », « Véhicule », « Covoiturage »… ;
   //  train   : « Train », « SNCF », « TGV », « TER »… ;
-  //  pieton  : « Piéton », « À pied », « Marche »….
+  //  pieton  : « Piéton », « À pied », « Marche », « On me dépose à l'entrée du camp… »….
   function transportKind(text) {
     var k = normalizeKey(text);
     if (/VOITURE|\bAUTO\b|AUTOMOBILE|VEHICULE|COVOIT/.test(k)) return 'voiture';
     if (/TRAIN|SNCF|\bTGV\b|\bTER\b|FERROV/.test(k)) return 'train';
-    if (/PIETON|A PIED|MARCHE|PEDESTRE/.test(k)) return 'pieton';
+    if (/PIETON|A PIED|MARCHE|PEDESTRE|DEPOS|ENTREE DU CAMP|ENTREE DE LA CASERNE/.test(k)) return 'pieton'; // « On me dépose à l'entrée du camp… » : à pied ensuite
     return '';
   }
   // Plaque d'immatriculation : SIV « AB-123-CD » ou ancien format FNI « 123 AB 45 ».
@@ -3731,6 +3842,18 @@
   // Détache UN fichier d'une pièce eTuteur (colonne pièce jointe de la table Documents).
   function removeDocFile(row, role, id) {
     var colId = settings.col[role];
+    if (role === 'ead') { // fichier détaché de la ligne « Alimentation EAD » qui le porte
+      var holder = (row.__eadCells || []).filter(function (c) { return c.ids.indexOf(id) !== -1; })[0];
+      if (!holder || !eadSource || !eadSource.tableId) return Promise.reject(new Error('Aucune ligne « Alimentation EAD » liée à ce fichier.'));
+      var keep = holder.ids.filter(function (x) { return x !== id; });
+      var f = {};
+      f[colId] = ['L'].concat(keep);
+      return grist.docApi.applyUserActions([['UpdateRecord', eadSource.tableId, holder.rowId, f]]).then(function () {
+        holder.ids = keep;
+        row.ead = ['L'].concat(extractAttachmentIds(row.ead).filter(function (x) { return x !== id; }));
+        renderCandidates();
+      });
+    }
     if (!isWritableColId(colId) || !row.__docRowId) return Promise.reject(new Error('Aucune ligne Documents liée à ce stagiaire.'));
     var remaining = extractAttachmentIds(row[role]).filter(function (x) { return x !== id; });
     var fields = {};
@@ -3936,8 +4059,8 @@
         files.className = 'stg-docline__files';
         var ids = extractAttachmentIds(row[role]);
         if (!ids.length) files.textContent = 'Aucun fichier';
-        var cell = attachmentCell(row, role);
         ids.forEach(function (id) {
+          var cell = attachmentCell(row, role, id);
           var link = document.createElement('button');
           link.type = 'button';
           link.className = 'cand-doc-slot__filename--link stg-docline__link';
@@ -4133,6 +4256,13 @@
     droitImage: ['DROIT A L\'IMAGE', 'DROIT A LIMAGE'], regime: ['REGIME ALIMENTAIRE'], droitsRepos: ['DROITS REPOS'],
     hCours: ['H COURS'], identiteComplete: ['IDENTITE COMPLETE'], gpe: ['GPE'], uv: ['UV']
   };
+  var ENC_LABELS = {
+    photo: 'Photo', grade: 'Grade', nom: 'Nom', prenom: 'Prénom', ar: 'A/R', nigend: 'Nigend', affectation: 'Affectation', fonction: 'Fonction',
+    groupe: 'Groupe', sexe: 'Sexe', emailPerso: 'Email perso', emailPro: 'Email pro', telephone: 'Téléphone', batiment: 'Bât.', chambre: 'Ch.',
+    permis: 'Permis détenus', renseignements: 'Renseignements_cadres_Cours', debut: 'Début détachement', fin: 'Fin détachement',
+    duree: 'Durée détachement', secourisme: 'Qualif. secourisme', droitImage: 'Droit à l\'image', regime: 'Régime alimentaire',
+    droitsRepos: 'Droits repos', hCours: 'H cours', identiteComplete: 'Identité complète', gpe: 'Gpe', uv: 'UV'
+  };
   var ENC_FILTER_DEFS = [
     { key: 'affectation', all: 'Affectation', noun: 'affectations', groupId: 'encAffectationGroup', summaryId: 'encAffectationSummary', panelId: 'encAffectationPanel' },
     { key: 'groupe', all: 'Groupe', noun: 'groupes', groupId: 'encGroupeGroup', summaryId: 'encGroupeSummary', panelId: 'encGroupePanel' },
@@ -4192,9 +4322,11 @@
       }
       enc = { loaded: true, error: '', tableId: r.tableId, cols: map, rows: rows };
       renderEncadrement();
+      renderSourcesPanel();
     }).catch(function (e) {
       enc = { loaded: false, error: friendlyErrorMessage(e), tableId: '', cols: {}, rows: [] };
       renderEncadrement();
+      renderSourcesPanel();
     });
   }
 
@@ -4668,9 +4800,11 @@
       }
       bulk = { loaded: true, error: '', tableId: r.tableId, cols: shown, nameCol: nameCol, filterCol: filterCol, tplCol: bulkFindCol(r.cols, BULK_TEMPLATE_COL), rows: rows };
       renderBulk();
+      renderSourcesPanel();
     }).catch(function (e) {
       bulk = { loaded: false, error: friendlyErrorMessage(e), tableId: '', cols: [], nameCol: null, rows: [] };
       renderBulk();
+      renderSourcesPanel();
     });
   }
 
@@ -5697,7 +5831,7 @@
     var docs = candidates.docsData;
     var v = {};
     Object.keys(row).forEach(function (key) {
-      var col = (DOC_TABLE_ROLES.indexOf(key) !== -1) ? settings.col[key] : null;
+      var col = (DOC_TABLE_ROLES.indexOf(key) !== -1 && key !== 'ead') ? settings.col[key] : null; // « ead » : voir mergeEadTable
       if (idx !== undefined && docs && col && docs[col]) {
         Object.defineProperty(v, key, { enumerable: true, configurable: true,
           get: function () { return docs[col][idx]; }, set: function (val) { docs[col][idx] = val; } });
@@ -6522,7 +6656,7 @@
     var card = document.createElement('div');
     card.className = 'cand-doc-slot__file';
 
-    var cell = attachmentCell(row, role);
+    var cell = attachmentCell(row, role, attachmentId);
     var thumb = buildAttachmentThumb(attachmentId, cell);
     thumb.addEventListener('click', function () { openAttachmentInNewTab(attachmentId, cell); });
     thumb.addEventListener('keydown', function (e) {
@@ -6686,6 +6820,7 @@
         fields[colId] = ['L', newId];
         return grist.docApi.applyUserActions([['UpdateRecord', target.table, target.rowId, fields]]).then(function () {
           row[role] = ['L', newId];
+          if (role === 'ead') row.__eadCells = [{ rowId: target.rowId, ids: [newId] }];
         });
       });
     }).then(function () {
@@ -6704,6 +6839,18 @@
     var colId = settings.col[role];
     if (!isWritableColId(colId)) {
       window.alert('Le champ « ' + ROLE_LABELS[role] + ' » pointe vers une colonne technique de Grist, qui ne peut pas être modifiée.');
+      return;
+    }
+    if (role === 'ead') { // détache le fichier de toutes les lignes « Alimentation EAD » de ce NID
+      var cells = row.__eadCells || [];
+      if (!cells.length || !eadSource || !eadSource.tableId) return;
+      var eadActions = cells.map(function (c) { var f = {}; f[colId] = ['L']; return ['UpdateRecord', eadSource.tableId, c.rowId, f]; });
+      grist.docApi.applyUserActions(eadActions).then(function () {
+        row.ead = ['L'];
+        row.__eadCells = cells.map(function (c) { return { rowId: c.rowId, ids: [] }; });
+        renderCandidates();
+        if (currentModalRowId === row.id) renderModalContent();
+      }).catch(function (e) { window.alert('Impossible de supprimer le fichier : ' + friendlyErrorMessage(e)); });
       return;
     }
     // Pas d'auto-création ici (contrairement à importDocument/
@@ -6792,7 +6939,13 @@
   }
   // Cellule d'une pièce jointe d'une fiche : toujours dans la table
   // Documents (voir DOC_TABLE_ROLES), sur la ligne liée au candidat.
-  function attachmentCell(row, role) {
+  // id : fichier concerné (pour « ead », la ligne « Alimentation EAD » qui le porte).
+  function attachmentCell(row, role, id) {
+    if (role === 'ead') {
+      var cells = row.__eadCells || [];
+      var holder = cells.filter(function (c) { return id && c.ids.indexOf(id) !== -1; })[0] || cells[0];
+      return { tableId: eadSource ? eadSource.tableId : '', colId: settings.col[role], rowId: holder ? holder.rowId : null };
+    }
     return { tableId: settings.docsTable, colId: settings.col[role], rowId: row.__docRowId };
   }
 
