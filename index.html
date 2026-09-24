@@ -324,7 +324,7 @@
   /* Page Stagiaires : fond de la fiche en pastel kaki (au lieu du bleu pastel de la fiche eTuteur). */
   /* Accents de la page Stagiaires en kaki foncé : on redéfinit ici les variables de couleur
      « bleu » (titres de blocs, onglet actif, liens, icônes, tags) pour la liste et pour la fiche. */
-  #panelStagiaires, .stg-dialog { --bleu-france: #5c5a2b; --text-action-high-blue-france: #5c5a2b; }
+  #panelStagiaires, #panelEncadrement, .stg-dialog { --bleu-france: #5c5a2b; --text-action-high-blue-france: #5c5a2b; }
   .stg-dialog { max-width: 52rem; background: linear-gradient(180deg, #e7e3c6 0%, #f6f4e6 100%); }
   .stg-hero { display: flex; align-items: flex-start; gap: 1.1rem; padding-bottom: 1.1rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
   .stg-avatar {
@@ -1181,6 +1181,9 @@
             <button class="fr-nav__link" id="navEtuteur" type="button">eTuteur</button>
           </li>
           <li class="fr-nav__item">
+            <button class="fr-nav__link" id="navEncadrement" type="button">Encadrement</button>
+          </li>
+          <li class="fr-nav__item">
             <button class="fr-nav__link" id="navBulk" type="button">Documents</button>
           </li>
         </ul>
@@ -1225,6 +1228,46 @@
     </div>
 
     <div id="candZone"></div>
+  </div>
+
+  <!-- Page "Encadrement" : table « Encadrement » (en dur). Liste comme la page Stagiaires, fiche profil au clic. -->
+  <div id="panelEncadrement" hidden>
+    <h2 class="fr-h6">Encadrement</h2>
+
+    <div class="cand-toolbar fr-mb-2w">
+      <div class="fr-search-bar fr-search-bar--sm" role="search">
+        <label class="fr-label" for="encSearchInput">Rechercher un membre de l'encadrement</label>
+        <input class="fr-input" type="search" id="encSearchInput" placeholder="Nom, grade, Nigend, affectation…">
+        <button class="fr-btn fr-btn--sm" id="encSearchBtn" title="Rechercher">Rechercher</button>
+      </div>
+      <div class="stg-multi" id="encAffectationGroup">
+        <details>
+          <summary class="fr-select stg-multi__summary" id="encAffectationSummary">Affectation</summary>
+          <div class="stg-multi__panel" id="encAffectationPanel"></div>
+        </details>
+      </div>
+      <div class="stg-multi" id="encFonctionGroup">
+        <details>
+          <summary class="fr-select stg-multi__summary" id="encFonctionSummary">Fonction</summary>
+          <div class="stg-multi__panel" id="encFonctionPanel"></div>
+        </details>
+      </div>
+      <div class="stg-multi" id="encGroupeGroup">
+        <details>
+          <summary class="fr-select stg-multi__summary" id="encGroupeSummary">Groupe</summary>
+          <div class="stg-multi__panel" id="encGroupePanel"></div>
+        </details>
+      </div>
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-circle-line fr-btn--icon-left" id="encResetBtn" type="button" disabled title="Efface la recherche et décoche tous les filtres">
+        Réinitialiser les filtres
+      </button>
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-refresh-line fr-btn--icon-left" id="encReloadBtn" type="button" title="Recharger l'encadrement depuis la table Grist">
+        Actualiser
+      </button>
+      <p class="cand-count cand-count--push" id="encCount"></p>
+    </div>
+
+    <div id="encZone"></div>
   </div>
 
   <!-- Page "Documents" : documents collectifs (table « Editeur de documents »), consultation seule :
@@ -1571,7 +1614,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 2.11</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 3.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -1809,7 +1852,8 @@
   var navBulk = document.getElementById('navBulk');
   var panelBulk = document.getElementById('panelBulk');
   var panelDocMgmt = document.getElementById('panelDocMgmt');
-  var currentPage = 'stagiaires'; // 'stagiaires' (page d'arrivée, 1er onglet) | 'etuteur' | 'bulk' | 'docmgmt' (cachée)
+  var navEncadrement = document.getElementById('navEncadrement');
+  var currentPage = 'stagiaires'; // 'stagiaires' (page d'arrivée, 1er onglet) | 'etuteur' | 'encadrement' | 'bulk' | 'docmgmt' (cachée)
   var settingsOpen = false;
   var panelSettings = document.getElementById('panelSettings');
   var brandGesture = document.getElementById('brandGesture');
@@ -1830,8 +1874,8 @@
   var candModalStack = document.getElementById('candModalStack');
   // Identifiants des lignes actuellement affichées (filtrées et triées) dans chaque
   // liste : servent aux boutons Précédent / Suivant de la modale.
-  var displayedIds = { etuteur: [], stagiaire: [] };
-  var currentModalKind = 'etuteur'; // page d'origine de la modale : 'etuteur' | 'stagiaire'
+  var displayedIds = { etuteur: [], stagiaire: [], encadrement: [] };
+  var currentModalKind = 'etuteur'; // page d'origine de la modale : 'etuteur' | 'stagiaire' | 'encadrement'
   var currentModalRowId = null; // id de la ligne actuellement affichée dans la modale, ou null si fermée
 
   // ---- Geste caché sur le bloc marque : 5 clics rapprochés ---------------
@@ -1944,9 +1988,10 @@
     panelSettings.hidden = !settingsOpen;
     panelEtuteur.hidden = settingsOpen || currentPage !== 'etuteur';
     panelStagiaires.hidden = settingsOpen || currentPage !== 'stagiaires';
+    panelEncadrement.hidden = settingsOpen || currentPage !== 'encadrement';
     panelBulk.hidden = settingsOpen || currentPage !== 'bulk';
     panelDocMgmt.hidden = settingsOpen || currentPage !== 'docmgmt'; // page cachée : pas d'onglet, atteinte par la roue crantée
-    [[navStagiaires, 'stagiaires'], [navEtuteur, 'etuteur'], [navBulk, 'bulk']].forEach(function (pair) {
+    [[navStagiaires, 'stagiaires'], [navEtuteur, 'etuteur'], [navEncadrement, 'encadrement'], [navBulk, 'bulk']].forEach(function (pair) {
       if (currentPage === pair[1] || (pair[1] === 'bulk' && currentPage === 'docmgmt')) pair[0].setAttribute('aria-current', 'page');
       else pair[0].removeAttribute('aria-current');
     });
@@ -1962,6 +2007,7 @@
   navEtuteur.addEventListener('click', function () { showPage('etuteur'); });
   navStagiaires.addEventListener('click', function () { showPage('stagiaires'); });
   navBulk.addEventListener('click', function () { showPage('bulk'); });
+  navEncadrement.addEventListener('click', function () { showPage('encadrement'); });
   document.getElementById('bulkGearBtn').addEventListener('click', function () { showPage('docmgmt'); });
   document.getElementById('mgmtBackBtn').addEventListener('click', function () { showPage('bulk'); });
 
@@ -2534,11 +2580,13 @@
     renderCandidates();
     renderStagiaires();
     renderBulk();
+    renderEncadrement();
     renderSourcesPanel();
   }
 
   function loadCandidates() {
     loadBulk();
+    loadEncadrement();
     if (!isConfigComplete(settings)) {
       candidates = { rows: [], loaded: false };
       renderAll();
@@ -3154,7 +3202,7 @@
   function portraitSource(row) {
     var ids = extractAttachmentIds(row.portrait);
     if (ids.length) {
-      var cell = { tableId: settings.table, colId: settings.photoCol || PHOTO_COL, rowId: row.id };
+      var cell = row.__portraitCell || { tableId: settings.table, colId: settings.photoCol || PHOTO_COL, rowId: row.id };
       // Selon les règles d'accès du document, seul l'un des jetons (écriture ou lecture seule), avec ou sans
       // l'indication de la cellule, est accepté par Grist : on essaie les quatre combinaisons, on retient la
       // première qui charge, et on mémorise laquelle (sans mémoriser l'URL, dont le jeton expire).
@@ -4045,6 +4093,420 @@
     return dlg;
   }
 
+  // ==== Page « Encadrement » ==================================================
+  //
+  // Source EN DUR : table « Encadrement ». Même principe que la page Stagiaires : une bande par
+  // membre de l'encadrement (photo, nom, tags Grade et Fonction), filtres à cocher (Affectation,
+  // Fonction, Groupe), et une fiche « profil » en lecture seule (photo, onglets Informations et
+  // Service) ouverte au clic, avec les mêmes flèches précédent / suivant / fermer. Les colonnes
+  // sont retrouvées d'après leur libellé Grist (ou leur identifiant), y compris les colonnes
+  // masquées dans la vue.
+
+  var ENC_TABLE = 'ENCADREMENT'; // comparé à l'identifiant de table, sans accents ni « _ »
+  var ENC_FIELDS = {
+    photo: ['PHOTO'], grade: ['GRADE'], nom: ['NOM'], prenom: ['PRENOM'], ar: ['A/R', 'A R', 'AR'], nigend: ['NIGEND'],
+    affectation: ['AFFECTATION'], fonction: ['FONCTION'], groupe: ['GROUPE'], sexe: ['SEXE'],
+    emailPerso: ['EMAIL PERSO'], emailPro: ['EMAIL PRO'], telephone: ['TELEPHONE'], batiment: ['BAT.', 'BAT'], chambre: ['CH.', 'CH'],
+    permis: ['PERMIS DETENUS'], renseignements: ['RENSEIGNEMENTS CADRES COURS'], debut: ['DEBUT DETACHEMENT'],
+    fin: ['FIN DETACHEMENT'], duree: ['DUREE DETACHEMENT'], secourisme: ['QUALIF. SECOURISME', 'QUALIF SECOURISME'],
+    droitImage: ['DROIT A L\'IMAGE', 'DROIT A LIMAGE'], regime: ['REGIME ALIMENTAIRE'], droitsRepos: ['DROITS REPOS'],
+    hCours: ['H COURS'], identiteComplete: ['IDENTITE COMPLETE'], gpe: ['GPE'], uv: ['UV']
+  };
+  var ENC_FILTER_DEFS = [
+    { key: 'affectation', all: 'Affectation', noun: 'affectations', groupId: 'encAffectationGroup', summaryId: 'encAffectationSummary', panelId: 'encAffectationPanel' },
+    { key: 'fonction', all: 'Fonction', noun: 'fonctions', groupId: 'encFonctionGroup', summaryId: 'encFonctionSummary', panelId: 'encFonctionPanel' },
+    { key: 'groupe', all: 'Groupe', noun: 'groupes', groupId: 'encGroupeGroup', summaryId: 'encGroupeSummary', panelId: 'encGroupePanel' }
+  ];
+
+  var enc = { loaded: false, error: '', tableId: '', cols: {}, rows: [] };
+  var encSearchText = '';
+  var encFilters = { affectation: [], fonction: [], groupe: [] };
+  var panelEncadrement = document.getElementById('panelEncadrement');
+  var encZone = document.getElementById('encZone');
+  var encCount = document.getElementById('encCount');
+  var encSearchInput = document.getElementById('encSearchInput');
+  var encResetBtn = document.getElementById('encResetBtn');
+
+  function encKey(v) { return bulkKey(String(v || '').replace(/[’‘]/g, '\'')); }
+  function encFindCol(cols, aliases) {
+    for (var i = 0; i < cols.length; i++) {
+      var byLabel = encKey(cols[i].label), byId = encKey(cols[i].id);
+      if (aliases.indexOf(byLabel) !== -1 || aliases.indexOf(byId) !== -1) return cols[i];
+    }
+    return null;
+  }
+
+  function loadEncadrement() {
+    Promise.all([grist.docApi.listTables(), grist.docApi.fetchTable('_grist_Tables'), grist.docApi.fetchTable('_grist_Tables_column')]).then(function (res) {
+      var tableId = null;
+      res[0].forEach(function (t) { if (!tableId && bulkKey(t) === ENC_TABLE) tableId = t; });
+      if (!tableId) throw new Error('Table « Encadrement » introuvable dans ce document.');
+      var tables = res[1], meta = res[2], tableRowId = null;
+      for (var i = 0; i < tables.id.length; i++) if (tables.tableId[i] === tableId) tableRowId = tables.id[i];
+      var cols = [];
+      for (var j = 0; j < meta.id.length; j++) {
+        if (meta.parentId[j] !== tableRowId || /^gristHelper_|^manualSort$/.test(meta.colId[j])) continue;
+        cols.push({ id: meta.colId[j], label: meta.label[j] || meta.colId[j], type: bulkBaseType(meta.type[j]) });
+      }
+      return grist.docApi.fetchTable(tableId).then(function (data) { return { tableId: tableId, cols: cols, data: data }; });
+    }).then(function (r) {
+      var map = {};
+      Object.keys(ENC_FIELDS).forEach(function (k) { var c = encFindCol(r.cols, ENC_FIELDS[k]); if (c) map[k] = c; });
+      if (!map.nom && !map.prenom) throw new Error('Colonnes « Nom » et « Prénom » introuvables dans la table « ' + r.tableId + ' ».');
+      var rows = [];
+      for (var i = 0; i < r.data.id.length; i++) {
+        var f = {};
+        Object.keys(map).forEach(function (k) { f[k] = r.data[map[k].id] ? r.data[map[k].id][i] : null; });
+        rows.push({
+          id: r.data.id[i], f: f,
+          portrait: f.photo || null,
+          __portraitCell: map.photo ? { tableId: r.tableId, colId: map.photo.id, rowId: r.data.id[i] } : null
+        });
+      }
+      enc = { loaded: true, error: '', tableId: r.tableId, cols: map, rows: rows };
+      renderEncadrement();
+    }).catch(function (e) {
+      enc = { loaded: false, error: friendlyErrorMessage(e), tableId: '', cols: {}, rows: [] };
+      renderEncadrement();
+    });
+  }
+
+  function encText(row, key) {
+    var c = enc.cols[key];
+    return c ? formatVariableValue(row.f[key], c.type).trim() : '';
+  }
+  function encNameParts(row) { return { nom: encText(row, 'nom'), prenom: encText(row, 'prenom') }; }
+  function encDisplayName(row) {
+    var p = encNameParts(row);
+    return [p.nom, p.prenom].filter(Boolean).join(' ') || '(Nom non renseigné)';
+  }
+  function compareEncRows(a, b) {
+    var pa = encNameParts(a), pb = encNameParts(b);
+    if (!pa.nom !== !pb.nom) return pa.nom ? -1 : 1;
+    return nameCollator.compare(pa.nom, pb.nom) || nameCollator.compare(pa.prenom, pb.prenom);
+  }
+  function findEncRow(id) {
+    var found = null;
+    enc.rows.forEach(function (r) { if (r.id === id) found = r; });
+    return found;
+  }
+  function encMatches(row, exceptKey) {
+    var q = normalizeKey(encSearchText);
+    if (q) {
+      var hay = normalizeKey(['nom', 'prenom', 'grade', 'nigend', 'affectation', 'fonction', 'groupe', 'gpe', 'emailPerso', 'emailPro'].map(function (k) { return encText(row, k); }).join(' '));
+      if (hay.indexOf(q) === -1) return false;
+    }
+    return ENC_FILTER_DEFS.every(function (def) {
+      if (def.key === exceptKey || !encFilters[def.key].length) return true;
+      return encFilters[def.key].indexOf(encText(row, def.key)) !== -1;
+    });
+  }
+
+  encSearchInput.addEventListener('input', function () { encSearchText = encSearchInput.value; renderEncadrement(); });
+  document.getElementById('encSearchBtn').addEventListener('click', function () { encSearchText = encSearchInput.value; renderEncadrement(); });
+  document.getElementById('encReloadBtn').addEventListener('click', loadEncadrement);
+  encResetBtn.addEventListener('click', function () {
+    encSearchText = '';
+    encSearchInput.value = '';
+    encFilters = { affectation: [], fonction: [], groupe: [] };
+    renderEncadrement();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    ENC_FILTER_DEFS.forEach(function (def) { document.getElementById(def.groupId).querySelector('details').open = false; });
+  });
+
+  function renderEncadrement() {
+    encZone.innerHTML = '';
+    if (enc.error) {
+      encZone.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm"><p>' + escapeHtml(enc.error) + '</p></div>';
+      encCount.textContent = '';
+      return;
+    }
+    if (!enc.loaded) { encCount.textContent = ''; return; }
+    var focusedId = document.activeElement && document.activeElement.id;
+    ENC_FILTER_DEFS.forEach(function (def) {
+      var group = document.getElementById(def.groupId), summary = document.getElementById(def.summaryId), panel = document.getElementById(def.panelId);
+      var has = !!enc.cols[def.key];
+      group.hidden = !has;
+      if (!has) { encFilters[def.key] = []; return; }
+      var base = enc.rows.filter(function (r) { return encMatches(r, def.key); });
+      var counts = {};
+      base.forEach(function (r) { var v = encText(r, def.key); if (v) counts[v] = (counts[v] || 0) + 1; });
+      var all = enc.rows.map(function (r) { return encText(r, def.key); }).filter(Boolean);
+      encFilters[def.key] = encFilters[def.key].filter(function (v) { return all.indexOf(v) !== -1; });
+      var names = Object.keys(counts);
+      encFilters[def.key].forEach(function (v) { if (names.indexOf(v) === -1) names.push(v); });
+      names.sort(function (a, b) { return nameCollator.compare(a, b); });
+      panel.innerHTML = '';
+      if (encFilters[def.key].length) {
+        var clear = document.createElement('button');
+        clear.type = 'button';
+        clear.className = 'stg-multi__clear';
+        clear.textContent = 'Tout décocher';
+        clear.addEventListener('click', function () { encFilters[def.key] = []; renderEncadrement(); });
+        panel.appendChild(clear);
+      }
+      names.forEach(function (v, i) {
+        var boxId = def.panelId + '_' + i;
+        var wrap = document.createElement('div');
+        wrap.className = 'fr-checkbox-group fr-checkbox-group--sm';
+        var input = document.createElement('input');
+        input.type = 'checkbox';
+        input.id = boxId;
+        input.value = v;
+        input.checked = encFilters[def.key].indexOf(v) !== -1;
+        input.addEventListener('change', function () {
+          var sel = encFilters[def.key].filter(function (x) { return x !== v; });
+          if (input.checked) sel.push(v);
+          encFilters[def.key] = sel;
+          renderEncadrement();
+        });
+        var label = document.createElement('label');
+        label.className = 'fr-label';
+        label.setAttribute('for', boxId);
+        label.appendChild(document.createTextNode(v + ' '));
+        var count = document.createElement('span');
+        count.className = 'stg-multi__count';
+        count.textContent = '(' + (counts[v] || 0) + ')';
+        label.appendChild(count);
+        wrap.appendChild(input);
+        wrap.appendChild(label);
+        panel.appendChild(wrap);
+      });
+      var sel = encFilters[def.key];
+      summary.classList.toggle('stg-multi__summary--active', sel.length > 0);
+      summary.textContent = !sel.length ? def.all : (sel.length <= 2 ? sel.join(', ') : sel.length + ' ' + def.noun + ' sélectionnés');
+    });
+    if (focusedId) { var back = document.getElementById(focusedId); if (back && back.focus) back.focus(); }
+    var anyFilter = ENC_FILTER_DEFS.some(function (def) { return encFilters[def.key].length > 0; });
+    encResetBtn.disabled = !anyFilter && !encSearchText.trim();
+
+    var rows = enc.rows.filter(function (r) { return encMatches(r); }).sort(compareEncRows);
+    displayedIds.encadrement = rows.map(function (r) { return r.id; });
+    encCount.textContent = rows.length + ' membre(s) affiché(s) sur ' + enc.rows.length;
+    if (!rows.length) {
+      encZone.innerHTML = '<p class="cand-empty-state">Aucun membre de l’encadrement ne correspond à l’affichage actuel.</p>';
+    } else {
+      var list = document.createElement('div');
+      list.className = 'cand-list';
+      rows.forEach(function (row) { list.appendChild(buildEncRow(row)); });
+      encZone.appendChild(list);
+    }
+    if (currentModalRowId !== null && currentModalKind === 'encadrement') {
+      if (findEncRow(currentModalRowId)) renderModalContent(); else closeCandidateModal();
+    }
+  }
+
+  function encInitials(row) {
+    var p = encNameParts(row);
+    return ((p.prenom || '').charAt(0) + (p.nom || '').charAt(0)).toUpperCase() || '?';
+  }
+  // Photo ronde de la liste (initiales tant que la photo n'est pas chargée ou absente).
+  function buildEncAvatar(row) {
+    var av = document.createElement('span');
+    av.className = 'stg-row-avatar';
+    av.setAttribute('aria-hidden', 'true');
+    av.textContent = encInitials(row);
+    if (!extractAttachmentIds(row.portrait).length && !/^https?:\/\//i.test(textOf(row.portrait))) return av;
+    portraitSource(row).then(function (src) {
+      if (!src) return;
+      var probe = new Image();
+      probe.onload = function () { av.style.backgroundImage = "url('" + src.url + "')"; av.classList.add('stg-row-avatar--photo'); av.textContent = ''; };
+      probe.onerror = function () { av.title = PORTRAIT_FAIL_TEXT; av.setAttribute('aria-hidden', 'false'); };
+      probe.src = src.url;
+    }).catch(function () { /* initiales conservées */ });
+    return av;
+  }
+  function buildEncRow(row) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cand-row';
+    btn.dataset.rowId = row.id;
+    btn.appendChild(buildEncAvatar(row));
+    var nameEl = document.createElement('span');
+    nameEl.className = 'cand-row__name';
+    nameEl.textContent = encDisplayName(row);
+    btn.appendChild(nameEl);
+    var tags = document.createElement('span');
+    tags.className = 'cand-row__tags';
+    var grade = encText(row, 'grade');
+    if (grade) tags.appendChild(buildPlainTag(grade, 'stg-tag--pon', 'Grade : ' + grade));
+    var fonction = encText(row, 'fonction');
+    if (fonction) tags.appendChild(buildPlainTag(fonction, 'stg-tag--fonction', 'Fonction : ' + fonction));
+    btn.appendChild(tags);
+    var end = document.createElement('span');
+    end.className = 'cand-row__end';
+    var chevron = document.createElement('span');
+    chevron.className = 'cand-row__chevron fr-icon-arrow-right-s-line';
+    chevron.setAttribute('aria-hidden', 'true');
+    end.appendChild(chevron);
+    btn.appendChild(end);
+    btn.addEventListener('click', function () { openCandidateModal(row.id, 'encadrement'); });
+    return btn;
+  }
+
+  // ---- Fiche « profil » d'un membre de l'encadrement ----
+  function encField(row, key, label, opts) {
+    if (!enc.cols[key]) return null;
+    opts = opts || {};
+    var text = encText(row, key);
+    var node;
+    if (opts.phone) node = stgPhoneValue(text);
+    else if (opts.mail) node = stgMailValue(text);
+    else node = stgTextValue(text, opts.pre);
+    return stgItem(label, node, opts.wide);
+  }
+  function buildEncInfosTab(row) {
+    var wrap = document.createElement('div');
+    wrap.className = 'stg-cols';
+    var left = document.createElement('div');
+    left.className = 'stg-col';
+    var right = document.createElement('div');
+    right.className = 'stg-col';
+    [
+      stgBlock('Identité', 'fr-icon-user-line', [
+        encField(row, 'grade', 'Grade'), encField(row, 'nom', 'Nom'), encField(row, 'prenom', 'Prénom'), encField(row, 'sexe', 'Sexe')
+      ]),
+      stgBlock('Renseignements militaires', 'fr-icon-shield-line', [
+        encField(row, 'nigend', 'Nigend'), encField(row, 'affectation', 'Affectation'), encField(row, 'fonction', 'Fonction'),
+        encField(row, 'groupe', 'Groupe'), encField(row, 'gpe', 'Gpe'), encField(row, 'uv', 'UV')
+      ]),
+      stgBlock('Santé', 'fr-icon-heart-line', [
+        encField(row, 'regime', 'Régime alimentaire', { wide: true }), encField(row, 'secourisme', 'Qualif. secourisme', { wide: true })
+      ])
+    ].forEach(function (c) { if (c) left.appendChild(c); });
+    [
+      stgBlock('Contact', 'fr-icon-phone-line', [
+        encField(row, 'telephone', 'Téléphone', { phone: true }), encField(row, 'emailPerso', 'Email perso', { mail: true }),
+        encField(row, 'emailPro', 'Email pro', { mail: true })
+      ]),
+      stgBlock('Détachement', 'fr-icon-calendar-line', [
+        encField(row, 'debut', 'Début'), encField(row, 'fin', 'Fin'), encField(row, 'duree', 'Durée')
+      ]),
+      stgBlock('Hébergement', 'fr-icon-home-4-line', [
+        encField(row, 'batiment', 'Bâtiment'), encField(row, 'chambre', 'Chambre')
+      ])
+    ].forEach(function (c) { if (c) right.appendChild(c); });
+    wrap.appendChild(left);
+    wrap.appendChild(right);
+    return wrap;
+  }
+  function buildEncServiceTab(row) {
+    var card = stgBlock('Service', 'fr-icon-briefcase-line', [
+      encField(row, 'ar', 'A/R'), encField(row, 'permis', 'Permis détenus'), encField(row, 'droitsRepos', 'Droits repos'), encField(row, 'hCours', 'H cours'),
+      encField(row, 'renseignements', 'Renseignements cadres — cours', { wide: true, pre: true })
+    ]);
+    if (card) return card;
+    var empty = document.createElement('p');
+    empty.className = 'cand-empty-state';
+    empty.textContent = 'Aucune information de service dans la table Encadrement.';
+    return empty;
+  }
+  var ENC_TABS = [
+    { id: 'infos', label: 'Informations', build: buildEncInfosTab },
+    { id: 'service', label: 'Service', build: buildEncServiceTab }
+  ];
+  var encActiveTab = 'infos';
+
+  function buildEncadrementPanel(row) {
+    var p = encNameParts(row);
+    var prenomNom = [p.prenom, p.nom].filter(Boolean).join(' ') || encDisplayName(row);
+    var dlg = document.createElement('div');
+    dlg.className = 'cand-modal-dialog stg-dialog';
+    dlg.setAttribute('role', 'dialog');
+    dlg.setAttribute('aria-modal', 'true');
+    dlg.setAttribute('aria-label', prenomNom);
+
+    var hero = document.createElement('div');
+    hero.className = 'stg-hero';
+    var portrait = document.createElement('div');
+    portrait.className = 'stg-portrait';
+    var avatar = document.createElement('div');
+    avatar.className = 'stg-avatar';
+    avatar.setAttribute('aria-hidden', 'true');
+    avatar.innerHTML = '<span class="fr-icon-user-fill"></span>';
+    loadPortrait(avatar, row);
+    portrait.appendChild(avatar);
+    var grade = encText(row, 'grade');
+    if (grade) portrait.appendChild(buildPlainTag(grade, 'stg-tag--pon stg-portrait__tag', 'Grade : ' + grade));
+    hero.appendChild(portrait);
+
+    var id = document.createElement('div');
+    id.className = 'stg-hero__id';
+    var title = document.createElement('h3');
+    title.className = 'cand-modal-dialog__title';
+    title.textContent = prenomNom;
+    id.appendChild(title);
+    var flags = document.createElement('div');
+    flags.className = 'stg-flags';
+    id.appendChild(flags);
+    if (enc.cols.droitImage && !isYes(row.f.droitImage)) {
+      var imgFlag = document.createElement('span');
+      imgFlag.className = 'cand-modal-dialog__noimage-flag';
+      imgFlag.title = 'Pas de droit à l’image';
+      imgFlag.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">' +
+        '<path fill="currentColor" d="M9 2 7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9z"/>' +
+        '<circle cx="12" cy="12.2" r="4.3" fill="#ffe6d1"/><circle cx="12" cy="12.2" r="2.6" fill="currentColor"/>' +
+        '<line x1="3.5" y1="3.5" x2="20.5" y2="20.5" stroke="#ffe6d1" stroke-width="4.4" stroke-linecap="round"/>' +
+        '<line x1="3.5" y1="3.5" x2="20.5" y2="20.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' +
+        '<span class="fr-sr-only">Pas de droit à l’image</span>';
+      flags.appendChild(imgFlag);
+    }
+    hero.appendChild(id);
+
+    var actions = document.createElement('div');
+    actions.className = 'cand-modal-dialog__header-actions';
+    var closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-line cand-modal-dialog__close';
+    closeBtn.textContent = 'Fermer';
+    closeBtn.addEventListener('click', closeCandidateModal);
+    appendCloseWithNav(actions, closeBtn, true);
+    hero.appendChild(actions);
+    dlg.appendChild(hero);
+
+    if (enc.cols.identiteComplete && isYes(row.f.identiteComplete)) {
+      var statusEl = document.createElement('div');
+      statusEl.className = 'stg-status';
+      statusEl.innerHTML = '<span class="stg-chip stg-chip--ok">Identité complète</span>';
+      dlg.appendChild(statusEl);
+    }
+
+    var tablist = document.createElement('div');
+    tablist.className = 'stg-tabs';
+    tablist.setAttribute('role', 'tablist');
+    var panels = {}, tabButtons = {};
+    function select(tabId) {
+      encActiveTab = tabId;
+      ENC_TABS.forEach(function (t) {
+        var on = t.id === tabId;
+        tabButtons[t.id].setAttribute('aria-selected', on ? 'true' : 'false');
+        tabButtons[t.id].tabIndex = on ? 0 : -1;
+        panels[t.id].hidden = !on;
+      });
+    }
+    ENC_TABS.forEach(function (t) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'stg-tab';
+      btn.setAttribute('role', 'tab');
+      btn.textContent = t.label;
+      btn.addEventListener('click', function () { select(t.id); });
+      tablist.appendChild(btn);
+      tabButtons[t.id] = btn;
+      var panel = document.createElement('div');
+      panel.className = 'stg-tabpanel';
+      panel.setAttribute('role', 'tabpanel');
+      panel.appendChild(t.build(row));
+      panels[t.id] = panel;
+    });
+    dlg.appendChild(tablist);
+    ENC_TABS.forEach(function (t) { dlg.appendChild(panels[t.id]); });
+    select(ENC_TABS.some(function (t) { return t.id === encActiveTab; }) ? encActiveTab : 'infos');
+    return dlg;
+  }
+
   // ==== Page « Éditer documents en lot » ======================================
   //
   // Sources en dur : table « Editeur de documents », colonne « Nom du document » (libellé de
@@ -4883,9 +5345,10 @@
   // avec ses filtres et son tri). Sur un doublon de NID (plusieurs volets), la
   // ligne jumelle est sautée : on passe directement au candidat suivant.
   function modalNeighbor(step) {
-    var ids = displayedIds[currentModalKind === 'stagiaire' ? 'stagiaire' : 'etuteur'] || [];
+    var ids = displayedIds[currentModalKind === 'stagiaire' ? 'stagiaire' : (currentModalKind === 'encadrement' ? 'encadrement' : 'etuteur')] || [];
     var i = ids.indexOf(currentModalRowId);
     if (i === -1) return null;
+    if (currentModalKind === 'encadrement') return (i + step >= 0 && i + step < ids.length) ? ids[i + step] : null;
     var cur = findCandidateRow(currentModalRowId);
     var curNid = cur ? nidKey(cur.nid) : '';
     var skipTwins = !!(cur && curNid && cur.__candRowCount > 1);
@@ -5000,6 +5463,15 @@
   }
 
   function renderModalContent() {
+    if (currentModalKind === 'encadrement') {
+      var encRow = findEncRow(currentModalRowId);
+      if (!encRow) { closeCandidateModal(); return; }
+      hideAttachPreview();
+      candModalStack.className = 'cand-modal-stack';
+      candModalStack.innerHTML = '';
+      candModalStack.appendChild(buildEncadrementPanel(encRow));
+      return;
+    }
     var base = findCandidateRow(currentModalRowId);
     if (!base) { closeCandidateModal(); return; }
     hideAttachPreview(); // le contenu de la fiche va être reconstruit : l'élément survolé n'existera plus
