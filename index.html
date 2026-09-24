@@ -1228,9 +1228,7 @@
   <div id="panelBulk" hidden>
     <div class="bulk-head">
       <h2 class="fr-h6">Documents</h2>
-      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-settings-5-line" id="bulkGearBtn" type="button" title="Gestion des documents">Gestion des documents</button>
     </div>
-    <p class="fr-text--sm">Documents collectifs (table « Editeur de documents »). Imprimez-les ou téléchargez-les.</p>
 
     <div class="cand-toolbar fr-mb-2w">
       <div class="fr-search-bar fr-search-bar--sm" role="search">
@@ -1241,6 +1239,7 @@
       <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-circle-line fr-btn--icon-left" id="bulkResetBtn" type="button" disabled title="Efface la recherche">
         Réinitialiser la recherche
       </button>
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-settings-5-line" id="bulkGearBtn" type="button" title="Gestion des documents">Gestion des documents</button>
       <p class="cand-count cand-count--push" id="bulkCount"></p>
     </div>
 
@@ -1255,10 +1254,13 @@
         <fieldset class="fr-fieldset" id="bulkGenModeGroup" style="margin:0 0 0.8rem">
           <legend class="fr-fieldset__legend fr-text--bold">Format</legend>
           <div class="fr-fieldset__element">
-            <div class="fr-radio-group"><input type="radio" id="bulkGenModeSingle" name="bulkGenMode" value="single" checked><label class="fr-label" for="bulkGenModeSingle">Un seul fichier avec toutes les pages (une page par stagiaire)</label></div>
+            <div class="fr-radio-group"><input type="radio" id="bulkGenModeSingle" name="bulkGenMode" value="single" checked><label class="fr-label" for="bulkGenModeSingle">Un seul PDF avec toutes les pages (un exemplaire par stagiaire)</label></div>
           </div>
           <div class="fr-fieldset__element">
-            <div class="fr-radio-group"><input type="radio" id="bulkGenModeMulti" name="bulkGenMode" value="multi"><label class="fr-label" for="bulkGenModeMulti">Un fichier par stagiaire (regroupés dans une archive .zip)</label></div>
+            <div class="fr-radio-group"><input type="radio" id="bulkGenModeMulti" name="bulkGenMode" value="multi"><label class="fr-label" for="bulkGenModeMulti">Un PDF par stagiaire (regroupés dans une archive .zip)</label></div>
+          </div>
+          <div class="fr-fieldset__element">
+            <div class="fr-radio-group"><input type="radio" id="bulkGenModeStore" name="bulkGenMode" value="store"><label class="fr-label" for="bulkGenModeStore">Enregistrer un PDF dans la colonne Pièces de chaque stagiaire (sans téléchargement)</label></div>
           </div>
         </fieldset>
         <div class="fr-input-group">
@@ -1273,6 +1275,7 @@
           <div class="bulk-gen__list" id="bulkGenList"></div>
         </div>
         <p class="fr-error-text" id="bulkGenError" hidden></p>
+        <p class="fr-text--sm" id="bulkGenProgress" role="status" aria-live="polite" hidden></p>
         <div class="bulk-dialog__foot">
           <button class="fr-btn fr-btn--tertiary fr-btn--sm" id="bulkGenCancel" type="button">Annuler</button>
           <button class="fr-btn fr-btn--sm" id="bulkGenGo" type="button">Télécharger</button>
@@ -1533,7 +1536,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 2.2</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 2.7</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -3896,9 +3899,9 @@
     hero.appendChild(actions);
     dlg.appendChild(hero);
 
-    // -- Pastilles d'état positives (Autorisé, Identité complète) : le droit à l'image n'a pas de pastille, seule son absence est signalée par une icône --
+    // -- Pastille d'état positive (Identité complète) : le droit à l'image n'a pas de pastille, seule son absence est signalée par une icône --
     var chips = [];
-    if (settings.col.autorise && isYes(row.autorise)) chips.push(['ok', 'Autorisé']);
+    // Pas de pastille « Autorisé » : le droit à l'image n'est signalé que par l'icône appareil photo barré (droit refusé).
     if (settings.col.identiteComplete && isYes(row.identiteComplete)) chips.push(['ok', 'Identité complète']);
     if (chips.length) {
       var statusEl = document.createElement('div');
@@ -4204,6 +4207,7 @@
 
   var genDialog = document.getElementById('bulkGenDialog');
   var genState = { row: null, action: 'download' };
+  var genBusy = false; // génération en cours : la fenêtre ne se ferme pas et les boutons sont bloqués
   var mainIndexCache = null;
   function mainIndexById() {
     if (!mainIndexCache || mainIndexCache.src !== candidates.mainData) {
@@ -4285,7 +4289,7 @@
     var dosDate = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
     var chunks = [], central = [], offset = 0;
     files.forEach(function (f) {
-      var name = enc.encode(f.name), data = enc.encode(f.content), crc = crc32(data);
+      var name = enc.encode(f.name), data = typeof f.content === 'string' ? enc.encode(f.content) : f.content, crc = crc32(data);
       var lh = new DataView(new ArrayBuffer(30));
       lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true);
       lh.setUint16(10, dosTime, true); lh.setUint16(12, dosDate, true); lh.setUint32(14, crc, true);
@@ -4317,6 +4321,94 @@
     setTimeout(function () { URL.revokeObjectURL(url); }, 10000);
   }
 
+  // --- Génération de PDF (html2canvas + jsPDF, chargés à la demande) ---
+  //
+  // Chaque exemplaire est rendu dans un iframe invisible à la largeur d'une page A4, capturé en image
+  // puis découpé en pages A4. Le texte du PDF est donc une image (non sélectionnable).
+  var PDF_LIB_URLS = ['https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js', 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js'];
+  var pdfLibsPromise = null;
+  function loadScriptOnce(src) {
+    return new Promise(function (resolve, reject) {
+      var el = document.createElement('script');
+      el.src = src;
+      el.onload = resolve;
+      el.onerror = function () { reject(new Error('Bibliothèque PDF indisponible (' + src.split('/npm/')[1].split('@')[0] + ') : vérifiez l’accès à cdn.jsdelivr.net.')); };
+      document.head.appendChild(el);
+    });
+  }
+  function ensurePdfLibs() {
+    if (window.html2canvas && window.jspdf) return Promise.resolve();
+    if (!pdfLibsPromise) pdfLibsPromise = Promise.all(PDF_LIB_URLS.map(loadScriptOnce)).then(function () {}, function (e) { pdfLibsPromise = null; throw e; });
+    return pdfLibsPromise;
+  }
+  var PDF_PAGE_CSS = '<style>html,body{margin:0;background:#fff}body{width:794px;box-sizing:border-box;padding:48px;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#000}</style>';
+  function htmlToCanvas(html) {
+    return new Promise(function (resolve, reject) {
+      var frame = document.createElement('iframe');
+      frame.style.cssText = 'position:fixed;left:-10000px;top:0;width:794px;height:1123px;border:0;background:#fff';
+      frame.onload = function () {
+        setTimeout(function () {
+          var doc = frame.contentDocument;
+          var contentH = Math.max(1, doc.body.scrollHeight);
+          frame.style.height = Math.max(1123, contentH) + 'px';
+          window.html2canvas(doc.body, { scale: 2, backgroundColor: '#ffffff', width: 794, height: contentH, windowWidth: 794, windowHeight: Math.max(1123, contentH), useCORS: true }).then(function (canvas) {
+            frame.remove();
+            resolve(canvas);
+          }, function (e) { frame.remove(); reject(e); });
+        }, 150);
+      };
+      frame.srcdoc = html.replace(/<head[^>]*>/i, function (m) { return m + PDF_PAGE_CSS; });
+      document.body.appendChild(frame);
+    });
+  }
+  // Ajoute le canvas au PDF, découpé en pages A4 ; `first` = première page déjà présente dans le PDF.
+  function addCanvasToPdf(pdf, canvas, first) {
+    var ratio = canvas.width / 210; // pixels par millimètre
+    var pagePx = Math.floor(297 * ratio);
+    for (var y = 0; y < canvas.height; y += pagePx) {
+      var h = Math.min(pagePx, canvas.height - y);
+      var tmp = document.createElement('canvas');
+      tmp.width = canvas.width;
+      tmp.height = h;
+      var ctx = tmp.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, tmp.width, tmp.height);
+      ctx.drawImage(canvas, 0, y, canvas.width, h, 0, 0, canvas.width, h);
+      if (!(first && y === 0)) pdf.addPage();
+      pdf.addImage(tmp.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, 210, h / ratio);
+    }
+  }
+  // PDF (Uint8Array) contenant un exemplaire du modèle par stagiaire de `rows`, chacun sur de nouvelles pages.
+  function generatePdf(template, rows, title, onProgress) {
+    return ensurePdfLibs().then(function () {
+      var pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', compress: true });
+      pdf.setProperties({ title: title });
+      return rows.reduce(function (p, r, i) {
+        return p.then(function () {
+          if (onProgress) onProgress(i + 1, rows.length);
+          return htmlToCanvas(buildGeneratedHtml(template, [r], title)).then(function (canvas) { addCanvasToPdf(pdf, canvas, i === 0); });
+        });
+      }, Promise.resolve()).then(function () { return new Uint8Array(pdf.output('arraybuffer')); });
+    });
+  }
+  // Enregistre le PDF dans la colonne « Pieces » du stagiaire, sous le nom `label` ; une pièce déjà
+  // enregistrée sous ce nom est remplacée (pas de doublon quand on régénère).
+  function storePdfPiece(row, label, bytes) {
+    var file = new File([bytes], (safeFileName(label) || 'document') + '.pdf', { type: 'application/pdf' });
+    return getWriteAccessTokenInfo().then(function (tokenInfo) { return uploadAttachment(tokenInfo, file); }).then(function (id) {
+      if (!id) throw new Error('Réponse inattendue du serveur Grist lors de l’import.');
+      var names = parsePieceNames(row.piecesNames);
+      var ids = extractAttachmentIds(row.pieces).filter(function (x) {
+        if (names[x] !== label) return true;
+        delete names[x];
+        return false;
+      });
+      ids.push(id);
+      names[id] = label;
+      return persistPieces(row, ids, names);
+    });
+  }
+
   // --- Fenêtre de génération ---
   function genSelectedRows() {
     var boxes = genDialog.querySelectorAll('.bulk-gen__item input:checked');
@@ -4328,19 +4420,21 @@
   function genUpdateUi() {
     var download = genState.action === 'download';
     document.getElementById('bulkGenModeGroup').hidden = !download;
-    var multi = download && genMode() === 'multi';
+    var mode = download ? genMode() : 'print';
     var nameEl = document.getElementById('bulkGenName');
     var docName = textOf(genState.row.values[bulk.nameCol.id]);
-    if (nameEl.dataset.auto !== 'false') nameEl.value = multi ? docName + ' - {{STAGIAIRE}}' : docName;
-    document.getElementById('bulkGenNameHint').textContent = multi ?
-      'Nom de chaque fichier (extension .html ajoutée). Il doit contenir une variable qui distingue les stagiaires, par exemple {{STAGIAIRE}} ou {{' + settings.table + '.NID}}.' :
-      (download ? 'Nom du fichier (extension .html ajoutée).' : 'Titre du document imprimé (proposé comme nom de fichier si vous l’enregistrez en PDF).');
+    if (nameEl.dataset.auto !== 'false') nameEl.value = mode === 'multi' ? docName + ' - {{STAGIAIRE}}' : docName;
+    document.getElementById('bulkGenNameHint').textContent =
+      mode === 'multi' ? 'Nom de chaque PDF (extension .pdf ajoutée). Il doit contenir une variable qui distingue les stagiaires, par exemple {{STAGIAIRE}} ou {{' + settings.table + '.NID}}.' :
+      mode === 'store' ? 'Nom de la pièce dans la colonne Pièces (et du fichier .pdf). Les variables sont possibles, par exemple {{STAGIAIRE}}. Une pièce déjà enregistrée sous ce nom est remplacée.' :
+      mode === 'single' ? 'Nom du fichier (extension .pdf ajoutée).' :
+      'Titre du document imprimé (proposé comme nom de fichier si vous l’enregistrez en PDF).';
     var n = genSelectedRows().length;
     document.getElementById('bulkGenCount').textContent = n + ' stagiaire(s) sélectionné(s) sur ' + candidates.rows.length;
     document.getElementById('bulkGenAll').checked = n === candidates.rows.length && n > 0;
     var go = document.getElementById('bulkGenGo');
-    go.textContent = download ? (multi ? 'Télécharger les fichiers' : 'Télécharger') : 'Imprimer';
-    go.disabled = n === 0;
+    go.textContent = { single: 'Télécharger le PDF', multi: 'Télécharger les PDF', store: 'Enregistrer dans les pièces', print: 'Imprimer' }[mode];
+    go.disabled = n === 0 || genBusy;
   }
   function openGenDialog(row, action) {
     if (!bulkDocHtml(row)) { window.alert('Ce document n’a pas de modèle HTML.'); return; }
@@ -4351,6 +4445,7 @@
     var nameEl = document.getElementById('bulkGenName');
     nameEl.dataset.auto = 'true';
     document.getElementById('bulkGenError').hidden = true;
+    document.getElementById('bulkGenProgress').hidden = true;
     var list = document.getElementById('bulkGenList');
     list.innerHTML = '';
     candidates.rows.slice().sort(compareCandidatesByName).forEach(function (r) {
@@ -4370,7 +4465,7 @@
     nameEl.focus();
     nameEl.select();
   }
-  function closeGenDialog() { genDialog.hidden = true; }
+  function closeGenDialog() { if (genBusy) return; genDialog.hidden = true; }
   Array.prototype.forEach.call(genDialog.querySelectorAll('input[name="bulkGenMode"]'), function (r) { r.addEventListener('change', function () { document.getElementById('bulkGenName').dataset.auto = 'true'; genUpdateUi(); }); });
   document.getElementById('bulkGenName').addEventListener('input', function () { this.dataset.auto = 'false'; });
   document.getElementById('bulkGenAll').addEventListener('change', function () {
@@ -4390,29 +4485,77 @@
     var rows = genSelectedRows();
     var template = bulkDocHtml(genState.row);
     var pattern = document.getElementById('bulkGenName').value.trim();
+    var progress = document.getElementById('bulkGenProgress');
+    var goBtn = document.getElementById('bulkGenGo');
+    document.getElementById('bulkGenError').hidden = true;
     if (!pattern) { showGenError('Indiquez le nom du fichier.'); return; }
-    var multi = genState.action === 'download' && genMode() === 'multi';
+    var mode = genState.action === 'download' ? genMode() : 'print';
     if (!rows.length) { showGenError('Sélectionnez au moins un stagiaire.'); return; }
-    if (!multi && /\{\{/.test(pattern)) { showGenError('Les variables ne sont possibles dans le nom que pour un fichier par stagiaire.'); return; }
-    if (genState.action === 'print') { printGenerated(buildGeneratedHtml(template, rows, pattern)); closeGenDialog(); return; }
-    var ext = function (n) { return /\.html?$/i.test(n) ? n : n + '.html'; };
-    if (!multi) {
-      saveBlob(new Blob([buildGeneratedHtml(template, rows, pattern)], { type: 'text/html;charset=utf-8' }), ext(safeFileName(pattern) || 'document'));
-      closeGenDialog();
+    if ((mode === 'single' || mode === 'print') && /\{\{/.test(pattern)) { showGenError('Les variables ne sont possibles dans le nom que pour un PDF par stagiaire ou pour les pièces.'); return; }
+    if (mode === 'print') { printGenerated(buildGeneratedHtml(template, rows, pattern)); closeGenDialog(); return; }
+    if (mode === 'multi' && !/\{\{/.test(pattern)) { showGenError('Le nom doit contenir une variable (par exemple {{STAGIAIRE}}) pour que chaque PDF ait un nom différent.'); return; }
+    if (mode === 'store' && !candidates.hasPieces) {
+      showGenError('Les colonnes « ' + PIECES_COL + ' » et « ' + PIECES_NOMS_COL + ' » sont absentes de la table « ' + settings.table + ' » : créez-les depuis l’onglet Documents d’une fiche Stagiaire.');
       return;
     }
-    if (!/\{\{/.test(pattern)) { showGenError('Le nom doit contenir une variable (par exemple {{STAGIAIRE}}) pour que chaque fichier ait un nom différent.'); return; }
-    var used = {};
-    var files = rows.map(function (r) {
-      var base = ext(safeFileName(renderTemplateFor(pattern, r, false)) || 'document');
-      var name = base, n = 1;
-      while (used[name.toLowerCase()]) { n++; name = base.replace(/(\.html?)$/i, ' (' + n + ')$1'); }
-      used[name.toLowerCase()] = true;
-      return { name: name, content: buildGeneratedHtml(template, [r], name.replace(/\.html?$/i, '')) };
+    if (mode === 'store' && !window.confirm('Enregistrer un PDF dans la colonne « ' + PIECES_COL + ' » de ' + rows.length + ' stagiaire(s) ?\n\nUne pièce déjà enregistrée sous le même nom est remplacée.')) return;
+
+    genBusy = true;
+    goBtn.disabled = true;
+    document.getElementById('bulkGenCancel').disabled = true;
+    progress.hidden = false;
+    var step = function (i, n) { progress.textContent = 'Génération du PDF ' + i + ' / ' + n + '…'; };
+    step(0, rows.length);
+    var pdfName = function (r) { return safeFileName(renderTemplateFor(pattern, r, false)) || 'document'; };
+    var withExt = function (n) { return /\.pdf$/i.test(n) ? n : n + '.pdf'; };
+    var work;
+    if (mode === 'single') {
+      work = generatePdf(template, rows, pattern, step).then(function (bytes) {
+        saveBlob(new Blob([bytes], { type: 'application/pdf' }), withExt(safeFileName(pattern) || 'document'));
+      });
+    } else if (mode === 'multi') {
+      var used = {}, files = [];
+      work = rows.reduce(function (p, r, i) {
+        return p.then(function () {
+          step(i + 1, rows.length);
+          var base = withExt(pdfName(r)), name = base, n = 1;
+          while (used[name.toLowerCase()]) { n++; name = base.replace(/(\.pdf)$/i, ' (' + n + ')$1'); }
+          used[name.toLowerCase()] = true;
+          return generatePdf(template, [r], name.replace(/\.pdf$/i, '')).then(function (bytes) { files.push({ name: name, content: bytes }); });
+        });
+      }, Promise.resolve()).then(function () {
+        if (files.length === 1) saveBlob(new Blob([files[0].content], { type: 'application/pdf' }), files[0].name);
+        else saveBlob(makeZip(files), (safeFileName(textOf(genState.row.values[bulk.nameCol.id])) || 'documents') + '.zip');
+      });
+    } else {
+      var failures = [], saved = 0;
+      work = rows.reduce(function (p, r, i) {
+        return p.then(function () {
+          step(i + 1, rows.length);
+          var label = pdfName(r);
+          return generatePdf(template, [r], label).then(function (bytes) { return storePdfPiece(r, label, bytes); }).then(function () { saved++; }, function (e) {
+            failures.push(stagiaireDisplayName(r) + ' : ' + friendlyErrorMessage(e));
+          });
+        });
+      }, Promise.resolve()).then(function () {
+        attachmentsMetaPromise = null;
+        renderCandidates();
+        window.alert(saved + ' PDF enregistré(s) dans la colonne « ' + PIECES_COL + ' ».' + (failures.length ? '\n\nÉchecs (' + failures.length + ') :\n' + failures.join('\n') : ''));
+      });
+    }
+    work.then(function () {
+      genBusy = false;
+      goBtn.disabled = false;
+      document.getElementById('bulkGenCancel').disabled = false;
+      progress.hidden = true;
+      closeGenDialog();
+    }, function (e) {
+      genBusy = false;
+      goBtn.disabled = false;
+      document.getElementById('bulkGenCancel').disabled = false;
+      progress.hidden = true;
+      showGenError('Génération impossible : ' + friendlyErrorMessage(e));
     });
-    if (files.length === 1) saveBlob(new Blob([files[0].content], { type: 'text/html;charset=utf-8' }), files[0].name);
-    else saveBlob(makeZip(files), (safeFileName(textOf(genState.row.values[bulk.nameCol.id])) || 'documents') + '.zip');
-    closeGenDialog();
   });
 
   function printGenerated(html) {
