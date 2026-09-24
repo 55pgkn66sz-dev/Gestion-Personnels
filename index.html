@@ -7368,3 +7368,95 @@
 
 </body>
 </html>
+férence simple non résolue en texte représente une
+  // référence "vide" par l'entier 0 côté Grist, pas par une chaîne vide —
+  // sans ce traitement, "Stagiaire" ou "Inscription bande" afficheraient
+  // "0" tant que la ligne visée n'a pas de valeur.
+  function textOfRef(v) {
+    return v === 0 ? '' : textOf(v);
+  }
+  function numOf(v) {
+    var t = textOf(v);
+    if (t === '') return NaN;
+    var n = Number(t);
+    return isNaN(n) ? NaN : n;
+  }
+  function fmtCurrency(v) {
+    var n = numOf(v);
+    if (isNaN(n)) return '—';
+    return n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+  }
+  // Regroupe un numéro de téléphone par paires de chiffres ("0102030405"
+  // ou "01.02.03.04.05" ou "01-02-03-04-05" -> "01 02 03 04 05"), quel que
+  // soit le séparateur saisi dans Grist. Un éventuel "+" initial (indicatif
+  // international) est conservé devant le premier groupe. Si la valeur ne
+  // contient aucun chiffre, elle est affichée telle quelle plutôt que
+  // perdue.
+  function fmtPhoneFr(v) {
+    var raw = textOf(v);
+    if (!raw) return '';
+    var trimmed = raw.trim();
+    var hasPlus = trimmed.charAt(0) === '+';
+    var digits = trimmed.replace(/\D/g, '');
+    if (!digits) return raw;
+    // Un numéro français stocké dans une colonne Numérique perd son 0
+    // initial (ex. 612345678 au lieu de 0612345678) : on le rajoute
+    // lorsque le compte de chiffres (9, sans indicatif international)
+    // correspond à un numéro français privé de ce 0.
+    if (!hasPlus && digits.length === 9) digits = '0' + digits;
+    var groups = digits.match(/\d{1,2}/g) || [];
+    return (hasPlus ? '+' : '') + groups.join(' ');
+  }
+  // Grist renvoie les colonnes Date/DateTime comme un nombre de secondes
+  // depuis l'epoch Unix (UTC), jamais comme une chaîne — d'où la
+  // conversion ×1000 pour obtenir un objet Date JavaScript (qui travaille
+  // en millisecondes). Une valeur vide ou inexploitable renvoie null
+  // plutôt que de faire planter le calcul de minorité.
+  function dateOf(v) {
+    if (typeof v === 'number' && isFinite(v)) return new Date(v * 1000);
+    if (typeof v === 'string' && v.trim()) {
+      var t = Date.parse(v);
+      if (!isNaN(t)) return new Date(t);
+    }
+    return null;
+  }
+  // Le stagiaire sera-t-il mineur au premier jour de la formation ?
+  // Calculé à partir de sa date de naissance (colonne Date de Grist, voir
+  // settings.col.dateNaissance) et de la date "Début de formation le",
+  // saisie à la main dans la Configuration (settings.dateDebutFormation,
+  // déjà convertie en Date UTC par parseFrDate) — pas une colonne.
+  // Renvoie false si l'une des deux dates manque ou n'est pas exploitable :
+  // le pictogramme reste alors masqué plutôt que d'afficher une fausse
+  // certitude.
+  function willBeMinor(birthValue, start) {
+    var birth = dateOf(birthValue);
+    if (!birth || !start) return false;
+    var age = start.getUTCFullYear() - birth.getUTCFullYear();
+    var monthDiff = start.getUTCMonth() - birth.getUTCMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && start.getUTCDate() < birth.getUTCDate())) age--;
+    return age < 18;
+  }
+  function escapeHtml(s) {
+    var div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+  }
+  function escapeAttr(s) {
+    return escapeHtml(s).replace(/"/g, '&quot;');
+  }
+  // Grist renvoie un message technique en anglais lorsque les règles
+  // d'accès du document interdisent l'écriture demandée : on le remplace
+  // par un texte compréhensible, comme dans le widget Réservations.
+  function friendlyErrorMessage(e) {
+    var raw = (e && e.message) ? e.message : String(e || '');
+    if (/blocked by .*access rules/i.test(raw)) {
+      return 'Vous ne disposez pas des droits nécessaires. Contactez l\'équipe projet si vous pensez qu\'il s\'agit d\'une erreur.';
+    }
+    return raw;
+  }
+
+})();
+</script>
+
+</body>
+</html>
