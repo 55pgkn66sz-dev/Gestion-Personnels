@@ -1082,6 +1082,8 @@
 
   /* Page « Éditer documents en lot ». */
   #header-navigation .fr-nav__item[hidden] { display: none; }
+  .bulk-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .bulk-head h2 { margin: 0; }
   .bulk-table-wrap { overflow-x: auto; border: 1px solid var(--border-default-grey); border-radius: 0.5rem; background: #fff; }
   .bulk-table { width: 100%; border-collapse: collapse; }
   .bulk-table th, .bulk-table td { padding: 0.5rem 0.8rem; text-align: left; vertical-align: middle; border-top: 1px solid var(--border-default-grey); }
@@ -1111,6 +1113,15 @@
   .bulk-dialog__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.8rem; }
   .bulk-dialog__head h3 { margin: 0; }
   .bulk-dialog__box textarea { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.85em; resize: vertical; }
+  .bulk-vars { margin-top: 0.8rem; }
+  .bulk-vars input { margin: 0.4rem 0; }
+  .bulk-vars__list { max-height: 11rem; overflow-y: auto; padding-right: 0.3rem; }
+  .bulk-vars__group { margin: 0.4rem 0 0.2rem; font-weight: 700; font-size: 0.85em; }
+  .bulk-vars__chips { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+  .bulk-gen { margin-top: 0.8rem; border: 1px solid var(--border-default-grey); border-radius: 0.4rem; }
+  .bulk-gen__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.4rem 0.8rem; background: #f7f7fb; border-bottom: 1px solid var(--border-default-grey); }
+  .bulk-gen__list { max-height: 12rem; overflow-y: auto; padding: 0.3rem 0.8rem; }
+  .bulk-gen__item { display: block; padding: 0.15rem 0; font-size: 0.9em; cursor: pointer; }
   .bulk-dialog__foot { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1rem; }
   .bulk-table__actions { white-space: nowrap; text-align: right !important; }
   .bulk-table__actions .fr-btn { padding: 0.25rem 0.4rem; min-height: 0; }
@@ -1167,7 +1178,7 @@
             <button class="fr-nav__link" id="navEtuteur" type="button">eTuteur</button>
           </li>
           <li class="fr-nav__item">
-            <button class="fr-nav__link" id="navBulk" type="button">Éditer documents en lot</button>
+            <button class="fr-nav__link" id="navBulk" type="button">Documents</button>
           </li>
         </ul>
       </nav>
@@ -1212,26 +1223,87 @@
     <div id="candZone"></div>
   </div>
 
-  <!-- Page "Éditer documents en lot" : tableau stagiaires x pièces eTuteur, sélection, puis
-       validation / refus / remise en attente appliqués à toute la sélection. -->
+  <!-- Page "Documents" : documents collectifs (table « Editeur de documents »), consultation seule :
+       imprimer ou télécharger. La roue crantée ouvre la page cachée « Gestion des documents ». -->
   <div id="panelBulk" hidden>
-    <h2 class="fr-h6">Éditer documents en lot</h2>
-    <p class="fr-text--sm">Documents collectifs (table « Editeur de documents »). Cochez des lignes puis modifiez une colonne pour toute la sélection.</p>
+    <div class="bulk-head">
+      <h2 class="fr-h6">Documents</h2>
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-settings-5-line" id="bulkGearBtn" type="button" title="Gestion des documents">Gestion des documents</button>
+    </div>
+    <p class="fr-text--sm">Documents collectifs (table « Editeur de documents »). Imprimez-les ou téléchargez-les.</p>
 
     <div class="cand-toolbar fr-mb-2w">
       <div class="fr-search-bar fr-search-bar--sm" role="search">
-        <label class="fr-label" for="bulkSearchInput">Rechercher un stagiaire</label>
+        <label class="fr-label" for="bulkSearchInput">Rechercher un document</label>
         <input class="fr-input" type="search" id="bulkSearchInput" placeholder="Rechercher un document…">
         <button class="fr-btn fr-btn--sm" type="button" title="Rechercher" tabindex="-1">Rechercher</button>
       </div>
       <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-circle-line fr-btn--icon-left" id="bulkResetBtn" type="button" disabled title="Efface la recherche">
         Réinitialiser la recherche
       </button>
-      <button class="fr-btn fr-btn--sm fr-icon-add-line fr-btn--icon-left" id="bulkAddBtn" type="button">Ajouter un document</button>
       <p class="cand-count cand-count--push" id="bulkCount"></p>
     </div>
 
     <div id="bulkZone"></div>
+    <div class="bulk-dialog" id="bulkGenDialog" role="dialog" aria-modal="true" aria-labelledby="bulkGenTitle" hidden>
+      <div class="bulk-dialog__box">
+        <div class="bulk-dialog__head">
+          <h3 class="fr-h6" id="bulkGenTitle">Télécharger</h3>
+          <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line" id="bulkGenClose" type="button" title="Fermer">Fermer</button>
+        </div>
+        <p class="fr-text--sm">Un exemplaire du document est généré pour chaque stagiaire sélectionné : les variables du modèle sont remplacées par ses données.</p>
+        <fieldset class="fr-fieldset" id="bulkGenModeGroup" style="margin:0 0 0.8rem">
+          <legend class="fr-fieldset__legend fr-text--bold">Format</legend>
+          <div class="fr-fieldset__element">
+            <div class="fr-radio-group"><input type="radio" id="bulkGenModeSingle" name="bulkGenMode" value="single" checked><label class="fr-label" for="bulkGenModeSingle">Un seul fichier avec toutes les pages (une page par stagiaire)</label></div>
+          </div>
+          <div class="fr-fieldset__element">
+            <div class="fr-radio-group"><input type="radio" id="bulkGenModeMulti" name="bulkGenMode" value="multi"><label class="fr-label" for="bulkGenModeMulti">Un fichier par stagiaire (regroupés dans une archive .zip)</label></div>
+          </div>
+        </fieldset>
+        <div class="fr-input-group">
+          <label class="fr-label" for="bulkGenName">Nom du fichier <span class="fr-hint-text" id="bulkGenNameHint"></span></label>
+          <input class="fr-input" type="text" id="bulkGenName" autocomplete="off">
+        </div>
+        <div class="bulk-gen">
+          <div class="bulk-gen__head">
+            <div class="fr-checkbox-group"><input type="checkbox" id="bulkGenAll" checked><label class="fr-label" for="bulkGenAll">Tous les stagiaires</label></div>
+            <span class="fr-text--sm" id="bulkGenCount"></span>
+          </div>
+          <div class="bulk-gen__list" id="bulkGenList"></div>
+        </div>
+        <p class="fr-error-text" id="bulkGenError" hidden></p>
+        <div class="bulk-dialog__foot">
+          <button class="fr-btn fr-btn--tertiary fr-btn--sm" id="bulkGenCancel" type="button">Annuler</button>
+          <button class="fr-btn fr-btn--sm" id="bulkGenGo" type="button">Télécharger</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page cachée "Gestion des documents" (accessible par la roue crantée de la page Documents) :
+       ajout, modification et suppression des documents, modification en lot d'une colonne. -->
+  <div id="panelDocMgmt" hidden>
+    <div class="bulk-head">
+      <h2 class="fr-h6">Gestion des documents</h2>
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-arrow-left-line fr-btn--icon-left" id="mgmtBackBtn" type="button">Retour aux documents</button>
+    </div>
+    <p class="fr-text--sm">Ajoutez, modifiez ou supprimez les documents. Cochez des lignes puis modifiez une colonne pour toute la sélection.</p>
+
+    <div class="cand-toolbar fr-mb-2w">
+      <div class="fr-search-bar fr-search-bar--sm" role="search">
+        <label class="fr-label" for="mgmtSearchInput">Rechercher un document</label>
+        <input class="fr-input" type="search" id="mgmtSearchInput" placeholder="Rechercher un document…">
+        <button class="fr-btn fr-btn--sm" type="button" title="Rechercher" tabindex="-1">Rechercher</button>
+      </div>
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-circle-line fr-btn--icon-left" id="mgmtResetBtn" type="button" disabled title="Efface la recherche">
+        Réinitialiser la recherche
+      </button>
+      <button class="fr-btn fr-btn--sm fr-icon-add-line fr-btn--icon-left" id="bulkAddBtn" type="button">Ajouter un document</button>
+      <p class="cand-count cand-count--push" id="mgmtCount"></p>
+    </div>
+
+    <div id="mgmtZone"></div>
     <div class="bulk-bar" id="bulkBar" hidden></div>
     <div class="bulk-dialog" id="bulkAddDialog" role="dialog" aria-modal="true" aria-labelledby="bulkAddTitle" hidden>
       <div class="bulk-dialog__box">
@@ -1250,6 +1322,11 @@
         <div class="fr-input-group fr-mt-2w">
           <label class="fr-label" for="bulkAddTemplate">Modèle HTML</label>
           <textarea class="fr-input" id="bulkAddTemplate" rows="10" spellcheck="false"></textarea>
+        </div>
+        <div class="cfg-vars bulk-vars">
+          <p class="cfg-vars__title">Variables disponibles <span>(cliquez pour insérer à l'emplacement du curseur)</span></p>
+          <input class="fr-input fr-input--sm" type="search" id="bulkVarFilter" placeholder="Filtrer les variables…" aria-label="Filtrer les variables" autocomplete="off">
+          <div class="bulk-vars__list" id="bulkVarList"></div>
         </div>
         <p class="fr-error-text" id="bulkAddError" hidden></p>
         <div class="bulk-dialog__foot">
@@ -1456,7 +1533,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 2.2</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -1665,7 +1742,8 @@
   var navStagiaires = document.getElementById('navStagiaires');
   var navBulk = document.getElementById('navBulk');
   var panelBulk = document.getElementById('panelBulk');
-  var currentPage = 'stagiaires'; // 'stagiaires' (page d'arrivée, 1er onglet) | 'etuteur' | 'bulk'
+  var panelDocMgmt = document.getElementById('panelDocMgmt');
+  var currentPage = 'stagiaires'; // 'stagiaires' (page d'arrivée, 1er onglet) | 'etuteur' | 'bulk' | 'docmgmt' (cachée)
   var settingsOpen = false;
   var panelSettings = document.getElementById('panelSettings');
   var brandGesture = document.getElementById('brandGesture');
@@ -1781,8 +1859,9 @@
     panelEtuteur.hidden = settingsOpen || currentPage !== 'etuteur';
     panelStagiaires.hidden = settingsOpen || currentPage !== 'stagiaires';
     panelBulk.hidden = settingsOpen || currentPage !== 'bulk';
+    panelDocMgmt.hidden = settingsOpen || currentPage !== 'docmgmt'; // page cachée : pas d'onglet, atteinte par la roue crantée
     [[navStagiaires, 'stagiaires'], [navEtuteur, 'etuteur'], [navBulk, 'bulk']].forEach(function (pair) {
-      if (currentPage === pair[1]) pair[0].setAttribute('aria-current', 'page');
+      if (currentPage === pair[1] || (pair[1] === 'bulk' && currentPage === 'docmgmt')) pair[0].setAttribute('aria-current', 'page');
       else pair[0].removeAttribute('aria-current');
     });
   }
@@ -1797,6 +1876,8 @@
   navEtuteur.addEventListener('click', function () { showPage('etuteur'); });
   navStagiaires.addEventListener('click', function () { showPage('stagiaires'); });
   navBulk.addEventListener('click', function () { showPage('bulk'); });
+  document.getElementById('bulkGearBtn').addEventListener('click', function () { showPage('docmgmt'); });
+  document.getElementById('mgmtBackBtn').addEventListener('click', function () { showPage('bulk'); });
 
   function openSettings() {
     settingsOpen = true;
@@ -1848,6 +1929,7 @@
   var columnTypesPromise = null;
   var columnLabels = {}; // { tableId: { colId: libellé } }, lus avec les types
   var columnTypesMap = {}; // { tableId: { colId: type } }, idem
+  var columnChoicesMap = {}; // { tableId: { colId: [choix…] } } pour les colonnes Choix, idem
   var suggestionsApplied = false; // une colonne a été présélectionnée d'après son libellé
   function loadColumnTypes() {
     if (!columnTypesPromise) {
@@ -1860,14 +1942,19 @@
         for (var i = 0; i < tables.id.length; i++) tableNameById[tables.id[i]] = tables.tableId[i];
         var map = {};
         var labels = {};
+        var choicesMap = {};
         for (var j = 0; j < cols.id.length; j++) {
           var tableName = tableNameById[cols.parentId[j]];
           if (!tableName) continue;
           (map[tableName] = map[tableName] || {})[cols.colId[j]] = cols.type[j];
           (labels[tableName] = labels[tableName] || {})[cols.colId[j]] = cols.label ? cols.label[j] : '';
+          if (/^Choice/.test(cols.type[j]) && cols.widgetOptions) {
+            try { (choicesMap[tableName] = choicesMap[tableName] || {})[cols.colId[j]] = JSON.parse(cols.widgetOptions[j] || '{}').choices || []; } catch (e) { /* choix illisibles : valeurs par défaut */ }
+          }
         }
         columnLabels = labels;
         columnTypesMap = map;
+        columnChoicesMap = choicesMap;
         return map;
       }).catch(function () { return {}; });
     }
@@ -1887,7 +1974,7 @@
   // correspond pas, pour ne jamais la perdre silencieusement).
   var ROLE_TYPE_FILTER = {
     usageRS: 'Attachments', formImage: 'Attachments', ead: 'Attachments',
-    validationUsageRS: 'Bool', validationFormImage: 'Bool', validationEAD: 'Bool',
+    validationUsageRS: 'Choice', validationFormImage: 'Choice', validationEAD: 'Choice',
     dateNaissance: 'Date'
   };
   // Libellé affiché : « Libellé (identifiant) · Type » — le libellé Grist est
@@ -2374,7 +2461,7 @@
       markDuplicates(rows);
       // hasNumCand : la table des candidats possède bien la colonne N_Cand
       // (sinon le champ « N° CAND » n'est pas affiché dans la fiche).
-      candidates = { rows: rows, docsData: results[1], loaded: true, mainCols: tableColumns(results[0]), docsCols: results[1] ? tableColumns(results[1]) : [],
+      candidates = { rows: rows, mainData: results[0], docsData: results[1], loaded: true, mainCols: tableColumns(results[0]), docsCols: results[1] ? tableColumns(results[1]) : [],
         hasInfos: !!(results[0] && results[0][INFOS_COL]),
         hasPieces: !!(results[0] && results[0][PIECES_COL] && results[0][PIECES_NOMS_COL]),
         missingPieceCols: [PIECES_COL, PIECES_NOMS_COL].filter(function (c) { return !(results[0] && results[0][c]); }), hasNumCand: !!(results[0] && results[0][NUM_CAND_COL]) };
@@ -2519,27 +2606,52 @@
 
   // ---- Rendu de la page eTuteur -------------------------------------------
 
-  // Décision de validation d'une pièce, stockée dans une colonne Case à cocher. Grist met une case
-  // à cocher à « décoché » (false) par défaut : c'est donc l'état « en attente » (aucune décision
-  // manuelle). Une pièce n'est « validée » ou « refusée » que sur décision explicite dans le widget :
-  //   coché (true)   -> validée ;   décoché (false) -> en attente ;   cellule vide (null) -> refusée.
-  var VALIDATION_VALUE = { accepted: true, pending: false, refused: null };
-  function boolState(v) {
+  // Décision de validation d'une pièce. La colonne de validation est une colonne à CHOIX UNIQUE reprenant
+  // les statuts (« En attente », « Validé », « Refusé »…) : le statut est reconnu d'après le texte du
+  // choix (insensible à la casse et aux accents), une cellule vide valant « en attente » ; seule une
+  // décision manuelle dans le widget la fait passer à validée ou refusée. Une colonne Case à cocher
+  // reste comprise (coché = validée, décoché = en attente, vide = refusée).
+  var VALIDATION_DEFAULT_LABEL = { accepted: 'Validé', refused: 'Refusé', pending: 'En attente' };
+  function classifyValidationText(text) {
+    var k = normalizeKey(text);
+    if (!k) return 'pending';
+    if (/REFUS|REJET|NON VALID|INVALID|NON CONFORME|NON ACCEPT/.test(k)) return 'refused';
+    if (/ATTENTE|A VALIDER|A TRAITER|EN COURS|A CONTROLER|NON TRAIT/.test(k)) return 'pending';
+    if (/VALID|ACCEPT|CONFORME|APPROUV|^OK$|^OUI$/.test(k)) return 'accepted';
+    return 'pending';
+  }
+  function validationColumnType(role) {
+    var t = (columnTypesMap[settings.docsTable] || {})[settings.col[role]];
+    return String(t || '').split(':')[0];
+  }
+  function boolState(v, role) {
     if (v === true || v === 1) return 'accepted';
-    if (v === null) return 'refused';
-    return 'pending'; // décoché (défaut de Grist), colonne non réglée ou ligne absente
+    if (typeof v === 'string') return classifyValidationText(v);
+    if (v === null && validationColumnType(role) === 'Bool') return 'refused';
+    return 'pending'; // décoché (défaut de Grist), choix vide, colonne non réglée ou ligne absente
+  }
+  // Valeur à écrire dans la colonne de validation pour un statut : le choix de la colonne qui
+  // correspond (sinon le libellé par défaut) ; pour une case à cocher, true / false / vide.
+  function validationValueFor(role, state) {
+    var type = validationColumnType(role);
+    if (type === 'Choice') {
+      var choices = (columnChoicesMap[settings.docsTable] || {})[settings.col[role]] || [];
+      for (var i = 0; i < choices.length; i++) if (choices[i] && classifyValidationText(choices[i]) === state) return choices[i];
+      return state === 'pending' && choices.length ? '' : VALIDATION_DEFAULT_LABEL[state];
+    }
+    return state === 'accepted' ? true : (state === 'refused' ? null : false);
   }
 
   // Statut d'un document, partagé par la liste (tags) et la modale (cartes) :
   //  - missing  : aucun fichier déposé                        -> rouge
-  //  - rejected : fichier présent, refus explicite (cellule vide) -> orange
+  //  - rejected : fichier présent, refus explicite                 -> orange
   //  - ok       : fichier présent, validation cochée           -> vert
   //  - pending  : fichier présent, pas encore de décision manuelle -> gris
   function docStatus(row, role) {
     if (!extractAttachmentIds(row[role]).length) return 'missing';
     var validationRole = ATTACH_VALIDATION_ROLE[role];
     if (!settings.col[validationRole]) return 'pending';
-    var state = boolState(row[validationRole]);
+    var state = boolState(row[validationRole], validationRole);
     return state === 'accepted' ? 'ok' : (state === 'refused' ? 'rejected' : 'pending');
   }
   var DOC_STATUS_TEXT = { ok: 'validé', rejected: 'refusé', missing: 'manquant', pending: 'à valider' };
@@ -3656,7 +3768,6 @@
         label.className = 'stg-docline__label';
         label.textContent = ROLE_LABELS[role];
         line.appendChild(label);
-        line.appendChild(buildDocTag(row, role));
         var files = document.createElement('span');
         files.className = 'stg-docline__files';
         var ids = extractAttachmentIds(row[role]);
@@ -3860,12 +3971,17 @@
   var bulkResetBtn = document.getElementById('bulkResetBtn');
   var bulkCount = document.getElementById('bulkCount');
   var bulkZone = document.getElementById('bulkZone');
+  var mgmtSearchInput = document.getElementById('mgmtSearchInput');
+  var mgmtResetBtn = document.getElementById('mgmtResetBtn');
+  var mgmtCount = document.getElementById('mgmtCount');
+  var mgmtZone = document.getElementById('mgmtZone');
   var bulkBar = document.getElementById('bulkBar');
-  bulkSearchInput.addEventListener('input', function () { bulkSearchText = bulkSearchInput.value; renderBulk(); });
-  bulkResetBtn.addEventListener('click', function () {
-    bulkSearchText = '';
-    bulkSearchInput.value = '';
-    renderBulk();
+  // La recherche est commune aux deux pages (Documents en consultation, Gestion des documents).
+  [bulkSearchInput, mgmtSearchInput].forEach(function (input) {
+    input.addEventListener('input', function () { bulkSearchText = input.value; renderBulk(); });
+  });
+  [bulkResetBtn, mgmtResetBtn].forEach(function (btn) {
+    btn.addEventListener('click', function () { bulkSearchText = ''; renderBulk(); });
   });
 
   function bulkKey(v) { return normalizeKey(v).replace(/[_\s]+/g, ' '); }
@@ -3941,25 +4057,35 @@
     });
   }
 
+  // Rend les deux pages : « view » (Documents : consultation, imprimer / télécharger) et « manage »
+  // (Gestion des documents : sélection, édition, suppression, modification en lot).
   function renderBulk() {
-    bulkZone.innerHTML = '';
-    bulkBar.hidden = true;
-    bulkBar.innerHTML = '';
+    renderDocTable('view');
+    renderDocTable('manage');
+  }
+  function renderDocTable(mode) {
+    var manage = mode === 'manage';
+    var zone = manage ? mgmtZone : bulkZone;
+    var countEl = manage ? mgmtCount : bulkCount;
+    var resetBtn = manage ? mgmtResetBtn : bulkResetBtn;
+    [bulkSearchInput, mgmtSearchInput].forEach(function (i) { if (i.value !== bulkSearchText) i.value = bulkSearchText; });
+    zone.innerHTML = '';
+    if (manage) { bulkBar.hidden = true; bulkBar.innerHTML = ''; }
     if (bulk.error) {
-      bulkZone.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm"><p>' + escapeHtml(bulk.error) + '</p></div>';
-      bulkCount.textContent = '';
+      zone.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm"><p>' + escapeHtml(bulk.error) + '</p></div>';
+      countEl.textContent = '';
       return;
     }
-    if (!bulk.loaded) { bulkCount.textContent = ''; return; }
+    if (!bulk.loaded) { countEl.textContent = ''; return; }
     var existing = {};
     bulk.rows.forEach(function (r) { existing[r.id] = true; });
     Object.keys(bulkSelected).forEach(function (id) { if (!existing[id]) delete bulkSelected[id]; });
 
     var rows = bulkVisibleRows();
-    bulkCount.textContent = rows.length + ' document(s) affiché(s) sur ' + bulk.rows.length;
-    bulkResetBtn.disabled = !bulkSearchText.trim();
+    countEl.textContent = rows.length + ' document(s) affiché(s) sur ' + bulk.rows.length;
+    resetBtn.disabled = !bulkSearchText.trim();
     if (!rows.length) {
-      bulkZone.innerHTML = '<p class="cand-empty-state">Aucun document collectif à afficher.</p>';
+      zone.innerHTML = '<p class="cand-empty-state">Aucun document collectif à afficher.</p>';
       return;
     }
 
@@ -3969,19 +4095,22 @@
     table.className = 'bulk-table';
     var head = document.createElement('thead');
     var hr = document.createElement('tr');
-    var thCheck = document.createElement('th');
-    thCheck.className = 'bulk-table__check';
-    var all = document.createElement('input');
-    all.type = 'checkbox';
-    all.setAttribute('aria-label', 'Sélectionner tous les documents affichés');
-    all.checked = rows.every(function (r) { return !!bulkSelected[r.id]; });
-    all.addEventListener('change', function () {
-      rows.forEach(function (r) { if (all.checked) bulkSelected[r.id] = true; else delete bulkSelected[r.id]; });
-      renderBulk();
-    });
-    thCheck.appendChild(all);
-    hr.appendChild(thCheck);
-    [bulk.nameCol].concat(bulk.cols).forEach(function (c) {
+    if (manage) {
+      var thCheck = document.createElement('th');
+      thCheck.className = 'bulk-table__check';
+      var all = document.createElement('input');
+      all.type = 'checkbox';
+      all.setAttribute('aria-label', 'Sélectionner tous les documents affichés');
+      all.checked = rows.every(function (r) { return !!bulkSelected[r.id]; });
+      all.addEventListener('change', function () {
+        rows.forEach(function (r) { if (all.checked) bulkSelected[r.id] = true; else delete bulkSelected[r.id]; });
+        renderBulk();
+      });
+      thCheck.appendChild(all);
+      hr.appendChild(thCheck);
+    }
+    var shownCols = [bulk.nameCol].concat(bulk.cols.filter(function (c) { return c !== bulk.tplCol; }));
+    shownCols.forEach(function (c) {
       var th = document.createElement('th');
       th.textContent = c === bulk.nameCol ? 'Nom du document' : c.label;
       hr.appendChild(th);
@@ -3996,20 +4125,22 @@
     var body = document.createElement('tbody');
     rows.forEach(function (row) {
       var tr = document.createElement('tr');
-      if (bulkSelected[row.id]) tr.className = 'is-selected';
-      var tdCheck = document.createElement('td');
-      tdCheck.className = 'bulk-table__check';
-      var box = document.createElement('input');
-      box.type = 'checkbox';
-      box.checked = !!bulkSelected[row.id];
-      box.setAttribute('aria-label', 'Sélectionner ' + textOf(row.values[bulk.nameCol.id]));
-      box.addEventListener('change', function () {
-        if (box.checked) bulkSelected[row.id] = true; else delete bulkSelected[row.id];
-        renderBulk();
-      });
-      tdCheck.appendChild(box);
-      tr.appendChild(tdCheck);
-      [bulk.nameCol].concat(bulk.cols).forEach(function (c) {
+      if (manage && bulkSelected[row.id]) tr.className = 'is-selected';
+      if (manage) {
+        var tdCheck = document.createElement('td');
+        tdCheck.className = 'bulk-table__check';
+        var box = document.createElement('input');
+        box.type = 'checkbox';
+        box.checked = !!bulkSelected[row.id];
+        box.setAttribute('aria-label', 'Sélectionner ' + textOf(row.values[bulk.nameCol.id]));
+        box.addEventListener('change', function () {
+          if (box.checked) bulkSelected[row.id] = true; else delete bulkSelected[row.id];
+          renderBulk();
+        });
+        tdCheck.appendChild(box);
+        tr.appendChild(tdCheck);
+      }
+      shownCols.forEach(function (c) {
         var td = document.createElement('td');
         var v = row.values[c.id];
         if (c === bulk.nameCol) td.className = 'bulk-table__name';
@@ -4025,10 +4156,12 @@
       });
       var tdAct = document.createElement('td');
       tdAct.className = 'bulk-table__actions';
-      [['Éditer', 'fr-icon-edit-line', function () { openBulkDialog(row); }],
-       ['Supprimer', 'fr-icon-delete-line', function () { deleteBulkDoc(row); }],
-       ['Télécharger', 'fr-icon-download-line', function () { downloadBulkDoc(row); }],
-       ['Imprimer', 'fr-icon-printer-line', function () { printBulkDoc(row); }]].forEach(function (a) {
+      var actions = manage ?
+        [['Éditer', 'fr-icon-edit-line', function () { openBulkDialog(row); }],
+         ['Supprimer', 'fr-icon-delete-line', function () { deleteBulkDoc(row); }]] :
+        [['Télécharger', 'fr-icon-download-line', function () { openGenDialog(row, 'download'); }],
+         ['Imprimer', 'fr-icon-printer-line', function () { openGenDialog(row, 'print'); }]];
+      actions.forEach(function (a) {
         var b = document.createElement('button');
         b.type = 'button';
         b.className = 'fr-btn fr-btn--tertiary-no-outline fr-btn--sm ' + a[1];
@@ -4042,8 +4175,8 @@
     });
     table.appendChild(body);
     wrap.appendChild(table);
-    bulkZone.appendChild(wrap);
-    renderBulkBar();
+    zone.appendChild(wrap);
+    if (manage) renderBulkBar();
   }
 
   // ---- Actions par ligne : supprimer, télécharger, imprimer le modèle HTML ----
@@ -4062,21 +4195,227 @@
       renderBulk();
     }).catch(function (e) { window.alert('Impossible de supprimer : ' + friendlyErrorMessage(e)); });
   }
-  function downloadBulkDoc(row) {
-    var html = bulkDocHtml(row);
-    if (!html) { window.alert('Ce document n’a pas de modèle HTML.'); return; }
-    var url = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }));
+  // ---- Génération d'un exemplaire du document par stagiaire (Télécharger / Imprimer) ----
+  //
+  // Les variables {{STAGIAIRE}}, {{N_CAND}} et {{Table.Colonne}} du modèle sont remplacées par les
+  // données de chaque stagiaire (colonnes de la table des candidats et de la ligne Documents liée).
+  // Un seul fichier regroupe toutes les pages (une page par stagiaire), ou bien un fichier par
+  // stagiaire (regroupés dans une archive .zip quand il y en a plusieurs).
+
+  var genDialog = document.getElementById('bulkGenDialog');
+  var genState = { row: null, action: 'download' };
+  var mainIndexCache = null;
+  function mainIndexById() {
+    if (!mainIndexCache || mainIndexCache.src !== candidates.mainData) {
+      var map = {};
+      var ids = (candidates.mainData && candidates.mainData.id) || [];
+      for (var i = 0; i < ids.length; i++) map[ids[i]] = i;
+      mainIndexCache = { src: candidates.mainData, map: map };
+    }
+    return mainIndexCache.map;
+  }
+  function formatVariableValue(v, type) {
+    if (v === null || v === undefined) return '';
+    var base = bulkBaseType(type);
+    if (base === 'Bool') return v ? 'Oui' : 'Non';
+    if ((base === 'Date' || base === 'DateTime') && typeof v === 'number') return fmtDateFr(new Date(v * 1000));
+    if (Array.isArray(v) && v[0] === 'L') return v.slice(1).join(', ');
+    return textOf(v);
+  }
+  // Valeur d'une variable pour un stagiaire, ou null si le nom n'est pas une variable connue.
+  function variableValueFor(row, name) {
+    var key = String(name).trim();
+    if (key.toUpperCase() === 'STAGIAIRE') return fullNamePrenomNom(row);
+    if (key.toUpperCase() === 'N_CAND') return textOf(row.numCand);
+    var dot = key.indexOf('.');
+    if (dot < 1) return null;
+    var tableId = key.slice(0, dot), colId = key.slice(dot + 1);
+    var data = null, idx;
+    if (tableId === settings.table) { data = candidates.mainData; idx = mainIndexById()[row.id]; }
+    else if (tableId === settings.docsTable) { data = candidates.docsData; idx = row.__docIdx; }
+    else return null;
+    if (!data || idx === undefined || idx === null || !data[colId]) return '';
+    var type = (columnTypesMap[tableId] || {})[colId];
+    if (bulkBaseType(type) === 'Attachments') return '';
+    return formatVariableValue(data[colId][idx], type);
+  }
+  function renderTemplateFor(text, row, asHtml) {
+    return String(text).replace(/\{\{\s*([^{}]*?)\s*\}\}/g, function (whole, name) {
+      var v = variableValueFor(row, name);
+      if (v === null) return whole;
+      return asHtml ? escapeHtml(v) : v;
+    });
+  }
+  function docParts(html) {
+    var body = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+    var head = html.match(/<head[^>]*>([\s\S]*?)<\/head>/i);
+    return { body: body ? body[1] : html, head: head ? head[1].replace(/<title[\s\S]*?<\/title>/gi, '') : '' };
+  }
+  // Document complet pour une liste de stagiaires : un exemplaire par stagiaire, une page chacun.
+  function buildGeneratedHtml(template, rows, title) {
+    var head = docParts(template).head;
+    var pages = rows.map(function (r, i) {
+      var body = renderTemplateFor(docParts(template).body, r, true);
+      return '<section' + (i < rows.length - 1 ? ' style="break-after:page;page-break-after:always"' : '') + '>' + body + '</section>';
+    });
+    return '<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>' + escapeHtml(title) + '</title>' + head +
+      '</head><body>' + pages.join('\n') + '</body></html>';
+  }
+  function safeFileName(name) { return String(name).replace(/[\\\/:*?"<>|\r\n]+/g, ' ').replace(/\s+/g, ' ').trim(); }
+
+  // --- Archive .zip minimale (sans compression) pour les fichiers par stagiaire ---
+  var crcTable = null;
+  function crc32(bytes) {
+    if (!crcTable) {
+      crcTable = [];
+      for (var n = 0; n < 256; n++) {
+        var c = n;
+        for (var k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+        crcTable[n] = c >>> 0;
+      }
+    }
+    var crc = 0xFFFFFFFF;
+    for (var i = 0; i < bytes.length; i++) crc = crcTable[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+  }
+  function makeZip(files) {
+    var enc = new TextEncoder();
+    var d = new Date();
+    var dosTime = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+    var dosDate = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+    var chunks = [], central = [], offset = 0;
+    files.forEach(function (f) {
+      var name = enc.encode(f.name), data = enc.encode(f.content), crc = crc32(data);
+      var lh = new DataView(new ArrayBuffer(30));
+      lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true);
+      lh.setUint16(10, dosTime, true); lh.setUint16(12, dosDate, true); lh.setUint32(14, crc, true);
+      lh.setUint32(18, data.length, true); lh.setUint32(22, data.length, true); lh.setUint16(26, name.length, true); lh.setUint16(28, 0, true);
+      var ch = new DataView(new ArrayBuffer(46));
+      ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true);
+      ch.setUint16(12, dosTime, true); ch.setUint16(14, dosDate, true); ch.setUint32(16, crc, true);
+      ch.setUint32(20, data.length, true); ch.setUint32(24, data.length, true); ch.setUint16(28, name.length, true);
+      ch.setUint32(42, offset, true);
+      chunks.push(new Uint8Array(lh.buffer), name, data);
+      central.push(new Uint8Array(ch.buffer), name);
+      offset += 30 + name.length + data.length;
+    });
+    var centralSize = central.reduce(function (n, p) { return n + p.length; }, 0);
+    var end = new DataView(new ArrayBuffer(22));
+    end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true);
+    end.setUint32(12, centralSize, true); end.setUint32(16, offset, true);
+    return new Blob(chunks.concat(central, [new Uint8Array(end.buffer)]), { type: 'application/zip' });
+  }
+  function saveBlob(blob, fileName) {
+    var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     a.href = url;
-    a.download = (textOf(row.values[bulk.nameCol.id]).replace(/[\\\/:*?"<>|]+/g, ' ').trim() || 'document') + '.html';
+    a.download = fileName;
+    a.style.display = 'none';
     document.body.appendChild(a);
     a.click();
-    a.remove();
+    document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(url); }, 10000);
   }
-  function printBulkDoc(row) {
-    var html = bulkDocHtml(row);
-    if (!html) { window.alert('Ce document n’a pas de modèle HTML.'); return; }
+
+  // --- Fenêtre de génération ---
+  function genSelectedRows() {
+    var boxes = genDialog.querySelectorAll('.bulk-gen__item input:checked');
+    var ids = {};
+    Array.prototype.forEach.call(boxes, function (b) { ids[b.value] = true; });
+    return candidates.rows.filter(function (r) { return ids[r.id]; }).sort(compareCandidatesByName);
+  }
+  function genMode() { return genDialog.querySelector('input[name="bulkGenMode"]:checked').value; }
+  function genUpdateUi() {
+    var download = genState.action === 'download';
+    document.getElementById('bulkGenModeGroup').hidden = !download;
+    var multi = download && genMode() === 'multi';
+    var nameEl = document.getElementById('bulkGenName');
+    var docName = textOf(genState.row.values[bulk.nameCol.id]);
+    if (nameEl.dataset.auto !== 'false') nameEl.value = multi ? docName + ' - {{STAGIAIRE}}' : docName;
+    document.getElementById('bulkGenNameHint').textContent = multi ?
+      'Nom de chaque fichier (extension .html ajoutée). Il doit contenir une variable qui distingue les stagiaires, par exemple {{STAGIAIRE}} ou {{' + settings.table + '.NID}}.' :
+      (download ? 'Nom du fichier (extension .html ajoutée).' : 'Titre du document imprimé (proposé comme nom de fichier si vous l’enregistrez en PDF).');
+    var n = genSelectedRows().length;
+    document.getElementById('bulkGenCount').textContent = n + ' stagiaire(s) sélectionné(s) sur ' + candidates.rows.length;
+    document.getElementById('bulkGenAll').checked = n === candidates.rows.length && n > 0;
+    var go = document.getElementById('bulkGenGo');
+    go.textContent = download ? (multi ? 'Télécharger les fichiers' : 'Télécharger') : 'Imprimer';
+    go.disabled = n === 0;
+  }
+  function openGenDialog(row, action) {
+    if (!bulkDocHtml(row)) { window.alert('Ce document n’a pas de modèle HTML.'); return; }
+    if (!candidates.rows.length) { window.alert('Aucun stagiaire : les données des stagiaires ne sont pas chargées.'); return; }
+    genState = { row: row, action: action };
+    document.getElementById('bulkGenTitle').textContent = (action === 'download' ? 'Télécharger' : 'Imprimer') + ' : ' + textOf(row.values[bulk.nameCol.id]);
+    genDialog.querySelector('input[name="bulkGenMode"][value="single"]').checked = true;
+    var nameEl = document.getElementById('bulkGenName');
+    nameEl.dataset.auto = 'true';
+    document.getElementById('bulkGenError').hidden = true;
+    var list = document.getElementById('bulkGenList');
+    list.innerHTML = '';
+    candidates.rows.slice().sort(compareCandidatesByName).forEach(function (r) {
+      var label = document.createElement('label');
+      label.className = 'bulk-gen__item';
+      var cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.value = r.id;
+      cb.checked = true;
+      cb.addEventListener('change', genUpdateUi);
+      label.appendChild(cb);
+      label.appendChild(document.createTextNode(' ' + stagiaireDisplayName(r)));
+      list.appendChild(label);
+    });
+    genUpdateUi();
+    genDialog.hidden = false;
+    nameEl.focus();
+    nameEl.select();
+  }
+  function closeGenDialog() { genDialog.hidden = true; }
+  Array.prototype.forEach.call(genDialog.querySelectorAll('input[name="bulkGenMode"]'), function (r) { r.addEventListener('change', function () { document.getElementById('bulkGenName').dataset.auto = 'true'; genUpdateUi(); }); });
+  document.getElementById('bulkGenName').addEventListener('input', function () { this.dataset.auto = 'false'; });
+  document.getElementById('bulkGenAll').addEventListener('change', function () {
+    var on = this.checked;
+    Array.prototype.forEach.call(genDialog.querySelectorAll('.bulk-gen__item input'), function (b) { b.checked = on; });
+    genUpdateUi();
+  });
+  document.getElementById('bulkGenCancel').addEventListener('click', closeGenDialog);
+  document.getElementById('bulkGenClose').addEventListener('click', closeGenDialog);
+  var genDownOnBackdrop = false;
+  genDialog.addEventListener('mousedown', function (e) { genDownOnBackdrop = e.target === genDialog; });
+  genDialog.addEventListener('click', function (e) { if (e.target === genDialog && genDownOnBackdrop) closeGenDialog(); });
+  genDialog.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); closeGenDialog(); } });
+  function showGenError(msg) { var el = document.getElementById('bulkGenError'); el.textContent = msg; el.hidden = false; }
+
+  document.getElementById('bulkGenGo').addEventListener('click', function () {
+    var rows = genSelectedRows();
+    var template = bulkDocHtml(genState.row);
+    var pattern = document.getElementById('bulkGenName').value.trim();
+    if (!pattern) { showGenError('Indiquez le nom du fichier.'); return; }
+    var multi = genState.action === 'download' && genMode() === 'multi';
+    if (!rows.length) { showGenError('Sélectionnez au moins un stagiaire.'); return; }
+    if (!multi && /\{\{/.test(pattern)) { showGenError('Les variables ne sont possibles dans le nom que pour un fichier par stagiaire.'); return; }
+    if (genState.action === 'print') { printGenerated(buildGeneratedHtml(template, rows, pattern)); closeGenDialog(); return; }
+    var ext = function (n) { return /\.html?$/i.test(n) ? n : n + '.html'; };
+    if (!multi) {
+      saveBlob(new Blob([buildGeneratedHtml(template, rows, pattern)], { type: 'text/html;charset=utf-8' }), ext(safeFileName(pattern) || 'document'));
+      closeGenDialog();
+      return;
+    }
+    if (!/\{\{/.test(pattern)) { showGenError('Le nom doit contenir une variable (par exemple {{STAGIAIRE}}) pour que chaque fichier ait un nom différent.'); return; }
+    var used = {};
+    var files = rows.map(function (r) {
+      var base = ext(safeFileName(renderTemplateFor(pattern, r, false)) || 'document');
+      var name = base, n = 1;
+      while (used[name.toLowerCase()]) { n++; name = base.replace(/(\.html?)$/i, ' (' + n + ')$1'); }
+      used[name.toLowerCase()] = true;
+      return { name: name, content: buildGeneratedHtml(template, [r], name.replace(/\.html?$/i, '')) };
+    });
+    if (files.length === 1) saveBlob(new Blob([files[0].content], { type: 'text/html;charset=utf-8' }), files[0].name);
+    else saveBlob(makeZip(files), (safeFileName(textOf(genState.row.values[bulk.nameCol.id])) || 'documents') + '.zip');
+    closeGenDialog();
+  });
+
+  function printGenerated(html) {
     var frame = document.createElement('iframe');
     frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
     frame.onload = function () {
@@ -4191,6 +4530,71 @@
   var bulkAddError = document.getElementById('bulkAddError');
   var bulkAddSave = document.getElementById('bulkAddSave');
   function closeBulkAdd() { bulkAddDialog.hidden = true; }
+  // Variables proposées pour le modèle : colonnes des tables référencées par le widget (candidats et
+  // Documents), sous la forme {{Table.Colonne}}, plus le nom du stagiaire au format « Prénom NOM ».
+  // Les colonnes de pièces jointes ne sont pas proposées (elles n'ont pas de valeur texte).
+  function bulkVariableGroups() {
+    var groups = [{ title: 'Calculées', items: [{ token: '{{STAGIAIRE}}', label: 'Nom du stagiaire au format « Prénom NOM »' }] }];
+    [[settings.table, candidates.mainCols], [settings.docsTable, candidates.docsCols]].forEach(function (pair) {
+      var tableId = pair[0], cols = pair[1] || [];
+      if (!tableId || !cols.length) return;
+      var labels = columnLabels[tableId] || {};
+      var types = columnTypesMap[tableId] || {};
+      var items = cols.filter(function (c) { return bulkBaseType(types[c]) !== 'Attachments'; }).map(function (c) {
+        var label = labels[c] && labels[c] !== c ? labels[c] + ' (' + c + ')' : c;
+        return { token: '{{' + tableId + '.' + c + '}}', label: label + (types[c] ? ' · ' + typeLabel(types[c]) : '') };
+      });
+      if (items.length) groups.push({ title: 'Table « ' + tableId + ' »', items: items });
+    });
+    return groups;
+  }
+  function renderBulkVariables() {
+    var list = document.getElementById('bulkVarList');
+    var filter = document.getElementById('bulkVarFilter');
+    filter.value = '';
+    list.innerHTML = '';
+    bulkVariableGroups().forEach(function (g) {
+      var title = document.createElement('p');
+      title.className = 'bulk-vars__group';
+      title.textContent = g.title;
+      var chips = document.createElement('div');
+      chips.className = 'bulk-vars__chips';
+      g.items.forEach(function (it) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'cfg-var-btn';
+        b.textContent = it.token;
+        b.title = it.label;
+        b.dataset.hay = normalizeKey(it.token + ' ' + it.label);
+        b.addEventListener('click', function () {
+          var start = bulkAddTemplate.selectionStart, end = bulkAddTemplate.selectionEnd;
+          if (typeof start !== 'number') { start = end = bulkAddTemplate.value.length; }
+          bulkAddTemplate.value = bulkAddTemplate.value.slice(0, start) + it.token + bulkAddTemplate.value.slice(end);
+          bulkAddTemplate.focus();
+          bulkAddTemplate.setSelectionRange(start + it.token.length, start + it.token.length);
+        });
+        chips.appendChild(b);
+      });
+      title.appendChild(document.createTextNode(''));
+      list.appendChild(title);
+      list.appendChild(chips);
+    });
+  }
+  document.getElementById('bulkVarFilter').addEventListener('input', function () {
+    var q = normalizeKey(this.value);
+    var list = document.getElementById('bulkVarList');
+    Array.prototype.forEach.call(list.querySelectorAll('.bulk-vars__chips'), function (chips) {
+      var any = false;
+      Array.prototype.forEach.call(chips.children, function (b) {
+        var show = !q || b.dataset.hay.indexOf(q) !== -1;
+        b.hidden = !show;
+        if (show) any = true;
+      });
+      chips.hidden = !any;
+      chips.previousElementSibling.hidden = !any;
+    });
+  });
+
   var bulkEditingId = null; // ligne en cours d'édition dans la modale (null = ajout)
   // Ouvre la modale vide (ajout) ou pré-remplie avec la ligne donnée (édition).
   function openBulkDialog(row) {
@@ -4202,6 +4606,7 @@
     bulkAddTemplate.value = row && bulk.tplCol ? textOf(row.values[bulk.tplCol.id]) : '';
     bulkAddError.hidden = true;
     bulkAddSave.disabled = false;
+    renderBulkVariables();
     bulkAddDialog.hidden = false;
     bulkAddName.focus();
   }
@@ -5027,7 +5432,7 @@
   // correspond à une colonne encore vide côté Grist — voir boolState.
   function buildValidationControl(row, role, refusalDocLabel, labels) {
     labels = labels || { yes: 'Valider la pièce', no: 'Refuser la pièce' };
-    var state = boolState(row[role]);
+    var state = boolState(row[role], role);
 
     var wrap = document.createElement('div');
     wrap.className = 'cand-doc-status';
@@ -5050,11 +5455,11 @@
 
     yesBtn.addEventListener('click', function () {
       // Un second clic sur le bouton actif annule la décision : la pièce redevient « en attente ».
-      updateValidation(role, row, state === 'accepted' ? VALIDATION_VALUE.pending : true, null);
+      updateValidation(role, row, validationValueFor(role, state === 'accepted' ? 'pending' : 'accepted'), null);
     });
     noBtn.addEventListener('click', function () {
-      if (state === 'refused') { updateValidation(role, row, VALIDATION_VALUE.pending, null); return; }
-      updateValidation(role, row, VALIDATION_VALUE.refused, refusalDocLabel ? { row: row, docLabel: refusalDocLabel } : null);
+      if (state === 'refused') { updateValidation(role, row, validationValueFor(role, 'pending'), null); return; }
+      updateValidation(role, row, validationValueFor(role, 'refused'), refusalDocLabel ? { row: row, docLabel: refusalDocLabel } : null);
     });
 
     wrap.appendChild(yesBtn);
@@ -5228,7 +5633,7 @@
       row[role] = newValue;
       renderCandidates(); // met à jour les pastilles de statut de la liste
       if (currentModalRowId === row.id) renderModalContent(); // et le bouton si la fiche est ouverte
-      if (newValue === null && refusalContext) openRefusalEmail(refusalContext.row, refusalContext.docLabel);
+      if (refusalContext) openRefusalEmail(refusalContext.row, refusalContext.docLabel);
     }).catch(function (e) {
       window.alert('Impossible d’enregistrer la décision : ' + friendlyErrorMessage(e));
       if (currentModalRowId === row.id) renderModalContent(); // remet le bouton dans son état réel après l'échec
@@ -5535,537 +5940,6 @@
   // dépend pas. Le worker est récupéré puis lancé depuis un Blob, car un
   // Worker ne peut pas être créé directement depuis une URL d'une autre
   // origine (le CDN).
-  var PDFJS_BASE = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/';
-  var pdfjsPromise = null;
-  function loadPdfJs() {
-    if (!pdfjsPromise) {
-      pdfjsPromise = new Promise(function (resolve, reject) {
-        var s = document.createElement('script');
-        s.src = PDFJS_BASE + 'pdf.min.js';
-        s.onload = function () {
-          var lib = window.pdfjsLib || window['pdfjs-dist/build/pdf'];
-          if (!lib) { reject(new Error('pdf.js indisponible')); return; }
-          fetch(PDFJS_BASE + 'pdf.worker.min.js').then(function (r) { return r.text(); }).then(function (code) {
-            lib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([code], { type: 'text/javascript' }));
-            resolve(lib);
-          }).catch(reject);
-        };
-        s.onerror = function () { reject(new Error('pdf.js indisponible')); };
-        document.head.appendChild(s);
-      });
-      pdfjsPromise.catch(function () { pdfjsPromise = null; }); // permet de réessayer au prochain survol
-    }
-    return pdfjsPromise;
-  }
-  function renderPdfFirstPage(buffer) {
-    return loadPdfJs().then(function (lib) {
-      return lib.getDocument({ data: buffer }).promise;
-    }).then(function (pdf) {
-      return pdf.getPage(1).then(function (page) {
-        var cssWidth = 272; // 17rem, comme la largeur du popover
-        var base = page.getViewport({ scale: 1 });
-        var viewport = page.getViewport({ scale: (cssWidth / base.width) * 2 }); // ×2 : netteté sur écran dense
-        var canvas = document.createElement('canvas');
-        canvas.width = Math.floor(viewport.width);
-        canvas.height = Math.floor(viewport.height);
-        return page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport }).promise.then(function () {
-          var wrap = document.createElement('div');
-          wrap.appendChild(canvas);
-          if (pdf.numPages > 1) {
-            var note = document.createElement('p');
-            note.className = 'attach-preview__pages';
-            note.textContent = 'Page 1 sur ' + pdf.numPages;
-            wrap.appendChild(note);
-          }
-          return wrap;
-        });
-      });
-    });
-  }
-
-  // Corps du popover : image directe, ou PDF téléchargé puis rendu par
-  // pdf.js. Si le type n'est pas connu (métadonnées illisibles), on le
-  // déduit du Content-Type de la réponse. Renvoie null si aucun aperçu
-  // n'est possible (le popover affiche alors le lien d'ouverture seul).
-  //
-  // Chaîne de repli pour un PDF (le navigateur peut refuser chaque étape) :
-  //  1. fetch + rendu pdf.js (image nette, indépendante du navigateur) ;
-  //  2. si la requête est bloquée par le navigateur (CORS — cas de Safari,
-  //     "Load failed") ou si pdf.js est indisponible : visionneuse PDF native
-  //     du navigateur dans un cadre (<iframe>), qui n'a pas besoin de CORS ;
-  //  3. si Grist répond par un refus (401/403/404, règles d'accès du
-  //     document appliquées au jeton du widget) : message explicite.
-  // La promesse est rejetée avec une Error dont le message explique
-  // pourquoi l'aperçu est impossible (affiché dans le popover).
-  function previewFailure(text) {
-    var e = new Error(text);
-    e.isPreviewFailure = true;
-    return e;
-  }
-  function buildPdfFrame(url) {
-    var frame = document.createElement('iframe');
-    frame.className = 'attach-preview__frame';
-    frame.title = 'Aperçu du document';
-    // inline=1 : Grist sert le fichier "en ligne" (sinon en téléchargement).
-    frame.src = url + '&inline=1#toolbar=0&view=FitH';
-    return frame;
-  }
-  function buildPreviewBody(url, meta, fileName, cell) {
-    var looksPdf = isPdfType(meta) || /\.pdf$/i.test(fileName || '');
-    if (isImageType(meta)) {
-      return new Promise(function (resolve, reject) {
-        var img = document.createElement('img');
-        img.alt = fileName;
-        img.onload = function () { resolve(img); };
-        img.onerror = function () {
-          reject(previewFailure('Grist n’a pas fourni l’image (accès refusé au jeton du widget ?).'));
-        };
-        img.src = url;
-      });
-    }
-    if (meta && meta.fileType && !looksPdf) {
-      return Promise.reject(previewFailure('Pas d’aperçu pour ce type de fichier.'));
-    }
-    return fetch(url).then(function (resp) {
-      if (!resp.ok) {
-        // Grist répond 404 (et non 403) quand ses règles d'accès interdisent la
-        // lecture de la cellule : ce n'est pas un fichier introuvable.
-        throw previewFailure('Grist a refusé l’accès au fichier (HTTP ' + resp.status + ') : les règles d’accès du document ne permettent pas de lire cette cellule avec le jeton du widget' +
-          (cell ? ' — table « ' + cell.tableId + ' », colonne « ' + cell.colId + ' », ligne ' + cell.rowId : '') + '.');
-      }
-      return resp.blob();
-    }, function () {
-      var blocked = new Error('blocked');
-      blocked.blocked = true;
-      throw blocked;
-    }).then(function (blob) {
-      var type = (meta && meta.fileType) || blob.type || '';
-      if (type.indexOf('image/') === 0) {
-        var img2 = document.createElement('img');
-        img2.src = URL.createObjectURL(blob);
-        img2.alt = fileName;
-        return img2;
-      }
-      if (type.indexOf('pdf') !== -1 || looksPdf) {
-        return blob.arrayBuffer().then(renderPdfFirstPage).catch(function () { return buildPdfFrame(url); });
-      }
-      throw previewFailure('Pas d’aperçu pour ce type de fichier.');
-    }).catch(function (e) {
-      if (e && e.blocked) {
-        if (looksPdf) return buildPdfFrame(url);
-        throw previewFailure('Requête bloquée par le navigateur (accès inter-origine).');
-      }
-      throw (e && e.isPreviewFailure) ? e : previewFailure('Lecture du fichier impossible.');
-    });
-  }
-
-  var previewRequestSeq = 0;
-  function showAttachPreview(anchorEl, attachmentId, cell) {
-    // Déjà affiché pour ce même fichier (passage de la vignette au nom) :
-    // on se contente de repositionner, sans tout recharger.
-    if (!attachPreview.hidden && attachPreview.dataset.attachmentId === String(attachmentId)) {
-      positionPreview(anchorEl.getBoundingClientRect());
-      return;
-    }
-    var seq = ++previewRequestSeq;
-    var rect = anchorEl.getBoundingClientRect();
-    attachPreview.dataset.attachmentId = attachmentId;
-    attachPreview.innerHTML = '<p class="attach-preview__loading">Chargement de l’aperçu…</p>';
-    attachPreview.hidden = false;
-    positionPreview(rect);
-
-    Promise.all([loadAttachmentsMeta(), getAccessTokenInfo()]).then(function (results) {
-      if (seq !== previewRequestSeq) return; // un autre survol a entre-temps pris le relais
-      var meta = results[0][attachmentId];
-      var tokenInfo = results[1];
-      var url = attachmentUrl(tokenInfo, attachmentId, cell);
-      var fileName = (meta && meta.fileName) || ('Pièce jointe #' + attachmentId);
-
-      attachPreview.innerHTML = '<p class="attach-preview__name">' + escapeHtml(fileName) + '</p>' +
-        '<div class="attach-preview__body"><p class="attach-preview__loading">Chargement de l’aperçu…</p></div>' +
-        '<a class="attach-preview__link fr-link" href="' + escapeAttr(attachmentSessionUrl(tokenInfo, attachmentId, cell)) + '" target="_blank" rel="noopener">Ouvrir dans un nouvel onglet</a>';
-      positionPreview(rect);
-
-      return buildPreviewBody(url, meta, fileName, cell).then(function (bodyEl) {
-        if (seq !== previewRequestSeq) return;
-        var body = attachPreview.querySelector('.attach-preview__body');
-        if (!body) return;
-        body.innerHTML = '';
-        body.appendChild(bodyEl);
-        positionPreview(rect); // la taille du contenu vient de changer (image/PDF) : on repositionne pour rester dans l'écran
-      }, function (failure) {
-        if (seq !== previewRequestSeq) return;
-        var body = attachPreview.querySelector('.attach-preview__body');
-        if (!body) return;
-        body.innerHTML = '<div class="attach-preview__fallback"><span class="fr-icon-file-line" aria-hidden="true" style="font-size:2rem;"></span>' +
-          '<span>Aperçu non disponible pour ce fichier. Cliquez sur son nom pour l’ouvrir.</span>' +
-          '<span class="attach-preview__reason">' + escapeHtml(failure && failure.message ? failure.message : '') + '</span></div>';
-        positionPreview(rect);
-      });
-    }).catch(function (e) {
-      if (seq !== previewRequestSeq) return;
-      attachPreview.innerHTML = '<p class="attach-preview__loading">Aperçu indisponible : ' + escapeHtml(friendlyErrorMessage(e)) + '</p>';
-    });
-  }
-  function hideAttachPreview() {
-    previewRequestSeq++; // invalide toute requête d'aperçu encore en cours
-    attachPreview.hidden = true;
-    delete attachPreview.dataset.attachmentId;
-  }
-  function positionPreview(rect) {
-    // Positionne le popover juste sous la vignette, en le ramenant dans la
-    // fenêtre visible s'il déborderait à droite ou en bas (même logique
-    // simple que les menus déroulants : pas de bibliothèque de
-    // positionnement, un ajustement suffisant pour la taille du popover).
-    var top = rect.bottom + 8;
-    var left = rect.left;
-    var maxLeft = window.innerWidth - attachPreview.offsetWidth - 12;
-    var maxTop = window.innerHeight - attachPreview.offsetHeight - 12;
-    if (left > maxLeft) left = Math.max(12, maxLeft);
-    if (top > maxTop) top = Math.max(12, rect.top - attachPreview.offsetHeight - 8);
-    attachPreview.style.left = left + 'px';
-    attachPreview.style.top = top + 'px';
-  }
-
-  // ---- Utilitaires génériques (repris du widget Réservations) -----------
-
-  function normalizeKey(v) {
-    return String(v || '').normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toUpperCase();
-  }
-  function textOf(v) {
-    if (v === null || v === undefined) return '';
-    if (Array.isArray(v)) {
-      // Une cellule en erreur (formule cassée, référence invalide…) est
-      // renvoyée par fetchTable() comme un tableau étiqueté
-      // ['E', nomErreur, message?] — sans ce traitement, elle s'affichait
-      // littéralement "E, SyntaxError" au lieu d'un message compréhensible
-      // (c'est ce que provoquait l'affichage "E, SyntaxError" sur le nom
-      // du stagiaire : la colonne mappée sur "Stagiaire" contient une
-      // formule en erreur côté Grist — un signal à corriger dans le
-      // document, que le widget se contente maintenant de signaler
-      // clairement plutôt que de le rendre illisible).
-      if (v.length && (v[0] === 'E' || v[0] === 'e')) {
-        return '⚠ Erreur de formule (' + String(v[1] || '?') + ')';
-      }
-      var items = v.slice();
-      if (items.length && (items[0] === 'L' || items[0] === 'l' || items[0] === 'R' || items[0] === 'r')) {
-        items = items.slice(1);
-      }
-      return items.map(function (x) { return String(x).trim(); }).filter(function (x) { return x.length > 0; }).join(', ');
-    }
-    return String(v).trim();
-  }
-  // Une colonne Référence simple non résolue en texte représente une
-  // référence "vide" par l'entier 0 côté Grist, pas par une chaîne vide —
-  // sans ce traitement, "Stagiaire" ou "Inscription bande" afficheraient
-  // "0" tant que la ligne visée n'a pas de valeur.
-  function textOfRef(v) {
-    return v === 0 ? '' : textOf(v);
-  }
-  function numOf(v) {
-    var t = textOf(v);
-    if (t === '') return NaN;
-    var n = Number(t);
-    return isNaN(n) ? NaN : n;
-  }
-  function fmtCurrency(v) {
-    var n = numOf(v);
-    if (isNaN(n)) return '—';
-    return n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
-  }
-  // Regroupe un numéro de téléphone par paires de chiffres ("0102030405"
-  // ou "01.02.03.04.05" ou "01-02-03-04-05" -> "01 02 03 04 05"), quel que
-  // soit le séparateur saisi dans Grist. Un éventuel "+" initial (indicatif
-  // international) est conservé devant le premier groupe. Si la valeur ne
-  // contient aucun chiffre, elle est affichée telle quelle plutôt que
-  // perdue.
-  function fmtPhoneFr(v) {
-    var raw = textOf(v);
-    if (!raw) return '';
-    var trimmed = raw.trim();
-    var hasPlus = trimmed.charAt(0) === '+';
-    var digits = trimmed.replace(/\D/g, '');
-    if (!digits) return raw;
-    // Un numéro français stocké dans une colonne Numérique perd son 0
-    // initial (ex. 612345678 au lieu de 0612345678) : on le rajoute
-    // lorsque le compte de chiffres (9, sans indicatif international)
-    // correspond à un numéro français privé de ce 0.
-    if (!hasPlus && digits.length === 9) digits = '0' + digits;
-    var groups = digits.match(/\d{1,2}/g) || [];
-    return (hasPlus ? '+' : '') + groups.join(' ');
-  }
-  // Grist renvoie les colonnes Date/DateTime comme un nombre de secondes
-  // depuis l'epoch Unix (UTC), jamais comme une chaîne — d'où la
-  // conversion ×1000 pour obtenir un objet Date JavaScript (qui travaille
-  // en millisecondes). Une valeur vide ou inexploitable renvoie null
-  // plutôt que de faire planter le calcul de minorité.
-  function dateOf(v) {
-    if (typeof v === 'number' && isFinite(v)) return new Date(v * 1000);
-    if (typeof v === 'string' && v.trim()) {
-      var t = Date.parse(v);
-      if (!isNaN(t)) return new Date(t);
-    }
-    return null;
-  }
-  // Le stagiaire sera-t-il mineur au premier jour de la formation ?
-  // Calculé à partir de sa date de naissance (colonne Date de Grist, voir
-  // settings.col.dateNaissance) et de la date "Début de formation le",
-  // saisie à la main dans la Configuration (settings.dateDebutFormation,
-  // déjà convertie en Date UTC par parseFrDate) — pas une colonne.
-  // Renvoie false si l'une des deux dates manque ou n'est pas exploitable :
-  // le pictogramme reste alors masqué plutôt que d'afficher une fausse
-  // certitude.
-  function willBeMinor(birthValue, start) {
-    var birth = dateOf(birthValue);
-    if (!birth || !start) return false;
-    var age = start.getUTCFullYear() - birth.getUTCFullYear();
-    var monthDiff = start.getUTCMonth() - birth.getUTCMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && start.getUTCDate() < birth.getUTCDate())) age--;
-    return age < 18;
-  }
-  function escapeHtml(s) {
-    var div = document.createElement('div');
-    div.textContent = s;
-    return div.innerHTML;
-  }
-  function escapeAttr(s) {
-    return escapeHtml(s).replace(/"/g, '&quot;');
-  }
-  // Grist renvoie un message technique en anglais lorsque les règles
-  // d'accès du document interdisent l'écriture demandée : on le remplace
-  // par un texte compréhensible, comme dans le widget Réservations.
-  function friendlyErrorMessage(e) {
-    var raw = (e && e.message) ? e.message : String(e || '');
-    if (/blocked by .*access rules/i.test(raw)) {
-      return 'Vous ne disposez pas des droits nécessaires. Contactez l\'équipe projet si vous pensez qu\'il s\'agit d\'une erreur.';
-    }
-    return raw;
-  }
-
-})();
-</script>
-
-</body>
-</html>
-r vide ou inexploitable renvoie null
-  // plutôt que de faire planter le calcul de minorité.
-  function dateOf(v) {
-    if (typeof v === 'number' && isFinite(v)) return new Date(v * 1000);
-    if (typeof v === 'string' && v.trim()) {
-      var t = Date.parse(v);
-      if (!isNaN(t)) return new Date(t);
-    }
-    return null;
-  }
-  // Le stagiaire sera-t-il mineur au premier jour de la formation ?
-  // Calculé à partir de sa date de naissance (colonne Date de Grist, voir
-  // settings.col.dateNaissance) et de la date "Début de formation le",
-  // saisie à la main dans la Configuration (settings.dateDebutFormation,
-  // déjà convertie en Date UTC par parseFrDate) — pas une colonne.
-  // Renvoie false si l'une des deux dates manque ou n'est pas exploitable :
-  // le pictogramme reste alors masqué plutôt que d'afficher une fausse
-  // certitude.
-  function willBeMinor(birthValue, start) {
-    var birth = dateOf(birthValue);
-    if (!birth || !start) return false;
-    var age = start.getUTCFullYear() - birth.getUTCFullYear();
-    var monthDiff = start.getUTCMonth() - birth.getUTCMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && start.getUTCDate() < birth.getUTCDate())) age--;
-    return age < 18;
-  }
-  function escapeHtml(s) {
-    var div = document.createElement('div');
-    div.textContent = s;
-    return div.innerHTML;
-  }
-  function escapeAttr(s) {
-    return escapeHtml(s).replace(/"/g, '&quot;');
-  }
-  // Grist renvoie un message technique en anglais lorsque les règles
-  // d'accès du document interdisent l'écriture demandée : on le remplace
-  // par un texte compréhensible, comme dans le widget Réservations.
-  function friendlyErrorMessage(e) {
-    var raw = (e && e.message) ? e.message : String(e || '');
-    if (/blocked by .*access rules/i.test(raw)) {
-      return 'Vous ne disposez pas des droits nécessaires. Contactez l\'équipe projet si vous pensez qu\'il s\'agit d\'une erreur.';
-    }
-    return raw;
-  }
-
-})();
-</script>
-
-</body>
-</html>
-2, maximumFractionDigits: 2 }) + ' €';
-  }
-  // Regroupe un numéro de téléphone par paires de chiffres ("0102030405"
-  // ou "01.02.03.04.05" ou "01-02-03-04-05" -> "01 02 03 04 05"), quel que
-  // soit le séparateur saisi dans Grist. Un éventuel "+" initial (indicatif
-  // international) est conservé devant le premier groupe. Si la valeur ne
-  // contient aucun chiffre, elle est affichée telle quelle plutôt que
-  // perdue.
-  function fmtPhoneFr(v) {
-    var raw = textOf(v);
-    if (!raw) return '';
-    var trimmed = raw.trim();
-    var hasPlus = trimmed.charAt(0) === '+';
-    var digits = trimmed.replace(/\D/g, '');
-    if (!digits) return raw;
-    // Un numéro français stocké dans une colonne Numérique perd son 0
-    // initial (ex. 612345678 au lieu de 0612345678) : on le rajoute
-    // lorsque le compte de chiffres (9, sans indicatif international)
-    // correspond à un numéro français privé de ce 0.
-    if (!hasPlus && digits.length === 9) digits = '0' + digits;
-    var groups = digits.match(/\d{1,2}/g) || [];
-    return (hasPlus ? '+' : '') + groups.join(' ');
-  }
-  // Grist renvoie les colonnes Date/DateTime comme un nombre de secondes
-  // depuis l'epoch Unix (UTC), jamais comme une chaîne — d'où la
-  // conversion ×1000 pour obtenir un objet Date JavaScript (qui travaille
-  // en millisecondes). Une valeur vide ou inexploitable renvoie null
-  // plutôt que de faire planter le calcul de minorité.
-  function dateOf(v) {
-    if (typeof v === 'number' && isFinite(v)) return new Date(v * 1000);
-    if (typeof v === 'string' && v.trim()) {
-      var t = Date.parse(v);
-      if (!isNaN(t)) return new Date(t);
-    }
-    return null;
-  }
-  // Le stagiaire sera-t-il mineur au premier jour de la formation ?
-  // Calculé à partir de sa date de naissance (colonne Date de Grist, voir
-  // settings.col.dateNaissance) et de la date "Début de formation le",
-  // saisie à la main dans la Configuration (settings.dateDebutFormation,
-  // déjà convertie en Date UTC par parseFrDate) — pas une colonne.
-  // Renvoie false si l'une des deux dates manque ou n'est pas exploitable :
-  // le pictogramme reste alors masqué plutôt que d'afficher une fausse
-  // certitude.
-  function willBeMinor(birthValue, start) {
-    var birth = dateOf(birthValue);
-    if (!birth || !start) return false;
-    var age = start.getUTCFullYear() - birth.getUTCFullYear();
-    var monthDiff = start.getUTCMonth() - birth.getUTCMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && start.getUTCDate() < birth.getUTCDate())) age--;
-    return age < 18;
-  }
-  function escapeHtml(s) {
-    var div = document.createElement('div');
-    div.textContent = s;
-    return div.innerHTML;
-  }
-  function escapeAttr(s) {
-    return escapeHtml(s).replace(/"/g, '&quot;');
-  }
-  // Grist renvoie un message technique en anglais lorsque les règles
-  // d'accès du document interdisent l'écriture demandée : on le remplace
-  // par un texte compréhensible, comme dans le widget Réservations.
-  function friendlyErrorMessage(e) {
-    var raw = (e && e.message) ? e.message : String(e || '');
-    if (/blocked by .*access rules/i.test(raw)) {
-      return 'Vous ne disposez pas des droits nécessaires. Contactez l\'équipe projet si vous pensez qu\'il s\'agit d\'une erreur.';
-    }
-    return raw;
-  }
-
-})();
-</script>
-
-</body>
-</html>
-lonne Référence simple non résolue en texte représente une
-  // référence "vide" par l'entier 0 côté Grist, pas par une chaîne vide —
-  // sans ce traitement, "Stagiaire" ou "Inscription bande" afficheraient
-  // "0" tant que la ligne visée n'a pas de valeur.
-  function textOfRef(v) {
-    return v === 0 ? '' : textOf(v);
-  }
-  function numOf(v) {
-    var t = textOf(v);
-    if (t === '') return NaN;
-    var n = Number(t);
-    return isNaN(n) ? NaN : n;
-  }
-  function fmtCurrency(v) {
-    var n = numOf(v);
-    if (isNaN(n)) return '—';
-    return n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
-  }
-  // Regroupe un numéro de téléphone par paires de chiffres ("0102030405"
-  // ou "01.02.03.04.05" ou "01-02-03-04-05" -> "01 02 03 04 05"), quel que
-  // soit le séparateur saisi dans Grist. Un éventuel "+" initial (indicatif
-  // international) est conservé devant le premier groupe. Si la valeur ne
-  // contient aucun chiffre, elle est affichée telle quelle plutôt que
-  // perdue.
-  function fmtPhoneFr(v) {
-    var raw = textOf(v);
-    if (!raw) return '';
-    var trimmed = raw.trim();
-    var hasPlus = trimmed.charAt(0) === '+';
-    var digits = trimmed.replace(/\D/g, '');
-    if (!digits) return raw;
-    // Un numéro français stocké dans une colonne Numérique perd son 0
-    // initial (ex. 612345678 au lieu de 0612345678) : on le rajoute
-    // lorsque le compte de chiffres (9, sans indicatif international)
-    // correspond à un numéro français privé de ce 0.
-    if (!hasPlus && digits.length === 9) digits = '0' + digits;
-    var groups = digits.match(/\d{1,2}/g) || [];
-    return (hasPlus ? '+' : '') + groups.join(' ');
-  }
-  // Grist renvoie les colonnes Date/DateTime comme un nombre de secondes
-  // depuis l'epoch Unix (UTC), jamais comme une chaîne — d'où la
-  // conversion ×1000 pour obtenir un objet Date JavaScript (qui travaille
-  // en millisecondes). Une valeur vide ou inexploitable renvoie null
-  // plutôt que de faire planter le calcul de minorité.
-  function dateOf(v) {
-    if (typeof v === 'number' && isFinite(v)) return new Date(v * 1000);
-    if (typeof v === 'string' && v.trim()) {
-      var t = Date.parse(v);
-      if (!isNaN(t)) return new Date(t);
-    }
-    return null;
-  }
-  // Le stagiaire sera-t-il mineur au premier jour de la formation ?
-  // Calculé à partir de sa date de naissance (colonne Date de Grist, voir
-  // settings.col.dateNaissance) et de la date "Début de formation le",
-  // saisie à la main dans la Configuration (settings.dateDebutFormation,
-  // déjà convertie en Date UTC par parseFrDate) — pas une colonne.
-  // Renvoie false si l'une des deux dates manque ou n'est pas exploitable :
-  // le pictogramme reste alors masqué plutôt que d'afficher une fausse
-  // certitude.
-  function willBeMinor(birthValue, start) {
-    var birth = dateOf(birthValue);
-    if (!birth || !start) return false;
-    var age = start.getUTCFullYear() - birth.getUTCFullYear();
-    var monthDiff = start.getUTCMonth() - birth.getUTCMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && start.getUTCDate() < birth.getUTCDate())) age--;
-    return age < 18;
-  }
-  function escapeHtml(s) {
-    var div = document.createElement('div');
-    div.textContent = s;
-    return div.innerHTML;
-  }
-  function escapeAttr(s) {
-    return escapeHtml(s).replace(/"/g, '&quot;');
-  }
-  // Grist renvoie un message technique en anglais lorsque les règles
-  // d'accès du document interdisent l'écriture demandée : on le remplace
-  // par un texte compréhensible, comme dans le widget Réservations.
-  function friendlyErrorMessage(e) {
-    var raw = (e && e.message) ? e.message : String(e || '');
-    if (/blocked by .*access rules/i.test(raw)) {
-      return 'Vous ne disposez pas des droits nécessaires. Contactez l\'équipe projet si vous pensez qu\'il s\'agit d\'une erreur.';
-    }
-    return raw;
-  }
-
-})();
-</script>
-
-</body>
-</html>
-igine (le CDN).
   var PDFJS_BASE = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/';
   var pdfjsPromise = null;
   function loadPdfJs() {
