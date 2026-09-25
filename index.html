@@ -1609,7 +1609,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 6.11</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 6.12</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -4496,17 +4496,13 @@
     right.className = 'stg-col';
     [
       stgBlock('Identité', 'fr-icon-user-line', [
-        encField(row, 'grade', 'Grade'), encField(row, 'nom', 'Nom'), encField(row, 'prenom', 'Prénom'), encField(row, 'sexe', 'Sexe')
+        encField(row, 'nom', 'Nom'), encField(row, 'prenom', 'Prénom'), encField(row, 'sexe', 'Sexe')
       ]),
       stgBlock('Renseignements militaires', 'fr-icon-shield-line', [
-        encField(row, 'nigend', 'Nigend'), encField(row, 'affectation', 'Affectation'), encField(row, 'groupe', 'Groupe'),
-        encField(row, 'gpe', 'Groupe'), encField(row, 'fonction', 'Fonction'), encField(row, 'uv', 'UV'), encField(row, 'ar', 'A/R')
+        encField(row, 'nigend', 'Nigend'), encField(row, 'affectation', 'Affectation'), encField(row, 'ar', 'A/R')
       ]),
       stgBlock('Santé', 'fr-icon-heart-line', [
         encField(row, 'regime', 'Régime alimentaire', { wide: true })
-      ]),
-      stgBlock('Qualifications', 'fr-icon-award-line', [
-        encField(row, 'secourisme', 'Qualif. secourisme'), encField(row, 'permis', 'Permis détenus')
       ])
     ].forEach(function (c) { if (c) left.appendChild(c); });
     [
@@ -4516,6 +4512,9 @@
       ]),
       stgBlock('Hébergement', 'fr-icon-home-4-line', [
         encField(row, 'batiment', 'Bâtiment'), encField(row, 'chambre', 'Chambre')
+      ]),
+      stgBlock('Qualifications', 'fr-icon-award-line', [
+        encField(row, 'secourisme', 'Qualif. secourisme'), encField(row, 'permis', 'Permis détenus')
       ])
     ].forEach(function (c) { if (c) right.appendChild(c); });
     wrap.appendChild(left);
@@ -4537,7 +4536,18 @@
     courses.forEach(function (c) { box.appendChild(buildPlainTag(c, 'stg-tag--pon', 'Cours : ' + c)); });
     return box;
   }
-  // Onglet « Détachement » : carte « Mission » (début, fin, durée, droits à repos) et carte « Cours » (cours pour lesquels
+  // Groupe(s) du cadre : un tag par valeur, dans la couleur du choix Grist.
+  function encGroupsNode(row) {
+    var groups = encValues(row, 'groupe');
+    if (!groups.length) return stgTextValue('');
+    var box = document.createElement('span');
+    box.className = 'stg-item__value enc-courses';
+    groups.forEach(function (g) {
+      box.appendChild(applyChoiceColors(buildPlainTag(g, 'stg-tag--pon', 'Groupe : ' + g), enc.cols.groupe && enc.cols.groupe.choiceOptions, g));
+    });
+    return box;
+  }
+  // Onglet « Détachement » : carte « Mission » (début, fin, durée, droits à repos), carte « Poste occupé » (groupe, fonction) et carte « Cours » (cours pour lesquels
   // le cadre est volontaire, nombre d'heures de cours).
   function buildEncDetachementTab(row) {
     var wrap = document.createElement('div');
@@ -4545,11 +4555,15 @@
     var mission = stgBlock('Mission', 'fr-icon-calendar-line', [
       encField(row, 'debut', 'Début'), encField(row, 'fin', 'Fin'), encField(row, 'duree', 'Durée'), encField(row, 'droitsRepos', 'Droits à repos', { round: true })
     ]);
+    var poste = stgBlock('Poste occupé', 'fr-icon-user-star-line', [
+      enc.cols.groupe ? stgItem('Groupe', encGroupsNode(row), true) : null,
+      encField(row, 'fonction', 'Fonction', { wide: true })
+    ]);
     var cours = stgBlock('Cours', 'fr-icon-book-2-line', [
       enc.cols.renseignements ? stgItem('Cours (volontaire)', encCoursesNode(row), true) : null,
       encField(row, 'hCours', 'Heures de cours')
     ]);
-    [mission, cours].forEach(function (card) { if (card) wrap.appendChild(card); });
+    [mission, poste, cours].forEach(function (card) { if (card) wrap.appendChild(card); });
     if (!wrap.childNodes.length) {
       var empty = document.createElement('p');
       empty.className = 'cand-empty-state';
