@@ -1134,6 +1134,22 @@
     position: sticky; top: 0; z-index: 1; background: #f7f7fb; border-top: none;
     font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-mention-grey);
   }
+  /* Vues tableau des pages eTuteur, Stagiaires et Encadrement : lignes cliquables. */
+  .cand-table-wrap { margin-bottom: 1rem; }
+  .cand-trow { cursor: pointer; }
+  .cand-trow:hover td, .cand-trow:focus-visible td { background: #f0f0f5; }
+  .cand-trow:focus-visible { outline: 2px solid var(--bleu-france); outline-offset: -2px; }
+  .cand-table { table-layout: fixed; } /* mêmes colonnes d'un tableau à l'autre (sections « Groupe » de l'Encadrement) */
+  .cand-table th:first-child { width: 30%; }
+  .cand-table th.cand-table__end { width: 6rem; }
+  .cand-table td { vertical-align: middle; overflow: hidden; text-overflow: ellipsis; }
+  .cand-table__person { display: table-cell; }
+  .cand-table__person .stg-row-avatar { display: inline-flex; vertical-align: middle; margin-right: 0.7rem; }
+  .cand-table__person .cand-row__name { vertical-align: middle; }
+  .cand-table th.cand-table__end, .cand-table td.cand-table__end { width: 1%; text-align: right; white-space: nowrap; }
+  .cand-table__tags { display: inline-flex; flex-wrap: wrap; gap: 0.4rem; }
+  #panelStagiaires .cand-trow:hover td, #panelEncadrement .cand-trow:hover td { background: #f3f1df; }
+  #panelStagiaires .bulk-table thead th, #panelEncadrement .bulk-table thead th { background: #f3f1df; }
   .bulk-table__check { width: 2.4rem; text-align: center !important; }
   .bulk-table__check input { width: 1.1rem; height: 1.1rem; cursor: pointer; }
   .bulk-table__name { font-weight: 700; white-space: nowrap; }
@@ -1166,6 +1182,8 @@
   .bulk-gen__list { max-height: 12rem; overflow-y: auto; padding: 0.3rem 0.8rem; }
   .bulk-gen__item { display: block; padding: 0.15rem 0; font-size: 0.9em; cursor: pointer; }
   .bulk-dialog__box--md { width: min(44rem, 100%); }
+  .bulk-dialog__delete { flex: none; min-width: 2rem; margin-right: auto; color: var(--statut-refusee) !important; }
+  .bulk-dialog__delete[hidden] { display: none; }
   .bulk-dialog__foot { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1rem; }
   .bulk-table__actions { white-space: nowrap; text-align: right !important; }
   .bulk-table__actions .fr-btn { padding: 0.25rem 0.4rem; min-height: 0; }
@@ -1454,6 +1472,7 @@
         </div>
         <p class="fr-error-text" id="bulkAddError" hidden></p>
         <div class="bulk-dialog__foot">
+          <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-delete-line bulk-dialog__delete" id="bulkAddDelete" type="button" title="Supprimer ce document" hidden>Supprimer ce document</button>
           <button class="fr-btn fr-btn--tertiary fr-btn--sm" id="bulkAddCancel" type="button">Annuler</button>
           <button class="fr-btn fr-btn--sm" id="bulkAddSave" type="button">Ajouter</button>
         </div>
@@ -1668,7 +1687,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 7.17</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 8.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -1682,7 +1701,7 @@
   // saisie à la main dans la Configuration, voir settings.dateDebutFormation.)
   var ROLES = ['nid', 'stagiaire', 'email', 'telephone', 'dateNaissance',
     'pon', 'civilite', 'nom', 'prenom', 'affectation', 'lieuNaissance', 'dpt', 'nigend', 'fonction', 'batiment', 'chambre',
-    'autorise', 'identiteComplete', 'droitImage', 'qualifSecourisme', 'regimeAlimentaire',
+    'autorise', 'identiteComplete', 'droitImage', 'qualifSecourisme', 'regimeAlimentaire', 'motifDepart', 'dateDepart',
     'nomUrgence', 'prenomUrgence', 'telUrgence', 'allergies', 'traitements', 'precisionsMedicales', 'lateralite', 'modeTransport', 'immatriculation',
     'usageRS', 'validationUsageRS', 'formImage', 'validationFormImage', 'ead', 'validationEAD',
     'photos', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
@@ -1697,7 +1716,7 @@
     pon: 'PON', civilite: 'Civilité', nom: 'Nom', prenom: 'Prénom', affectation: 'Affectation', lieuNaissance: 'Lieu de naissance',
     dpt: 'Dpt', nigend: 'Nigend', fonction: 'Fonction', batiment: 'Bât.', chambre: 'Ch.', autorise: 'Autorisé',
     identiteComplete: 'Identité complète', droitImage: 'Droit à l\'image', qualifSecourisme: 'Qualif. secourisme',
-    regimeAlimentaire: 'Régime alimentaire', nomUrgence: 'Nom contact urgence', prenomUrgence: 'Prénom contact urgence',
+    regimeAlimentaire: 'Régime alimentaire', motifDepart: 'Motif de départ', dateDepart: 'Date de départ', nomUrgence: 'Nom contact urgence', prenomUrgence: 'Prénom contact urgence',
     telUrgence: 'Tél. contact urgence', allergies: 'Allergies', traitements: 'Traitements / Maladies', precisionsMedicales: 'Précisions médicales', lateralite: 'Latéralité',
     modeTransport: 'Mode de transport', immatriculation: 'Immatriculation',
     dateNaissance: 'Date de naissance',
@@ -2116,6 +2135,7 @@
     batiment: ['BAT.', 'BAT'], chambre: ['CH.', 'CH'], autorise: ['AUTORISE'],
     identiteComplete: ['IDENTITE COMPLETE'], droitImage: ['DROIT A L\'IMAGE'],
     qualifSecourisme: ['QUALIF. SECOURISME'], regimeAlimentaire: ['REGIME ALIMENTAIRE'],
+    motifDepart: ['MOTIF DE DEPART', 'MOTIF DEPART'], dateDepart: ['DATE DE DEPART', 'DATE DEPART'],
     nomUrgence: ['NOM CONTACT URGENCE'], prenomUrgence: ['PRENOM CONTACT URGENCE'], telUrgence: ['TEL CONTACT URGENCE'],
     allergies: ['ALLERGIES'], traitements: ['TRAITEMENTS/MALADIES', 'TRAITEMENTS MALADIES', 'TRAITEMENTS'], precisionsMedicales: ['PRECISIONS MEDICALES', 'PRECISION MEDICALE', 'PRECISIONS MEDICALE'],
     lateralite: ['LATERALITE'], modeTransport: ['MODE DE TRANSPORT'], immatriculation: ['IMMATRICULATION']
@@ -2352,6 +2372,7 @@
     lieuNaissance: 'Lieu de naissance', dpt: 'Dpt', nigend: 'Nigend', fonction: 'Fonction',
     batiment: 'Bât.', chambre: 'Ch.', autorise: 'Autorisé', identiteComplete: 'Identité complète',
     droitImage: 'Droit à l\'image', qualifSecourisme: 'Qualif. secourisme', regimeAlimentaire: 'Régime alimentaire',
+    motifDepart: 'Motif de départ', dateDepart: 'Date de départ',
     nomUrgence: 'Nom contact urgence', prenomUrgence: 'Prenom contact urgence', telUrgence: 'Tel contact urgence',
     allergies: 'Allergies', traitements: 'Traitements/Maladies', precisionsMedicales: 'Précisions médicales', lateralite: 'Lateralite',
     modeTransport: 'Mode de transport', immatriculation: 'Immatriculation'
@@ -3042,10 +3063,8 @@
       candZone.insertAdjacentHTML('beforeend', '<p class="cand-empty-state">Aucun candidat ne correspond à l’affichage actuel.</p>');
       return;
     }
-    var list = document.createElement('div');
-    list.className = 'cand-list';
-    rows.forEach(function (row) { list.appendChild(buildCandidateRow(row)); });
-    candZone.appendChild(list);
+    var headers = ['Candidat'].concat(ATTACHMENT_ROLES.filter(function (r) { return settings.col[r]; }).map(function (r) { return DOC_TAG_LABELS[r]; }), ['']);
+    candZone.appendChild(buildListTable(headers, rows, buildCandidateRow));
 
     // La modale peut rester ouverte pendant qu'on filtre/recherche : si la
     // ligne affichée n'existe plus dans les données rechargées (candidat
@@ -3056,33 +3075,65 @@
     }
   }
 
+  // ---- Vues « tableau » (eTuteur, Stagiaires, Encadrement) : même tableau que la page « Générer doc. en lot » ----
+  // headers : libellés des colonnes ('' = colonne de fin) ; buildRow(row) renvoie une ligne <tr> (voir makeRowLink).
+  function buildListTable(headers, rows, buildRow) {
+    var wrap = document.createElement('div');
+    wrap.className = 'bulk-table-wrap cand-table-wrap';
+    var table = document.createElement('table');
+    table.className = 'bulk-table cand-table';
+    var thead = document.createElement('thead');
+    var hr = document.createElement('tr');
+    headers.forEach(function (h, i) {
+      var th = document.createElement('th');
+      th.textContent = h;
+      if (!h && i === headers.length - 1) th.className = 'cand-table__end';
+      hr.appendChild(th);
+    });
+    thead.appendChild(hr);
+    table.appendChild(thead);
+    var tbody = document.createElement('tbody');
+    rows.forEach(function (row) { tbody.appendChild(buildRow(row)); });
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    return wrap;
+  }
+  // Ligne cliquable (souris ou clavier : Entrée / Espace) qui ouvre la fiche.
+  function makeRowLink(tr, rowId, open) {
+    tr.className = 'cand-trow';
+    tr.tabIndex = 0;
+    tr.dataset.rowId = rowId;
+    tr.addEventListener('click', open);
+    tr.addEventListener('keydown', function (e) {
+      if (e.target === tr && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); open(); }
+    });
+    return tr;
+  }
+  function tdWith(node, cls) {
+    var td = document.createElement('td');
+    if (cls) td.className = cls;
+    if (node) td.appendChild(node);
+    return td;
+  }
+  function tdText(text) { var td = document.createElement('td'); td.textContent = text || ''; return td; }
+  function tdEnd(row, candOnly) { return tdWith(buildRowEnd(row, candOnly), 'cand-table__end'); }
+
   // Bande de la liste : le nom du candidat, un tag DSFR par document
   // (rouge = manquant, orange = refusé, vert = OK, voir docStatus) et, en bout
   // de ligne, le pictogramme "mineur" quand le candidat le sera au 1er jour de
   // la formation. Tout le reste (documents, pièces jointes, infos) ne
   // s'affiche qu'au clic, dans la modale — voir buildCandidateDetails.
   function buildCandidateRow(row) {
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'cand-row';
-    btn.dataset.rowId = row.id;
-
+    var tr = document.createElement('tr');
     var nameEl = document.createElement('span');
     nameEl.className = 'cand-row__name';
     nameEl.textContent = stagiaireDisplayName(row);
-    btn.appendChild(nameEl);
-
-    var tags = document.createElement('span');
-    tags.className = 'cand-row__tags';
+    tr.appendChild(tdWith(nameEl, 'bulk-table__name'));
     ATTACHMENT_ROLES.forEach(function (role) {
-      if (settings.col[role]) tags.appendChild(buildDocTag(row, role));
+      if (settings.col[role]) tr.appendChild(tdWith(buildDocTag(row, role)));
     });
-    btn.appendChild(tags);
-
-    btn.appendChild(buildRowEnd(row, false));
-
-    btn.addEventListener('click', function () { openCandidateModal(row.id); });
-    return btn;
+    tr.appendChild(tdEnd(row, false));
+    return makeRowLink(tr, row.id, function () { openCandidateModal(row.id); });
   }
 
   // Bout de ligne (liste eTuteur et liste Stagiaires) : icône de doublon,
@@ -3282,10 +3333,7 @@
     if (!rows.length) {
       stgZone.innerHTML = '<p class="cand-empty-state">Aucun stagiaire ne correspond à l’affichage actuel.</p>';
     } else {
-      var list = document.createElement('div');
-      list.className = 'cand-list';
-      rows.forEach(function (row) { list.appendChild(buildStagiaireRow(row)); });
-      stgZone.appendChild(list);
+      stgZone.appendChild(buildListTable(['Stagiaire', 'Peloton', 'Fonction', ''], rows, buildStagiaireRow));
     }
 
     // Modale ouverte pendant un rechargement : mise à jour, ou fermeture si
@@ -3379,30 +3427,22 @@
   }
 
   function buildStagiaireRow(row) {
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'cand-row';
-    btn.dataset.rowId = row.id;
-
-    btn.appendChild(buildRowAvatar(row));
-
+    var tr = document.createElement('tr');
+    var nameCell = document.createElement('td');
+    nameCell.className = 'bulk-table__name cand-table__person';
+    nameCell.appendChild(buildRowAvatar(row));
     var nameEl = document.createElement('span');
     nameEl.className = 'cand-row__name';
     nameEl.textContent = stagiaireDisplayName(row);
-    btn.appendChild(nameEl);
-
-    // Tags : PON (bleu) puis Fonction (vert d'eau).
-    var tags = document.createElement('span');
-    tags.className = 'cand-row__tags';
+    nameCell.appendChild(nameEl);
+    tr.appendChild(nameCell);
+    // Peloton (bleu) puis Fonction (vert d'eau) : tags, dans la couleur du choix Grist quand elle existe.
     var pon = settings.col.pon ? textOf(row.pon) : '';
-    if (pon) tags.appendChild(applyChoiceColors(buildPlainTag(pon, 'stg-tag--pon', 'PON : ' + pon), tableChoiceOptions(settings.table, settings.col.pon), pon));
+    tr.appendChild(tdWith(pon ? applyChoiceColors(buildPlainTag(pon, 'stg-tag--pon', 'PON : ' + pon), tableChoiceOptions(settings.table, settings.col.pon), pon) : null));
     var fonction = settings.col.fonction ? textOf(row.fonction) : '';
-    if (fonction) tags.appendChild(applyChoiceColors(buildPlainTag(fonction, 'stg-tag--fonction', 'Fonction : ' + fonction), tableChoiceOptions(settings.table, settings.col.fonction), fonction));
-    btn.appendChild(tags);
-
-    btn.appendChild(buildRowEnd(row, true));
-    btn.addEventListener('click', function () { openCandidateModal(row.id, 'stagiaire'); });
-    return btn;
+    tr.appendChild(tdWith(fonction ? applyChoiceColors(buildPlainTag(fonction, 'stg-tag--fonction', 'Fonction : ' + fonction), tableChoiceOptions(settings.table, settings.col.fonction), fonction) : null));
+    tr.appendChild(tdEnd(row, true));
+    return makeRowLink(tr, row.id, function () { openCandidateModal(row.id, 'stagiaire'); });
   }
   // Couleur d'un tag d'après la valeur dans sa colonne source : les couleurs de fond / de texte définies pour
   // ce choix dans Grist (colonne Choix ou Choix multiples). Sans couleur définie, le tag garde son style.
@@ -3436,7 +3476,7 @@
   // HARD_STG_ROLES), sans réglage dans la Configuration.
 
   var HARD_STG_ROLES = ['pon', 'civilite', 'nom', 'prenom', 'affectation', 'lieuNaissance', 'dpt', 'nigend', 'fonction',
-    'batiment', 'chambre', 'autorise', 'identiteComplete', 'droitImage', 'qualifSecourisme', 'regimeAlimentaire',
+    'batiment', 'chambre', 'autorise', 'identiteComplete', 'droitImage', 'qualifSecourisme', 'regimeAlimentaire', 'motifDepart', 'dateDepart',
     'nomUrgence', 'prenomUrgence', 'telUrgence', 'allergies', 'traitements', 'precisionsMedicales', 'lateralite', 'modeTransport', 'immatriculation'];
   // Colonnes EN DUR par identifiant Grist (identité, documents et validations, bande
   // patronymique, suivi). Plusieurs valeurs = essais successifs : identifiant exact, puis
@@ -3761,6 +3801,13 @@
     el.setAttribute('aria-label', label);
     return el;
   }
+  // Champ date en lecture seule : « JJ/MM/AAAA » (colonne Date de Grist ou texte).
+  function stgDateField(row, role, label) {
+    if (!settings.col[role]) return null;
+    var d = dateOf(row[role]);
+    var text = d ? fmtDateFr(d) : textOf(row[role]);
+    return stgItem(label, stgTextValue(text), false);
+  }
   // Champ éditable classique (zone de texte ou liste toujours visible).
   function stgEditField(row, role, label, opts) {
     if (!settings.col[role]) return null;
@@ -3821,7 +3868,8 @@
         settings.col.dateNaissance ? stgItem('Date de naissance (âge)', bornNode, true) : null
       ]),
       stgBlock('Stage', KEPI_SVG, [
-        stgTagField(row, 'pon', 'Peloton', 'stg-tag--pon'), stgTagField(row, 'fonction', 'Fonction', 'stg-tag--fonction', { list: true })
+        stgTagField(row, 'pon', 'Peloton', 'stg-tag--pon'), stgTagField(row, 'fonction', 'Fonction', 'stg-tag--fonction', { list: true }),
+        stgField(row, 'motifDepart', 'Motif de départ', { wide: true }), stgDateField(row, 'dateDepart', 'Date de départ') // lecture seule
       ]),
       stgBlock('Renseignements militaires', 'fr-icon-shield-line', [
         stgEditField(row, 'nigend', 'Nigend'), stgField(row, 'nid', 'NID'), stgField(row, 'affectation', 'Affectation')
@@ -4815,10 +4863,7 @@
           head.textContent = g.title + ' (' + g.rows.length + ')';
           encZone.appendChild(head);
         }
-        var list = document.createElement('div');
-        list.className = 'cand-list';
-        g.rows.forEach(function (row) { list.appendChild(buildEncRow(row)); });
-        encZone.appendChild(list);
+        encZone.appendChild(buildListTable(['Membre', 'Grade', 'Fonction', 'Groupe', ''], g.rows, buildEncRow));
       });
     }
     if (currentModalRowId !== null && currentModalKind === 'encadrement') {
@@ -4847,29 +4892,30 @@
     return av;
   }
   function buildEncRow(row) {
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'cand-row';
-    btn.dataset.rowId = row.id;
-    btn.appendChild(buildEncAvatar(row));
+    var tr = document.createElement('tr');
+    var nameCell = document.createElement('td');
+    nameCell.className = 'bulk-table__name cand-table__person';
+    nameCell.appendChild(buildEncAvatar(row));
     var nameEl = document.createElement('span');
     nameEl.className = 'cand-row__name';
     nameEl.textContent = encDisplayName(row);
-    btn.appendChild(nameEl);
+    nameCell.appendChild(nameEl);
+    tr.appendChild(nameCell);
+    tr.appendChild(tdText(encText(row, 'grade')));
+    tr.appendChild(tdText(encText(row, 'fonction')));
+    // Groupe(s) : un tag par valeur, dans la couleur définie dans Grist.
     var tags = document.createElement('span');
-    tags.className = 'cand-row__tags';
-    // Tags : valeurs de la colonne Groupe, dans la couleur définie pour chaque valeur dans Grist.
+    tags.className = 'cand-table__tags';
     encGroupTags(row).forEach(function (g) { tags.appendChild(applyChoiceColors(buildPlainTag(g, 'stg-tag--pon', 'Groupe : ' + g), enc.cols.groupe && enc.cols.groupe.choiceOptions, g)); });
-    btn.appendChild(tags);
+    tr.appendChild(tdWith(tags.childNodes.length ? tags : null));
     var end = document.createElement('span');
     end.className = 'cand-row__end';
     var chevron = document.createElement('span');
     chevron.className = 'cand-row__chevron fr-icon-arrow-right-s-line';
     chevron.setAttribute('aria-hidden', 'true');
     end.appendChild(chevron);
-    btn.appendChild(end);
-    btn.addEventListener('click', function () { openCandidateModal(row.id, 'encadrement'); });
-    return btn;
+    tr.appendChild(tdWith(end, 'cand-table__end'));
+    return makeRowLink(tr, row.id, function () { openCandidateModal(row.id, 'encadrement'); });
   }
 
   // ---- Fiche « profil » d'un membre de l'encadrement ----
@@ -5381,12 +5427,13 @@
       '<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>' + escapeHtml(name) + '</title></head><body>' + html + '</body></html>';
   }
   function deleteBulkDoc(row) {
-    if (!window.confirm('Supprimer définitivement le document « ' + textOf(row.values[bulk.nameCol.id]) + ' » ?')) return;
-    grist.docApi.applyUserActions([['RemoveRecord', bulk.tableId, row.id]]).then(function () {
+    if (!window.confirm('Supprimer définitivement le document « ' + textOf(row.values[bulk.nameCol.id]) + ' » ?')) return Promise.resolve(false);
+    return grist.docApi.applyUserActions([['RemoveRecord', bulk.tableId, row.id]]).then(function () {
       delete bulkSelected[row.id];
       bulk.rows = bulk.rows.filter(function (r) { return r.id !== row.id; });
       renderBulk();
-    }).catch(function (e) { window.alert('Impossible de supprimer : ' + friendlyErrorMessage(e)); });
+      return true;
+    }).catch(function (e) { window.alert('Impossible de supprimer : ' + friendlyErrorMessage(e)); return false; });
   }
   // ---- Génération d'un exemplaire du document par stagiaire (Télécharger / Imprimer) ----
   //
@@ -6230,11 +6277,17 @@
     bulkAddTemplate.value = row && bulk.tplCol ? textOf(row.values[bulk.tplCol.id]) : '';
     bulkAddError.hidden = true;
     bulkAddSave.disabled = false;
+    document.getElementById('bulkAddDelete').hidden = !row; // suppression possible seulement en modification
     renderBulkVariables();
     bulkAddDialog.hidden = false;
     bulkAddName.focus();
   }
   bulkAddBtn.addEventListener('click', function () { openBulkDialog(null); });
+  document.getElementById('bulkAddDelete').addEventListener('click', function () {
+    var row = bulk.rows.filter(function (r) { return r.id === bulkEditingId; })[0];
+    if (!row) return;
+    deleteBulkDoc(row).then(function (deleted) { if (deleted) closeBulkAdd(); });
+  });
   document.getElementById('bulkAddCancel').addEventListener('click', closeBulkAdd);
   document.getElementById('bulkAddClose').addEventListener('click', closeBulkAdd);
   // Clic en dehors de la fenêtre (sur le fond) : fermeture. Le clic doit commencer et finir sur le fond,
