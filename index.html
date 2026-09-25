@@ -328,7 +328,8 @@
      « bleu » (titres de blocs, onglet actif, liens, icônes, tags) pour la liste et pour la fiche. */
   .enc-courses { display: flex; flex-wrap: wrap; gap: 0.3rem; }
   .stg-hero__subtitle { margin: 0.1rem 0 0; font-size: 0.95rem; font-weight: 500; color: var(--text-mention-grey); }
-  .enc-bygroup { align-self: center; margin: 0; }
+  .enc-viewmode { margin: 0; min-width: 15rem; }
+  .enc-viewmode .fr-select { margin-top: 0; }
   .enc-group-title { margin: 1.2rem 0 0.5rem; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-mention-grey); }
   .enc-group-title:first-child { margin-top: 0; }
   #panelStagiaires, #panelEncadrement, .stg-dialog { --bleu-france: #5c5a2b; --text-action-high-blue-france: #5c5a2b; }
@@ -1122,7 +1123,7 @@
   .cfg-pill--ko { background: #ffe9e9; color: var(--statut-refusee); }
   .cfg-pill--na { background: #eceaf0; color: #3a3a45; }
 
-  /* Page « Edition de documents ». */
+  /* Page « Générer doc. en lot ». */
   #header-navigation .fr-nav__item[hidden] { display: none; }
   .bulk-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
   .bulk-head h2 { margin: 0; }
@@ -1224,7 +1225,7 @@
             <button class="fr-nav__link" id="navEncadrement" type="button">Encadrement</button>
           </li>
           <li class="fr-nav__item">
-            <button class="fr-nav__link" id="navBulk" type="button">Edition de documents</button>
+            <button class="fr-nav__link" id="navBulk" type="button">Générer doc. en lot</button>
           </li>
         </ul>
       </nav>
@@ -1312,12 +1313,6 @@
         <input class="fr-input" type="search" id="encSearchInput" placeholder="Nom, grade, Nigend, affectation, e-mail…">
         <button class="fr-btn fr-btn--sm" id="encSearchBtn" title="Rechercher">Rechercher</button>
       </div>
-      <div class="stg-multi" id="encAffectationGroup">
-        <details>
-          <summary class="fr-select stg-multi__summary" id="encAffectationSummary">Affectation</summary>
-          <div class="stg-multi__panel" id="encAffectationPanel"></div>
-        </details>
-      </div>
       <div class="stg-multi" id="encGroupeGroup">
         <details>
           <summary class="fr-select stg-multi__summary" id="encGroupeSummary">Groupe</summary>
@@ -1330,9 +1325,12 @@
           <div class="stg-multi__panel" id="encFonctionPanel"></div>
         </details>
       </div>
-      <div class="fr-checkbox-group fr-checkbox-group--sm enc-bygroup" id="encByGroupWrap" hidden>
-        <input type="checkbox" id="encByGroup">
-        <label class="fr-label" for="encByGroup">Afficher par groupe</label>
+      <div class="fr-select-group enc-viewmode" id="encViewModeWrap">
+        <label class="fr-label fr-sr-only" for="encViewMode">Afficher par</label>
+        <select class="fr-select" id="encViewMode">
+          <option value="alpha">Afficher par : Ordre alphabétique</option>
+          <option value="group">Afficher par : Groupe</option>
+        </select>
       </div>
       <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-circle-line fr-btn--icon-left" id="encResetBtn" type="button" disabled title="Efface la recherche et décoche tous les filtres">
         Réinitialiser les filtres
@@ -1350,7 +1348,7 @@
        imprimer ou télécharger. La roue crantée ouvre la page cachée « Gestion des documents ». -->
   <div id="panelBulk" hidden>
     <div class="bulk-head">
-      <h2 class="fr-h6">Edition de documents</h2>
+      <h2 class="fr-h6">Générer doc. en lot</h2>
     </div>
 
     <div class="cand-toolbar fr-mb-2w">
@@ -1407,12 +1405,12 @@
     </div>
   </div>
 
-  <!-- Page cachée "Gestion des documents" (accessible par la roue crantée de la page Edition de documents) :
+  <!-- Page cachée "Gestion des documents" (accessible par la roue crantée de la page Générer doc. en lot) :
        ajout, modification et suppression des documents, modification en lot d'une colonne. -->
   <div id="panelDocMgmt" hidden>
     <div class="bulk-head">
       <h2 class="fr-h6">Gestion des documents</h2>
-      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-arrow-left-line fr-btn--icon-left" id="mgmtBackBtn" type="button">Retour à l'édition de documents</button>
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-arrow-left-line fr-btn--icon-left" id="mgmtBackBtn" type="button">Retour à « Générer doc. en lot »</button>
     </div>
     <p class="fr-text--sm">Ajoutez, modifiez ou supprimez les documents. Cochez des lignes puis modifiez une colonne pour toute la sélection.</p>
 
@@ -1549,22 +1547,17 @@
         <div class="cfg-card__head">
           <span class="cfg-card__num" aria-hidden="true">1</span>
           <div>
-            <h3 class="cfg-card__title" id="cfgCardTitle1">Sources de données</h3>
-            <p class="cfg-card__desc">Les tables Grist utilisées par le widget : celle qui recense les candidats et, si elle est distincte, celle qui porte leurs documents et informations complémentaires.</p>
+            <h3 class="cfg-card__title" id="cfgCardTitle1">Sources de données et affichage</h3>
+            <p class="cfg-card__desc">Les tables Grist sont fixes ; il ne reste ici que l'affichage des pages.</p>
           </div>
         </div>
-<div class="cfg-grid">
-  <div class="fr-select-group">
-    <label class="fr-label" for="cand_table">Table des candidats<span class="cfg-req" aria-hidden="true">*</span><span class="fr-sr-only"> (obligatoire)</span>
-      <span class="fr-hint-text">Une ligne par candidat (NID, nom, coordonnées…).</span></label>
-    <select class="fr-select" id="cand_table"></select>
-  </div>
-  <div class="fr-select-group">
-    <label class="fr-label" for="cand_docs_table">Table Documents
-      <span class="fr-hint-text">Documents, bande patronymique, paiement, blocages. Obligatoire dès qu'un de ces champs est utilisé.</span></label>
-    <select class="fr-select" id="cand_docs_table"></select>
-  </div>
+<!-- Tables EN DUR : « Stagiaires » (candidats) et « ETuteur » (documents), retrouvées par leur nom (voir resolveHardTables).
+     Les sélecteurs sont conservés, cachés, pour le reste du code de configuration. -->
+<div hidden>
+  <select id="cand_table"></select>
+  <select id="cand_docs_table"></select>
 </div>
+<p class="fr-text--sm">Tables utilisées : <strong>Stagiaires</strong> (candidats) et <strong>ETuteur</strong> (documents), rapprochées par le NID. Elles sont fixes (dans le code).</p>
 <div class="fr-checkbox-group fr-mt-3w">
   <input type="checkbox" id="cfg_hideEtuteur">
   <label class="fr-label" for="cfg_hideEtuteur">Masquer la page eTuteur
@@ -1675,7 +1668,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 7.12</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 7.17</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -2268,7 +2261,7 @@
   // Liste des problèmes qui empêchent d'enregistrer (vide = OK).
   function validateConfig(cfg) {
     var errors = [];
-    if (!cfg.table) errors.push('Choisissez la table des candidats.');
+    if (!cfg.table) errors.push('Table « Stagiaires » introuvable dans ce document.');
     if (cfg.dateDebutFormation && !parseFrDate(cfg.dateDebutFormation)) {
       errors.push('« Début de formation le » doit être une date valide au format JJ/MM/AAAA (par ex. 15/09/2026).');
     }
@@ -2417,7 +2410,7 @@
         (col.label && col.label !== col.id ? ' <span class="cfg-sources__grist">« ' + escapeHtml(col.label) + ' »</span>' : '') + ' <span class="cfg-pill cfg-pill--ok">trouvée</span>';
     }
 
-    var html = '<p class="cfg-sources__note">Rappel des tables et colonnes lues (et écrites) par le widget. Rien ne se modifie ici : la table des candidats et la table Documents se règlent dans la carte 1 ; les autres tables (Alimentation EAD, Encadrement, Editeur de documents), la liaison par le NID et les colonnes fixes sont dans le code. ' +
+    var html = '<p class="cfg-sources__note">Rappel des tables et colonnes lues (et écrites) par le widget. Rien ne se modifie ici : les tables (Stagiaires, ETuteur, Alimentation EAD, Encadrement, Editeur de documents), la liaison par le NID et les colonnes sont fixes, dans le code. ' +
       (known ? 'État vérifié sur les dernières données chargées.' : 'Les données ne sont pas encore chargées : l\'état des colonnes n\'est pas vérifié.') + '</p>';
 
     html += '<h4>Tables</h4>' + table([
@@ -2427,7 +2420,7 @@
         ' (candidats) = ' + (settings.docsLinkCol ? '<span class="cfg-sources__col">' + escapeHtml(settings.docsLinkCol) + '</span>' : 'colonne NID <span class="cfg-pill cfg-pill--na">non réglée</span>') + ' (Documents)'],
       ['Table EAD (pièce EAD - Bloc 1)', known ? tableState(eadInfo && eadInfo.tableId, 'Alimentation EAD') : tableName('Alimentation EAD') + ' <span class="cfg-pill cfg-pill--na">non vérifiée</span>'],
       ['Table Encadrement (page Encadrement)', enc.loaded || enc.error ? tableState(enc.tableId, 'Encadrement') : tableName('Encadrement') + ' <span class="cfg-pill cfg-pill--na">non vérifiée</span>'],
-      ['Table Editeur de documents (page Edition de documents)', bulk.loaded || bulk.error ? tableState(bulk.tableId, 'Editeur de documents') : tableName('Editeur de documents') + ' <span class="cfg-pill cfg-pill--na">non vérifiée</span>']
+      ['Table Editeur de documents (page Générer doc. en lot)', bulk.loaded || bulk.error ? tableState(bulk.tableId, 'Editeur de documents') : tableName('Editeur de documents') + ' <span class="cfg-pill cfg-pill--na">non vérifiée</span>']
     ]);
 
     html += '<h4>Pièce EAD - Bloc 1 — table « Alimentation EAD »</h4>' + table([
@@ -2441,7 +2434,7 @@
       return [ENC_LABELS[k], enc.loaded ? foundCol(enc.cols[k], ENC_LABELS[k]) : '<span class="cfg-pill cfg-pill--na">non vérifiée</span>'];
     }));
 
-    html += '<h4>Page Edition de documents — table « Editeur de documents »</h4>' + table([
+    html += '<h4>Page Générer doc. en lot — table « Editeur de documents »</h4>' + table([
       ['Nom du document', bulk.loaded ? foundCol(bulk.nameCol, 'Nom du document') : '<span class="cfg-pill cfg-pill--na">non vérifiée</span>'],
       ['Collectif (seules les lignes « Oui » sont affichées)', bulk.loaded ? foundCol(bulk.filterCol, 'Collectif') : '<span class="cfg-pill cfg-pill--na">non vérifiée</span>'],
       ['Modèle HTML', bulk.loaded ? foundCol(bulk.tplCol, 'Modèle HTML') : '<span class="cfg-pill cfg-pill--na">non vérifiée</span>']
@@ -2587,11 +2580,27 @@
 
   grist.ready({ requiredAccess: 'full' });
 
+  // Tables EN DUR : « Stagiaires » (candidats) et « ETuteur » (documents) — retrouvées par leur nom (sans accents ni casse).
+  var HARD_TABLE_CANDIDATES = 'STAGIAIRES';
+  var HARD_TABLE_DOCS = 'ETUTEUR';
+  var hardTablesError = '';
+  function resolveHardTables() {
+    return grist.docApi.listTables().then(function (tables) {
+      var find = function (name) { var f = null; (tables || []).forEach(function (t) { if (!f && bulkKey(t) === name) f = t; }); return f; };
+      var cand = find(HARD_TABLE_CANDIDATES), docs = find(HARD_TABLE_DOCS);
+      hardTablesError = '';
+      if (!cand) hardTablesError = 'Table « Stagiaires » introuvable dans ce document : le widget ne peut pas charger les candidats.';
+      settings.table = cand || '';
+      settings.docsTable = docs || ''; // sans table « ETuteur », le widget fonctionne sans documents
+    }).catch(function (e) { hardTablesError = 'Liste des tables illisible : ' + friendlyErrorMessage(e); });
+  }
   grist.onOptions(function (options) {
     settings = mergeConfig(options && options.candidatsStageConfig);
     applyPageVisibility();
-    loadCandidates();
-    if (!isConfigComplete(settings)) openSettings();
+    resolveHardTables().then(function () {
+      loadCandidates();
+      if (!isConfigComplete(settings) && !hardTablesError) openSettings();
+    });
   });
 
   // ---- Chargement des candidats -------------------------------------------
@@ -2608,6 +2617,11 @@
   function loadCandidates() {
     loadBulk();
     loadEncadrement();
+    if (hardTablesError) {
+      candidates = { rows: [], loaded: false, error: hardTablesError };
+      renderAll();
+      return;
+    }
     if (!isConfigComplete(settings)) {
       candidates = { rows: [], loaded: false };
       renderAll();
@@ -4556,17 +4570,20 @@
     droitsRepos: 'Droits à repos', hCours: 'H cours', identiteComplete: 'Identité complète', gpe: 'Groupe (Gpe)', uv: 'UV' // « Gpe » s'affiche « Groupe » dans les fiches ; ici, dans le panneau de diagnostic, on précise la colonne
   };
   var ENC_FILTER_DEFS = [
-    { key: 'affectation', all: 'Affectation', noun: 'affectations', groupId: 'encAffectationGroup', summaryId: 'encAffectationSummary', panelId: 'encAffectationPanel' },
     { key: 'groupe', all: 'Groupe', noun: 'groupes', groupId: 'encGroupeGroup', summaryId: 'encGroupeSummary', panelId: 'encGroupePanel' },
     { key: 'fonction', all: 'Fonction', noun: 'fonctions', groupId: 'encFonctionGroup', summaryId: 'encFonctionSummary', panelId: 'encFonctionPanel' }
   ];
 
   var enc = { loaded: false, error: '', tableId: '', cols: {}, rows: [] };
   var encSearchText = '';
-  var encFilters = { affectation: [], fonction: [], groupe: [] };
-  var encByGroup = false; // « Afficher par groupe » : regroupement par Gpe
-  var encByGroupEl = document.getElementById('encByGroup');
-  encByGroupEl.addEventListener('change', function () { encByGroup = encByGroupEl.checked; renderEncadrement(); });
+  var encFilters = { fonction: [], groupe: [] };
+  // « Afficher par » : 'alpha' (ordre alphabétique) ou 'group' (une section par groupe, dans l'ordre ENC_GROUP_ORDER).
+  var encViewMode = 'alpha';
+  var encViewModeEl = document.getElementById('encViewMode');
+  encViewModeEl.addEventListener('change', function () { encViewMode = encViewModeEl.value; renderEncadrement(); });
+  // Ordre des groupes (valeurs de la colonne Gpe) ; les autres passent après, par ordre alphabétique, puis « Sans groupe ».
+  var ENC_GROUP_ORDER = ['Commandement', 'Adjudant d\'escadron', 'Armurier', 'Secrétariat', 'Soutien sanitaire', 'P1', 'P2', 'P3', 'P4',
+    'Acculturation', 'Formateurs IP', 'Formateurs secourisme', 'Renfort Mess', 'DRJ'].map(function (g) { return trombiKeyFull(g); });
   var gpeCollator = new Intl.Collator('fr', { numeric: true, sensitivity: 'base' });
   var panelEncadrement = document.getElementById('panelEncadrement');
   var encZone = document.getElementById('encZone');
@@ -4689,7 +4706,7 @@
   encResetBtn.addEventListener('click', function () {
     encSearchText = '';
     encSearchInput.value = '';
-    encFilters = { affectation: [], fonction: [], groupe: [] };
+    encFilters = { fonction: [], groupe: [] };
     renderEncadrement();
   });
   document.addEventListener('keydown', function (e) {
@@ -4765,24 +4782,25 @@
     encResetBtn.disabled = !anyFilter && !encSearchText.trim();
 
     var rows = enc.rows.filter(function (r) { return encMatches(r); }).sort(compareEncRows);
-    // Affichage par « Identité complète » (identités incomplètes d'abord, sans titre ; puis le groupe « Identité
-    // complète », titré), chaque groupe restant trié par nom. Sans cette colonne : une seule liste triée par nom.
-    // « Afficher par groupe » : une section par valeur de Gpe (sections triées, membres triés par nom).
+    // « Afficher par » : ordre alphabétique (une seule liste triée par nom) ou groupe (une section par valeur de la
+    // colonne Gpe, dans l'ordre ENC_GROUP_ORDER ; membres triés par nom ; un membre de plusieurs groupes figure dans chacun).
     var byGroupAvailable = !!enc.cols.gpe;
-    document.getElementById('encByGroupWrap').hidden = !byGroupAvailable;
-    encByGroupEl.checked = encByGroup && byGroupAvailable;
+    document.getElementById('encViewModeWrap').hidden = !byGroupAvailable;
+    if (!byGroupAvailable) encViewMode = 'alpha';
+    encViewModeEl.value = encViewMode;
     var groups;
-    if (encByGroup && byGroupAvailable) {
+    if (encViewMode === 'group') {
       var byGpe = {};
-      rows.forEach(function (r) { var g = encText(r, 'gpe'); (byGpe[g] = byGpe[g] || []).push(r); });
+      rows.forEach(function (r) {
+        var vals = encValues(r, 'gpe');
+        (vals.length ? vals : ['']).forEach(function (g) { (byGpe[g] = byGpe[g] || []).push(r); });
+      });
+      var rank = function (g) { var i = ENC_GROUP_ORDER.indexOf(trombiKeyFull(g)); return i === -1 ? ENC_GROUP_ORDER.length : i; };
       groups = Object.keys(byGpe).sort(function (a, b) {
-        if (!a !== !b) return a ? -1 : 1; // « sans Gpe » en dernier
-        return gpeCollator.compare(a, b);
+        if (!a !== !b) return a ? -1 : 1; // « Sans groupe » en dernier
+        return (rank(a) - rank(b)) || gpeCollator.compare(a, b);
       }).map(function (g) { return { title: g || 'Sans groupe', rows: byGpe[g] }; });
-    } else groups = enc.cols.identiteComplete ? [
-      { title: '', rows: rows.filter(function (r) { return !isYes(r.f.identiteComplete); }) },
-      { title: 'Identité complète', rows: rows.filter(function (r) { return isYes(r.f.identiteComplete); }) }
-    ] : [{ title: '', rows: rows }];
+    } else groups = [{ title: '', rows: rows }];
     displayedIds.encadrement = [];
     groups.forEach(function (g) { g.rows.forEach(function (r) { displayedIds.encadrement.push(r.id); }); }); // ordre affiché = ordre des flèches de la modale
     encCount.textContent = rows.length + ' membre(s) affiché(s) sur ' + enc.rows.length;
@@ -5116,7 +5134,7 @@
     return dlg;
   }
 
-  // ==== Page « Edition de documents » ======================================
+  // ==== Page « Générer doc. en lot » ======================================
   //
   // Sources en dur : table « Editeur de documents », colonne « Nom du document » (libellé de
   // chaque ligne) ; seules les lignes dont la colonne « Collectif » vaut Oui sont affichées.
