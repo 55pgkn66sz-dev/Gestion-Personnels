@@ -326,6 +326,7 @@
   /* Page Stagiaires : fond de la fiche en pastel kaki (au lieu du bleu pastel de la fiche eTuteur). */
   /* Accents de la page Stagiaires en kaki foncé : on redéfinit ici les variables de couleur
      « bleu » (titres de blocs, onglet actif, liens, icônes, tags) pour la liste et pour la fiche. */
+  .enc-courses { display: flex; flex-wrap: wrap; gap: 0.3rem; }
   .stg-hero__subtitle { margin: 0.1rem 0 0; font-size: 0.95rem; font-weight: 500; color: var(--text-mention-grey); }
   .enc-bygroup { align-self: center; margin: 0; }
   .enc-group-title { margin: 1.2rem 0 0.5rem; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-mention-grey); }
@@ -1608,7 +1609,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 5.8</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 6.11</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -1623,7 +1624,7 @@
   var ROLES = ['nid', 'stagiaire', 'email', 'telephone', 'dateNaissance',
     'pon', 'civilite', 'nom', 'prenom', 'affectation', 'lieuNaissance', 'dpt', 'nigend', 'fonction', 'batiment', 'chambre',
     'autorise', 'identiteComplete', 'droitImage', 'qualifSecourisme', 'regimeAlimentaire',
-    'nomUrgence', 'prenomUrgence', 'telUrgence', 'allergies', 'traitements', 'lateralite', 'modeTransport', 'immatriculation',
+    'nomUrgence', 'prenomUrgence', 'telUrgence', 'allergies', 'traitements', 'precisionsMedicales', 'lateralite', 'modeTransport', 'immatriculation',
     'usageRS', 'validationUsageRS', 'formImage', 'validationFormImage', 'ead', 'validationEAD',
     'photos', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
   var REQUIRED_ROLES = []; // plus de colonne obligatoire à régler : toutes les colonnes sont fixées (FIXED_COLS)
@@ -1638,7 +1639,7 @@
     dpt: 'Dpt', nigend: 'Nigend', fonction: 'Fonction', batiment: 'Bât.', chambre: 'Ch.', autorise: 'Autorisé',
     identiteComplete: 'Identité complète', droitImage: 'Droit à l\'image', qualifSecourisme: 'Qualif. secourisme',
     regimeAlimentaire: 'Régime alimentaire', nomUrgence: 'Nom contact urgence', prenomUrgence: 'Prénom contact urgence',
-    telUrgence: 'Tél. contact urgence', allergies: 'Allergies', traitements: 'Traitements / Maladies', lateralite: 'Latéralité',
+    telUrgence: 'Tél. contact urgence', allergies: 'Allergies', traitements: 'Traitements / Maladies', precisionsMedicales: 'Précisions médicales', lateralite: 'Latéralité',
     modeTransport: 'Mode de transport', immatriculation: 'Immatriculation',
     dateNaissance: 'Date de naissance',
     usageRS: 'Reconnaissance de responsabilité - Réseaux sociaux', formImage: 'Droit à l\'image',
@@ -1659,10 +1660,10 @@
   // lus/écrits dans la table principale (candidats).
   var DOC_TABLE_ROLES = ['usageRS', 'validationUsageRS', 'formImage', 'validationFormImage', 'ead', 'validationEAD',
     'photos', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos',
-    'nomUrgence', 'prenomUrgence', 'telUrgence', 'allergies', 'traitements', 'lateralite', 'modeTransport', 'immatriculation'];
+    'nomUrgence', 'prenomUrgence', 'telUrgence', 'allergies', 'traitements', 'precisionsMedicales', 'lateralite', 'modeTransport', 'immatriculation'];
   // Colonnes de la fiche Stagiaires lues dans la table Documents (ETuteur), retrouvées par libellé
   // (voir applySuggestedColumns) : elles ne rendent pas la Configuration "incomplète".
-  var HARD_DOCS_ROLES = ['nomUrgence', 'prenomUrgence', 'telUrgence', 'allergies', 'traitements', 'lateralite', 'modeTransport', 'immatriculation'];
+  var HARD_DOCS_ROLES = ['nomUrgence', 'prenomUrgence', 'telUrgence', 'allergies', 'traitements', 'precisionsMedicales', 'lateralite', 'modeTransport', 'immatriculation'];
   var MAIN_TABLE_ROLES = ROLES.filter(function (r) { return DOC_TABLE_ROLES.indexOf(r) === -1; });
   // Rôles rendus éditables directement depuis la fiche candidat (voir
   // buildBlockField / buildBlocagesEditor) : 'text' pour un simple champ
@@ -2057,7 +2058,7 @@
     identiteComplete: ['IDENTITE COMPLETE'], droitImage: ['DROIT A L\'IMAGE'],
     qualifSecourisme: ['QUALIF. SECOURISME'], regimeAlimentaire: ['REGIME ALIMENTAIRE'],
     nomUrgence: ['NOM CONTACT URGENCE'], prenomUrgence: ['PRENOM CONTACT URGENCE'], telUrgence: ['TEL CONTACT URGENCE'],
-    allergies: ['ALLERGIES'], traitements: ['TRAITEMENTS/MALADIES', 'TRAITEMENTS MALADIES', 'TRAITEMENTS'],
+    allergies: ['ALLERGIES'], traitements: ['TRAITEMENTS/MALADIES', 'TRAITEMENTS MALADIES', 'TRAITEMENTS'], precisionsMedicales: ['PRECISIONS MEDICALES', 'PRECISION MEDICALE', 'PRECISIONS MEDICALE'],
     lateralite: ['LATERALITE'], modeTransport: ['MODE DE TRANSPORT'], immatriculation: ['IMMATRICULATION']
   };
   function suggestColumn(role, columns, tableId) {
@@ -2293,7 +2294,7 @@
     batiment: 'Bât.', chambre: 'Ch.', autorise: 'Autorisé', identiteComplete: 'Identité complète',
     droitImage: 'Droit à l\'image', qualifSecourisme: 'Qualif. secourisme', regimeAlimentaire: 'Régime alimentaire',
     nomUrgence: 'Nom contact urgence', prenomUrgence: 'Prenom contact urgence', telUrgence: 'Tel contact urgence',
-    allergies: 'Allergies', traitements: 'Traitements/Maladies', lateralite: 'Lateralite',
+    allergies: 'Allergies', traitements: 'Traitements/Maladies', precisionsMedicales: 'Précisions médicales', lateralite: 'Lateralite',
     modeTransport: 'Mode de transport', immatriculation: 'Immatriculation'
   };
   function expectedLabelShown(role) {
@@ -3353,7 +3354,7 @@
 
   var HARD_STG_ROLES = ['pon', 'civilite', 'nom', 'prenom', 'affectation', 'lieuNaissance', 'dpt', 'nigend', 'fonction',
     'batiment', 'chambre', 'autorise', 'identiteComplete', 'droitImage', 'qualifSecourisme', 'regimeAlimentaire',
-    'nomUrgence', 'prenomUrgence', 'telUrgence', 'allergies', 'traitements', 'lateralite', 'modeTransport', 'immatriculation'];
+    'nomUrgence', 'prenomUrgence', 'telUrgence', 'allergies', 'traitements', 'precisionsMedicales', 'lateralite', 'modeTransport', 'immatriculation'];
   // Colonnes EN DUR par identifiant Grist (identité, documents et validations, bande
   // patronymique, suivi). Plusieurs valeurs = essais successifs : identifiant exact, puis
   // identifiant commençant par la valeur (les identifiants sont comparés sans casse ni
@@ -3587,8 +3588,9 @@
       ]),
       stgBlock('Santé', 'fr-icon-heart-line', [
         stgField(row, 'regimeAlimentaire', 'Régime alimentaire', { wide: true }),
-        stgField(row, 'allergies', 'Allergies', { wide: true, pre: true }),
-        stgField(row, 'traitements', 'Traitements / Maladies', { wide: true, pre: true })
+        stgField(row, 'allergies', 'Allergies', { pre: true }),
+        stgField(row, 'traitements', 'Traitements / Maladies', { pre: true }),
+        stgField(row, 'precisionsMedicales', 'Précisions médicales', { wide: true, pre: true })
       ])
     ].forEach(function (c) { if (c) left.appendChild(c); });
 
@@ -3599,6 +3601,7 @@
       stgBlock('Contact d’urgence', 'fr-icon-alarm-warning-line', [
         stgField(row, 'nomUrgence', 'Nom'), stgField(row, 'prenomUrgence', 'Prénom'), stgField(row, 'telUrgence', 'Tél.', { phone: true })
       ]),
+      stgBlock('Hébergement', 'fr-icon-home-4-line', [stgField(row, 'batiment', 'Bât.'), stgField(row, 'chambre', 'Ch.')]),
       buildStgPracticalBlock(row)
     ].forEach(function (c) { if (c) right.appendChild(c); });
 
@@ -3611,7 +3614,7 @@
   // de transport (icône + plaque) et, en bas, zone de texte libre (colonne Infos).
   function buildStgPracticalBlock(row) {
     var items = [
-      stgField(row, 'batiment', 'Bât.'), stgField(row, 'chambre', 'Ch.'), stgField(row, 'fonction', 'Fonction'),
+      stgField(row, 'fonction', 'Fonction'),
       stgField(row, 'qualifSecourisme', 'Qualif. secourisme'), stgField(row, 'lateralite', 'Latéralité'),
       settings.col.modeTransport ? stgItem('Mode de transport', stgTransportValue(row), true) : null
     ];
@@ -4168,7 +4171,7 @@
     groupe: 'Groupe', sexe: 'Sexe', emailPerso: 'Email perso', emailPro: 'Email pro', telephone: 'Téléphone', batiment: 'Bât.', chambre: 'Ch.',
     permis: 'Permis détenus', renseignements: 'Renseignements_cadres_Cours', debut: 'Début détachement', fin: 'Fin détachement',
     duree: 'Durée détachement', secourisme: 'Qualif. secourisme', droitImage: 'Droit à l\'image', regime: 'Régime alimentaire',
-    droitsRepos: 'Droits repos', hCours: 'H cours', identiteComplete: 'Identité complète', gpe: 'Gpe', uv: 'UV'
+    droitsRepos: 'Droits à repos', hCours: 'H cours', identiteComplete: 'Identité complète', gpe: 'Groupe (Gpe)', uv: 'UV' // « Gpe » s'affiche « Groupe » dans les fiches ; ici, dans le panneau de diagnostic, on précise la colonne
   };
   var ENC_FILTER_DEFS = [
     { key: 'affectation', all: 'Affectation', noun: 'affectations', groupId: 'encAffectationGroup', summaryId: 'encAffectationSummary', panelId: 'encAffectationPanel' },
@@ -4393,7 +4396,7 @@
       groups = Object.keys(byGpe).sort(function (a, b) {
         if (!a !== !b) return a ? -1 : 1; // « sans Gpe » en dernier
         return gpeCollator.compare(a, b);
-      }).map(function (g) { return { title: g ? 'Gpe ' + g : 'Sans Gpe', rows: byGpe[g] }; });
+      }).map(function (g) { return { title: g || 'Sans groupe', rows: byGpe[g] }; });
     } else groups = enc.cols.identiteComplete ? [
       { title: '', rows: rows.filter(function (r) { return !isYes(r.f.identiteComplete); }) },
       { title: 'Identité complète', rows: rows.filter(function (r) { return isYes(r.f.identiteComplete); }) }
@@ -4474,6 +4477,10 @@
     if (!enc.cols[key]) return null;
     opts = opts || {};
     var text = encText(row, key);
+    if (opts.round && text) { // valeur numérique arrondie à l'entier (virgule décimale acceptée) ; texte non numérique inchangé
+      var num = parseFloat(String(text).replace(/\s/g, '').replace(',', '.'));
+      if (isFinite(num)) text = String(Math.round(num));
+    }
     var node;
     if (opts.phone) node = stgPhoneValue(text);
     else if (opts.mail) node = stgMailValue(text);
@@ -4492,20 +4499,20 @@
         encField(row, 'grade', 'Grade'), encField(row, 'nom', 'Nom'), encField(row, 'prenom', 'Prénom'), encField(row, 'sexe', 'Sexe')
       ]),
       stgBlock('Renseignements militaires', 'fr-icon-shield-line', [
-        encField(row, 'nigend', 'Nigend'), encField(row, 'affectation', 'Affectation'), encField(row, 'fonction', 'Fonction'),
-        encField(row, 'groupe', 'Groupe'), encField(row, 'gpe', 'Gpe'), encField(row, 'uv', 'UV')
+        encField(row, 'nigend', 'Nigend'), encField(row, 'affectation', 'Affectation'), encField(row, 'groupe', 'Groupe'),
+        encField(row, 'gpe', 'Groupe'), encField(row, 'fonction', 'Fonction'), encField(row, 'uv', 'UV'), encField(row, 'ar', 'A/R')
       ]),
       stgBlock('Santé', 'fr-icon-heart-line', [
-        encField(row, 'regime', 'Régime alimentaire', { wide: true }), encField(row, 'secourisme', 'Qualif. secourisme', { wide: true })
+        encField(row, 'regime', 'Régime alimentaire', { wide: true })
+      ]),
+      stgBlock('Qualifications', 'fr-icon-award-line', [
+        encField(row, 'secourisme', 'Qualif. secourisme'), encField(row, 'permis', 'Permis détenus')
       ])
     ].forEach(function (c) { if (c) left.appendChild(c); });
     [
       stgBlock('Contact', 'fr-icon-phone-line', [
         encField(row, 'telephone', 'Téléphone', { phone: true }), encField(row, 'emailPerso', 'Email perso', { mail: true }),
         encField(row, 'emailPro', 'Email pro', { mail: true })
-      ]),
-      stgBlock('Détachement', 'fr-icon-calendar-line', [
-        encField(row, 'debut', 'Début'), encField(row, 'fin', 'Fin'), encField(row, 'duree', 'Durée')
       ]),
       stgBlock('Hébergement', 'fr-icon-home-4-line', [
         encField(row, 'batiment', 'Bâtiment'), encField(row, 'chambre', 'Chambre')
@@ -4515,26 +4522,52 @@
     wrap.appendChild(right);
     return wrap;
   }
-  function buildEncServiceTab(row) {
-    var card = stgBlock('Service', 'fr-icon-briefcase-line', [
-      encField(row, 'ar', 'A/R'), encField(row, 'permis', 'Permis détenus'), encField(row, 'droitsRepos', 'Droits repos'), encField(row, 'hCours', 'H cours'),
-      encField(row, 'renseignements', 'Renseignements cadres — cours', { wide: true, pre: true })
+  // Cours pour lesquels le cadre est volontaire (colonne « Renseignements_cadres_Cours ») : un tag par cours
+  // (choix multiples, ou texte avec un cours par ligne / séparés par « ; »).
+  function encCourses(row) {
+    var v = row.f.renseignements;
+    var list = (Array.isArray(v) && v[0] === 'L') ? v.slice(1) : String(encText(row, 'renseignements')).split(/\r?\n|;/);
+    return list.map(function (x) { return String(x === null || x === undefined ? '' : x).trim(); }).filter(Boolean);
+  }
+  function encCoursesNode(row) {
+    var courses = encCourses(row);
+    if (!courses.length) return stgTextValue('');
+    var box = document.createElement('span');
+    box.className = 'stg-item__value enc-courses';
+    courses.forEach(function (c) { box.appendChild(buildPlainTag(c, 'stg-tag--pon', 'Cours : ' + c)); });
+    return box;
+  }
+  // Onglet « Détachement » : carte « Mission » (début, fin, durée, droits à repos) et carte « Cours » (cours pour lesquels
+  // le cadre est volontaire, nombre d'heures de cours).
+  function buildEncDetachementTab(row) {
+    var wrap = document.createElement('div');
+    wrap.className = 'stg-docs-tab';
+    var mission = stgBlock('Mission', 'fr-icon-calendar-line', [
+      encField(row, 'debut', 'Début'), encField(row, 'fin', 'Fin'), encField(row, 'duree', 'Durée'), encField(row, 'droitsRepos', 'Droits à repos', { round: true })
     ]);
-    if (card) return card;
-    var empty = document.createElement('p');
-    empty.className = 'cand-empty-state';
-    empty.textContent = 'Aucune information de service dans la table Encadrement.';
-    return empty;
+    var cours = stgBlock('Cours', 'fr-icon-book-2-line', [
+      enc.cols.renseignements ? stgItem('Cours (volontaire)', encCoursesNode(row), true) : null,
+      encField(row, 'hCours', 'Heures de cours')
+    ]);
+    [mission, cours].forEach(function (card) { if (card) wrap.appendChild(card); });
+    if (!wrap.childNodes.length) {
+      var empty = document.createElement('p');
+      empty.className = 'cand-empty-state';
+      empty.textContent = 'Aucune information de détachement dans la table Encadrement.';
+      return empty;
+    }
+    return wrap;
   }
   var ENC_TABS = [
     { id: 'infos', label: 'Informations', build: buildEncInfosTab },
-    { id: 'service', label: 'Service', build: buildEncServiceTab }
+    { id: 'detachement', label: 'Détachement', build: buildEncDetachementTab }
   ];
   var encActiveTab = 'infos';
 
   function buildEncadrementPanel(row) {
     var p = encNameParts(row);
-    var prenomNom = [p.prenom, p.nom].filter(Boolean).join(' ') || encDisplayName(row);
+    // Titre : « Grade Prénom NOM ».
+    var prenomNom = [encText(row, 'grade'), p.prenom, p.nom].filter(Boolean).join(' ') || encDisplayName(row);
     var dlg = document.createElement('div');
     dlg.className = 'cand-modal-dialog stg-dialog';
     dlg.setAttribute('role', 'dialog');
@@ -4551,7 +4584,8 @@
     avatar.innerHTML = '<span class="fr-icon-user-fill"></span>';
     loadPortrait(avatar, row);
     portrait.appendChild(avatar);
-    var groupTags = encGroupTags(row); // étiquette qui chevauche la photo : le groupe, condensé
+    // Étiquette qui chevauche la photo : le groupe, condensé — sauf pour IP et Secourisme (formateurs), sans étiquette.
+    var groupTags = encGroupTags(row).filter(function (g) { return ['IP', 'SECOURISME'].indexOf(normalizeKey(condenseGroup(g))) === -1; });
     if (groupTags.length) portrait.appendChild(buildPlainTag(groupTags.map(condenseGroup).join(', '), 'stg-tag--pon stg-portrait__tag', 'Groupe : ' + groupTags.join(', ')));
     hero.appendChild(portrait);
 
@@ -5117,8 +5151,7 @@
   var TROMBI_NAME = 'Trombinoscope';
   var TROMBI_W = 1123, TROMBI_H = 794, TROMBI_PAD = 32; // page A4 paysage à 96 dpi
   var TROMBI_INNER_H = TROMBI_H - 2 * TROMBI_PAD;
-  var TROMBI_PER_ROW = 10;
-  var TROMBI_ROW_H = 172, TROMBI_TITLE_H = 60, TROMBI_HEAD_H = 34;
+  var TROMBI_TITLE_H = 54, TROMBI_HEAD_H = 26;
   var TROMBI_MERGED_LABEL = 'Commandement et soutien';
   // Groupes regroupés, dans l'ordre d'affichage : sigle -> libellé du Gpe (l'un ou l'autre est reconnu).
   var TROMBI_MERGED = [['CDT', 'Commandement'], ['AE', 'Adjudant d\'escadron'], ['SEC', 'Secrétariat'], ['ARM', 'Armurier'], ['SAN', 'Soutien sanitaire']];
@@ -5181,31 +5214,51 @@
     return groups;
   }
 
-  // Photo réduite (data URI JPEG, 160 px max) pour l'intégrer au document ; null si absente ou illisible.
-  function trombiPhotoData(row) {
-    if (!extractAttachmentIds(row.portrait).length && !/^https?:\/\//i.test(textOf(row.portrait))) return Promise.resolve(null);
-    return portraitSource(row).then(function (src) {
-      if (!src) return null;
-      return fetch(src.url).then(function (resp) { if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.blob(); });
-    }).then(function (blob) {
-      if (!blob) return null;
-      return new Promise(function (resolve) {
-        var url = URL.createObjectURL(blob), img = new Image();
-        img.onload = function () {
-          var scale = Math.min(1, 160 / Math.max(img.width, img.height));
-          var c = document.createElement('canvas');
-          c.width = Math.max(1, Math.round(img.width * scale));
-          c.height = Math.max(1, Math.round(img.height * scale));
-          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-          URL.revokeObjectURL(url);
-          resolve(c.toDataURL('image/jpeg', 0.85));
-        };
-        img.onerror = function () { URL.revokeObjectURL(url); resolve(null); };
-        img.src = url;
-      });
-    }).catch(function () { return null; });
+  // Photo d'une personne pour le trombinoscope : réduite (JPEG 160 px max) et intégrée au document (data URI).
+  // Trois essais : lecture du fichier (fetch), puis chargement en image « CORS » ; si Grist ne les autorise pas
+  // mais que l'image s'affiche normalement, son URL (à jeton) sert pour l'impression seulement (un PDF ne peut pas
+  // lire une image inter-origine). Résultat : { data, url, reason } — reason décrit l'échec éventuel.
+  function trombiShrink(img) {
+    var scale = Math.min(1, 160 / Math.max(img.width, img.height));
+    var c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(img.width * scale));
+    c.height = Math.max(1, Math.round(img.height * scale));
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', 0.85); // lève une erreur si le canvas est « souillé » (image sans CORS)
   }
-  // Charge les photos de tous les membres des groupes (6 en parallèle) : person.__trombiPhoto = data URI ou null.
+  function trombiLoadImage(url, cors) {
+    return new Promise(function (resolve, reject) {
+      var img = new Image();
+      if (cors) img.crossOrigin = 'anonymous';
+      img.onload = function () { resolve(img); };
+      img.onerror = function () { reject(new Error('image illisible')); };
+      img.src = url;
+    });
+  }
+  function trombiPhotoData(row) {
+    if (!extractAttachmentIds(row.portrait).length && !/^https?:\/\//i.test(textOf(row.portrait))) return Promise.resolve({ none: true });
+    return portraitSource(row).then(function (src) {
+      if (!src) return { none: true };
+      var reasons = [];
+      // 1. lecture du fichier
+      return fetch(src.url).then(function (resp) {
+        if (!resp.ok) throw new Error('HTTP ' + resp.status + (resp.status === 404 || resp.status === 403 ? ' (accès refusé par les règles d’accès de Grist)' : ''));
+        return resp.blob();
+      }).then(function (blob) {
+        var objUrl = URL.createObjectURL(blob);
+        return trombiLoadImage(objUrl, false).then(function (img) { var d = trombiShrink(img); URL.revokeObjectURL(objUrl); return d; }, function (e) { URL.revokeObjectURL(objUrl); throw e; });
+      }).then(function (data) { return { data: data }; }, function (e) {
+        reasons.push(e && /^HTTP/.test(e.message) ? e.message : 'lecture bloquée par le navigateur (CORS)');
+        // 2. image chargée avec CORS
+        return trombiLoadImage(src.url, true).then(function (img) { return { data: trombiShrink(img) }; }).catch(function () {
+          // 3. l'image s'affiche-t-elle simplement ? (utile pour l'impression)
+          return trombiLoadImage(src.url, false).then(function () { return { url: src.url, reason: reasons[0] }; }, function () { return { reason: reasons[0] === 'lecture bloquée par le navigateur (CORS)' ? 'image inaccessible (règles d’accès de Grist ?)' : reasons[0] }; });
+        });
+      });
+    }).catch(function (e) { return { reason: friendlyErrorMessage(e) }; });
+  }
+  // Charge les photos de tous les membres des groupes (6 en parallèle). Renvoie des statistiques :
+  // { withPhoto, embedded, urlOnly, failed, reasons } (person.__trombiPhoto = data URI, __trombiPhotoUrl = URL).
   function trombiLoadPhotos(groups, onProgress) {
     var people = [];
     groups.forEach(function (g) {
@@ -5213,58 +5266,104 @@
       g.trainees.forEach(function (r) { people.push({ row: r }); });
     });
     var index = 0, done = 0, cache = {};
+    var stats = { withPhoto: 0, embedded: 0, urlOnly: 0, failed: 0, reasons: {} };
     function worker() {
       if (index >= people.length) return Promise.resolve();
       var p = people[index++];
       var key = (p.row.f ? 'e' : 's') + p.row.id;
-      var job = cache[key] || (cache[key] = trombiPhotoData(p.row));
-      return job.then(function (data) { p.row.__trombiPhoto = data; done++; if (onProgress) onProgress(done, people.length); return worker(); });
+      var job = cache[key];
+      var first = !job;
+      if (!job) job = cache[key] = trombiPhotoData(p.row);
+      return job.then(function (res) {
+        p.row.__trombiPhoto = res.data || null;
+        p.row.__trombiPhotoUrl = res.url || null;
+        if (first && !res.none) {
+          stats.withPhoto++;
+          if (res.data) stats.embedded++;
+          else {
+            if (res.url) stats.urlOnly++; else stats.failed++;
+            if (res.reason) stats.reasons[res.reason] = (stats.reasons[res.reason] || 0) + 1;
+          }
+        }
+        done++;
+        if (onProgress) onProgress(done, people.length);
+        return worker();
+      });
     }
     var workers = [];
     for (var i = 0; i < Math.min(6, people.length); i++) workers.push(worker());
-    return Promise.all(workers);
+    return Promise.all(workers).then(function () { return stats; });
   }
 
-  function trombiCard(name, line2, line3, photo, initials) {
-    var ph = photo ?
-      '<div class="ph" style="background-image:url(' + photo + ')"></div>' :
-      '<div class="ph ph--none">' + escapeHtml(initials) + '</div>';
-    return '<div class="card">' + ph + '<div class="n1">' + escapeHtml(name) + '</div>' +
-      '<div class="n2">' + escapeHtml(line2 || '') + '</div><div class="n3">' + escapeHtml(line3 || '') + '</div></div>';
-  }
-  function trombiMemberCard(r) {
+  // ---- Mise en page : tout un groupe (cadres + stagiaires) sur UNE page ----
+  // La taille des cartes (photo, textes, espacements) est réduite tant que le groupe ne tient pas sur la page
+  // (échelle 0,8 au maximum, 0,4 au minimum) ; au-delà, le groupe continue sur une page supplémentaire.
+  function trombiMemberInfo(r, allowUrl) {
     var p = encNameParts(r);
-    return trombiCard([p.nom, p.prenom].filter(Boolean).join(' ') || '?', encText(r, 'grade'), encText(r, 'fonction'), r.__trombiPhoto, encInitials(r));
+    return { name: [p.nom, p.prenom].filter(Boolean).join(' ') || '?', l2: encText(r, 'grade'), l3: encText(r, 'fonction'),
+      photo: r.__trombiPhoto || (allowUrl ? r.__trombiPhotoUrl : null), ini: encInitials(r) };
   }
-  function trombiTraineeCard(r) {
+  function trombiTraineeInfo(r, allowUrl) {
     var np = nameParts(r);
-    return trombiCard(stagiaireDisplayName(r), textOf(r.pon), '', r.__trombiPhoto, ((np.prenom || '').charAt(0) + (np.nom || '').charAt(0)).toUpperCase() || '?');
+    return { name: stagiaireDisplayName(r), l2: '', l3: '', photo: r.__trombiPhoto || (allowUrl ? r.__trombiPhotoUrl : null),
+      ini: ((np.prenom || '').charAt(0) + (np.nom || '').charAt(0)).toUpperCase() || '?' };
   }
-  // Pages d'un groupe : titre, puis une section par ensemble de personnes (cadres, stagiaires — ou une section par
-  // groupe regroupé), découpées en pages A4 paysage ; les rangées de photos ne sont jamais coupées entre deux pages.
-  function trombiGroupPagesHtml(g) {
+  function trombiSections(g, allowUrl) {
+    if (g.subs) return g.subs.map(function (sg) { return { title: sg.label + ' (' + sg.members.length + ')', items: sg.members.map(function (r) { return trombiMemberInfo(r, allowUrl); }) }; });
+    var secs = [{ title: 'Encadrement (' + g.members.length + ')', items: g.members.map(function (r) { return trombiMemberInfo(r, allowUrl); }) }];
+    if (g.trainees.length) {
+      var ponLabels = {};
+      g.trainees.forEach(function (r) { var p = textOf(r.pon); if (p) ponLabels[p] = true; });
+      secs.push({ title: 'Stagiaires — ' + Object.keys(ponLabels).join(', ') + ' (' + g.trainees.length + ')', items: g.trainees.map(function (r) { return trombiTraineeInfo(r, allowUrl); }) });
+    }
+    return secs;
+  }
+  // Dimensions des cartes pour une échelle s, et hauteur totale du groupe.
+  function trombiDims(secs, s) {
+    var innerW = TROMBI_W - 2 * TROMBI_PAD;
+    var gap = Math.max(4, Math.round(10 * s));
+    var cw = Math.round(96 * s), ph = Math.round(112 * s);
+    var fs = Math.max(6.5, +(10 * s).toFixed(1)), lh = Math.round(fs * 1.2);
+    var perRow = Math.max(1, Math.floor((innerW + gap) / (cw + gap)));
+    var total = TROMBI_TITLE_H;
+    var meta = secs.map(function (sec) {
+      var hasL2 = sec.items.some(function (i) { return i.l2; }), hasL3 = sec.items.some(function (i) { return i.l3; });
+      var textH = 4 + 2 * lh + (hasL2 ? lh : 0) + (hasL3 ? lh : 0);
+      var rowH = ph + textH + gap;
+      var rows = Math.ceil(sec.items.length / perRow);
+      total += TROMBI_HEAD_H + rows * rowH;
+      return { rowH: rowH, rows: rows, textH: textH, hasL2: hasL2, hasL3: hasL3 };
+    });
+    return { s: s, gap: gap, cw: cw, ph: ph, fs: fs, lh: lh, perRow: perRow, total: total, meta: meta };
+  }
+  function trombiCardHtml(it, d, m) {
+    var ph = it.photo ?
+      '<div class="ph" style="width:' + d.cw + 'px;height:' + d.ph + 'px;background-image:url(' + it.photo + ')"></div>' :
+      '<div class="ph ph--none" style="width:' + d.cw + 'px;height:' + d.ph + 'px;font-size:' + Math.round(d.ph * 0.28) + 'px">' + escapeHtml(it.ini) + '</div>';
+    var line = function (cls, text) { return '<div class="' + cls + '" style="height:' + d.lh + 'px;font-size:' + Math.max(6, d.fs - 1) + 'px;line-height:' + d.lh + 'px">' + escapeHtml(text) + '</div>'; };
+    return '<div class="card" style="width:' + d.cw + 'px">' + ph +
+      '<div class="n1" style="height:' + (2 * d.lh) + 'px;font-size:' + d.fs + 'px;line-height:' + d.lh + 'px">' + escapeHtml(it.name) + '</div>' +
+      (m.hasL2 ? line('n2', it.l2) : '') + (m.hasL3 ? line('n3', it.l3) : '') + '</div>';
+  }
+  function trombiGroupPagesHtml(g, allowUrl) {
+    var secs = trombiSections(g, allowUrl);
+    var s = 0.8, d = trombiDims(secs, s);
+    while (d.total > TROMBI_INNER_H && s > 0.4) { s = +(s - 0.02).toFixed(2); d = trombiDims(secs, s); }
     var pages = [], cur = { h: 0, html: '' };
     function push(h, html) {
-      if (cur.h > 0 && cur.h + h > TROMBI_INNER_H) { pages.push(cur); cur = { h: 0, html: '' }; }
+      if (cur.h > 0 && cur.h + h > TROMBI_INNER_H) { pages.push(cur); cur = { h: 0, html: '' }; } // seulement si même l'échelle minimale ne suffit pas
       cur.h += h;
       cur.html += html;
     }
     push(TROMBI_TITLE_H, '<h1>Trombinoscope — ' + escapeHtml(g.label) + '</h1>');
-    function section(title, cards) {
-      for (var i = 0, first = true; i < cards.length; i += TROMBI_PER_ROW, first = false) {
-        push((first ? TROMBI_HEAD_H : 0) + TROMBI_ROW_H, (first ? '<h2>' + escapeHtml(title) + '</h2>' : '') + '<div class="row">' + cards.slice(i, i + TROMBI_PER_ROW).join('') + '</div>');
+    secs.forEach(function (sec, si) {
+      var m = d.meta[si];
+      for (var i = 0, first = true; i < sec.items.length; i += d.perRow, first = false) {
+        push((first ? TROMBI_HEAD_H : 0) + m.rowH,
+          (first ? '<h2>' + escapeHtml(sec.title) + '</h2>' : '') +
+          '<div class="row" style="gap:' + d.gap + 'px;height:' + m.rowH + 'px">' + sec.items.slice(i, i + d.perRow).map(function (it) { return trombiCardHtml(it, d, m); }).join('') + '</div>');
       }
-    }
-    if (g.subs) {
-      g.subs.forEach(function (sg) { section(sg.label + ' (' + sg.members.length + ')', sg.members.map(trombiMemberCard)); });
-    } else {
-      section('Encadrement (' + g.members.length + ')', g.members.map(trombiMemberCard));
-      if (g.trainees.length) {
-        var ponLabels = {};
-        g.trainees.forEach(function (r) { var p = textOf(r.pon); if (p) ponLabels[p] = true; });
-        section('Stagiaires — ' + Object.keys(ponLabels).join(', ') + ' (' + g.trainees.length + ')', g.trainees.map(trombiTraineeCard));
-      }
-    }
+    });
     pages.push(cur);
     return pages.map(function (p) { return '<div class="tpage">' + p.html + '</div>'; }).join('\n');
   }
@@ -5278,18 +5377,19 @@
     'html,body{margin:0;padding:0;background:#fff}body{width:' + TROMBI_W + 'px;font-family:Marianne,Arial,Helvetica,sans-serif;color:#161616}' +
     '.tpage{box-sizing:border-box;width:' + TROMBI_W + 'px;height:' + TROMBI_H + 'px;padding:' + TROMBI_PAD + 'px;overflow:hidden;break-after:page;page-break-after:always}' +
     '.tpage:last-child{break-after:auto;page-break-after:auto}' +
-    'h1{margin:0 0 10px;height:' + (TROMBI_TITLE_H - 10) + 'px;font-size:22px;font-weight:700;line-height:' + (TROMBI_TITLE_H - 10) + 'px;border-bottom:2px solid #5c5a2b;color:#3b3a1c}' +
-    'h2{margin:0 0 4px;height:' + (TROMBI_HEAD_H - 4) + 'px;font-size:13px;font-weight:700;line-height:' + (TROMBI_HEAD_H - 4) + 'px;text-transform:uppercase;letter-spacing:.04em;color:#5c5a2b}' +
-    '.row{display:flex;gap:10px;height:' + TROMBI_ROW_H + 'px}.card{box-sizing:border-box;width:96px;text-align:center;overflow:hidden}' +
-    '.ph{width:96px;height:112px;border-radius:6px;background:#dcd8b4 center 20%/cover no-repeat}' +
-    '.ph--none{display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:500;color:#5c5a2b}' +
-    '.n1{margin-top:4px;height:25px;overflow:hidden;font-size:10px;font-weight:700;line-height:12px}' +
-    '.n2,.n3{height:12px;overflow:hidden;font-size:9px;line-height:12px;color:#3a3a3a;white-space:nowrap;text-overflow:ellipsis}' +
+    'h1{margin:0 0 6px;height:' + (TROMBI_TITLE_H - 6) + 'px;font-size:20px;font-weight:700;line-height:' + (TROMBI_TITLE_H - 6) + 'px;border-bottom:2px solid #5c5a2b;color:#3b3a1c}' +
+    'h2{margin:0;height:' + TROMBI_HEAD_H + 'px;font-size:12px;font-weight:700;line-height:' + TROMBI_HEAD_H + 'px;text-transform:uppercase;letter-spacing:.04em;color:#5c5a2b}' +
+    '.row{display:flex;overflow:hidden}.card{box-sizing:border-box;text-align:center;overflow:hidden}' +
+    '.ph{border-radius:5px;background:#dcd8b4 center 20%/cover no-repeat}' +
+    '.ph--none{display:flex;align-items:center;justify-content:center;font-weight:500;color:#5c5a2b}' +
+    '.n1{margin-top:3px;overflow:hidden;font-weight:700}' +
+    '.n2,.n3{overflow:hidden;color:#3a3a3a;white-space:nowrap;text-overflow:ellipsis}' +
     '@media print{.tpage{break-inside:avoid}}</style>';
-  // Document complet : une ou plusieurs pages par groupe.
-  function buildTrombiHtml(groups, title) {
+  // Document complet : une page par groupe. allowUrl : pour l'impression, les photos non intégrables sont
+  // référencées par leur URL (un PDF, lui, ne peut pas les lire).
+  function buildTrombiHtml(groups, title, allowUrl) {
     return '<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>' + escapeHtml(title) + '</title>' + TROMBI_CSS +
-      '</head><body>' + groups.map(trombiGroupPagesHtml).join('\n') + '</body></html>';
+      '</head><body>' + groups.map(function (g) { return trombiGroupPagesHtml(g, !!allowUrl); }).join('\n') + '</body></html>';
   }
 
   // --- Fenêtre de génération ---
@@ -5310,10 +5410,10 @@
     var mode = download ? genMode() : 'print';
     var nameEl = document.getElementById('bulkGenName');
     var docName = textOf(genState.row.values[bulk.nameCol.id]);
-    var variable = trombi ? '{{GPE}}' : '{{STAGIAIRE}}';
+    var variable = trombi ? '{{GROUPE}}' : '{{STAGIAIRE}}';
     if (nameEl.dataset.auto !== 'false') nameEl.value = mode === 'multi' ? docName + ' - ' + variable : docName;
     document.getElementById('bulkGenNameHint').textContent =
-      mode === 'multi' ? 'Nom de chaque PDF (extension .pdf ajoutée). Il doit contenir une variable qui distingue les ' + (trombi ? 'groupes, par exemple {{GPE}}.' : 'stagiaires, par exemple {{STAGIAIRE}} ou {{' + settings.table + '.NID}}.') :
+      mode === 'multi' ? 'Nom de chaque PDF (extension .pdf ajoutée). Il doit contenir une variable qui distingue les ' + (trombi ? 'groupes, par exemple {{GROUPE}}.' : 'stagiaires, par exemple {{STAGIAIRE}} ou {{' + settings.table + '.NID}}.') :
       mode === 'store' ? 'Nom de la pièce dans la colonne Pièces (et du fichier .pdf). Les variables sont possibles, par exemple {{STAGIAIRE}}. Une pièce déjà enregistrée sous ce nom est remplacée.' :
       mode === 'single' ? 'Nom du fichier (extension .pdf ajoutée).' :
       'Titre du document imprimé (proposé comme nom de fichier si vous l’enregistrez en PDF).';
@@ -5331,7 +5431,7 @@
     var groups = trombi ? trombiGroups() : null;
     if (trombi) {
       if (!enc.loaded) { window.alert('La table « Encadrement » n’est pas disponible : impossible de générer le trombinoscope.'); return; }
-      if (!groups.length) { window.alert('Aucun Gpe renseigné dans la table « Encadrement » : impossible de générer le trombinoscope.'); return; }
+      if (!groups.length) { window.alert('Aucun groupe renseigné dans la table « Encadrement » : impossible de générer le trombinoscope.'); return; }
     } else {
       if (!bulkDocHtml(row)) { window.alert('Ce document n’a pas de modèle HTML.'); return; }
       if (!candidates.rows.length) { window.alert('Aucun stagiaire : les données des stagiaires ne sont pas chargées.'); return; }
@@ -5386,7 +5486,7 @@
     var trombi = !!genState.trombi;
     var template = trombi ? '' : bulkDocHtml(genState.row);
     // Construction du HTML : trombinoscope (un jeu de pages par groupe) ou modèle du tableau (un exemplaire par stagiaire).
-    var build = trombi ? function (rs, t) { return buildTrombiHtml(rs, t); } : function (rs, t) { return buildGeneratedHtml(template, rs, t); };
+    var build = trombi ? function (rs, t) { return buildTrombiHtml(rs, t, false); } : function (rs, t) { return buildGeneratedHtml(template, rs, t); };
     var pattern = document.getElementById('bulkGenName').value.trim();
     var progress = document.getElementById('bulkGenProgress');
     var goBtn = document.getElementById('bulkGenGo');
@@ -5395,7 +5495,7 @@
     var mode = genState.action === 'download' ? genMode() : 'print';
     if (!rows.length) { showGenError(trombi ? 'Sélectionnez au moins un groupe.' : 'Sélectionnez au moins un stagiaire.'); return; }
     if ((mode === 'single' || mode === 'print') && /\{\{/.test(pattern)) { showGenError('Les variables ne sont possibles dans le nom que pour un PDF par stagiaire ou pour les pièces.'); return; }
-    if (mode === 'multi' && !/\{\{/.test(pattern)) { showGenError('Le nom doit contenir une variable (par exemple ' + (trombi ? '{{GPE}}' : '{{STAGIAIRE}}') + ') pour que chaque PDF ait un nom différent.'); return; }
+    if (mode === 'multi' && !/\{\{/.test(pattern)) { showGenError('Le nom doit contenir une variable (par exemple ' + (trombi ? '{{GROUPE}}' : '{{STAGIAIRE}}') + ') pour que chaque PDF ait un nom différent.'); return; }
     if (mode === 'store' && !candidates.hasPieces) {
       showGenError('Les colonnes « ' + PIECES_COL + ' » et « ' + PIECES_NOMS_COL + ' » sont absentes de la table « ' + settings.table + ' » : créez-les depuis l’onglet Documents d’une fiche Stagiaire.');
       return;
@@ -5408,13 +5508,14 @@
     progress.hidden = false;
     var step = function (i, n) { progress.textContent = 'Génération du PDF ' + i + ' / ' + n + '…'; };
     step(0, rows.length);
-    var pdfName = function (r) { return safeFileName(trombi ? pattern.replace(/\{\{\s*GPE\s*\}\}/gi, r.label) : renderTemplateFor(pattern, r, false)) || 'document'; };
+    var pdfName = function (r) { return safeFileName(trombi ? pattern.replace(/\{\{\s*(?:GROUPE|GPE)\s*\}\}/gi, r.label) : renderTemplateFor(pattern, r, false)) || 'document'; };
     var withExt = function (n) { return /\.pdf$/i.test(n) ? n : n + '.pdf'; };
     var work;
     // Trombinoscope : photos chargées d'abord (une fois pour tous les groupes).
-    var ready = trombi ? trombiLoadPhotos(rows, function (i, n) { progress.textContent = 'Chargement des photos ' + i + ' / ' + n + '…'; }) : Promise.resolve();
+    var photoStats = null;
+    var ready = trombi ? trombiLoadPhotos(rows, function (i, n) { progress.textContent = 'Chargement des photos ' + i + ' / ' + n + '…'; }).then(function (st) { photoStats = st; }) : Promise.resolve();
     if (mode === 'print') {
-      work = ready.then(function () { printGenerated(build(rows, pattern)); });
+      work = ready.then(function () { printGenerated(trombi ? buildTrombiHtml(rows, pattern, true) : build(rows, pattern)); });
     } else if (mode === 'single') {
       work = ready.then(function () { return generatePdf(build, rows, pattern, step, { landscape: trombi }); }).then(function (bytes) {
         saveBlob(new Blob([bytes], { type: 'application/pdf' }), withExt(safeFileName(pattern) || 'document'));
@@ -5455,6 +5556,13 @@
       document.getElementById('bulkGenCancel').disabled = false;
       progress.hidden = true;
       closeGenDialog();
+      // Trombinoscope : signale les photos qui n'ont pas pu être intégrées (initiales à leur place) et pourquoi.
+      if (photoStats && photoStats.withPhoto && (photoStats.failed || (photoStats.urlOnly && mode !== 'print'))) {
+        var n = photoStats.failed + (mode === 'print' ? 0 : photoStats.urlOnly);
+        window.alert(n + ' photo(s) sur ' + photoStats.withPhoto + ' n’ont pas pu être intégrées au ' + (mode === 'print' ? 'document' : 'PDF') + ' ; les initiales les remplacent.\n\nCause : ' +
+          Object.keys(photoStats.reasons).map(function (r) { return r + ' (' + photoStats.reasons[r] + ')'; }).join(' ; ') +
+          '\n\nUtilisez « Tester l’accès aux photos » dans la Configuration (Sources de données) pour diagnostiquer les règles d’accès.');
+      }
     }, function (e) {
       genBusy = false;
       goBtn.disabled = false;
