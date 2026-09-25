@@ -369,6 +369,13 @@
     background: #fff; border: 1px solid rgba(0, 0, 0, 0.07); border-radius: 0.65rem;
     padding: 0.9rem 1rem 1rem; box-shadow: 0 1px 3px rgba(20, 10, 30, 0.06);
   }
+  /* Peloton et fonction : tags cliquables (modifiables au clic). */
+  .stg-tagfield { display: flex; align-items: center; min-height: 2rem; }
+  button.stg-tagfield__tag { cursor: pointer; font-family: inherit; border: 0; }
+  button.stg-tagfield__tag:hover { box-shadow: 0 0 0 2px rgba(92, 90, 43, 0.35); }
+  button.stg-tagfield__tag--empty { background: #fff; color: var(--text-mention-grey); border: 1px dashed #b5b5c0; }
+  .stg-card__svgicon { display: inline-flex; align-items: center; }
+  .stg-card__svgicon svg { display: block; }
   .stg-card__title {
     display: flex; align-items: center; gap: 0.5rem; margin: 0 0 0.75rem;
     font-size: 0.78em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--bleu-france);
@@ -1625,7 +1632,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 7.1</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 7.5</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -3503,7 +3510,8 @@
     card.className = 'stg-card';
     var h = document.createElement('h4');
     h.className = 'stg-card__title';
-    h.innerHTML = '<span class="' + icon + '" aria-hidden="true"></span>';
+    // icon : classe d'icône DSFR, ou balise <svg> en ligne pour une icône que le DSFR n'a pas (ex. képi)
+    h.innerHTML = icon.charAt(0) === '<' ? '<span class="stg-card__svgicon" aria-hidden="true">' + icon + '</span>' : '<span class="' + icon + '" aria-hidden="true"></span>';
     h.appendChild(document.createTextNode(title));
     card.appendChild(h);
     var grid = document.createElement('div');
@@ -3525,6 +3533,11 @@
   }
 
   // ---- Mode de transport : icône (voiture, train, piéton) + plaque ------------
+  // Képi de gendarme (le DSFR n'en propose pas) : calot tronconique à dessus plat, bandeau et visière.
+  var KEPI_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" fill-rule="evenodd" xmlns="http://www.w3.org/2000/svg" focusable="false">' +
+    '<path d="M5.2 7.3C5.2 5.8 8.2 4.7 12 4.7s6.8 1.1 6.8 2.6L19.6 14H4.4l.8-6.7zM7.3 7.3c.9.6 2.6.9 4.7.9s3.8-.3 4.7-.9c-.9-.6-2.6-.9-4.7-.9s-3.8.3-4.7.9z"/>' +
+    '<path d="M2.6 14.6h18.8c0 2.6-4.2 4.6-9.4 4.6s-9.4-2-9.4-4.6z"/>' +
+    '<circle cx="12" cy="11" r="1.2" fill="#fff"/></svg>';
   var TRANSPORT_SVG = {
     voiture: '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="currentColor"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>',
     train: '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="currentColor"><path d="M12 2c-4 0-8 .5-8 4v9.5C4 17.43 5.57 19 7.5 19L6 20.5v.5h2.23l2-2H14l2 2h2v-.5L16.5 19c1.93 0 3.5-1.57 3.5-3.5V6c0-3.5-3.58-4-8-4zM7.5 17c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm3.5-7H6V6h5v4zm2 0V6h5v4h-5zm3.5 7c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>',
@@ -3632,17 +3645,29 @@
     return item;
   }
 
-  // Champ éditable de la fiche : liste déroulante si la colonne est de type Choix (valeurs de la colonne), sinon
-  // zone de texte ; enregistré à la sortie du champ (voir saveFieldEdit).
-  function stgEditField(row, role, label, opts) {
+  // Contrôle d'édition d'un champ de la fiche : liste déroulante si la colonne est de type Choix (valeurs de la
+  // colonne) — ou, avec opts.list, liste des valeurs déjà présentes —, sinon zone de texte ; enregistré à la sortie
+  // du champ ou au changement de valeur (voir saveFieldEdit).
+  function stgEditControl(row, role, label, opts) {
     var colId = settings.col[role];
-    if (!colId) return null;
     opts = opts || {};
     var current = textOf(row[role]);
     var type = String((columnTypesMap[settings.table] || {})[colId] || '').split(':')[0];
     var choices = (type === 'Choice') ? ((columnChoicesMap[settings.table] || {})[colId] || []) : [];
+    // opts.list : liste à choisir même si la colonne n'est pas de type Choix — valeurs déjà présentes dans la colonne.
+    if (!choices.length && opts.list) {
+      var seen = {};
+      candidates.rows.forEach(function (r) { var v = textOf(r[role]).trim(); if (v) seen[v] = true; });
+      choices = Object.keys(seen).sort(function (a, b) { return nameCollator.compare(a, b); });
+    }
     var busy = false;
     var el;
+    function save() {
+      if (busy || el.value === current) return;
+      busy = true; // évite un double enregistrement quand la fiche est reconstruite
+      setTimeout(function () { busy = false; }, 2000);
+      saveFieldEdit(role, row, el, 'text', current);
+    }
     if (choices.length) {
       el = document.createElement('select');
       el.className = 'fr-select stg-edit';
@@ -3655,22 +3680,55 @@
         el.appendChild(o);
       });
       el.value = current;
-      el.addEventListener('change', function () { if (!busy && el.value !== current) { busy = true; setTimeout(function () { busy = false; }, 2000); saveFieldEdit(role, row, el, 'text', current); } });
+      el.addEventListener('change', save);
     } else {
       el = document.createElement('input');
       el.type = 'text';
       el.className = 'fr-input stg-edit';
       el.autocomplete = 'off';
       el.value = current;
-      el.addEventListener('blur', function () { if (!busy && el.value !== current) { busy = true; setTimeout(function () { busy = false; }, 2000); saveFieldEdit(role, row, el, 'text', current); } }); // (busy : évite un double enregistrement quand la fiche est reconstruite)
-      el.addEventListener('keydown', function (e) { if (e.key === 'Enter') el.blur(); });
+      el.addEventListener('blur', save);
+      el.addEventListener('keydown', function (e) { if (e.key === 'Enter') el.blur(); if (e.key === 'Escape') { el.value = current; el.blur(); } });
     }
     el.id = 'stgEdit_' + role + '_' + row.id;
     el.setAttribute('aria-label', label);
+    return el;
+  }
+  // Champ éditable classique (zone de texte ou liste toujours visible).
+  function stgEditField(row, role, label, opts) {
+    if (!settings.col[role]) return null;
+    opts = opts || {};
     var box = document.createElement('span');
     box.className = 'stg-item__value';
-    box.appendChild(el);
+    box.appendChild(stgEditControl(row, role, label, opts));
     return stgItem(label, box, opts.wide);
+  }
+  // Champ affiché sous forme de tag (couleur du choix dans Grist), modifiable au clic : le tag se change en liste ou
+  // en zone de texte ; à la sortie sans modification, le tag revient.
+  function stgTagField(row, role, label, modifier, opts) {
+    var colId = settings.col[role];
+    if (!colId) return null;
+    var box = document.createElement('span');
+    box.className = 'stg-item__value stg-tagfield';
+    var text = textOf(row[role]).trim();
+    var tag = document.createElement('button');
+    tag.type = 'button';
+    tag.className = 'fr-tag ' + modifier + ' stg-tagfield__tag' + (text ? '' : ' stg-tagfield__tag--empty');
+    tag.textContent = text || 'Choisir…';
+    tag.title = 'Modifier : ' + label.toLowerCase();
+    if (text) applyChoiceColors(tag, tableChoiceOptions(settings.table, colId), text);
+    tag.addEventListener('click', function () {
+      var control = stgEditControl(row, role, label, opts);
+      box.innerHTML = '';
+      box.appendChild(control);
+      control.focus();
+      // Sortie sans modification : le tag revient (une modification déclenche l'enregistrement puis la reconstruction de la fiche).
+      control.addEventListener('blur', function () {
+        setTimeout(function () { if (box.contains(control) && control.value === text) { box.innerHTML = ''; box.appendChild(tag); } }, 150);
+      });
+    });
+    box.appendChild(tag);
+    return stgItem(label, box, opts && opts.wide);
   }
 
   // ---- Onglet « Informations » ---------------------------------------------------
@@ -3695,11 +3753,11 @@
         stgField(row, 'nom', 'Nom'), stgField(row, 'prenom', 'Prénom'),
         settings.col.dateNaissance ? stgItem('Date de naissance (âge)', bornNode, true) : null
       ]),
-      stgBlock('Stage', 'fr-icon-flag-line', [
-        stgEditField(row, 'pon', 'Peloton'), stgEditField(row, 'fonction', 'Fonction')
+      stgBlock('Stage', KEPI_SVG, [
+        stgTagField(row, 'pon', 'Peloton', 'stg-tag--pon'), stgTagField(row, 'fonction', 'Fonction', 'stg-tag--fonction', { list: true })
       ]),
       stgBlock('Renseignements militaires', 'fr-icon-shield-line', [
-        stgField(row, 'nigend', 'Nigend'), stgField(row, 'nid', 'NID'), stgField(row, 'affectation', 'Affectation')
+        stgEditField(row, 'nigend', 'Nigend'), stgField(row, 'nid', 'NID'), stgField(row, 'affectation', 'Affectation')
       ]),
       stgBlock('Santé', 'fr-icon-heart-line', [
         stgField(row, 'regimeAlimentaire', 'Régime alimentaire', { wide: true }),
