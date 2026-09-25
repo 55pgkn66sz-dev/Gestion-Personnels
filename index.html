@@ -1164,6 +1164,7 @@
   .bulk-gen__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.4rem 0.8rem; background: #f7f7fb; border-bottom: 1px solid var(--border-default-grey); }
   .bulk-gen__list { max-height: 12rem; overflow-y: auto; padding: 0.3rem 0.8rem; }
   .bulk-gen__item { display: block; padding: 0.15rem 0; font-size: 0.9em; cursor: pointer; }
+  .bulk-dialog__box--md { width: min(44rem, 100%); }
   .bulk-dialog__foot { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1rem; }
   .bulk-table__actions { white-space: nowrap; text-align: right !important; }
   .bulk-table__actions .fr-btn { padding: 0.25rem 0.4rem; min-height: 0; }
@@ -1255,6 +1256,7 @@
           <option value="toValidate">Documents à valider</option>
           <option value="missing">Documents manquants</option>
           <option value="eadMailNotSent">Email EAD non envoyé</option>
+          <option value="eadNotValidated">EAD non validé</option>
         </select>
       </div>
       <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-circle-line fr-btn--icon-left" id="candResetBtn" type="button" disabled title="Efface la recherche et le filtre sur les documents">
@@ -1263,10 +1265,41 @@
       <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-refresh-line fr-btn--icon-left" id="candReloadBtn" type="button" title="Recharger les candidats depuis la table Grist">
         Actualiser
       </button>
+      <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-mail-line" id="candMailAllBtn" type="button" title="Envoyer un e-mail aux candidats du filtre actif (en copie cachée)">E-mail aux candidats du filtre</button>
       <p class="cand-count cand-count--push" id="candCount"></p>
     </div>
 
     <div id="candZone"></div>
+    <div class="bulk-dialog" id="mailAllDialog" role="dialog" aria-modal="true" aria-labelledby="mailAllTitle" hidden>
+      <div class="bulk-dialog__box bulk-dialog__box--md">
+        <div class="bulk-dialog__head">
+          <h3 class="fr-h6" id="mailAllTitle">E-mail aux candidats du filtre actif</h3>
+          <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line" id="mailAllClose" type="button" title="Fermer">Fermer</button>
+        </div>
+        <p class="fr-text--sm" id="mailAllInfo"></p>
+        <div class="fr-input-group">
+          <label class="fr-label" for="mailAllSubject">Objet</label>
+          <input class="fr-input" type="text" id="mailAllSubject" autocomplete="off">
+        </div>
+        <div class="fr-input-group fr-mt-2w">
+          <label class="fr-label" for="mailAllReply">Adresse e-mail de réponse <span class="fr-hint-text">Placée en destinataire et en « Répondre à » ; les candidats sont en copie cachée.</span></label>
+          <input class="fr-input" type="email" id="mailAllReply" autocomplete="off">
+        </div>
+        <div class="fr-input-group fr-mt-2w">
+          <label class="fr-label" for="mailAllBody">Corps du message</label>
+          <textarea class="fr-input" id="mailAllBody" rows="9"></textarea>
+        </div>
+        <div class="fr-input-group fr-mt-2w">
+          <label class="fr-label" for="mailAllComment">Commentaire à insérer dans Infos de chaque fiche <span class="fr-hint-text">Ajouté à « Blocages / Infos » de chaque candidat destinataire à l'envoi. {{DATE}} = date du jour ; laissez vide pour ne rien ajouter.</span></label>
+          <textarea class="fr-input" id="mailAllComment" rows="2"></textarea>
+        </div>
+        <p class="fr-error-text" id="mailAllError" hidden></p>
+        <div class="bulk-dialog__foot">
+          <button class="fr-btn fr-btn--tertiary fr-btn--sm" id="mailAllCancel" type="button">Annuler</button>
+          <button class="fr-btn fr-btn--sm fr-icon-mail-line fr-btn--icon-left" id="mailAllSend" type="button">Ouvrir le message</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Page "Encadrement" : table « Encadrement » (en dur). Liste comme la page Stagiaires, fiche profil au clic. -->
@@ -1642,7 +1675,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 7.9</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 7.12</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -1852,7 +1885,7 @@
   var candidates = { rows: [], loaded: false };
   var allTableIds = [];
   var searchText = '';
-  var docFilter = 'all'; // 'all' | 'complete' | 'rejected' | 'toValidate' | 'missing' | 'eadMailNotSent' (voir DOC_FILTERS)
+  var docFilter = 'all'; // 'all' | 'complete' | 'rejected' | 'toValidate' | 'missing' | 'eadMailNotSent' | 'eadNotValidated' (voir DOC_FILTERS)
 
   // ---- Références DOM ----------------------------------------------------
   var panelEtuteur = document.getElementById('panelEtuteur');
@@ -2895,7 +2928,9 @@
     toValidate: function (st) { return st.indexOf('pending') !== -1; },
     missing: function (st) { return st.indexOf('missing') !== -1; },
     // Identifiants GendForm pas encore envoyés (aucune mention dans Blocages / Infos, voir gendFormAlreadySent).
-    eadMailNotSent: function (st, row) { return !gendFormAlreadySent(row); }
+    eadMailNotSent: function (st, row) { return !gendFormAlreadySent(row); },
+    // EAD - Bloc 1 pas encore validé (manquant, en attente ou refusé).
+    eadNotValidated: function (st, row) { return !!settings.col.ead && docStatus(row, 'ead') !== 'ok'; }
   };
   // Effectifs affichés sur chaque filtre : calculés sur les candidats qui
   // passent déjà la recherche, pour que les nombres correspondent à ce
@@ -2903,7 +2938,7 @@
   // masqué tant qu'aucun document n'est configuré.
   var DOC_FILTER_LABELS = {
     all: 'Tous les dossiers', complete: 'Dossiers complets', rejected: 'Documents rejetés',
-    toValidate: 'Documents à valider', missing: 'Documents manquants', eadMailNotSent: 'Email EAD non envoyé'
+    toValidate: 'Documents à valider', missing: 'Documents manquants', eadMailNotSent: 'Email EAD non envoyé', eadNotValidated: 'EAD non validé'
   };
   function updateDocFilterCounts() {
     var hasDocs = ATTACHMENT_ROLES.some(function (role) { return !!settings.col[role]; });
@@ -2984,6 +3019,7 @@
     updateDocFilterCounts();
     var rows = candidates.rows.filter(function (r) { return matchesFilters(r); }).sort(compareCandidatesByName);
     displayedIds.etuteur = rows.map(function (r) { return r.id; });
+    updateMailAllBtn();
     candCount.textContent = rows.length + ' candidat(s) affiché(s) sur ' + candidates.rows.length;
     if (candidates.warning) {
       candZone.innerHTML = '<div class="fr-alert fr-alert--warning fr-alert--sm fr-mb-2w"><p>' + escapeHtml(candidates.warning) + '</p></div>';
@@ -3780,7 +3816,8 @@
         stgField(row, 'regimeAlimentaire', 'Régime alimentaire', { wide: true }),
         stgField(row, 'allergies', 'Allergies', { pre: true }),
         stgField(row, 'traitements', 'Traitements / Maladies', { pre: true }),
-        stgField(row, 'precisionsMedicales', 'Précisions médicales', { wide: true, pre: true })
+        stgField(row, 'precisionsMedicales', 'Précisions médicales', { wide: true, pre: true }),
+        stgField(row, 'lateralite', 'Latéralité')
       ])
     ].forEach(function (c) { if (c) left.appendChild(c); });
 
@@ -3801,11 +3838,10 @@
     return wrap;
   }
 
-  // Infos pratiques : latéralité, mode de transport (icône à droite du titre), plaque d'immatriculation (si le
+  // Infos pratiques : plaque d'immatriculation (si le
   // stagiaire se stationne dans l'enceinte) et, en bas, zone de texte libre (colonne Infos).
   function buildStgPracticalBlock(row) {
     var items = [
-      stgField(row, 'lateralite', 'Latéralité'),
       stgPlateItem(row)
     ];
     var card = stgBlock('Infos pratiques', 'fr-icon-information-line', items);
@@ -4338,6 +4374,161 @@
     return dlg;
   }
 
+  // ---- E-mail à tous les candidats du filtre actif (cci) ----
+  //
+  // Le bouton « e-mail » de la page eTuteur ouvre une fenêtre pour rédiger l'objet, l'adresse de réponse, le corps
+  // et le commentaire à inscrire dans « Blocages / Infos » de chaque fiche. Les candidats affichés (filtre et recherche
+  // actifs) sont mis en copie cachée. Le message s'ouvre dans la messagerie (lien « mailto ») ; s'il y a trop de
+  // destinataires pour un lien, un brouillon .eml est téléchargé à la place. Puis le commentaire est ajouté à chaque fiche.
+  var MAILALL_STORE_KEY = 'candidatsStageMailAll';
+  var MAILALL_DEFAULTS = {
+    subject: 'EAD - Bloc 1 : pièce à valider',
+    replyTo: '',
+    body: 'Bonjour,\n\nVotre enseignement à distance (EAD - Bloc 1) n’est pas encore validé.\nMerci de bien vouloir le compléter dans les meilleurs délais.\n\nCordialement,',
+    comment: 'Relance EAD non validé envoyée le {{DATE}}'
+  };
+  var mailAllBtn = document.getElementById('candMailAllBtn');
+  var mailAllDialog = document.getElementById('mailAllDialog');
+  function mailAllLoad() {
+    try {
+      var raw = JSON.parse(window.localStorage.getItem(MAILALL_STORE_KEY) || 'null');
+      if (raw && typeof raw === 'object') return Object.assign({}, MAILALL_DEFAULTS, raw);
+    } catch (e) { /* stockage indisponible : valeurs par défaut */ }
+    return Object.assign({}, MAILALL_DEFAULTS);
+  }
+  function mailAllSave(v) { try { window.localStorage.setItem(MAILALL_STORE_KEY, JSON.stringify(v)); } catch (e) { /* facultatif */ } }
+  // Candidats affichés (filtre actif) ayant une adresse e-mail ; adresses dédoublonnées.
+  function mailAllRecipients() {
+    var rows = displayedIds.etuteur.map(findCandidateRow).filter(Boolean);
+    var emails = [], seen = {}, withMail = [];
+    rows.forEach(function (r) {
+      var e = settings.col.email ? textOf(r.email).trim() : '';
+      if (!/^[^\s@,;]+@[^\s@,;]+$/.test(e)) return;
+      withMail.push(r);
+      if (!seen[e.toLowerCase()]) { seen[e.toLowerCase()] = true; emails.push(e); }
+    });
+    return { rows: rows, withMail: withMail, emails: emails, missing: rows.length - withMail.length };
+  }
+  function updateMailAllBtn() {
+    var rc = mailAllRecipients();
+    mailAllBtn.disabled = !rc.emails.length;
+    mailAllBtn.title = rc.emails.length ? 'Envoyer un e-mail aux ' + rc.emails.length + ' candidat(s) du filtre actif (en copie cachée)' : 'Aucun candidat avec une adresse e-mail dans l’affichage actuel';
+  }
+  function mailAllInfo() {
+    var rc = mailAllRecipients();
+    document.getElementById('mailAllInfo').textContent = rc.emails.length + ' destinataire(s) en copie cachée (cci)' +
+      (rc.missing ? ' — ' + rc.missing + ' candidat(s) sans adresse e-mail ignoré(s)' : '') + '. Filtre actif : ' + candDocFilterEl.options[candDocFilterEl.selectedIndex].textContent.replace(/\s*\(\d+\)\s*$/, '') + '.';
+  }
+  mailAllBtn.addEventListener('click', function () {
+    var v = mailAllLoad();
+    document.getElementById('mailAllSubject').value = v.subject;
+    document.getElementById('mailAllReply').value = v.replyTo;
+    document.getElementById('mailAllBody').value = v.body;
+    document.getElementById('mailAllComment').value = v.comment;
+    document.getElementById('mailAllError').hidden = true;
+    document.getElementById('mailAllSend').disabled = false;
+    mailAllInfo();
+    mailAllDialog.hidden = false;
+    document.getElementById('mailAllSubject').focus();
+  });
+  function closeMailAll() { mailAllDialog.hidden = true; }
+  document.getElementById('mailAllCancel').addEventListener('click', closeMailAll);
+  document.getElementById('mailAllClose').addEventListener('click', closeMailAll);
+  var mailAllDownOnBackdrop = false;
+  mailAllDialog.addEventListener('mousedown', function (e) { mailAllDownOnBackdrop = e.target === mailAllDialog; });
+  mailAllDialog.addEventListener('click', function (e) { if (e.target === mailAllDialog && mailAllDownOnBackdrop) closeMailAll(); });
+  mailAllDialog.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); closeMailAll(); } });
+  function showMailAllError(msg) { var el = document.getElementById('mailAllError'); el.textContent = msg; el.hidden = false; }
+
+  // Brouillon .eml (en-tête X-Unsent) : s'ouvre dans la messagerie prêt à envoyer, sans limite de destinataires.
+  function emlBase64(str) { return btoa(unescape(encodeURIComponent(str))); }
+  function emlWord(str) { return /^[\x20-\x7e]*$/.test(str) ? str : '=?UTF-8?B?' + emlBase64(str) + '?='; }
+  function buildBccEml(to, bcc, replyTo, subject, body) {
+    var lines = ['X-Unsent: 1'];
+    if (to) lines.push('To: ' + to);
+    lines.push('Bcc: ' + bcc.join(',\r\n '));
+    if (replyTo) lines.push('Reply-To: ' + replyTo);
+    lines.push('Subject: ' + emlWord(subject), 'MIME-Version: 1.0', 'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: base64', '');
+    lines.push((emlBase64(String(body).replace(/\r?\n/g, '\r\n')).match(/.{1,76}/g) || []).join('\r\n'), '');
+    return lines.join('\r\n');
+  }
+  function todayFr() {
+    var d = new Date(), p = function (n) { return (n < 10 ? '0' : '') + n; };
+    return p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear();
+  }
+  // Ajoute le commentaire à « Blocages / Infos » de chaque candidat destinataire (une seule opération Grist).
+  function mailAllWriteComments(rows, comment) {
+    if (!comment.trim()) return Promise.resolve({ done: 0, failed: 0 });
+    var colId = settings.col.blocagesInfos;
+    if (!isWritableColId(colId) || !settings.docsTable) return Promise.reject(new Error('La colonne « Blocages / Infos » de la table Documents n’est pas disponible.'));
+    var updates = [];
+    return rows.reduce(function (p, row) {
+      return p.then(function () {
+        var current = textOf(row.blocagesInfos);
+        if (current.split(/\r?\n/).some(function (l) { return l.trim() === comment.trim(); })) return null; // déjà présent
+        var next = current.trim() ? current.replace(/\s+$/, '') + '\n' + comment : comment;
+        return resolveWriteTarget('blocagesInfos', row).then(function (target) { updates.push({ row: row, target: target, next: next }); });
+      }).catch(function () { updates.failed = (updates.failed || 0) + 1; });
+    }, Promise.resolve()).then(function () {
+      if (!updates.length) return { done: 0, failed: updates.failed || 0 };
+      var actions = updates.map(function (u) { var f = {}; f[colId] = u.next; return ['UpdateRecord', u.target.table, u.target.rowId, f]; });
+      return grist.docApi.applyUserActions(actions).then(function () {
+        updates.forEach(function (u) { u.row.blocagesInfos = u.next; });
+        renderCandidates();
+        return { done: updates.length, failed: updates.failed || 0 };
+      });
+    });
+  }
+
+  document.getElementById('mailAllSend').addEventListener('click', function () {
+    var v = {
+      subject: document.getElementById('mailAllSubject').value.trim(),
+      replyTo: document.getElementById('mailAllReply').value.trim(),
+      body: document.getElementById('mailAllBody').value,
+      comment: document.getElementById('mailAllComment').value
+    };
+    if (!v.subject) { showMailAllError('Indiquez l’objet du message.'); return; }
+    if (!v.body.trim()) { showMailAllError('Le corps du message est vide.'); return; }
+    if (v.replyTo && !/^[^\s@,;]+@[^\s@,;]+$/.test(v.replyTo)) { showMailAllError('L’adresse e-mail de réponse n’est pas valide.'); return; }
+    var rc = mailAllRecipients();
+    if (!rc.emails.length) { showMailAllError('Aucun destinataire : aucun candidat de l’affichage actuel n’a d’adresse e-mail.'); return; }
+    var comment = v.comment.replace(/\{\{\s*DATE\s*\}\}/gi, todayFr()).trim();
+    if (!window.confirm('Préparer le message pour ' + rc.emails.length + ' destinataire(s) en copie cachée' +
+        (comment ? ', et ajouter le commentaire « ' + comment + ' » dans Infos de ' + rc.withMail.length + ' fiche(s)' : '') + ' ?')) return;
+    mailAllSave(v);
+    // 1. le message : lien « mailto » (adresse de réponse en destinataire et en Reply-To, candidats en Bcc)
+    var url = 'mailto:' + encodeURIComponent(v.replyTo).replace(/%40/g, '@') + '?bcc=' + rc.emails.map(encodeURIComponent).join(',').replace(/%40/g, '@') +
+      (v.replyTo ? '&reply-to=' + encodeURIComponent(v.replyTo) : '') + '&subject=' + encodeURIComponent(v.subject) +
+      '&body=' + encodeURIComponent(v.body.replace(/\r?\n/g, '\r\n'));
+    var a = document.createElement('a');
+    var usedEml = false;
+    if (url.length <= 1900) {
+      a.href = url;
+    } else { // trop de destinataires pour un lien : brouillon .eml
+      usedEml = true;
+      var blobUrl = URL.createObjectURL(new Blob([buildBccEml(v.replyTo, rc.emails, v.replyTo, v.subject, v.body)], { type: 'message/rfc822' }));
+      a.href = blobUrl;
+      a.download = (safeFileName(v.subject) || 'message') + '.eml';
+      setTimeout(function () { URL.revokeObjectURL(blobUrl); }, 10000);
+    }
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    // 2. le commentaire dans Infos de chaque fiche
+    var sendBtn = document.getElementById('mailAllSend');
+    sendBtn.disabled = true;
+    mailAllWriteComments(rc.withMail, comment).then(function (res) {
+      closeMailAll();
+      var msg = usedEml ? 'Trop de destinataires pour un lien de messagerie : le brouillon « ' + a.download + ' » a été téléchargé. Ouvrez-le pour l’envoyer.' : '';
+      if (comment) msg += (msg ? '\n\n' : '') + 'Commentaire ajouté dans Infos de ' + res.done + ' fiche(s)' + (res.failed ? ' (' + res.failed + ' échec(s))' : '') + '.';
+      if (msg) window.alert(msg);
+    }, function (e) {
+      sendBtn.disabled = false;
+      showMailAllError('Le message a été préparé, mais le commentaire n’a pas pu être ajouté : ' + friendlyErrorMessage(e));
+    });
+  });
+
   // ==== Page « Encadrement » ==================================================
   //
   // Source EN DUR : table « Encadrement ». Même principe que la page Stagiaires : une bande par
@@ -4678,6 +4869,54 @@
     else node = stgTextValue(text, opts.pre);
     return stgItem(label, node, opts.wide);
   }
+  // Champ éditable de la fiche Encadrement : zone de texte enregistrée à la sortie du champ (Entrée valide, Échap annule)
+  // dans la table Encadrement ; les colonnes numériques (Entier, Numérique) reçoivent un nombre.
+  function encEditField(row, key, label) {
+    var col = enc.cols[key];
+    if (!col) return null;
+    var current = encText(row, key);
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'fr-input stg-edit';
+    input.autocomplete = 'off';
+    input.value = current;
+    input.id = 'encEdit_' + key + '_' + row.id;
+    input.setAttribute('aria-label', label);
+    var busy = false;
+    function save() {
+      var raw = input.value.trim();
+      if (busy || raw === current) return;
+      var value = raw;
+      if (col.type === 'Int' || col.type === 'Numeric') {
+        if (raw === '') value = null;
+        else {
+          var n = Number(raw.replace(/\s/g, '').replace(',', '.'));
+          if (isNaN(n)) { window.alert('Valeur numérique invalide pour « ' + label + ' ».'); input.value = current; return; }
+          value = col.type === 'Int' ? Math.round(n) : n;
+        }
+      }
+      busy = true;
+      setTimeout(function () { busy = false; }, 2000);
+      input.disabled = true;
+      var fields = {};
+      fields[col.id] = value;
+      grist.docApi.applyUserActions([['UpdateRecord', enc.tableId, row.id, fields]]).then(function () {
+        row.f[key] = value;
+        renderEncadrement(); // liste, filtres, et fiche ouverte (reconstruite par renderEncadrement)
+        if (currentModalRowId === row.id && currentModalKind === 'encadrement') renderModalContent();
+      }).catch(function (e) {
+        input.disabled = false;
+        input.value = current;
+        window.alert('Impossible d’enregistrer « ' + label + ' » : ' + friendlyErrorMessage(e));
+      });
+    }
+    input.addEventListener('blur', save);
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') input.blur(); if (e.key === 'Escape') { input.value = current; input.blur(); } });
+    var box = document.createElement('span');
+    box.className = 'stg-item__value';
+    box.appendChild(input);
+    return stgItem(label, box, false);
+  }
   function buildEncInfosTab(row) {
     var wrap = document.createElement('div');
     wrap.className = 'stg-cols';
@@ -4702,7 +4941,7 @@
         encField(row, 'emailPro', 'Email pro', { mail: true })
       ]),
       stgBlock('Hébergement', 'fr-icon-home-4-line', [
-        encField(row, 'batiment', 'Bâtiment'), encField(row, 'chambre', 'Chambre')
+        encEditField(row, 'batiment', 'Bâtiment'), encEditField(row, 'chambre', 'Chambre')
       ]),
       stgBlock('Qualifications', 'fr-icon-award-line', [
         encField(row, 'secourisme', 'Qualif. secourisme'), encField(row, 'permis', 'Permis détenus')
