@@ -444,11 +444,27 @@
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
   }
   .stg-transport__icon--other { color: var(--text-mention-grey); }
+  /* Icône du mode de transport, à droite du titre du champ. */
+  .stg-item__head { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; }
+  /* Plaque d'immatriculation française : bandeau bleu européen « F », fond blanc, lettres noires épaisses. */
   .stg-plate {
-    display: inline-block; padding: 0.1rem 0.6rem; border: 2px solid #4a4923; border-radius: 0.3rem;
-    background: #fff; color: #161616; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-weight: 800; letter-spacing: 0.08em; font-size: 0.9em;
+    display: inline-flex; align-items: stretch; height: 2.7rem; border: 2px solid #1b1b1b; border-radius: 0.5rem;
+    background: #fff; overflow: hidden; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.28), inset 0 0 0 1px #fff;
   }
+  .stg-plate:focus-within { box-shadow: 0 0 0 3px rgba(92, 90, 43, 0.4), 0 2px 5px rgba(0, 0, 0, 0.28); }
+  .stg-plate__eu, .stg-plate__reg { flex: none; background: #003399; color: #fff; }
+  .stg-plate__eu { position: relative; width: 1.9rem; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 0.2rem; }
+  .stg-plate__stars { position: absolute; top: 0.18rem; left: 50%; transform: translateX(-50%); color: #ffcc00; font-size: 0.72rem; line-height: 1; letter-spacing: -0.05em; }
+  .stg-plate__f { font: 700 0.85rem/1 Arial, Helvetica, sans-serif; }
+  .stg-plate__reg { width: 1.4rem; }
+  .stg-plate__input {
+    box-sizing: border-box; width: 10rem; border: 0; outline: 0; background: #fff; color: #111; text-align: center; text-transform: uppercase;
+    font: 800 1.55rem/1 "Arial Narrow", "Helvetica Neue", Arial, sans-serif; letter-spacing: 0.1em; padding: 0 0.5rem;
+  }
+  .stg-plate__input::placeholder { color: #c2c2c2; font-weight: 700; }
+  /* Champs éditables de la fiche (peloton, fonction, bâtiment, chambre). */
+  .stg-edit { width: 100%; box-sizing: border-box; }
+  input.stg-edit, select.stg-edit { min-height: 2.2rem; padding-top: 0.25rem; padding-bottom: 0.25rem; }
 
   /* Zone de texte libre (colonne Infos). */
   .stg-freetext__label { margin-top: 0.8rem; }
@@ -1609,7 +1625,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 6.12</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 7.1</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -3535,29 +3551,126 @@
     if (m) return m[1] + ' ' + m[2] + ' ' + m[3];
     return String(raw || '').trim();
   }
-  function stgTransportValue(row) {
-    var mode = textOf(row.modeTransport);
+  // Icône du mode de transport (voiture, train, piéton) dans une pastille ronde ; pictogramme neutre si la
+  // réponse n'est aucun des trois. Le libellé exact de la réponse est en info-bulle.
+  function stgTransportIcon(mode) {
     var kind = transportKind(mode);
-    var span = document.createElement('span');
-    span.className = 'stg-item__value stg-transport';
-    if (!mode) { span.textContent = '—'; span.classList.add('stg-item__value--empty'); return span; }
-    // Icône dans une pastille ronde : voiture, train ou piéton ; pictogramme neutre si la
-    // réponse n'est aucun des trois.
     var ico = document.createElement('span');
     ico.className = 'stg-transport__icon' + (kind ? '' : ' stg-transport__icon--other');
     ico.title = kind ? mode : 'Mode de transport non reconnu (attendu : Voiture, Train ou Piéton) : « ' + mode + ' »';
     ico.innerHTML = kind ? TRANSPORT_SVG[kind] : '<span class="fr-icon-map-pin-2-line" aria-hidden="true"></span>';
-    span.appendChild(ico);
-    span.appendChild(document.createTextNode(mode));
-    var plate = (kind === 'voiture' && settings.col.immatriculation) ? textOf(row.immatriculation) : '';
-    if (plate) {
-      var tag = document.createElement('span');
-      tag.className = 'stg-plate';
-      tag.textContent = formatPlate(plate);
-      tag.title = 'Immatriculation';
-      span.appendChild(tag);
+    ico.setAttribute('role', 'img');
+    ico.setAttribute('aria-label', ico.title);
+    return ico;
+  }
+  // « Mode de transport » : seule l'icône est affichée, à droite du titre.
+  function stgTransportItem(row) {
+    var mode = textOf(row.modeTransport);
+    var item = document.createElement('div');
+    item.className = 'stg-item stg-item--wide stg-item--iconright';
+    var head = document.createElement('div');
+    head.className = 'stg-item__head';
+    var l = document.createElement('span');
+    l.className = 'stg-item__label';
+    l.textContent = 'Mode de transport';
+    head.appendChild(l);
+    if (mode) head.appendChild(stgTransportIcon(mode));
+    item.appendChild(head);
+    if (!mode) item.appendChild(stgTextValue(''));
+    return item;
+  }
+  // Le stagiaire se stationne-t-il dans l'enceinte ? d'après sa réponse (« … je me stationne dans l'enceinte »,
+  // « parking du camp »…). La plaque n'est proposée que pour un trajet en voiture avec stationnement dans
+  // l'enceinte, ou si une immatriculation est déjà enregistrée.
+  function stgParksInside(row) {
+    var mode = textOf(row.modeTransport);
+    if (transportKind(mode) !== 'voiture') return false;
+    var k = normalizeKey(mode);
+    // Réponse type : « En voiture, je me stationne dans l'enceinte militaire ». Un stationnement « hors de l'enceinte »,
+    // « à l'extérieur » ou « en dehors » ne compte pas.
+    if (/HORS|EXTERIEUR|DEHORS/.test(k)) return !!(settings.col.immatriculation && textOf(row.immatriculation).trim());
+    if (/STATIONN|PARKING|ENCEINTE|DANS LE CAMP|DANS LA CASERNE|\bGAR(?:E|ER)\b/.test(k)) return true;
+    return !!(settings.col.immatriculation && textOf(row.immatriculation).trim());
+  }
+  // Plaque d'immatriculation éditable, dessinée comme une plaque française (bandeau bleu européen « F » à gauche,
+  // fond blanc, lettres noires épaisses, bandeau bleu à droite). Enregistrée à la sortie du champ, mise en forme
+  // SIV « AB-123-CD » ou ancien format « 123 AB 45 » (voir formatPlate).
+  function stgPlateItem(row) {
+    if (!settings.col.immatriculation || !stgParksInside(row)) return null;
+    var wrap = document.createElement('div');
+    wrap.className = 'stg-plate';
+    var eu = document.createElement('span');
+    eu.className = 'stg-plate__eu';
+    eu.innerHTML = '<span class="stg-plate__stars" aria-hidden="true">★</span><span class="stg-plate__f">F</span>';
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'stg-plate__input';
+    input.id = 'stgPlate_' + row.id;
+    input.setAttribute('aria-label', 'Immatriculation');
+    input.placeholder = 'AB-123-CD';
+    input.maxLength = 12;
+    input.autocomplete = 'off';
+    input.spellcheck = false;
+    input.value = formatPlate(textOf(row.immatriculation));
+    var initial = textOf(row.immatriculation);
+    var busy = false;
+    input.addEventListener('blur', function () {
+      input.value = formatPlate(input.value);
+      if (busy || input.value === initial) return;
+      busy = true;
+      setTimeout(function () { busy = false; }, 2000);
+      saveFieldEdit('immatriculation', row, input, 'text', initial);
+    });
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') input.blur(); });
+    var reg = document.createElement('span');
+    reg.className = 'stg-plate__reg';
+    reg.setAttribute('aria-hidden', 'true');
+    wrap.appendChild(eu);
+    wrap.appendChild(input);
+    wrap.appendChild(reg);
+    var item = stgItem('Immatriculation', wrap, true);
+    return item;
+  }
+
+  // Champ éditable de la fiche : liste déroulante si la colonne est de type Choix (valeurs de la colonne), sinon
+  // zone de texte ; enregistré à la sortie du champ (voir saveFieldEdit).
+  function stgEditField(row, role, label, opts) {
+    var colId = settings.col[role];
+    if (!colId) return null;
+    opts = opts || {};
+    var current = textOf(row[role]);
+    var type = String((columnTypesMap[settings.table] || {})[colId] || '').split(':')[0];
+    var choices = (type === 'Choice') ? ((columnChoicesMap[settings.table] || {})[colId] || []) : [];
+    var busy = false;
+    var el;
+    if (choices.length) {
+      el = document.createElement('select');
+      el.className = 'fr-select stg-edit';
+      var values = [''].concat(choices);
+      if (current && values.indexOf(current) === -1) values.push(current);
+      values.forEach(function (v) {
+        var o = document.createElement('option');
+        o.value = v;
+        o.textContent = v || '—';
+        el.appendChild(o);
+      });
+      el.value = current;
+      el.addEventListener('change', function () { if (!busy && el.value !== current) { busy = true; setTimeout(function () { busy = false; }, 2000); saveFieldEdit(role, row, el, 'text', current); } });
+    } else {
+      el = document.createElement('input');
+      el.type = 'text';
+      el.className = 'fr-input stg-edit';
+      el.autocomplete = 'off';
+      el.value = current;
+      el.addEventListener('blur', function () { if (!busy && el.value !== current) { busy = true; setTimeout(function () { busy = false; }, 2000); saveFieldEdit(role, row, el, 'text', current); } }); // (busy : évite un double enregistrement quand la fiche est reconstruite)
+      el.addEventListener('keydown', function (e) { if (e.key === 'Enter') el.blur(); });
     }
-    return span;
+    el.id = 'stgEdit_' + role + '_' + row.id;
+    el.setAttribute('aria-label', label);
+    var box = document.createElement('span');
+    box.className = 'stg-item__value';
+    box.appendChild(el);
+    return stgItem(label, box, opts.wide);
   }
 
   // ---- Onglet « Informations » ---------------------------------------------------
@@ -3579,9 +3692,11 @@
 
     [
       stgBlock('Identité', 'fr-icon-user-line', [
-        stgField(row, 'civilite', 'Civilité'), stgField(row, 'nom', 'Nom'), stgField(row, 'prenom', 'Prénom'),
-        settings.col.dateNaissance ? stgItem('Né(e) le', bornNode) : null,
-        stgField(row, 'lieuNaissance', 'Lieu de naissance'), stgField(row, 'dpt', 'Département')
+        stgField(row, 'nom', 'Nom'), stgField(row, 'prenom', 'Prénom'),
+        settings.col.dateNaissance ? stgItem('Date de naissance (âge)', bornNode, true) : null
+      ]),
+      stgBlock('Stage', 'fr-icon-flag-line', [
+        stgEditField(row, 'pon', 'Peloton'), stgEditField(row, 'fonction', 'Fonction')
       ]),
       stgBlock('Renseignements militaires', 'fr-icon-shield-line', [
         stgField(row, 'nigend', 'Nigend'), stgField(row, 'nid', 'NID'), stgField(row, 'affectation', 'Affectation')
@@ -3601,7 +3716,8 @@
       stgBlock('Contact d’urgence', 'fr-icon-alarm-warning-line', [
         stgField(row, 'nomUrgence', 'Nom'), stgField(row, 'prenomUrgence', 'Prénom'), stgField(row, 'telUrgence', 'Tél.', { phone: true })
       ]),
-      stgBlock('Hébergement', 'fr-icon-home-4-line', [stgField(row, 'batiment', 'Bât.'), stgField(row, 'chambre', 'Ch.')]),
+      stgBlock('Hébergement', 'fr-icon-home-4-line', [stgEditField(row, 'batiment', 'Bât.'), stgEditField(row, 'chambre', 'Ch.')]),
+      stgBlock('Qualifications', 'fr-icon-award-line', [stgField(row, 'qualifSecourisme', 'Secourisme', { wide: true })]),
       buildStgPracticalBlock(row)
     ].forEach(function (c) { if (c) right.appendChild(c); });
 
@@ -3610,13 +3726,13 @@
     return wrap;
   }
 
-  // Infos pratiques : bâtiment, chambre, fonction, secourisme, latéralité, mode
-  // de transport (icône + plaque) et, en bas, zone de texte libre (colonne Infos).
+  // Infos pratiques : latéralité, mode de transport (icône à droite du titre), plaque d'immatriculation (si le
+  // stagiaire se stationne dans l'enceinte) et, en bas, zone de texte libre (colonne Infos).
   function buildStgPracticalBlock(row) {
     var items = [
-      stgField(row, 'fonction', 'Fonction'),
-      stgField(row, 'qualifSecourisme', 'Qualif. secourisme'), stgField(row, 'lateralite', 'Latéralité'),
-      settings.col.modeTransport ? stgItem('Mode de transport', stgTransportValue(row), true) : null
+      stgField(row, 'lateralite', 'Latéralité'),
+      settings.col.modeTransport ? stgTransportItem(row) : null,
+      stgPlateItem(row)
     ];
     var card = stgBlock('Infos pratiques', 'fr-icon-information-line', items);
     if (!candidates.hasInfos) return card;
@@ -6397,6 +6513,7 @@
       row[role] = newValue;
       inputEl.disabled = false;
       renderCandidates();
+      renderStagiaires(); // liste, tags et filtres de la page Stagiaires
       if (currentModalRowId === row.id) renderModalContent();
     }).catch(function (e) {
       window.alert('Impossible d’enregistrer « ' + ROLE_LABELS[role] + ' » : ' + friendlyErrorMessage(e));
