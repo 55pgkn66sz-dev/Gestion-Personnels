@@ -1139,10 +1139,10 @@
   .cand-trow { cursor: pointer; }
   .cand-trow:hover td, .cand-trow:focus-visible td { background: #f0f0f5; }
   .cand-trow:focus-visible { outline: 2px solid var(--bleu-france); outline-offset: -2px; }
-  .cand-table { table-layout: fixed; } /* mêmes colonnes d'un tableau à l'autre (sections « Groupe » de l'Encadrement) */
-  .cand-table th:first-child { width: 30%; }
-  .cand-table th.cand-table__end { width: 6rem; }
-  .cand-table td { vertical-align: middle; overflow: hidden; text-overflow: ellipsis; }
+  .cand-table td { vertical-align: middle; }
+  .cand-table tbody tr:first-child td { border-top: none; }
+  .cand-cell { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem 0.8rem; }
+  .cand-cell .stg-row-avatar { flex: none; }
   .cand-table__person { display: table-cell; }
   .cand-table__person .stg-row-avatar { display: inline-flex; vertical-align: middle; margin-right: 0.7rem; }
   .cand-table__person .cand-row__name { vertical-align: middle; }
@@ -1687,7 +1687,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 8.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 8.1</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -3063,8 +3063,7 @@
       candZone.insertAdjacentHTML('beforeend', '<p class="cand-empty-state">Aucun candidat ne correspond à l’affichage actuel.</p>');
       return;
     }
-    var headers = ['Candidat'].concat(ATTACHMENT_ROLES.filter(function (r) { return settings.col[r]; }).map(function (r) { return DOC_TAG_LABELS[r]; }), ['']);
-    candZone.appendChild(buildListTable(headers, rows, buildCandidateRow));
+    candZone.appendChild(buildListTable(null, rows, buildCandidateRow));
 
     // La modale peut rester ouverte pendant qu'on filtre/recherche : si la
     // ligne affichée n'existe plus dans les données rechargées (candidat
@@ -3082,16 +3081,18 @@
     wrap.className = 'bulk-table-wrap cand-table-wrap';
     var table = document.createElement('table');
     table.className = 'bulk-table cand-table';
-    var thead = document.createElement('thead');
-    var hr = document.createElement('tr');
-    headers.forEach(function (h, i) {
-      var th = document.createElement('th');
-      th.textContent = h;
-      if (!h && i === headers.length - 1) th.className = 'cand-table__end';
-      hr.appendChild(th);
-    });
-    thead.appendChild(hr);
-    table.appendChild(thead);
+    if (headers) { // sans en-tête : une seule colonne « nom + tags » (voir cand-table__main)
+      var thead = document.createElement('thead');
+      var hr = document.createElement('tr');
+      headers.forEach(function (h, i) {
+        var th = document.createElement('th');
+        th.textContent = h;
+        if (!h && i === headers.length - 1) th.className = 'cand-table__end';
+        hr.appendChild(th);
+      });
+      thead.appendChild(hr);
+      table.appendChild(thead);
+    }
     var tbody = document.createElement('tbody');
     rows.forEach(function (row) { tbody.appendChild(buildRow(row)); });
     table.appendChild(tbody);
@@ -3115,6 +3116,24 @@
     if (node) td.appendChild(node);
     return td;
   }
+  // Cellule principale : le nom (avec sa photo éventuelle) suivi de ses tags, à la suite.
+  function tdMain(lead, nameText, tagNodes) {
+    var td = document.createElement('td');
+    td.className = 'cand-table__main';
+    var box = document.createElement('div');
+    box.className = 'cand-cell';
+    if (lead) box.appendChild(lead);
+    var nameEl = document.createElement('span');
+    nameEl.className = 'cand-row__name';
+    nameEl.textContent = nameText;
+    box.appendChild(nameEl);
+    var tags = document.createElement('span');
+    tags.className = 'cand-row__tags';
+    (tagNodes || []).forEach(function (t) { if (t) tags.appendChild(t); });
+    if (tags.childNodes.length) box.appendChild(tags);
+    td.appendChild(box);
+    return td;
+  }
   function tdText(text) { var td = document.createElement('td'); td.textContent = text || ''; return td; }
   function tdEnd(row, candOnly) { return tdWith(buildRowEnd(row, candOnly), 'cand-table__end'); }
 
@@ -3125,13 +3144,9 @@
   // s'affiche qu'au clic, dans la modale — voir buildCandidateDetails.
   function buildCandidateRow(row) {
     var tr = document.createElement('tr');
-    var nameEl = document.createElement('span');
-    nameEl.className = 'cand-row__name';
-    nameEl.textContent = stagiaireDisplayName(row);
-    tr.appendChild(tdWith(nameEl, 'bulk-table__name'));
-    ATTACHMENT_ROLES.forEach(function (role) {
-      if (settings.col[role]) tr.appendChild(tdWith(buildDocTag(row, role)));
-    });
+    var tags = [];
+    ATTACHMENT_ROLES.forEach(function (role) { if (settings.col[role]) tags.push(buildDocTag(row, role)); });
+    tr.appendChild(tdMain(null, stagiaireDisplayName(row), tags));
     tr.appendChild(tdEnd(row, false));
     return makeRowLink(tr, row.id, function () { openCandidateModal(row.id); });
   }
@@ -3333,7 +3348,7 @@
     if (!rows.length) {
       stgZone.innerHTML = '<p class="cand-empty-state">Aucun stagiaire ne correspond à l’affichage actuel.</p>';
     } else {
-      stgZone.appendChild(buildListTable(['Stagiaire', 'Peloton', 'Fonction', ''], rows, buildStagiaireRow));
+      stgZone.appendChild(buildListTable(null, rows, buildStagiaireRow));
     }
 
     // Modale ouverte pendant un rechargement : mise à jour, ou fermeture si
@@ -3428,19 +3443,13 @@
 
   function buildStagiaireRow(row) {
     var tr = document.createElement('tr');
-    var nameCell = document.createElement('td');
-    nameCell.className = 'bulk-table__name cand-table__person';
-    nameCell.appendChild(buildRowAvatar(row));
-    var nameEl = document.createElement('span');
-    nameEl.className = 'cand-row__name';
-    nameEl.textContent = stagiaireDisplayName(row);
-    nameCell.appendChild(nameEl);
-    tr.appendChild(nameCell);
     // Peloton (bleu) puis Fonction (vert d'eau) : tags, dans la couleur du choix Grist quand elle existe.
+    var tags = [];
     var pon = settings.col.pon ? textOf(row.pon) : '';
-    tr.appendChild(tdWith(pon ? applyChoiceColors(buildPlainTag(pon, 'stg-tag--pon', 'PON : ' + pon), tableChoiceOptions(settings.table, settings.col.pon), pon) : null));
+    if (pon) tags.push(applyChoiceColors(buildPlainTag(pon, 'stg-tag--pon', 'PON : ' + pon), tableChoiceOptions(settings.table, settings.col.pon), pon));
     var fonction = settings.col.fonction ? textOf(row.fonction) : '';
-    tr.appendChild(tdWith(fonction ? applyChoiceColors(buildPlainTag(fonction, 'stg-tag--fonction', 'Fonction : ' + fonction), tableChoiceOptions(settings.table, settings.col.fonction), fonction) : null));
+    if (fonction) tags.push(applyChoiceColors(buildPlainTag(fonction, 'stg-tag--fonction', 'Fonction : ' + fonction), tableChoiceOptions(settings.table, settings.col.fonction), fonction));
+    tr.appendChild(tdMain(buildRowAvatar(row), stagiaireDisplayName(row), tags));
     tr.appendChild(tdEnd(row, true));
     return makeRowLink(tr, row.id, function () { openCandidateModal(row.id, 'stagiaire'); });
   }
@@ -4863,7 +4872,7 @@
           head.textContent = g.title + ' (' + g.rows.length + ')';
           encZone.appendChild(head);
         }
-        encZone.appendChild(buildListTable(['Membre', 'Grade', 'Fonction', 'Groupe', ''], g.rows, buildEncRow));
+        encZone.appendChild(buildListTable(null, g.rows, buildEncRow));
       });
     }
     if (currentModalRowId !== null && currentModalKind === 'encadrement') {
@@ -4893,21 +4902,9 @@
   }
   function buildEncRow(row) {
     var tr = document.createElement('tr');
-    var nameCell = document.createElement('td');
-    nameCell.className = 'bulk-table__name cand-table__person';
-    nameCell.appendChild(buildEncAvatar(row));
-    var nameEl = document.createElement('span');
-    nameEl.className = 'cand-row__name';
-    nameEl.textContent = encDisplayName(row);
-    nameCell.appendChild(nameEl);
-    tr.appendChild(nameCell);
-    tr.appendChild(tdText(encText(row, 'grade')));
-    tr.appendChild(tdText(encText(row, 'fonction')));
-    // Groupe(s) : un tag par valeur, dans la couleur définie dans Grist.
-    var tags = document.createElement('span');
-    tags.className = 'cand-table__tags';
-    encGroupTags(row).forEach(function (g) { tags.appendChild(applyChoiceColors(buildPlainTag(g, 'stg-tag--pon', 'Groupe : ' + g), enc.cols.groupe && enc.cols.groupe.choiceOptions, g)); });
-    tr.appendChild(tdWith(tags.childNodes.length ? tags : null));
+    // Tags : valeurs de la colonne Groupe, dans la couleur définie dans Grist.
+    var tags = encGroupTags(row).map(function (g) { return applyChoiceColors(buildPlainTag(g, 'stg-tag--pon', 'Groupe : ' + g), enc.cols.groupe && enc.cols.groupe.choiceOptions, g); });
+    tr.appendChild(tdMain(buildEncAvatar(row), encDisplayName(row), tags));
     var end = document.createElement('span');
     end.className = 'cand-row__end';
     var chevron = document.createElement('span');
