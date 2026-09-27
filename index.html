@@ -200,8 +200,9 @@
     -webkit-backdrop-filter: blur(3px);
     z-index: 150;
     display: flex;
-    align-items: flex-start;
-    justify-content: center;
+    flex-direction: column; /* la pile de volets, puis la barre de doublon (#candCmpBar) en dessous */
+    align-items: center;
+    justify-content: flex-start;
     padding: 3rem 1rem;
     overflow-y: auto;
     opacity: 0;
@@ -554,6 +555,29 @@
   /* Pied du volet : icône de suppression en bas à droite (volet de la ligne la plus ancienne). */
   .cand-modal-dialog__footer { display: flex; justify-content: flex-end; margin-top: 1.25rem; }
   .cand-modal-dialog__delete { color: var(--statut-refusee) !important; }
+  .cand-cmp-bar {
+    width: max(70vw, 46rem); max-width: 100%; margin-top: 1rem; box-sizing: border-box;
+    padding: 1.1rem 1.5rem 1.25rem; border-radius: 1rem; background: #fff;
+    box-shadow: 0 1rem 2.5rem rgba(20, 10, 30, 0.25), 0 2px 8px rgba(20, 10, 30, 0.12);
+  }
+  .cand-cmp-bar--compare { width: max(90vw, 60rem); }
+  .cand-cmp-bar[hidden] { display: none; }
+  .cand-cmp-bar__title { margin: 0 0 0.25rem; font-size: 1.05em; color: var(--text-title-grey, #161616); }
+  .cand-cmp-bar__hint { margin: 0 0 0.85rem; color: var(--text-mention-grey); font-size: 0.875rem; }
+  .cand-cmp-bar__row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem 2rem; margin-bottom: 0.75rem; }
+  .cand-cmp-bar__keep { border: 0; margin: 0; padding: 0; }
+  .cand-cmp-bar__keep legend { font-size: 0.875rem; color: var(--text-mention-grey); padding: 0; margin-bottom: 0.3rem; }
+  .cand-cmp-bar__keep label { display: inline-flex; align-items: center; gap: 0.4rem; margin: 0 1.25rem 0 0; cursor: pointer; }
+  .cand-cmp-bar__keep input { width: 1.1rem; height: 1.1rem; accent-color: var(--bleu-france); }
+  .cand-cmp-bar__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+  .cand-cmp-bar__confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border: 1px solid var(--statut-refusee); border-left-width: 6px; margin-top: 0.5rem; }
+  .cand-cmp-bar__confirm p { margin: 0; }
+  .cand-cmp-bar__msg { margin: 0 0 0.75rem; padding: 0.6rem 0.9rem; border-radius: 0.4rem; font-size: 0.875rem; }
+  .cand-cmp-bar__msg--success { background: #b8fec9; color: #18753c; }
+  .cand-cmp-bar__msg--error { background: #ffe9e9; color: #ce0500; }
+  /* Champs qui diffèrent entre les deux fiches, fiche Stagiaires (voir cmpApplyHighlight). */
+  .stg-item.is-diff { background: #feecc2; border-radius: 0.4rem; padding: 0.35rem 0.5rem; margin: -0.35rem -0.5rem; }
+  @media (max-width: 40rem) { .cand-cmp-bar { width: 100%; padding: 1rem; } }
   @media (max-width: 60rem) {
     .cand-modal-stack--compare { flex-direction: column; align-items: stretch; }
     .cand-modal-stack--compare .cand-modal-dialog { max-width: none; }
@@ -586,7 +610,7 @@
   }
 
   @media (max-width: 40rem) {
-    .cand-modal-overlay { padding: 0; align-items: flex-end; }
+    .cand-modal-overlay { padding: 0; justify-content: flex-end; }
     .cand-modal-dialog {
       max-width: none;
       max-height: 92vh;
@@ -1678,6 +1702,10 @@
   <!-- Volets de la modale, construits par renderModalContent : un seul en
        temps normal, deux (ou plus) côte à côte quand le candidat est en doublon. -->
   <div class="cand-modal-stack" id="candModalStack"></div>
+  <!-- Doublon (deux volets affichés côte à côte) : barre de comparaison, même principe que le widget
+       « Candidats PMG » — choix de la fiche à conserver, synchronisation des champs vides, suppression
+       de la fiche en trop avec confirmation en ligne. Construite par renderCmpBar(). -->
+  <div class="cand-cmp-bar" id="candCmpBar" hidden></div>
 </div>
 
 <!-- Popover d'aperçu des pièces jointes, positionné dynamiquement au
@@ -3063,7 +3091,7 @@
       candZone.insertAdjacentHTML('beforeend', '<p class="cand-empty-state">Aucun candidat ne correspond à l’affichage actuel.</p>');
       return;
     }
-    candZone.appendChild(buildListTable(null, rows, buildCandidateRow));
+    candZone.appendChild(buildListTable('Candidats', rows, buildCandidateRow));
 
     // La modale peut rester ouverte pendant qu'on filtre/recherche : si la
     // ligne affichée n'existe plus dans les données rechargées (candidat
@@ -3075,24 +3103,23 @@
   }
 
   // ---- Vues « tableau » (eTuteur, Stagiaires, Encadrement) : même tableau que la page « Générer doc. en lot » ----
-  // headers : libellés des colonnes ('' = colonne de fin) ; buildRow(row) renvoie une ligne <tr> (voir makeRowLink).
-  function buildListTable(headers, rows, buildRow) {
+  // title : intitulé de la seule colonne visible (« Candidats », « Stagiaires »… — comme le widget PMG) ; buildRow(row) renvoie une ligne <tr> (voir makeRowLink).
+  function buildListTable(title, rows, buildRow) {
     var wrap = document.createElement('div');
     wrap.className = 'bulk-table-wrap cand-table-wrap';
     var table = document.createElement('table');
     table.className = 'bulk-table cand-table';
-    if (headers) { // sans en-tête : une seule colonne « nom + tags » (voir cand-table__main)
-      var thead = document.createElement('thead');
-      var hr = document.createElement('tr');
-      headers.forEach(function (h, i) {
-        var th = document.createElement('th');
-        th.textContent = h;
-        if (!h && i === headers.length - 1) th.className = 'cand-table__end';
-        hr.appendChild(th);
-      });
-      thead.appendChild(hr);
-      table.appendChild(thead);
-    }
+    var thead = document.createElement('thead');
+    var hr = document.createElement('tr');
+    var th = document.createElement('th');
+    th.textContent = title;
+    hr.appendChild(th);
+    var thEnd = document.createElement('th');
+    thEnd.className = 'cand-table__end';
+    thEnd.innerHTML = '<span class="fr-sr-only">Repères (doublon, mineur…)</span>';
+    hr.appendChild(thEnd);
+    thead.appendChild(hr);
+    table.appendChild(thead);
     var tbody = document.createElement('tbody');
     rows.forEach(function (row) { tbody.appendChild(buildRow(row)); });
     table.appendChild(tbody);
@@ -3348,7 +3375,7 @@
     if (!rows.length) {
       stgZone.innerHTML = '<p class="cand-empty-state">Aucun stagiaire ne correspond à l’affichage actuel.</p>';
     } else {
-      stgZone.appendChild(buildListTable(null, rows, buildStagiaireRow));
+      stgZone.appendChild(buildListTable('Stagiaires', rows, buildStagiaireRow));
     }
 
     // Modale ouverte pendant un rechargement : mise à jour, ou fermeture si
@@ -3638,7 +3665,9 @@
     if (opts.phone) node = stgPhoneValue(v);
     else if (opts.mail) node = stgMailValue(v);
     else node = stgTextValue(isBoolLike(v) ? (v ? 'Oui' : 'Non') : textOf(v), opts.pre);
-    return stgItem(label, node, opts.wide);
+    var item = stgItem(label, node, opts.wide);
+    item.dataset.role = role; // pour la comparaison de doublon (voir cmpApplyHighlight)
+    return item;
   }
 
   // ---- Mode de transport : icône (voiture, train, piéton) + plaque ------------
@@ -3815,7 +3844,9 @@
     if (!settings.col[role]) return null;
     var d = dateOf(row[role]);
     var text = d ? fmtDateFr(d) : textOf(row[role]);
-    return stgItem(label, stgTextValue(text), false);
+    var item = stgItem(label, stgTextValue(text), false);
+    item.dataset.role = role;
+    return item;
   }
   // Champ éditable classique (zone de texte ou liste toujours visible).
   function stgEditField(row, role, label, opts) {
@@ -3824,7 +3855,9 @@
     var box = document.createElement('span');
     box.className = 'stg-item__value';
     box.appendChild(stgEditControl(row, role, label, opts));
-    return stgItem(label, box, opts.wide);
+    var item = stgItem(label, box, opts.wide);
+    item.dataset.role = role;
+    return item;
   }
   // Champ affiché sous forme de tag (couleur du choix dans Grist), modifiable au clic : le tag se change en liste ou
   // en zone de texte ; à la sortie sans modification, le tag revient.
@@ -3851,7 +3884,9 @@
       });
     });
     box.appendChild(tag);
-    return stgItem(label, box, opts && opts.wide);
+    var item = stgItem(label, box, opts && opts.wide);
+    item.dataset.role = role;
+    return item;
   }
 
   // ---- Onglet « Informations » ---------------------------------------------------
@@ -4441,7 +4476,6 @@
     STG_TABS.forEach(function (t) { dlg.appendChild(panels[t.id]); });
     select(STG_TABS.some(function (t) { return t.id === stgActiveTab; }) ? stgActiveTab : 'infos');
 
-    if (compare && isOldest) dlg.appendChild(buildDeleteFooter(view, prenomNom));
     return dlg;
   }
 
@@ -4872,7 +4906,7 @@
           head.textContent = g.title + ' (' + g.rows.length + ')';
           encZone.appendChild(head);
         }
-        encZone.appendChild(buildListTable(null, g.rows, buildEncRow));
+        encZone.appendChild(buildListTable('Encadrement', g.rows, buildEncRow));
       });
     }
     if (currentModalRowId !== null && currentModalKind === 'encadrement') {
@@ -6339,6 +6373,7 @@
     var id = modalNeighbor(step);
     if (id === null) return;
     currentModalRowId = id;
+    cmpState = { keep: 'newer', confirm: false, busy: false, msg: null }; // barre de doublon réinitialisée : autre fiche
     renderModalContent();
     candModalOverlay.scrollTop = 0;
   }
@@ -6371,6 +6406,7 @@
   function openCandidateModal(rowId, kind) {
     currentModalKind = kind || 'etuteur';
     currentModalRowId = rowId;
+    cmpState = { keep: 'newer', confirm: false, busy: false, msg: null };
     renderModalContent();
     candModalOverlay.hidden = false;
     // Double rAF avant d'ajouter .is-open : le premier laisse le
@@ -6447,6 +6483,8 @@
       candModalStack.className = 'cand-modal-stack';
       candModalStack.innerHTML = '';
       candModalStack.appendChild(buildEncadrementPanel(encRow));
+      candCmpBar.hidden = true;
+      candCmpBar.innerHTML = '';
       return;
     }
     var base = findCandidateRow(currentModalRowId);
@@ -6462,6 +6500,7 @@
     views.forEach(function (view) {
       candModalStack.appendChild((isStg ? buildStagiairePanel : buildModalPanel)(view, compare, view === oldest));
     });
+    if (compare) renderCmpBar(views, views[0].kind, isStg); else { candCmpBar.hidden = true; candCmpBar.innerHTML = ''; }
   }
 
   // Un volet de la modale : en-tête (nom, contacts, icônes doublon / mineur,
@@ -6553,80 +6592,145 @@
     buildCandidateDetails(row).forEach(function (el) { body.appendChild(el); });
     dlg.appendChild(body);
 
-    if (compare && isOldest) dlg.appendChild(buildDeleteFooter(view, name));
     return dlg;
   }
 
   // Pied de volet du doublon le plus ancien : icône de suppression en bas à droite.
   var currentModalViews = [];
-  function buildDeleteFooter(view, name) {
-    var footer = document.createElement('div');
-    footer.className = 'cand-modal-dialog__footer';
-    // « Copier » : reporte les remarques de « Blocages / Infos » de cette fiche dans la même case de la fiche la plus récente.
-    if (settings.col.blocagesInfos && currentModalViews.length > 1) {
-      var copy = document.createElement('button');
-      copy.type = 'button';
-      copy.className = 'fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-share-forward-line cand-modal-dialog__copy';
-      copy.title = 'Copier les remarques (Blocages / Infos) dans la fiche la plus récente';
-      copy.textContent = 'Copier les remarques dans la fiche la plus récente';
-      copy.addEventListener('click', function () { copyRemarksToNewest(view, copy); });
-      footer.appendChild(copy);
-    }
-    var del = document.createElement('button');
-    del.type = 'button';
-    del.className = 'fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-delete-line cand-modal-dialog__delete';
-    del.title = 'Supprimer cette ligne (la plus ancienne)';
-    del.textContent = 'Supprimer cette ligne (la plus ancienne)';
-    del.addEventListener('click', function () { deleteDuplicateRecord(view, name); });
-    footer.appendChild(del);
-    return footer;
-  }
+  var candCmpBar = document.getElementById('candCmpBar');
+  var cmpState = { keep: 'newer', confirm: false, busy: false, msg: null };
 
-  // Reporte les remarques de « Blocages / Infos » de la fiche la plus ancienne dans la fiche la plus récente : seules les
-  // lignes qui n'y figurent pas déjà sont ajoutées à la suite (rien n'est écrasé).
-  function copyRemarksToNewest(oldView, btn) {
-    var newest = currentModalViews[currentModalViews.length - 1];
-    if (!newest || newest === oldView) return;
-    var oldText = textOf(oldView.row.blocagesInfos);
-    if (!oldText.trim()) { window.alert('Aucune remarque à copier : « Blocages / Infos » est vide sur la fiche la plus ancienne.'); return; }
-    var newText = textOf(newest.row.blocagesInfos);
-    var present = {};
-    newText.split(/\r?\n/).forEach(function (l) { present[l.trim()] = true; });
-    var missing = oldText.split(/\r?\n/).filter(function (l) { return l.trim() && !present[l.trim()]; });
-    if (!missing.length) { window.alert('Les remarques de la fiche la plus ancienne figurent déjà dans « Blocages / Infos » de la fiche la plus récente.'); return; }
-    if (!window.confirm('Copier ' + missing.length + ' ligne(s) de « Blocages / Infos » de la ligne n° ' + oldView.recordId + ' (la plus ancienne) vers la ligne n° ' + newest.recordId + ' (la plus récente) ?\n\n' +
-      missing.join('\n') + (newText.trim() ? '\n\nElles seront ajoutées à la suite du texte existant.' : ''))) return;
-    var next = newText.trim() ? newText.replace(/\s+$/, '') + '\n' + missing.join('\n') : missing.join('\n');
-    var colId = settings.col.blocagesInfos;
-    btn.disabled = true;
-    resolveWriteTarget('blocagesInfos', newest.row).then(function (target) {
-      var fields = {};
-      fields[colId] = next;
-      return grist.docApi.applyUserActions([['UpdateRecord', target.table, target.rowId, fields]]);
-    }).then(function () {
-      newest.row.blocagesInfos = next;
-      renderCandidates();
-      renderModalContent();
-    }).catch(function (e) {
-      btn.disabled = false;
-      window.alert('Impossible de copier les remarques : ' + friendlyErrorMessage(e));
+  // Rôles à comparer / synchroniser selon le type de doublon : « candidate » = même NID sur plusieurs lignes
+  // de la table des candidats (comparer les champs de la table des candidats) ; « documents » = même NID sur
+  // plusieurs lignes de la table Documents (comparer les champs de cette table).
+  function cmpRolesFor(kind) { return kind === 'documents' ? DOC_TABLE_ROLES : MAIN_TABLE_ROLES; }
+  function cmpValuesEqual(role, a, b) {
+    if (ATTACHMENT_ROLES.indexOf(role) !== -1) return extractAttachmentIds(a).join(',') === extractAttachmentIds(b).join(',');
+    return textOf(a) === textOf(b);
+  }
+  function cmpIsEmptyValue(role, v) {
+    if (ATTACHMENT_ROLES.indexOf(role) !== -1) return !extractAttachmentIds(v).length;
+    return v === null || v === undefined || v === '';
+  }
+  // Rôles dont la valeur diffère entre les deux fiches, parmi ceux réglés dans la Configuration.
+  function cmpDiffRoles(roles, rowA, rowB) {
+    return roles.filter(function (role) { return !!settings.col[role] && !cmpValuesEqual(role, rowA[role], rowB[role]); });
+  }
+  // Champs à écrire dans la fiche conservée pour la compléter avec l'autre : uniquement ceux qui y sont vides
+  // (les pièces jointes sont, elles, regroupées plutôt que remplacées — aucun fichier n'est perdu).
+  function cmpSyncPlan(roles, keepRow, otherRow) {
+    var fields = {}, local = [], n = 0;
+    roles.forEach(function (role) {
+      var colId = settings.col[role];
+      if (!colId) return;
+      if (ATTACHMENT_ROLES.indexOf(role) !== -1) {
+        var mine = extractAttachmentIds(keepRow[role]), merged = mine.slice();
+        extractAttachmentIds(otherRow[role]).forEach(function (id) { if (merged.indexOf(id) === -1) merged.push(id); });
+        if (merged.length !== mine.length) { fields[colId] = ['L'].concat(merged); local.push({ role: role, value: ['L'].concat(merged) }); n++; }
+        return;
+      }
+      if (cmpIsEmptyValue(role, keepRow[role]) && !cmpIsEmptyValue(role, otherRow[role])) {
+        fields[colId] = otherRow[role];
+        local.push({ role: role, value: otherRow[role] });
+        n++;
+      }
+    });
+    return { fields: fields, local: local, n: n };
+  }
+  // Étiquette les champs différents dans les deux volets : seule la fiche Stagiaires porte l'attribut data-role
+  // sur ses champs (voir stgField / stgEditField / stgTagField / stgDateField) ; sans effet sur la fiche eTuteur.
+  function cmpApplyHighlight(diffRoles) {
+    Array.prototype.forEach.call(candModalStack.querySelectorAll('[data-role]'), function (el) {
+      el.classList.toggle('is-diff', diffRoles.indexOf(el.dataset.role) !== -1);
     });
   }
+  function cmpMsgHtml(msg) { return '<p class="cand-cmp-bar__msg cand-cmp-bar__msg--' + msg.kind + '">' + escapeHtml(msg.text) + '</p>'; }
 
-  // Supprime, après confirmation, la ligne en doublon la plus ancienne
-  // (RemoveRecord dans la table concernée), puis recharge les données.
-  function deleteDuplicateRecord(view, name) {
-    var where = view.kind === 'candidate' ? 'de la table des candidats' : 'de la table Documents';
-    var msg = 'Supprimer la ligne n° ' + view.recordId + ' ' + where + ' (« ' + view.table + ' »), la plus ancienne des doublons de « ' + name + ' » ?\n\n' +
-      'La ligne sera supprimée dans Grist. Vérifiez que l’autre ligne contient bien les informations à conserver.';
-    if (!window.confirm(msg)) return;
-    grist.docApi.applyUserActions([['RemoveRecord', view.table, view.recordId]]).then(function () {
+  // Barre de comparaison, sous les deux volets : choix de la fiche à conserver, synchronisation des champs
+  // vides, suppression de la fiche en trop avec confirmation en ligne — mêmes principes que le widget
+  // « Candidats PMG ». views : triées par identifiant croissant (voir modalViewsFor) — la première est la
+  // plus ancienne. Seule la comparaison à deux fiches est prise en charge (le cas usuel).
+  function renderCmpBar(views, kind, isStgFiche) {
+    if (views.length !== 2) { candCmpBar.hidden = true; candCmpBar.innerHTML = ''; return; }
+    candCmpBar.className = 'cand-cmp-bar cand-cmp-bar--compare';
+    var older = views[0], newer = views[1];
+    var keepView = cmpState.keep === 'older' ? older : newer;
+    var otherView = cmpState.keep === 'older' ? newer : older;
+    var roles = cmpRolesFor(kind);
+    var diffRoles = cmpDiffRoles(roles, older.row, newer.row);
+    if (isStgFiche) cmpApplyHighlight(diffRoles);
+    var plan = cmpSyncPlan(roles, keepView.row, otherView.row);
+    var where = kind === 'candidate' ? 'la table des candidats' : 'la table Documents';
+    var delName = 'la ligne n° ' + otherView.recordId + ' de ' + where + ' (' + (cmpState.keep === 'older' ? 'la plus récente' : 'la plus ancienne') + ')';
+    var html = '<p class="cand-cmp-bar__title"><strong>Doublon détecté</strong> · ' + diffRoles.length + ' différence(s) entre les deux fiches' +
+      (isStgFiche && diffRoles.length ? ' (surlignées)' : '') + '.</p>' +
+      '<p class="cand-cmp-bar__hint">La synchronisation complète les champs vides de la fiche conservée avec ceux de l’autre fiche et regroupe les pièces jointes. Ensuite, l’autre fiche peut être supprimée.</p>' +
+      '<div class="cand-cmp-bar__row"><fieldset class="cand-cmp-bar__keep"><legend>Fiche à conserver</legend>' +
+        '<label><input type="radio" name="cand-cmp-keep" value="newer"' + (cmpState.keep === 'newer' ? ' checked' : '') + '> La plus récente (ligne n° ' + newer.recordId + ')</label>' +
+        '<label><input type="radio" name="cand-cmp-keep" value="older"' + (cmpState.keep === 'older' ? ' checked' : '') + '> La plus ancienne (ligne n° ' + older.recordId + ')</label></fieldset></div>' +
+      (cmpState.msg ? cmpMsgHtml(cmpState.msg) : '') +
+      (cmpState.confirm
+        ? '<div class="cand-cmp-bar__confirm" role="alert"><p>Supprimer définitivement ' + escapeHtml(delName) + ' ? Cette action est irréversible.</p>' +
+          '<button type="button" class="fr-btn fr-btn--sm cand-cmp-bar__danger" data-cmp="delete-confirm"' + (cmpState.busy ? ' disabled' : '') + '>Confirmer la suppression</button>' +
+          '<button type="button" class="fr-btn fr-btn--tertiary fr-btn--sm" data-cmp="delete-cancel">Annuler</button></div>'
+        : '<div class="cand-cmp-bar__actions">' +
+          '<button type="button" class="fr-btn fr-btn--sm" data-cmp="sync"' + (cmpState.busy || !plan.n ? ' disabled' : '') + '>Synchroniser les informations' + (plan.n ? ' (' + plan.n + ' champ' + (plan.n > 1 ? 's' : '') + ')' : '') + '</button>' +
+          '<button type="button" class="fr-btn fr-btn--tertiary fr-btn--sm cand-cmp-bar__danger" data-cmp="delete"' + (cmpState.busy ? ' disabled' : '') + '>Supprimer la fiche en trop</button>' +
+          '<button type="button" class="fr-btn fr-btn--tertiary fr-btn--sm" data-cmp="close">Fermer</button></div>');
+    candCmpBar.innerHTML = html;
+    candCmpBar.hidden = false;
+    Array.prototype.forEach.call(candCmpBar.querySelectorAll('input[name="cand-cmp-keep"]'), function (r) {
+      r.addEventListener('change', function () { cmpState.keep = r.value; cmpState.confirm = false; cmpState.msg = null; renderModalContent(); });
+    });
+    var syncBtn = candCmpBar.querySelector('[data-cmp="sync"]');
+    if (syncBtn) syncBtn.addEventListener('click', function () { cmpSync(keepView, plan); });
+    var delBtn = candCmpBar.querySelector('[data-cmp="delete"]');
+    if (delBtn) delBtn.addEventListener('click', function () { cmpState.confirm = true; renderModalContent(); });
+    var closeBtn = candCmpBar.querySelector('[data-cmp="close"]');
+    if (closeBtn) closeBtn.addEventListener('click', closeCandidateModal);
+    var confirmBtn = candCmpBar.querySelector('[data-cmp="delete-confirm"]');
+    if (confirmBtn) confirmBtn.addEventListener('click', function () { cmpDelete(otherView); });
+    var cancelBtn = candCmpBar.querySelector('[data-cmp="delete-cancel"]');
+    if (cancelBtn) cancelBtn.addEventListener('click', function () { cmpState.confirm = false; renderModalContent(); });
+  }
+
+  // Synchronise : complète les champs vides de la fiche conservée avec les valeurs de l'autre, en une seule
+  // opération Grist ; les pièces jointes des deux fiches sont regroupées.
+  function cmpSync(keepView, plan) {
+    if (!plan.n || cmpState.busy) return;
+    cmpState.busy = true;
+    cmpState.msg = null;
+    renderModalContent();
+    grist.docApi.applyUserActions([['UpdateRecord', keepView.table, keepView.recordId, plan.fields]]).then(function () {
+      plan.local.forEach(function (x) { keepView.row[x.role] = x.value; });
+      attachmentsMetaPromise = null; // pièces jointes regroupées : relecture des noms de fichier
+      cmpState.msg = { kind: 'success', text: 'Informations synchronisées dans la fiche conservée (' + plan.n + ' champ' + (plan.n > 1 ? 's' : '') + '). Vous pouvez maintenant supprimer la fiche en trop.' };
+    }).catch(function (e) {
+      cmpState.msg = { kind: 'error', text: 'Synchronisation impossible : ' + friendlyErrorMessage(e) };
+    }).then(function () {
+      cmpState.busy = false;
+      renderCandidates();
+      renderStagiaires();
+      renderModalContent();
+    });
+  }
+  // Supprime, après confirmation en ligne, la fiche en trop (RemoveRecord), puis ferme la modale et recharge.
+  function cmpDelete(otherView) {
+    if (cmpState.busy) return;
+    cmpState.busy = true;
+    renderModalContent();
+    grist.docApi.applyUserActions([['RemoveRecord', otherView.table, otherView.recordId]]).then(function () {
+      cmpState = { keep: 'newer', confirm: false, busy: false, msg: null };
       closeCandidateModal();
       loadCandidates();
     }).catch(function (e) {
-      window.alert('Impossible de supprimer la ligne : ' + friendlyErrorMessage(e));
+      cmpState.busy = false;
+      cmpState.confirm = false;
+      cmpState.msg = { kind: 'error', text: 'Suppression impossible : ' + friendlyErrorMessage(e) };
+      renderModalContent();
     });
   }
+
   candModalOverlay.addEventListener('click', function (e) {
     if (e.target === candModalOverlay) closeCandidateModal();
   });
@@ -7952,6 +8056,17 @@
   function friendlyErrorMessage(e) {
     var raw = (e && e.message) ? e.message : String(e || '');
     if (/blocked by .*access rules/i.test(raw)) {
+      return 'Vous ne disposez pas des droits nécessaires. Contactez l\'équipe projet si vous pensez qu\'il s\'agit d\'une erreur.';
+    }
+    return raw;
+  }
+
+})();
+</script>
+
+</body>
+</html>
+   if (/blocked by .*access rules/i.test(raw)) {
       return 'Vous ne disposez pas des droits nécessaires. Contactez l\'équipe projet si vous pensez qu\'il s\'agit d\'une erreur.';
     }
     return raw;
