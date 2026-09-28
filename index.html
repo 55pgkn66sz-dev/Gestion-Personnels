@@ -211,13 +211,12 @@
   .cand-modal-overlay[hidden] { display: none; }
   .cand-modal-overlay.is-open { opacity: 1; }
   /* Fond de la modale : dégradé bleu pastel (bleu France très clair, teintes
-     du DSFR). Les cartes internes (documents, bloc "Bande") restent en blanc
-     pour se détacher de ce fond teinté.
+     du DSFR), fond blanc uni — comme le widget « Candidats PMG ».
      Transition d'ouverture discrète (fondu + léger zoom) pilotée par la
      classe .is-open, ajoutée en double rAF après retrait de [hidden] —
      voir openCandidateModal / closeCandidateModal. */
   .cand-modal-dialog {
-    background: linear-gradient(180deg, #e3e3fd 0%, #f3f3fe 100%);
+    background: #fff;
     max-width: none; /* la largeur est celle de .cand-modal-stack (70 % de l'écran) */
     width: 100%;
     padding: 1.85rem 2rem 2rem;
@@ -334,7 +333,7 @@
   .enc-group-title { margin: 1.2rem 0 0.5rem; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-mention-grey); }
   .enc-group-title:first-child { margin-top: 0; }
   #panelStagiaires, #panelEncadrement, .stg-dialog { --bleu-france: #5c5a2b; --text-action-high-blue-france: #5c5a2b; }
-  .stg-dialog { max-width: none; background: linear-gradient(180deg, #e7e3c6 0%, #f6f4e6 100%); }
+  .stg-dialog { max-width: none; }
   .stg-hero { display: flex; align-items: flex-start; gap: 1.1rem; padding-bottom: 1.1rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
   .stg-avatar {
     flex: none; width: 4.2rem; height: 4.2rem; border-radius: 999px;
@@ -578,6 +577,8 @@
   /* Champs qui diffèrent entre les deux fiches, fiche Stagiaires (voir cmpApplyHighlight). */
   .stg-item.is-diff { background: #feecc2; border-radius: 0.4rem; padding: 0.35rem 0.5rem; margin: -0.35rem -0.5rem; }
   @media (max-width: 40rem) { .cand-cmp-bar { width: 100%; padding: 1rem; } }
+  .fr-btn.cand-cmp-bar__danger:not(.fr-btn--tertiary) { background-color: var(--statut-refusee) !important; border-color: var(--statut-refusee) !important; }
+  .fr-btn--tertiary.cand-cmp-bar__danger { color: var(--statut-refusee) !important; }
   @media (max-width: 60rem) {
     .cand-modal-stack--compare { flex-direction: column; align-items: stretch; }
     .cand-modal-stack--compare .cand-modal-dialog { max-width: none; }
@@ -1172,8 +1173,6 @@
   .cand-table__person .cand-row__name { vertical-align: middle; }
   .cand-table th.cand-table__end, .cand-table td.cand-table__end { width: 1%; text-align: right; white-space: nowrap; }
   .cand-table__tags { display: inline-flex; flex-wrap: wrap; gap: 0.4rem; }
-  #panelStagiaires .cand-trow:hover td, #panelEncadrement .cand-trow:hover td { background: #f3f1df; }
-  #panelStagiaires .bulk-table thead th, #panelEncadrement .bulk-table thead th { background: #f3f1df; }
   .bulk-table__check { width: 2.4rem; text-align: center !important; }
   .bulk-table__check input { width: 1.1rem; height: 1.1rem; cursor: pointer; }
   .bulk-table__name { font-weight: 700; white-space: nowrap; }
@@ -1250,6 +1249,15 @@
             <p class="fr-header__service-tagline">Gestion des personnels</p>
           </div>
         </div>
+        <div class="fr-header__tools">
+          <div class="fr-header__tools-links">
+            <ul class="fr-btns-group">
+              <li>
+                <button class="fr-btn fr-icon-theme-fill" id="btnThemeModal" type="button" aria-controls="fr-theme-modal" title="Paramètres d'affichage">Paramètres d'affichage</button>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1274,6 +1282,50 @@
     </div>
   </div>
 </header>
+
+<div class="fr-modal" id="fr-theme-modal" role="dialog" aria-modal="true" aria-labelledby="fr-theme-modal-title">
+  <div class="fr-container fr-container--fluid fr-container-md">
+    <div class="fr-grid-row fr-grid-row--center">
+      <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+        <div class="fr-modal__body">
+          <div class="fr-modal__header">
+            <button class="fr-btn--close fr-btn" type="button" title="Fermer">Fermer</button>
+          </div>
+          <div class="fr-modal__content">
+            <h1 id="fr-theme-modal-title" class="fr-modal__title">Paramètres d'affichage</h1>
+            <div class="fr-display">
+              <div class="fr-form-group">
+                <fieldset class="fr-fieldset">
+                  <legend class="fr-fieldset__legend fr-text--regular" id="fr-radios-theme-legend">Choisissez un thème pour personnaliser l'apparence du widget.</legend>
+                  <div class="fr-fieldset__element">
+                    <div class="fr-radio-group">
+                      <input value="light" type="radio" id="fr-radios-theme-light" name="fr-radios-theme">
+                      <label class="fr-label" for="fr-radios-theme-light">Thème clair</label>
+                    </div>
+                  </div>
+                  <div class="fr-fieldset__element">
+                    <div class="fr-radio-group">
+                      <input value="dark" type="radio" id="fr-radios-theme-dark" name="fr-radios-theme">
+                      <label class="fr-label" for="fr-radios-theme-dark">Thème sombre</label>
+                    </div>
+                  </div>
+                  <div class="fr-fieldset__element">
+                    <div class="fr-radio-group">
+                      <input value="system" type="radio" id="fr-radios-theme-system" name="fr-radios-theme">
+                      <label class="fr-label" for="fr-radios-theme-system">Système
+                        <span class="fr-hint-text">Utilise les paramètres du système.</span>
+                      </label>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="widget-wrap">
 
@@ -1715,7 +1767,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 8.1</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 9.1</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -1959,6 +2011,45 @@
   var displayedIds = { etuteur: [], stagiaire: [], encadrement: [] };
   var currentModalKind = 'etuteur'; // page d'origine de la modale : 'etuteur' | 'stagiaire' | 'encadrement'
   var currentModalRowId = null; // id de la ligne actuellement affichée dans la modale, ou null si fermée
+
+  // ---- Paramètres d'affichage (thème clair / sombre / système) -----------------
+  // Composant standard du DSFR, sans charger son module JS complet (celui-ci risquerait
+  // d'agir sur d'autres éléments .fr-* du widget) : seule la classe .fr-modal--opened,
+  // déjà stylée par dsfr.min.css, pilote l'ouverture de la fenêtre, et l'attribut
+  // data-fr-theme du <html> pilote les couleurs (dsfr.min.css redéfinit toutes les
+  // couleurs sous le sélecteur [data-fr-theme=dark]) — la mémorisation du choix se fait
+  // dans le navigateur (localStorage), par widget.
+  var THEME_STORE_KEY = 'candidatsStageTheme';
+  var themeModal = document.getElementById('fr-theme-modal');
+  var themeBtn = document.getElementById('btnThemeModal');
+  var themeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+  function applyTheme(pref) {
+    var resolved = pref === 'system' ? (themeMedia.matches ? 'dark' : 'light') : pref;
+    document.documentElement.setAttribute('data-fr-theme', resolved);
+    document.documentElement.setAttribute('data-fr-scheme', pref);
+  }
+  function loadThemePref() {
+    try { return window.localStorage.getItem(THEME_STORE_KEY) || 'system'; } catch (e) { return 'system'; }
+  }
+  function saveThemePref(pref) { try { window.localStorage.setItem(THEME_STORE_KEY, pref); } catch (e) { /* stockage indisponible : le choix ne sera pas mémorisé */ } }
+  var themePref = loadThemePref();
+  applyTheme(themePref);
+  // Thème « Système » : suit les changements du système en direct, tant que ce choix est actif.
+  var themeMediaListener = function () { if (themePref === 'system') applyTheme('system'); };
+  if (themeMedia.addEventListener) themeMedia.addEventListener('change', themeMediaListener);
+  function openThemeModal() {
+    var radio = document.getElementById('fr-radios-theme-' + themePref);
+    if (radio) radio.checked = true;
+    themeModal.classList.add('fr-modal--opened');
+  }
+  function closeThemeModal() { themeModal.classList.remove('fr-modal--opened'); }
+  themeBtn.addEventListener('click', openThemeModal);
+  Array.prototype.forEach.call(themeModal.querySelectorAll('.fr-btn--close'), function (b) { b.addEventListener('click', closeThemeModal); });
+  Array.prototype.forEach.call(themeModal.querySelectorAll('input[name="fr-radios-theme"]'), function (r) {
+    r.addEventListener('change', function () { themePref = r.value; saveThemePref(themePref); applyTheme(themePref); });
+  });
+  themeModal.addEventListener('click', function (e) { if (e.target === themeModal) closeThemeModal(); });
+  themeModal.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); closeThemeModal(); } });
 
   // ---- Geste caché sur le bloc marque : 5 clics rapprochés ---------------
   // Pas de bouton "Paramètres" visible : seuls les utilisateurs qui savent
@@ -8056,17 +8147,6 @@
   function friendlyErrorMessage(e) {
     var raw = (e && e.message) ? e.message : String(e || '');
     if (/blocked by .*access rules/i.test(raw)) {
-      return 'Vous ne disposez pas des droits nécessaires. Contactez l\'équipe projet si vous pensez qu\'il s\'agit d\'une erreur.';
-    }
-    return raw;
-  }
-
-})();
-</script>
-
-</body>
-</html>
-   if (/blocked by .*access rules/i.test(raw)) {
       return 'Vous ne disposez pas des droits nécessaires. Contactez l\'équipe projet si vous pensez qu\'il s\'agit d\'une erreur.';
     }
     return raw;
