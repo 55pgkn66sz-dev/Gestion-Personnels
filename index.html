@@ -364,43 +364,47 @@
   .stg-chip--warn::before { background: var(--statut-rejet); }
   .stg-chip--neutral { background: #eceaf0; color: #3a3a45; border-color: transparent; }
 
-  /* Cartes thématiques sur deux colonnes. */
-  .stg-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9rem; }
-  .stg-card {
-    background: #fff; border: 1px solid rgba(0, 0, 0, 0.07); border-radius: 0.65rem;
-    padding: 0.9rem 1rem 1rem; box-shadow: 0 1px 3px rgba(20, 10, 30, 0.06);
-  }
-  /* Peloton et fonction : tags cliquables (modifiables au clic). */
-  .stg-tagfield { display: flex; align-items: center; min-height: 2rem; }
-  button.stg-tagfield__tag { cursor: pointer; font-family: inherit; border: 0; }
-  button.stg-tagfield__tag:hover { box-shadow: 0 0 0 2px rgba(92, 90, 43, 0.35); }
-  button.stg-tagfield__tag--empty { background: #fff; color: var(--text-mention-grey); border: 1px dashed #b5b5c0; }
-  .stg-card__svgicon { display: inline-flex; align-items: center; }
-  .stg-card__svgicon svg { display: block; }
-  .stg-card__title {
-    display: flex; align-items: center; gap: 0.5rem; margin: 0 0 0.75rem;
-    font-size: 0.78em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--bleu-france);
-  }
-  .stg-items { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem 0.9rem; }
-  .stg-item { min-width: 0; }
-  .stg-item__label { display: block; font-size: 0.7em; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-mention-grey); margin-bottom: 0.1rem; }
   .stg-item__value { display: block; font-weight: 600; overflow-wrap: anywhere; }
   .stg-item__value--empty { font-weight: 400; color: #b5b5c0; }
+  /* Fiches « tableau » (même design que le widget SERVIR) : libellé/valeur en table, édition au clic. */
+  .detail-wrap { overflow-x: auto; border: 1px solid rgba(0, 0, 0, 0.09); border-radius: 0.5rem; }
+  .detail-table { width: 100%; border-collapse: collapse; table-layout: auto; background: #fff; }
+  .detail-table th, .detail-table td { padding: 0.5rem 0.7rem; border-top: 1px solid rgba(0, 0, 0, 0.08); vertical-align: top; text-align: left; }
+  .detail-table tbody tr:first-child > * { border-top: none; }
+  .detail-table th { width: 1%; white-space: nowrap; background: #f7f7fb; font-size: 0.68em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; color: var(--text-mention-grey); }
+  .detail-table td { font-weight: 600; overflow-wrap: anywhere; }
+  .detail-table td.is-empty { font-weight: 400; color: #b5b5c0; }
+  .detail-table td.is-pre { white-space: pre-wrap; }
+  .detail-table tbody tr:hover td { background: #f7f7fb; }
+  .detail-table tr.is-diff > td, .detail-table tr.is-diff > th { background: #feecc2; }
+  .detail-table td.is-editable { cursor: pointer; position: relative; padding-right: 2rem; }
+  .detail-table td.is-editable:hover, .detail-table td.is-editable:focus-visible { background: #eef0fd; }
+  .detail-table td.is-editable:focus-visible { outline: 2px solid var(--bleu-france); outline-offset: -2px; }
+  .detail-table td.is-editable .d-editicon { position: absolute; right: 0.6rem; top: 0.65rem; font-size: 1rem; opacity: 0; color: var(--bleu-france); }
+  .detail-table td.is-editable:hover .d-editicon, .detail-table td.is-editable:focus-visible .d-editicon { opacity: 0.6; }
+  .detail-table td.is-editing { background: #f7f7fb; font-weight: 400; }
+  .detail-group + .detail-group { margin-top: 1.4rem; }
+  .detail-title {
+    display: flex; align-items: center; gap: 0.5rem; margin: 0 0 0.5rem;
+    font-size: 0.78em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--bleu-france);
+  }
+  .d-ed { padding: 0.1rem 0; }
+  .d-ed .fr-input, .d-ed .fr-select, .d-ed textarea { width: 100%; margin-bottom: 0.5rem; box-sizing: border-box; }
+  .d-ed__actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .detail-table .stg-plate { margin: 0; }
+  @media (max-width: 40rem) {
+    .detail-table, .detail-table tbody, .detail-table tr, .detail-table th, .detail-table td { display: block; width: 100% !important; }
+    .detail-table th { border-top: 1px solid rgba(0, 0, 0, 0.08); padding-bottom: 0; white-space: normal; }
+    .detail-table td { border-top: none; padding-top: 0.15rem; }
+  }
   /* Les cartes « courtes » (Contact, Hébergement…) n'ont qu'une colonne d'éléments. */
   .stg-avatar--photo { background-size: cover; background-position: center; background-repeat: no-repeat; color: transparent; cursor: pointer; }
-  .stg-card--wide { grid-column: 1 / -1; }
-  .stg-card--wide .stg-items { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .stg-item--wide { grid-column: 1 / -1; }
   .stg-item__value--pre { white-space: pre-wrap; font-weight: 500; }
   .stg-docs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.9rem; }
-  .cand-modal-stack--compare .stg-card--wide .stg-items { grid-template-columns: 1fr; }
-  @media (max-width: 40rem) { .stg-card--wide .stg-items { grid-template-columns: 1fr; } }
 
   @media (max-width: 40rem) {
-    .stg-grid, .stg-items { grid-template-columns: 1fr; }
     .stg-hero { flex-wrap: wrap; }
   }
-  .cand-modal-stack--compare .stg-grid { grid-template-columns: 1fr; }
   /* ---- Fiche profil : en-tête, onglets, blocs (surcharge des styles précédents) ---- */
   .stg-hero { align-items: center; gap: 1.4rem; padding-bottom: 1.6rem; }
   .stg-portrait { position: relative; flex: none; padding-bottom: 0.7rem; }
@@ -480,6 +484,8 @@
     font: 800 1.55rem/1 "Arial Narrow", "Helvetica Neue", Arial, sans-serif; letter-spacing: 0.1em; padding: 0 0.5rem;
   }
   .stg-plate__input::placeholder { color: #cfcaa6; font-weight: 700; }
+  .stg-plate__text { display: inline-flex; align-items: center; justify-content: center; }
+  .stg-plate__text--empty { color: #cfcaa6; }
   /* Champs éditables de la fiche (peloton, fonction, bâtiment, chambre). */
   .stg-edit { width: 100%; box-sizing: border-box; }
   input.stg-edit, select.stg-edit { min-height: 2.2rem; padding-top: 0.25rem; padding-bottom: 0.25rem; }
@@ -523,8 +529,6 @@
   .stg-file__trash:focus-visible { outline: 2px solid var(--bleu-france); outline-offset: 1px; }
   .stg-file__trash:disabled { opacity: 0.4; cursor: wait; }
   /* Onglet Documents. */
-  .stg-docline { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem 0.9rem; padding: 0.55rem 0; border-top: 1px solid rgba(0, 0, 0, 0.07); }
-  .stg-docline__label { flex: 1 1 14rem; font-weight: 600; font-size: 0.9em; }
   .stg-docline__files { flex: 1 1 12rem; display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; font-size: 0.85em; color: var(--text-mention-grey); min-width: 0; }
   .stg-docline__link { font-size: 1em; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -1767,7 +1771,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 9.1</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 10.1</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -3719,48 +3723,6 @@
     span.innerHTML = '<a class="fr-link" href="mailto:' + escapeAttr(text) + '">' + escapeHtml(text) + '</a>';
     return span;
   }
-  function stgItem(label, valueNode, wide) {
-    var item = document.createElement('div');
-    item.className = 'stg-item' + (wide ? ' stg-item--wide' : '');
-    var l = document.createElement('span');
-    l.className = 'stg-item__label';
-    l.textContent = label;
-    item.appendChild(l);
-    item.appendChild(valueNode);
-    return item;
-  }
-  // Carte titrée : null si aucun élément.
-  function stgBlock(title, icon, items) {
-    items = items.filter(Boolean);
-    if (!items.length) return null;
-    var card = document.createElement('section');
-    card.className = 'stg-card';
-    var h = document.createElement('h4');
-    h.className = 'stg-card__title';
-    // icon : classe d'icône DSFR, ou balise <svg> en ligne pour une icône que le DSFR n'a pas (ex. képi)
-    h.innerHTML = icon.charAt(0) === '<' ? '<span class="stg-card__svgicon" aria-hidden="true">' + icon + '</span>' : '<span class="' + icon + '" aria-hidden="true"></span>';
-    h.appendChild(document.createTextNode(title));
-    card.appendChild(h);
-    var grid = document.createElement('div');
-    grid.className = 'stg-items';
-    items.forEach(function (it) { grid.appendChild(it); });
-    card.appendChild(grid);
-    return card;
-  }
-  // Élément « libellé / valeur » lu dans une colonne (null si la colonne n'existe pas).
-  function stgField(row, role, label, opts) {
-    if (!settings.col[role]) return null;
-    opts = opts || {};
-    var v = row[role];
-    var node;
-    if (opts.phone) node = stgPhoneValue(v);
-    else if (opts.mail) node = stgMailValue(v);
-    else node = stgTextValue(isBoolLike(v) ? (v ? 'Oui' : 'Non') : textOf(v), opts.pre);
-    var item = stgItem(label, node, opts.wide);
-    item.dataset.role = role; // pour la comparaison de doublon (voir cmpApplyHighlight)
-    return item;
-  }
-
   // ---- Mode de transport : icône (voiture, train, piéton) + plaque ------------
   // Képi de gendarme (le DSFR n'en propose pas) : calot tronconique à dessus plat, bandeau et visière.
   var KEPI_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" fill-rule="evenodd" xmlns="http://www.w3.org/2000/svg" focusable="false">' +
@@ -3840,46 +3802,6 @@
     if (/STATIONN|PARKING|ENCEINTE|DANS LE CAMP|DANS LA CASERNE|\bGAR(?:E|ER)\b/.test(k)) return true;
     return !!(settings.col.immatriculation && textOf(row.immatriculation).trim());
   }
-  // Plaque d'immatriculation éditable, dessinée comme une plaque française (bandeau bleu européen « F » à gauche,
-  // fond blanc, lettres noires épaisses, bandeau bleu à droite). Enregistrée à la sortie du champ, mise en forme
-  // SIV « AB-123-CD » ou ancien format « 123 AB 45 » (voir formatPlate).
-  function stgPlateItem(row) {
-    if (!settings.col.immatriculation || !stgParksInside(row)) return null;
-    var wrap = document.createElement('div');
-    wrap.className = 'stg-plate';
-    var eu = document.createElement('span');
-    eu.className = 'stg-plate__eu';
-    eu.innerHTML = '<span class="stg-plate__stars" aria-hidden="true">★</span><span class="stg-plate__f">F</span>';
-    var input = document.createElement('input');
-    input.type = 'text';
-    input.className = 'stg-plate__input';
-    input.id = 'stgPlate_' + row.id;
-    input.setAttribute('aria-label', 'Immatriculation');
-    input.placeholder = 'AB-123-CD';
-    input.maxLength = 12;
-    input.autocomplete = 'off';
-    input.spellcheck = false;
-    input.value = formatPlate(textOf(row.immatriculation));
-    var initial = textOf(row.immatriculation);
-    var busy = false;
-    input.addEventListener('blur', function () {
-      input.value = formatPlate(input.value);
-      if (busy || input.value === initial) return;
-      busy = true;
-      setTimeout(function () { busy = false; }, 2000);
-      saveFieldEdit('immatriculation', row, input, 'text', initial);
-    });
-    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') input.blur(); });
-    var reg = document.createElement('span');
-    reg.className = 'stg-plate__reg';
-    reg.setAttribute('aria-hidden', 'true');
-    wrap.appendChild(eu);
-    wrap.appendChild(input);
-    wrap.appendChild(reg);
-    var item = stgItem('Immatriculation', wrap, true);
-    return item;
-  }
-
   // Contrôle d'édition d'un champ de la fiche : liste déroulante si la colonne est de type Choix (valeurs de la
   // colonne) — ou, avec opts.list, liste des valeurs déjà présentes —, sinon zone de texte ; enregistré à la sortie
   // du champ ou au changement de valeur (voir saveFieldEdit).
@@ -3930,57 +3852,312 @@
     el.setAttribute('aria-label', label);
     return el;
   }
-  // Champ date en lecture seule : « JJ/MM/AAAA » (colonne Date de Grist ou texte).
-  function stgDateField(row, role, label) {
-    if (!settings.col[role]) return null;
-    var d = dateOf(row[role]);
-    var text = d ? fmtDateFr(d) : textOf(row[role]);
-    var item = stgItem(label, stgTextValue(text), false);
-    item.dataset.role = role;
-    return item;
+  // ---- Fiche « tableau » (libellé / valeur), avec édition au clic ---------------
+  // Même design et même comportement que le widget « Candidats PMG » (widget SERVIR) : un tableau à deux
+  // colonnes par ligne (ou une, pour un champ large), section titrée en majuscules, et une cellule
+  // éditable qui, au clic (ou Entrée), se change en éditeur avec « Enregistrer » / « Annuler » — Entrée
+  // enregistre (Ctrl/Cmd + Entrée pour une zone de texte), Échap annule.
+  var dEditRole = null; // rôle actuellement en édition (un seul champ à la fois, comme dans PMG)
+  function dStartEdit(role) { dEditRole = role; renderModalContent(); }
+  function dCancelEdit() { dEditRole = null; renderModalContent(); }
+  // Un champ de fiche : { role, label, node (affichage en lecture), wide, empty, pre, editable,
+  // buildControl (), commit(inputEl, boutons) } — role est null pour un champ calculé (non éditable).
+  function dSpec(role, label, node, meta) {
+    meta = meta || {};
+    return { role: role, label: label, node: node, wide: !!meta.wide, empty: !!meta.empty, pre: !!meta.pre,
+      editable: !!meta.editable, buildControl: meta.buildControl || null, commit: meta.commit || null };
   }
-  // Champ éditable classique (zone de texte ou liste toujours visible).
-  function stgEditField(row, role, label, opts) {
-    if (!settings.col[role]) return null;
-    opts = opts || {};
-    var box = document.createElement('span');
-    box.className = 'stg-item__value';
-    box.appendChild(stgEditControl(row, role, label, opts));
-    var item = stgItem(label, box, opts.wide);
-    item.dataset.role = role;
-    return item;
-  }
-  // Champ affiché sous forme de tag (couleur du choix dans Grist), modifiable au clic : le tag se change en liste ou
-  // en zone de texte ; à la sortie sans modification, le tag revient.
-  function stgTagField(row, role, label, modifier, opts) {
-    var colId = settings.col[role];
-    if (!colId) return null;
-    var box = document.createElement('span');
-    box.className = 'stg-item__value stg-tagfield';
-    var text = textOf(row[role]).trim();
-    var tag = document.createElement('button');
-    tag.type = 'button';
-    tag.className = 'fr-tag ' + modifier + ' stg-tagfield__tag' + (text ? '' : ' stg-tagfield__tag--empty');
-    tag.textContent = text || 'Choisir…';
-    tag.title = 'Modifier : ' + label.toLowerCase();
-    if (text) applyChoiceColors(tag, tableChoiceOptions(settings.table, colId), text);
-    tag.addEventListener('click', function () {
-      var control = stgEditControl(row, role, label, opts);
-      box.innerHTML = '';
-      box.appendChild(control);
-      control.focus();
-      // Sortie sans modification : le tag revient (une modification déclenche l'enregistrement puis la reconstruction de la fiche).
-      control.addEventListener('blur', function () {
-        setTimeout(function () { if (box.contains(control) && control.value === text) { box.innerHTML = ''; box.appendChild(tag); } }, 150);
+  function dCustomSpec(label, node, meta) { return dSpec(null, label, node, meta); }
+  function dCellFor(spec) {
+    var th = document.createElement('th');
+    th.scope = 'row';
+    th.textContent = spec.label;
+    var td;
+    if (spec.editable && dEditRole === spec.role) {
+      td = document.createElement('td');
+      td.className = 'is-editing';
+      var box = document.createElement('div');
+      box.className = 'd-ed';
+      var ctl = spec.buildControl();
+      box.appendChild(ctl);
+      var actions = document.createElement('div');
+      actions.className = 'd-ed__actions';
+      var saveBtn = document.createElement('button');
+      saveBtn.type = 'button';
+      saveBtn.className = 'fr-btn fr-btn--sm';
+      saveBtn.textContent = 'Enregistrer';
+      var cancelBtn = document.createElement('button');
+      cancelBtn.type = 'button';
+      cancelBtn.className = 'fr-btn fr-btn--tertiary fr-btn--sm';
+      cancelBtn.textContent = 'Annuler';
+      saveBtn.addEventListener('click', function () {
+        saveBtn.disabled = true;
+        cancelBtn.disabled = true;
+        spec.commit(ctl, [saveBtn, cancelBtn]);
       });
-    });
-    box.appendChild(tag);
-    var item = stgItem(label, box, opts && opts.wide);
-    item.dataset.role = role;
-    return item;
+      cancelBtn.addEventListener('click', dCancelEdit);
+      ctl.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && ctl.tagName !== 'TEXTAREA') { e.preventDefault(); saveBtn.click(); }
+        else if (e.key === 'Enter' && ctl.tagName === 'TEXTAREA' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); saveBtn.click(); }
+        else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); dCancelEdit(); }
+      });
+      actions.appendChild(saveBtn);
+      actions.appendChild(cancelBtn);
+      box.appendChild(actions);
+      td.appendChild(box);
+      setTimeout(function () { ctl.focus(); if (ctl.select) { try { ctl.select(); } catch (e) { /* select() non applicable (ex. <select>) */ } } }, 0);
+    } else {
+      td = document.createElement('td');
+      if (spec.empty) td.classList.add('is-empty');
+      if (spec.pre) td.classList.add('is-pre');
+      td.appendChild(spec.node);
+      if (spec.editable) {
+        td.classList.add('is-editable');
+        td.tabIndex = 0;
+        td.setAttribute('role', 'button');
+        td.setAttribute('aria-label', 'Modifier ' + spec.label);
+        td.title = 'Cliquer pour modifier';
+        var icon = document.createElement('span');
+        icon.className = 'fr-icon-edit-line d-editicon';
+        icon.setAttribute('aria-hidden', 'true');
+        td.appendChild(icon);
+        td.addEventListener('click', function (e) { if (e.target.closest('a, button')) return; dStartEdit(spec.role); });
+        td.addEventListener('keydown', function (e) { if (e.target === td && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); dStartEdit(spec.role); } });
+      }
+    }
+    return [th, td];
+  }
+  function dTr(specA, specB) {
+    var tr = document.createElement('tr');
+    if (!specB) {
+      if (specA.role) tr.dataset.role = specA.role; // pour la comparaison de doublon (voir cmpApplyHighlight)
+      var pair = dCellFor(specA);
+      pair[1].colSpan = 3;
+      tr.appendChild(pair[0]);
+      tr.appendChild(pair[1]);
+    } else {
+      var p1 = dCellFor(specA), p2 = dCellFor(specB);
+      tr.appendChild(p1[0]);
+      tr.appendChild(p1[1]);
+      tr.appendChild(p2[0]);
+      tr.appendChild(p2[1]);
+    }
+    return tr;
+  }
+  // Regroupe les champs deux par ligne ; un champ large (« wide ») occupe seul une ligne.
+  // Une ligne par champ : la fiche est déjà répartie sur deux colonnes (voir .stg-cols), donc chaque
+  // tableau de détail n'a que la moitié de la largeur de la modale — regrouper deux champs par ligne
+  // (comme dans le widget SERVIR, qui affiche son tableau sur toute la largeur) y serait trop à l'étroit.
+  function dPack(specs) {
+    return specs.filter(Boolean).map(function (s) { return dTr(s); });
+  }
+  function dGroup(title, specs) {
+    var rows = dPack(specs);
+    if (!rows.length) return null;
+    var section = document.createElement('section');
+    section.className = 'detail-group';
+    var h = document.createElement('h3');
+    h.className = 'detail-title';
+    h.textContent = title;
+    section.appendChild(h);
+    var wrapEl = document.createElement('div');
+    wrapEl.className = 'detail-wrap';
+    var table = document.createElement('table');
+    table.className = 'detail-table';
+    var tbody = document.createElement('tbody');
+    rows.forEach(function (tr) { tbody.appendChild(tr); });
+    table.appendChild(tbody);
+    wrapEl.appendChild(table);
+    section.appendChild(wrapEl);
+    return section;
   }
 
-  // ---- Onglet « Informations » ---------------------------------------------------
+  // -- Fiche Stagiaires : lecture dans row[role], écriture via saveFieldEdit (voir plus bas) -------------
+  function dBuildControlStg(row, role, opts) {
+    var colId = settings.col[role];
+    opts = opts || {};
+    var current = textOf(row[role]);
+    var tableId = (DOC_TABLE_ROLES.indexOf(role) !== -1 && role !== 'ead') ? settings.docsTable : settings.table;
+    var type = String((columnTypesMap[tableId] || {})[colId] || '').split(':')[0];
+    var choices = (type === 'Choice') ? ((columnChoicesMap[tableId] || {})[colId] || []) : [];
+    if (!choices.length && opts.list) {
+      var seen = {};
+      candidates.rows.forEach(function (r) { var v = textOf(r[role]).trim(); if (v) seen[v] = true; });
+      choices = Object.keys(seen).sort(function (a, b) { return nameCollator.compare(a, b); });
+    }
+    var el;
+    if (choices.length) {
+      el = document.createElement('select');
+      el.className = 'fr-select';
+      var values = [''].concat(choices);
+      if (current && values.indexOf(current) === -1) values.push(current);
+      values.forEach(function (v) {
+        var o = document.createElement('option');
+        o.value = v;
+        o.textContent = v || '—';
+        el.appendChild(o);
+      });
+      el.value = current;
+    } else if (opts.textarea) {
+      el = document.createElement('textarea');
+      el.className = 'fr-input';
+      el.rows = 4;
+      el.value = current;
+    } else {
+      el = document.createElement('input');
+      el.type = 'text';
+      el.className = 'fr-input';
+      el.autocomplete = 'off';
+      el.value = current;
+    }
+    el.setAttribute('aria-label', ROLE_LABELS[role] || role);
+    return el;
+  }
+  function dStgCommit(role, row, previousValue) {
+    return function (ctl, buttons) {
+      if (role === 'immatriculation') ctl.value = formatPlate(ctl.value);
+      var p = saveFieldEdit(role, row, ctl, 'text', previousValue);
+      // saveFieldEdit gère elle-même l'échec (message + restauration) ; ce .then (succès ou échec,
+      // puisque saveFieldEdit absorbe son propre rejet) réactive juste les boutons si la fiche n'a pas
+      // été reconstruite entre-temps (cas du succès, où les boutons n'existent de toute façon plus).
+      if (p && p.then) p.then(function () { buttons.forEach(function (b) { b.disabled = false; }); });
+    };
+  }
+  // Champ de la fiche Stagiaires (null si la colonne n'est pas réglée).
+  function dFieldStg(row, role, label, opts) {
+    if (!settings.col[role]) return null;
+    opts = opts || {};
+    var v = row[role];
+    var node, empty;
+    if (opts.phone) { node = stgPhoneValue(v); empty = !fmtPhoneFr(v); }
+    else if (opts.mail) { node = stgMailValue(v); empty = !textOf(v); }
+    else if (isBoolLike(v)) { node = document.createElement('span'); node.className = 'fr-tag fr-tag--sm'; node.textContent = v ? 'Oui' : 'Non'; empty = false; }
+    else if (opts.tag) {
+      var text = textOf(v);
+      empty = !text;
+      if (!text) node = stgTextValue('');
+      else {
+        node = document.createElement('span');
+        node.className = 'fr-tag fr-tag--sm' + (opts.tagClass ? ' ' + opts.tagClass : '');
+        node.textContent = text;
+        applyChoiceColors(node, tableChoiceOptions(settings.table, settings.col[role]), text);
+      }
+    } else {
+      var t2 = textOf(v);
+      empty = !t2;
+      node = stgTextValue(t2, opts.pre);
+    }
+    return dSpec(role, label, node, {
+      wide: !!opts.wide, empty: empty, pre: !!opts.pre, editable: !!opts.editable,
+      buildControl: opts.editable ? function () { return dBuildControlStg(row, role, opts); } : null,
+      commit: opts.editable ? dStgCommit(role, row, textOf(v)) : null
+    });
+  }
+  // Plaque d'immatriculation (voir formatPlate/stgParksInside) : affichage en lecture dans le style plaque
+  // française, éditeur classique (texte) au clic — la valeur saisie est mise en forme à l'enregistrement.
+  function dPlateReadNode(row) {
+    var wrapEl = document.createElement('span');
+    wrapEl.className = 'stg-plate';
+    var eu = document.createElement('span');
+    eu.className = 'stg-plate__eu';
+    eu.innerHTML = '<span class="stg-plate__stars" aria-hidden="true">★</span><span class="stg-plate__f">F</span>';
+    var txt = document.createElement('span');
+    var plateText = formatPlate(textOf(row.immatriculation));
+    txt.className = 'stg-plate__input stg-plate__text' + (plateText ? '' : ' stg-plate__text--empty');
+    txt.textContent = plateText || 'AB-123-CD';
+    var reg = document.createElement('span');
+    reg.className = 'stg-plate__reg';
+    wrapEl.appendChild(eu);
+    wrapEl.appendChild(txt);
+    wrapEl.appendChild(reg);
+    return wrapEl;
+  }
+  function dFieldPlate(row) {
+    if (!settings.col.immatriculation || !stgParksInside(row)) return null;
+    var prevRaw = textOf(row.immatriculation);
+    return dSpec('immatriculation', 'Immatriculation', dPlateReadNode(row), {
+      wide: true, empty: false, editable: true,
+      buildControl: function () {
+        var el = document.createElement('input');
+        el.type = 'text';
+        el.className = 'fr-input';
+        el.autocomplete = 'off';
+        el.value = prevRaw;
+        el.setAttribute('aria-label', 'Immatriculation');
+        return el;
+      },
+      commit: dStgCommit('immatriculation', row, prevRaw)
+    });
+  }
+  // Zone de texte libre (colonne Infos), éditable au clic comme les autres champs.
+  function dFieldInfosLibre(row) {
+    if (!candidates.hasInfos) return null;
+    var v = textOf(row.infosLibre);
+    return dSpec('infosLibre', 'Infos', stgTextValue(v, true), {
+      wide: true, empty: !v, pre: true, editable: true,
+      buildControl: function () { return dBuildControlStg(row, 'infosLibre', { textarea: true }); },
+      commit: dStgCommit('infosLibre', row, v)
+    });
+  }
+
+  // -- Fiche Encadrement : lecture dans row.f[key] (voir enc.cols), écriture directe dans enc.tableId -----
+  function dEncCommit(key, row, label, previousValue) {
+    return function (ctl, buttons) {
+      var col = enc.cols[key];
+      var raw = ctl.value.trim();
+      var value = raw;
+      if (col.type === 'Int' || col.type === 'Numeric') {
+        if (raw === '') value = null;
+        else {
+          var n = Number(raw.replace(/\s/g, '').replace(',', '.'));
+          if (isNaN(n)) { window.alert('Valeur numérique invalide pour « ' + label + ' ».'); buttons.forEach(function (b) { b.disabled = false; }); return; }
+          value = col.type === 'Int' ? Math.round(n) : n;
+        }
+      }
+      ctl.disabled = true;
+      var fields = {};
+      fields[col.id] = value;
+      grist.docApi.applyUserActions([['UpdateRecord', enc.tableId, row.id, fields]]).then(function () {
+        row.f[key] = value;
+        dEditRole = null;
+        renderEncadrement(); // liste, filtres, et fiche ouverte (reconstruite par renderEncadrement)
+        if (currentModalRowId === row.id && currentModalKind === 'encadrement') renderModalContent();
+      }).catch(function (e) {
+        ctl.disabled = false;
+        buttons.forEach(function (b) { b.disabled = false; });
+        window.alert('Impossible d’enregistrer « ' + label + ' » : ' + friendlyErrorMessage(e));
+      });
+    };
+  }
+  function dFieldEnc(row, key, label, opts) {
+    var col = enc.cols[key];
+    if (!col) return null;
+    opts = opts || {};
+    var text = encText(row, key);
+    if (opts.round && text) {
+      var num = parseFloat(String(text).replace(/\s/g, '').replace(',', '.'));
+      if (isFinite(num)) text = String(Math.round(num));
+    }
+    var node;
+    if (opts.phone) node = stgPhoneValue(text);
+    else if (opts.mail) node = stgMailValue(text);
+    else node = stgTextValue(text, opts.pre);
+    return dSpec(key, label, node, {
+      wide: !!opts.wide, empty: !text, pre: !!opts.pre, editable: !!opts.editable,
+      buildControl: opts.editable ? function () {
+        var el = document.createElement('input');
+        el.type = 'text';
+        el.className = 'fr-input';
+        el.autocomplete = 'off';
+        el.value = text;
+        el.setAttribute('aria-label', label);
+        return el;
+      } : null,
+      commit: opts.editable ? dEncCommit(key, row, label, text) : null
+    });
+  }
+
+  // ---- Onglet « Informations » (même design/comportement que le widget SERVIR : tableau libellé/valeur, édition au clic) ---
   function buildStgInfosTab(row) {
     var wrap = document.createElement('div');
     wrap.className = 'stg-cols';
@@ -3991,82 +4168,52 @@
 
     var born = settings.col.dateNaissance ? dateOf(row.dateNaissance) : null;
     var bornNode = document.createElement('span');
-    bornNode.className = 'stg-item__value';
     if (born) {
       var today = new Date();
       bornNode.textContent = fmtDateFr(born) + ' (' + ageOn(born, new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()))) + ' ans)';
-    } else { bornNode.textContent = '—'; bornNode.classList.add('stg-item__value--empty'); }
+    } else { bornNode.textContent = '—'; }
+
+    var depart = settings.col.dateDepart ? dateOf(row.dateDepart) : null;
+    var departText = depart ? fmtDateFr(depart) : (settings.col.dateDepart ? textOf(row.dateDepart) : '');
 
     [
-      stgBlock('Identité', 'fr-icon-user-line', [
-        stgField(row, 'nom', 'Nom'), stgField(row, 'prenom', 'Prénom'),
-        settings.col.dateNaissance ? stgItem('Date de naissance (âge)', bornNode, true) : null
+      dGroup('Identité', [
+        dFieldStg(row, 'nom', 'Nom'), dFieldStg(row, 'prenom', 'Prénom'),
+        settings.col.dateNaissance ? dCustomSpec('Date de naissance (âge)', bornNode, { wide: true, empty: !born }) : null
       ]),
-      stgBlock('Stage', KEPI_SVG, [
-        stgTagField(row, 'pon', 'Peloton', 'stg-tag--pon'), stgTagField(row, 'fonction', 'Fonction', 'stg-tag--fonction', { list: true }),
-        stgField(row, 'motifDepart', 'Motif de départ', { wide: true }), stgDateField(row, 'dateDepart', 'Date de départ') // lecture seule
+      dGroup('Stage', [
+        dFieldStg(row, 'pon', 'Peloton', { editable: true, tag: true, tagClass: 'stg-tag--pon' }),
+        dFieldStg(row, 'fonction', 'Fonction', { editable: true, tag: true, tagClass: 'stg-tag--fonction', list: true }),
+        dFieldStg(row, 'motifDepart', 'Motif de départ', { wide: true }), // lecture seule (demandé explicitement)
+        settings.col.dateDepart ? dCustomSpec('Date de départ', stgTextValue(departText), { empty: !departText }) : null // lecture seule
       ]),
-      stgBlock('Renseignements militaires', 'fr-icon-shield-line', [
-        stgEditField(row, 'nigend', 'Nigend'), stgField(row, 'nid', 'NID'), stgField(row, 'affectation', 'Affectation')
+      dGroup('Renseignements militaires', [
+        dFieldStg(row, 'nigend', 'Nigend', { editable: true }), dFieldStg(row, 'nid', 'NID'), dFieldStg(row, 'affectation', 'Affectation')
       ]),
-      stgBlock('Santé', 'fr-icon-heart-line', [
-        stgField(row, 'regimeAlimentaire', 'Régime alimentaire', { wide: true }),
-        stgField(row, 'allergies', 'Allergies', { pre: true }),
-        stgField(row, 'traitements', 'Traitements / Maladies', { pre: true }),
-        stgField(row, 'precisionsMedicales', 'Précisions médicales', { wide: true, pre: true }),
-        stgField(row, 'lateralite', 'Latéralité')
+      dGroup('Santé', [
+        dFieldStg(row, 'regimeAlimentaire', 'Régime alimentaire', { wide: true }),
+        dFieldStg(row, 'allergies', 'Allergies', { pre: true }),
+        dFieldStg(row, 'traitements', 'Traitements / Maladies', { pre: true }),
+        dFieldStg(row, 'precisionsMedicales', 'Précisions médicales', { wide: true, pre: true }),
+        dFieldStg(row, 'lateralite', 'Latéralité')
       ])
-    ].forEach(function (c) { if (c) left.appendChild(c); });
+    ].forEach(function (g) { if (g) left.appendChild(g); });
 
     [
-      stgBlock('Contact', 'fr-icon-phone-line', [
-        stgField(row, 'telephone', 'Téléphone', { phone: true }), stgField(row, 'email', 'Email perso', { mail: true })
+      dGroup('Contact', [
+        dFieldStg(row, 'telephone', 'Téléphone', { phone: true }), dFieldStg(row, 'email', 'Email perso', { mail: true })
       ]),
-      stgBlock('Contact d’urgence', 'fr-icon-alarm-warning-line', [
-        stgField(row, 'nomUrgence', 'Nom'), stgField(row, 'prenomUrgence', 'Prénom'), stgField(row, 'telUrgence', 'Tél.', { phone: true })
+      dGroup('Contact d’urgence', [
+        dFieldStg(row, 'nomUrgence', 'Nom'), dFieldStg(row, 'prenomUrgence', 'Prénom'), dFieldStg(row, 'telUrgence', 'Tél.', { phone: true })
       ]),
-      stgBlock('Hébergement', 'fr-icon-home-4-line', [stgEditField(row, 'batiment', 'Bât.'), stgEditField(row, 'chambre', 'Ch.')]),
-      stgBlock('Qualifications', 'fr-icon-award-line', [stgField(row, 'qualifSecourisme', 'Secourisme', { wide: true })]),
-      buildStgPracticalBlock(row)
-    ].forEach(function (c) { if (c) right.appendChild(c); });
+      dGroup('Hébergement', [dFieldStg(row, 'batiment', 'Bât.', { editable: true }), dFieldStg(row, 'chambre', 'Ch.', { editable: true })]),
+      dGroup('Qualifications', [dFieldStg(row, 'qualifSecourisme', 'Secourisme', { wide: true })]),
+      dGroup('Infos pratiques', [dFieldPlate(row), dFieldInfosLibre(row)])
+    ].forEach(function (g) { if (g) right.appendChild(g); });
 
     wrap.appendChild(left);
     wrap.appendChild(right);
     return wrap;
-  }
-
-  // Infos pratiques : plaque d'immatriculation (si le
-  // stagiaire se stationne dans l'enceinte) et, en bas, zone de texte libre (colonne Infos).
-  function buildStgPracticalBlock(row) {
-    var items = [
-      stgPlateItem(row)
-    ];
-    var card = stgBlock('Infos pratiques', 'fr-icon-information-line', items);
-    if (!candidates.hasInfos) return card;
-    if (!card) {
-      card = document.createElement('section');
-      card.className = 'stg-card';
-      card.innerHTML = '<h4 class="stg-card__title"><span class="fr-icon-information-line" aria-hidden="true"></span>Infos pratiques</h4>';
-    }
-    var boxId = 'stgInfos_' + row.id;
-    var label = document.createElement('label');
-    label.className = 'stg-item__label stg-freetext__label';
-    label.setAttribute('for', boxId);
-    label.textContent = 'Infos';
-    var area = document.createElement('textarea');
-    area.id = boxId;
-    area.className = 'stg-freetext';
-    area.rows = 4;
-    area.placeholder = 'Notes libres sur le stagiaire…';
-    area.value = textOf(row.infosLibre);
-    var initial = area.value;
-    area.addEventListener('blur', function () {
-      if (area.value === initial) return;
-      saveFieldEdit('infosLibre', row, area, 'text', initial);
-    });
-    card.appendChild(label);
-    card.appendChild(area);
-    return card;
   }
 
   // ---- Onglet « Notation » ----------------------------------------------------------
@@ -4088,7 +4235,7 @@
       entries.push({ label: label, text: text });
     });
     entries.sort(function (a, b) { return nameCollator.compare(a.label, b.label); });
-    var card = stgBlock('Notation', 'fr-icon-star-line', entries.map(function (e) { return stgItem(e.label, stgTextValue(e.text)); }));
+    var card = dGroup('Notation', entries.map(function (e) { return dCustomSpec(e.label, stgTextValue(e.text)); }));
     if (card) return card;
     var empty = document.createElement('p');
     empty.className = 'cand-empty-state';
@@ -4199,8 +4346,8 @@
 
   function buildStgPiecesCard(row) {
     var card = document.createElement('section');
-    card.className = 'stg-card';
-    card.innerHTML = '<h4 class="stg-card__title"><span class="fr-icon-attachment-line" aria-hidden="true"></span>Pièces complémentaires</h4>';
+    card.className = 'detail-group';
+    card.innerHTML = '<h3 class="detail-title"><span class="fr-icon-attachment-line" aria-hidden="true"></span>Pièces complémentaires</h3>';
 
     // Colonnes absentes : proposition de les créer.
     if (!candidates.hasPieces) {
@@ -4233,36 +4380,44 @@
     var ids = extractAttachmentIds(row.pieces);
     var names = parsePieceNames(row.piecesNames);
     var cell = { tableId: settings.table, colId: PIECES_COL, rowId: row.id };
-    var list = document.createElement('div');
-    list.className = 'stg-pieces';
-    ids.forEach(function (id) {
-      var line = document.createElement('div');
-      line.className = 'stg-docline';
-      var label = document.createElement('span');
-      label.className = 'stg-docline__label';
-      label.textContent = names[id] || 'Pièce sans nom';
-      line.appendChild(label);
-      var files = document.createElement('span');
-      files.className = 'stg-docline__files';
-      var link = document.createElement('button');
-      link.type = 'button';
-      link.className = 'cand-doc-slot__filename--link stg-docline__link';
-      link.textContent = '…';
-      loadAttachmentsMeta().then(function (m) { link.textContent = (m[id] && m[id].fileName) || ('Pièce jointe #' + id); });
-      link.addEventListener('click', function () { openAttachmentInNewTab(id, cell); });
-      bindAttachHover(link, id, cell);
-      files.appendChild(buildFileItem(link, 'Retirer la pièce « ' + (names[id] || 'sans nom') + ' » de ce stagiaire ?\n\nLe fichier est détaché de la fiche.',
-        function () { return removePiece(row, id); }));
-      line.appendChild(files);
-      list.appendChild(line);
-    });
-    if (!ids.length) {
+    if (ids.length) {
+      var wrapEl = document.createElement('div');
+      wrapEl.className = 'detail-wrap';
+      var table = document.createElement('table');
+      table.className = 'detail-table';
+      var tbody = document.createElement('tbody');
+      ids.forEach(function (id) {
+        var tr = document.createElement('tr');
+        var th = document.createElement('th');
+        th.scope = 'row';
+        th.textContent = names[id] || 'Pièce sans nom';
+        var td = document.createElement('td');
+        td.colSpan = 3;
+        var files = document.createElement('span');
+        files.className = 'stg-docline__files';
+        var link = document.createElement('button');
+        link.type = 'button';
+        link.className = 'cand-doc-slot__filename--link stg-docline__link';
+        link.textContent = '…';
+        loadAttachmentsMeta().then(function (m) { link.textContent = (m[id] && m[id].fileName) || ('Pièce jointe #' + id); });
+        link.addEventListener('click', function () { openAttachmentInNewTab(id, cell); });
+        bindAttachHover(link, id, cell);
+        files.appendChild(buildFileItem(link, 'Retirer la pièce « ' + (names[id] || 'sans nom') + ' » de ce stagiaire ?\n\nLe fichier est détaché de la fiche.',
+          function () { return removePiece(row, id); }));
+        td.appendChild(files);
+        tr.appendChild(th);
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      wrapEl.appendChild(table);
+      card.appendChild(wrapEl);
+    } else {
       var none = document.createElement('p');
       none.className = 'stg-pieces__none';
       none.textContent = 'Aucune pièce complémentaire.';
-      list.appendChild(none);
+      card.appendChild(none);
     }
-    card.appendChild(list);
 
     // Zone de dépôt + formulaire de nom.
     var zone = document.createElement('div');
@@ -4378,16 +4533,7 @@
     wrap.className = 'stg-docs-tab';
     var docRoles = ATTACHMENT_ROLES.filter(function (r) { return !!settings.col[r]; });
     if (docRoles.length) {
-      var card = document.createElement('section');
-      card.className = 'stg-card';
-      card.innerHTML = '<h4 class="stg-card__title"><span class="fr-icon-file-line" aria-hidden="true"></span>Pièces</h4>';
-      docRoles.forEach(function (role) {
-        var line = document.createElement('div');
-        line.className = 'stg-docline';
-        var label = document.createElement('span');
-        label.className = 'stg-docline__label';
-        label.textContent = ROLE_LABELS[role];
-        line.appendChild(label);
+      var pieceSpecs = docRoles.map(function (role) {
         var files = document.createElement('span');
         files.className = 'stg-docline__files';
         var ids = extractAttachmentIds(row[role]);
@@ -4404,10 +4550,10 @@
           files.appendChild(buildFileItem(link, 'Supprimer ce fichier (« ' + ROLE_LABELS[role] + ' ») ?\n\nLe fichier est détaché de la fiche.',
             function () { return removeDocFile(row, role, id); }));
         });
-        line.appendChild(files);
-        card.appendChild(line);
+        return dCustomSpec(ROLE_LABELS[role], files, { wide: true, empty: !ids.length });
       });
-      wrap.appendChild(card);
+      var card = dGroup('Pièces', pieceSpecs);
+      if (card) wrap.appendChild(card);
     }
     wrap.appendChild(buildStgPiecesCard(row));
     if (!wrap.childNodes.length) {
@@ -5041,68 +5187,7 @@
   }
 
   // ---- Fiche « profil » d'un membre de l'encadrement ----
-  function encField(row, key, label, opts) {
-    if (!enc.cols[key]) return null;
-    opts = opts || {};
-    var text = encText(row, key);
-    if (opts.round && text) { // valeur numérique arrondie à l'entier (virgule décimale acceptée) ; texte non numérique inchangé
-      var num = parseFloat(String(text).replace(/\s/g, '').replace(',', '.'));
-      if (isFinite(num)) text = String(Math.round(num));
-    }
-    var node;
-    if (opts.phone) node = stgPhoneValue(text);
-    else if (opts.mail) node = stgMailValue(text);
-    else node = stgTextValue(text, opts.pre);
-    return stgItem(label, node, opts.wide);
-  }
-  // Champ éditable de la fiche Encadrement : zone de texte enregistrée à la sortie du champ (Entrée valide, Échap annule)
-  // dans la table Encadrement ; les colonnes numériques (Entier, Numérique) reçoivent un nombre.
-  function encEditField(row, key, label) {
-    var col = enc.cols[key];
-    if (!col) return null;
-    var current = encText(row, key);
-    var input = document.createElement('input');
-    input.type = 'text';
-    input.className = 'fr-input stg-edit';
-    input.autocomplete = 'off';
-    input.value = current;
-    input.id = 'encEdit_' + key + '_' + row.id;
-    input.setAttribute('aria-label', label);
-    var busy = false;
-    function save() {
-      var raw = input.value.trim();
-      if (busy || raw === current) return;
-      var value = raw;
-      if (col.type === 'Int' || col.type === 'Numeric') {
-        if (raw === '') value = null;
-        else {
-          var n = Number(raw.replace(/\s/g, '').replace(',', '.'));
-          if (isNaN(n)) { window.alert('Valeur numérique invalide pour « ' + label + ' ».'); input.value = current; return; }
-          value = col.type === 'Int' ? Math.round(n) : n;
-        }
-      }
-      busy = true;
-      setTimeout(function () { busy = false; }, 2000);
-      input.disabled = true;
-      var fields = {};
-      fields[col.id] = value;
-      grist.docApi.applyUserActions([['UpdateRecord', enc.tableId, row.id, fields]]).then(function () {
-        row.f[key] = value;
-        renderEncadrement(); // liste, filtres, et fiche ouverte (reconstruite par renderEncadrement)
-        if (currentModalRowId === row.id && currentModalKind === 'encadrement') renderModalContent();
-      }).catch(function (e) {
-        input.disabled = false;
-        input.value = current;
-        window.alert('Impossible d’enregistrer « ' + label + ' » : ' + friendlyErrorMessage(e));
-      });
-    }
-    input.addEventListener('blur', save);
-    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') input.blur(); if (e.key === 'Escape') { input.value = current; input.blur(); } });
-    var box = document.createElement('span');
-    box.className = 'stg-item__value';
-    box.appendChild(input);
-    return stgItem(label, box, false);
-  }
+  // Onglet « Informations » (même design/comportement que la fiche Stagiaires ci-dessus).
   function buildEncInfosTab(row) {
     var wrap = document.createElement('div');
     wrap.className = 'stg-cols';
@@ -5111,28 +5196,28 @@
     var right = document.createElement('div');
     right.className = 'stg-col';
     [
-      stgBlock('Identité', 'fr-icon-user-line', [
-        encField(row, 'nom', 'Nom'), encField(row, 'prenom', 'Prénom'), encField(row, 'sexe', 'Sexe')
+      dGroup('Identité', [
+        dFieldEnc(row, 'nom', 'Nom'), dFieldEnc(row, 'prenom', 'Prénom'), dFieldEnc(row, 'sexe', 'Sexe')
       ]),
-      stgBlock('Renseignements militaires', 'fr-icon-shield-line', [
-        encField(row, 'nigend', 'Nigend'), encField(row, 'affectation', 'Affectation'), encField(row, 'ar', 'A/R')
+      dGroup('Renseignements militaires', [
+        dFieldEnc(row, 'nigend', 'Nigend'), dFieldEnc(row, 'affectation', 'Affectation'), dFieldEnc(row, 'ar', 'A/R')
       ]),
-      stgBlock('Santé', 'fr-icon-heart-line', [
-        encField(row, 'regime', 'Régime alimentaire', { wide: true })
+      dGroup('Santé', [
+        dFieldEnc(row, 'regime', 'Régime alimentaire', { wide: true })
       ])
-    ].forEach(function (c) { if (c) left.appendChild(c); });
+    ].forEach(function (g) { if (g) left.appendChild(g); });
     [
-      stgBlock('Contact', 'fr-icon-phone-line', [
-        encField(row, 'telephone', 'Téléphone', { phone: true }), encField(row, 'emailPerso', 'Email perso', { mail: true }),
-        encField(row, 'emailPro', 'Email pro', { mail: true })
+      dGroup('Contact', [
+        dFieldEnc(row, 'telephone', 'Téléphone', { phone: true }), dFieldEnc(row, 'emailPerso', 'Email perso', { mail: true }),
+        dFieldEnc(row, 'emailPro', 'Email pro', { mail: true })
       ]),
-      stgBlock('Hébergement', 'fr-icon-home-4-line', [
-        encEditField(row, 'batiment', 'Bâtiment'), encEditField(row, 'chambre', 'Chambre')
+      dGroup('Hébergement', [
+        dFieldEnc(row, 'batiment', 'Bâtiment', { editable: true }), dFieldEnc(row, 'chambre', 'Chambre', { editable: true })
       ]),
-      stgBlock('Qualifications', 'fr-icon-award-line', [
-        encField(row, 'secourisme', 'Qualif. secourisme'), encField(row, 'permis', 'Permis détenus')
+      dGroup('Qualifications', [
+        dFieldEnc(row, 'secourisme', 'Qualif. secourisme'), dFieldEnc(row, 'permis', 'Permis détenus')
       ])
-    ].forEach(function (c) { if (c) right.appendChild(c); });
+    ].forEach(function (g) { if (g) right.appendChild(g); });
     wrap.appendChild(left);
     wrap.appendChild(right);
     return wrap;
@@ -5168,16 +5253,16 @@
   function buildEncDetachementTab(row) {
     var wrap = document.createElement('div');
     wrap.className = 'stg-docs-tab';
-    var mission = stgBlock('Mission', 'fr-icon-calendar-line', [
-      encField(row, 'debut', 'Début'), encField(row, 'fin', 'Fin'), encField(row, 'duree', 'Durée'), encField(row, 'droitsRepos', 'Droits à repos', { round: true })
+    var mission = dGroup('Mission', [
+      dFieldEnc(row, 'debut', 'Début'), dFieldEnc(row, 'fin', 'Fin'), dFieldEnc(row, 'duree', 'Durée'), dFieldEnc(row, 'droitsRepos', 'Droits à repos', { round: true })
     ]);
-    var poste = stgBlock('Poste occupé', 'fr-icon-user-star-line', [
-      enc.cols.groupe ? stgItem('Groupe', encGroupsNode(row), true) : null,
-      encField(row, 'fonction', 'Fonction', { wide: true })
+    var poste = dGroup('Poste occupé', [
+      enc.cols.groupe ? dCustomSpec('Groupe', encGroupsNode(row), { wide: true, empty: !encValues(row, 'groupe').length }) : null,
+      dFieldEnc(row, 'fonction', 'Fonction', { wide: true })
     ]);
-    var cours = stgBlock('Cours', 'fr-icon-book-2-line', [
-      enc.cols.renseignements ? stgItem('Cours (volontaire)', encCoursesNode(row), true) : null,
-      encField(row, 'hCours', 'Heures de cours')
+    var cours = dGroup('Cours', [
+      enc.cols.renseignements ? dCustomSpec('Cours (volontaire)', encCoursesNode(row), { wide: true, empty: !encCourses(row).length }) : null,
+      dFieldEnc(row, 'hCours', 'Heures de cours')
     ]);
     [mission, poste, cours].forEach(function (card) { if (card) wrap.appendChild(card); });
     if (!wrap.childNodes.length) {
@@ -6465,6 +6550,7 @@
     if (id === null) return;
     currentModalRowId = id;
     cmpState = { keep: 'newer', confirm: false, busy: false, msg: null }; // barre de doublon réinitialisée : autre fiche
+    dEditRole = null; // édition en cours annulée : autre fiche
     renderModalContent();
     candModalOverlay.scrollTop = 0;
   }
@@ -6498,6 +6584,7 @@
     currentModalKind = kind || 'etuteur';
     currentModalRowId = rowId;
     cmpState = { keep: 'newer', confirm: false, busy: false, msg: null };
+    dEditRole = null; // édition en cours annulée : nouvelle fiche
     renderModalContent();
     candModalOverlay.hidden = false;
     // Double rAF avant d'ajouter .is-open : le premier laisse le
@@ -7082,13 +7169,14 @@
       newValue = rawValue;
     }
     inputEl.disabled = true;
-    resolveWriteTarget(role, row).then(function (target) {
+    return resolveWriteTarget(role, row).then(function (target) {
       var fields = {};
       fields[colId] = newValue;
       return grist.docApi.applyUserActions([['UpdateRecord', target.table, target.rowId, fields]]);
     }).then(function () {
       row[role] = newValue;
       inputEl.disabled = false;
+      if (dEditRole === role) dEditRole = null; // édition « tableau » en cours : referme l'éditeur
       renderCandidates();
       renderStagiaires(); // liste, tags et filtres de la page Stagiaires
       if (currentModalRowId === row.id) renderModalContent();
