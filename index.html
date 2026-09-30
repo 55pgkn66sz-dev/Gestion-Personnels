@@ -55,7 +55,10 @@
 
 <style>
   :root {
-    --bleu-france: #000091;
+    /* Alias sur la couleur de marque DSFR (déjà adaptée au thème sombre par dsfr.min.css,
+       sous [data-fr-theme=dark]) plutôt qu'une valeur fixe, pour que tout ce qui utilise
+       var(--bleu-france) (titres, liens, icônes, onglet actif…) reste lisible en mode sombre. */
+    --bleu-france: var(--blue-france-sun-113-625, #000091);
     /* Couleurs de statut (Accepté / Refusé / en attente), réutilisées à la
        fois pour les boutons d'action et pour les liserés/fonds pastel des
        cartes candidat. Mêmes variables que le widget Réservations, pour
@@ -68,6 +71,12 @@
     --uv-pastel-full: #e0f3e4;
     --uv-pastel-over: #fbe1e0;
     --statut-pastel-attente: #fff6d6;
+  }
+  /* Fonds pastel du thème clair, réadaptés en teintes sombres équivalentes (mêmes valeurs que
+     dsfr.min.css pour --success-950-100 / --warning-950-100 sous [data-fr-theme=dark]). */
+  [data-fr-theme="dark"] {
+    --uv-pastel-full: #19271d;
+    --statut-pastel-attente: #361e19;
   }
   html, body { margin: 0; padding: 0; }
   .widget-wrap { padding: 1.5rem 1.25rem; width: 100%; box-sizing: border-box; }
@@ -157,7 +166,7 @@
     height: 1.75rem;
     border-radius: 999px;
     background: var(--statut-pastel-attente);
-    color: #716200;
+    color: var(--text-default-warning);
     font-size: 0.9rem;
     flex: none;
   }
@@ -172,8 +181,8 @@
     align-items: center;
     justify-content: center;
     border-radius: 999px;
-    background: #ffe9e9;
-    color: #ce0500;
+    background: var(--background-contrast-error);
+    color: var(--text-default-error);
     flex: none;
   }
   .cand-row__dup { width: 1.75rem; height: 1.75rem; font-size: 0.9rem; }
@@ -182,10 +191,10 @@
      Vert = OK, orange = refusé, rouge = manquant, gris = fichier présent mais
      pas encore validé. Le libellé d'état est aussi écrit (texte caché + title)
      pour ne pas dépendre de la seule couleur. */
-  .fr-tag.doc-tag--ok { background: #b8fec9; color: #18753c; }
-  .fr-tag.doc-tag--rejected { background: #ffe6d1; color: #a84300; }
-  .fr-tag.doc-tag--missing { background: #ffe9e9; color: #ce0500; }
-  .fr-tag.doc-tag--pending { background: #eceaf0; color: #3a3a45; }
+  .fr-tag.doc-tag--ok { background: var(--background-contrast-success); color: var(--text-default-success); }
+  .fr-tag.doc-tag--rejected { background: var(--background-contrast-warning); color: var(--text-default-warning); }
+  .fr-tag.doc-tag--missing { background: var(--background-contrast-error); color: var(--text-default-error); }
+  .fr-tag.doc-tag--pending { background: var(--background-alt-grey); color: var(--text-default-grey); }
 
 
   /* ---- Modale "Fiche candidat" -------------------------------------------
@@ -216,7 +225,7 @@
      classe .is-open, ajoutée en double rAF après retrait de [hidden] —
      voir openCandidateModal / closeCandidateModal. */
   .cand-modal-dialog {
-    background: #fff;
+    background: var(--background-raised-grey);
     max-width: none; /* la largeur est celle de .cand-modal-stack (70 % de l'écran) */
     width: 100%;
     padding: 1.85rem 2rem 2rem;
@@ -235,7 +244,7 @@
     gap: 1rem;
     margin-bottom: 1rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid var(--border-default-grey);
   }
   .cand-modal-dialog__identity { min-width: 0; }
   .cand-modal-dialog__title { margin: 0; font-size: 1.45em; font-weight: 700; letter-spacing: -0.01em; }
@@ -250,17 +259,17 @@
     flex: none;
     margin: -0.25rem -0.25rem 0 0;
     border-radius: 999px !important;
-    background: rgba(255, 255, 255, 0.6) !important;
+    background: var(--background-raised-grey) !important;
   }
-  .cand-modal-dialog__close:hover { background: #fff !important; }
+  .cand-modal-dialog__close:hover { background: var(--background-contrast-grey) !important; }
   /* Précédent / Suivant : même pastille ronde que la fermeture, de part et d'autre. */
   .cand-modal-dialog__nav {
     flex: none;
     margin: -0.25rem 0 0 0;
     border-radius: 999px !important;
-    background: rgba(255, 255, 255, 0.6) !important;
+    background: var(--background-raised-grey) !important;
   }
-  .cand-modal-dialog__nav:hover:not(:disabled) { background: #fff !important; }
+  .cand-modal-dialog__nav:hover:not(:disabled) { background: var(--background-contrast-grey) !important; }
   .cand-modal-dialog__nav:disabled { opacity: 0.35; cursor: not-allowed; }
   /* Pastille "mineur", affichée en haut à droite de la modale quand le
      candidat sera mineur au 1er jour de formation — calculé à partir de sa
@@ -275,7 +284,7 @@
     height: 2.1rem;
     border-radius: 999px;
     background: var(--statut-pastel-attente);
-    color: #716200;
+    color: var(--text-default-warning);
     font-size: 1.05rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   }
@@ -300,7 +309,7 @@
   .stg-multi__panel {
     position: absolute; z-index: 60; left: 0; min-width: 100%; max-width: 26rem; max-height: 18rem; overflow-y: auto;
     margin-top: 0.25rem; padding: 0.4rem 0.75rem 0.6rem;
-    background: #fff; border: 1px solid var(--border-default-grey); border-radius: 0.4rem;
+    background: var(--background-raised-grey); border: 1px solid var(--border-default-grey); border-radius: 0.4rem;
     box-shadow: 0 6px 18px rgba(20, 10, 30, 0.2);
   }
   .stg-multi__panel .fr-checkbox-group { margin: 0.35rem 0; }
@@ -353,36 +362,36 @@
   .stg-chip {
     display: inline-flex; align-items: center; gap: 0.4rem;
     padding: 0.28rem 0.8rem; border-radius: 999px;
-    font-size: 0.8em; font-weight: 700; background: #fff; border: 1px solid rgba(0, 0, 0, 0.08);
+    font-size: 0.8em; font-weight: 700; background: var(--background-raised-grey); border: 1px solid var(--border-default-grey);
   }
   .stg-chip::before { content: ''; width: 0.55rem; height: 0.55rem; border-radius: 999px; background: #8b8b96; }
-  .stg-chip--ok { background: #e0f3e4; color: var(--statut-validee); border-color: transparent; }
+  .stg-chip--ok { background: var(--background-contrast-success); color: var(--text-default-success); border-color: transparent; }
   .stg-chip--ok::before { background: var(--statut-validee); }
-  .stg-chip--bad { background: #ffe9e9; color: var(--statut-refusee); border-color: transparent; }
+  .stg-chip--bad { background: var(--background-contrast-error); color: var(--text-default-error); border-color: transparent; }
   .stg-chip--bad::before { background: var(--statut-refusee); }
-  .stg-chip--warn { background: #ffe6d1; color: #a84300; border-color: transparent; }
+  .stg-chip--warn { background: var(--background-contrast-warning); color: var(--text-default-warning); border-color: transparent; }
   .stg-chip--warn::before { background: var(--statut-rejet); }
-  .stg-chip--neutral { background: #eceaf0; color: #3a3a45; border-color: transparent; }
+  .stg-chip--neutral { background: var(--background-alt-grey); color: var(--text-default-grey); border-color: transparent; }
 
   .stg-item__value { display: block; font-weight: 600; overflow-wrap: anywhere; }
   .stg-item__value--empty { font-weight: 400; color: #b5b5c0; }
   /* Fiches « tableau » (même design que le widget SERVIR) : libellé/valeur en table, édition au clic. */
   .detail-wrap { overflow-x: auto; border: 1px solid rgba(0, 0, 0, 0.09); border-radius: 0.5rem; }
-  .detail-table { width: 100%; border-collapse: collapse; table-layout: auto; background: #fff; }
-  .detail-table th, .detail-table td { padding: 0.5rem 0.7rem; border-top: 1px solid rgba(0, 0, 0, 0.08); vertical-align: top; text-align: left; }
+  .detail-table { width: 100%; border-collapse: collapse; table-layout: auto; background: var(--background-raised-grey); }
+  .detail-table th, .detail-table td { padding: 0.5rem 0.7rem; border-top: 1px solid var(--border-default-grey); vertical-align: top; text-align: left; }
   .detail-table tbody tr:first-child > * { border-top: none; }
-  .detail-table th { width: 1%; white-space: nowrap; background: #f7f7fb; font-size: 0.68em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; color: var(--text-mention-grey); }
+  .detail-table th { width: 1%; white-space: nowrap; background: var(--background-alt-grey); font-size: 0.68em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; color: var(--text-mention-grey); }
   .detail-table td { font-weight: 600; overflow-wrap: anywhere; }
-  .detail-table td.is-empty { font-weight: 400; color: #b5b5c0; }
+  .detail-table td.is-empty { font-weight: 400; color: var(--text-disabled-grey); }
   .detail-table td.is-pre { white-space: pre-wrap; }
-  .detail-table tbody tr:hover td { background: #f7f7fb; }
-  .detail-table tr.is-diff > td, .detail-table tr.is-diff > th { background: #feecc2; }
+  .detail-table tbody tr:hover td { background: var(--background-alt-grey); }
+  .detail-table tr.is-diff > td, .detail-table tr.is-diff > th { background: var(--background-alt-yellow-tournesol); }
   .detail-table td.is-editable { cursor: pointer; position: relative; padding-right: 2rem; }
-  .detail-table td.is-editable:hover, .detail-table td.is-editable:focus-visible { background: #eef0fd; }
+  .detail-table td.is-editable:hover, .detail-table td.is-editable:focus-visible { background: var(--background-alt-blue-france); }
   .detail-table td.is-editable:focus-visible { outline: 2px solid var(--bleu-france); outline-offset: -2px; }
   .detail-table td.is-editable .d-editicon { position: absolute; right: 0.6rem; top: 0.65rem; font-size: 1rem; opacity: 0; color: var(--bleu-france); }
   .detail-table td.is-editable:hover .d-editicon, .detail-table td.is-editable:focus-visible .d-editicon { opacity: 0.6; }
-  .detail-table td.is-editing { background: #f7f7fb; font-weight: 400; }
+  .detail-table td.is-editing { background: var(--background-alt-grey); font-weight: 400; }
   .detail-group + .detail-group { margin-top: 1.4rem; }
   .detail-title {
     display: flex; align-items: center; gap: 0.5rem; margin: 0 0 0.5rem;
@@ -422,7 +431,7 @@
   }
   .cand-modal-dialog__noimage-flag {
     display: inline-flex; align-items: center; justify-content: center; width: 2.1rem; height: 2.1rem;
-    border-radius: 999px; background: #ffe6d1; color: #a84300; font-size: 1.05rem; flex: none;
+    border-radius: 999px; background: var(--background-contrast-warning); color: var(--text-default-warning); font-size: 1.05rem; flex: none;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   }
   .stg-flags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.6rem; }
@@ -457,7 +466,7 @@
   .stg-transport { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
   .stg-transport__icon {
     flex: none; display: inline-flex; align-items: center; justify-content: center;
-    width: 2rem; height: 2rem; border-radius: 999px; background: #fff; color: var(--bleu-france);
+    width: 2rem; height: 2rem; border-radius: 999px; background: var(--background-raised-grey); color: var(--bleu-france);
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
   }
   .stg-transport__icon--other { color: var(--text-mention-grey); }
@@ -505,12 +514,12 @@
   .stg-drop__label {
     display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 1rem 0.8rem;
     border: 2px dashed var(--border-default-grey); border-radius: 0.5rem; color: var(--text-mention-grey);
-    font-size: 0.9em; text-align: center; cursor: pointer; background: #fcfbf3;
+    font-size: 0.9em; text-align: center; cursor: pointer; background: var(--background-alt-grey);
   }
-  .stg-drop__label:hover, .stg-drop--over .stg-drop__label { border-color: var(--bleu-france); color: var(--bleu-france); background: #f4f2e0; }
-  .stg-naming { margin-top: 0.8rem; padding: 0.8rem 0.9rem; background: #f8f6ea; border: 1px solid rgba(0, 0, 0, 0.08); border-radius: 0.5rem; }
+  .stg-drop__label:hover, .stg-drop--over .stg-drop__label { border-color: var(--bleu-france); color: var(--bleu-france); background: var(--background-alt-blue-france); }
+  .stg-naming { margin-top: 0.8rem; padding: 0.8rem 0.9rem; background: var(--background-alt-grey); border: 1px solid var(--border-default-grey); border-radius: 0.5rem; }
   .stg-naming__intro { margin: 0 0 0.6rem; font-weight: 700; font-size: 0.9em; }
-  .stg-naming__row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.35rem; padding: 0.55rem 0; border-top: 1px solid rgba(0, 0, 0, 0.07); }
+  .stg-naming__row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.35rem; padding: 0.55rem 0; border-top: 1px solid var(--border-default-grey); }
   .stg-naming__row:first-of-type { border-top: none; }
   .stg-naming__file { font-size: 0.78em; color: var(--text-mention-grey); overflow-wrap: anywhere; }
   .stg-naming__chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
@@ -525,7 +534,7 @@
     background: transparent; color: #a0a0ac; font-size: 0.8rem; cursor: pointer;
     transition: background 0.15s ease, color 0.15s ease;
   }
-  .stg-file__trash:hover:not(:disabled), .stg-file__trash:focus-visible { background: #ffe9e9; color: var(--statut-refusee); }
+  .stg-file__trash:hover:not(:disabled), .stg-file__trash:focus-visible { background: var(--background-contrast-error); color: var(--statut-refusee); }
   .stg-file__trash:focus-visible { outline: 2px solid var(--bleu-france); outline-offset: 1px; }
   .stg-file__trash:disabled { opacity: 0.4; cursor: wait; }
   /* Onglet Documents. */
@@ -548,8 +557,8 @@
     margin: 0.45rem 0 0;
     padding: 0.15rem 0.6rem;
     border-radius: 999px;
-    background: #fff;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: var(--background-raised-grey);
+    border: 1px solid var(--border-default-grey);
     font-size: 0.75em;
     font-weight: 700;
     color: var(--text-mention-grey);
@@ -560,7 +569,7 @@
   .cand-modal-dialog__delete { color: var(--statut-refusee) !important; }
   .cand-cmp-bar {
     width: max(70vw, 46rem); max-width: 100%; margin-top: 1rem; box-sizing: border-box;
-    padding: 1.1rem 1.5rem 1.25rem; border-radius: 1rem; background: #fff;
+    padding: 1.1rem 1.5rem 1.25rem; border-radius: 1rem; background: var(--background-raised-grey);
     box-shadow: 0 1rem 2.5rem rgba(20, 10, 30, 0.25), 0 2px 8px rgba(20, 10, 30, 0.12);
   }
   .cand-cmp-bar--compare { width: max(90vw, 60rem); }
@@ -577,7 +586,7 @@
   .cand-cmp-bar__confirm p { margin: 0; }
   .cand-cmp-bar__msg { margin: 0 0 0.75rem; padding: 0.6rem 0.9rem; border-radius: 0.4rem; font-size: 0.875rem; }
   .cand-cmp-bar__msg--success { background: #b8fec9; color: #18753c; }
-  .cand-cmp-bar__msg--error { background: #ffe9e9; color: #ce0500; }
+  .cand-cmp-bar__msg--error { background: var(--background-contrast-error); color: var(--text-default-error); }
   /* Champs qui diffèrent entre les deux fiches, fiche Stagiaires (voir cmpApplyHighlight). */
   .stg-item.is-diff { background: #feecc2; border-radius: 0.4rem; padding: 0.35rem 0.5rem; margin: -0.35rem -0.5rem; }
   @media (max-width: 40rem) { .cand-cmp-bar { width: 100%; padding: 1rem; } }
@@ -639,8 +648,8 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
-    background: #fff;
-    border: 1px solid rgba(0, 0, 0, 0.07);
+    background: var(--background-raised-grey);
+    border: 1px solid var(--border-default-grey);
     border-left: 3px solid #8b8b96;
     border-radius: 0.65rem;
     padding: 0.9rem 0.9rem 0.9rem 0.8rem;
@@ -735,7 +744,7 @@
     gap: 0.5rem;
     padding: 0.45rem 0.6rem;
     margin-bottom: 0.7rem;
-    background: #f7f7fb;
+    background: var(--background-alt-grey);
     border-radius: 0.5rem;
     font-size: 0.8em;
   }
@@ -829,7 +838,7 @@
   }
   .cand-doc-slot__import:hover { border-color: var(--bleu-france); color: var(--bleu-france); }
   .cand-doc-slot__zone--busy .cand-doc-slot__import { pointer-events: none; opacity: 0.7; border-style: solid; }
-  .cand-doc-slot__zone--drag .cand-doc-slot__import { border-color: var(--bleu-france); background: #f0f0f5; color: var(--bleu-france); }
+  .cand-doc-slot__zone--drag .cand-doc-slot__import { border-color: var(--bleu-france); background: var(--background-alt-blue-france); color: var(--bleu-france); }
 
   /* Champ "N° CAND" (carte EAD - Bloc 1) : même bandeau que "Photos"
      (voir buildNumCandField), avec une zone de texte à la place des boutons. */
@@ -840,7 +849,7 @@
     border: none;
     border-bottom: 1px solid var(--border-default-grey);
     border-radius: 0.25rem 0.25rem 0 0;
-    background: #fff;
+    background: var(--background-raised-grey);
     padding: 0.3rem 0.45rem;
     font: inherit;
     font-weight: 600;
@@ -858,26 +867,26 @@
     height: 2.1rem;
     border: none;
     border-radius: 999px;
-    background: #f2f2f6;
+    background: var(--background-alt-grey);
     color: var(--bleu-france);
     font-size: 0.95rem;
     cursor: pointer;
     transition: background 0.15s ease, transform 0.1s ease;
   }
-  .cand-doc-mail-btn:hover:not(:disabled) { background: rgba(0, 0, 145, 0.12); }
+  .cand-doc-mail-btn:hover:not(:disabled) { background: var(--background-alt-blue-france); }
   .cand-doc-mail-btn:active:not(:disabled) { transform: scale(0.92); }
   .cand-doc-mail-btn:focus-visible { outline: 2px solid var(--bleu-france); outline-offset: 1px; }
   .cand-doc-mail-btn:disabled { color: #b5b5c0; cursor: not-allowed; }
   /* Identifiants GendForm déjà envoyés (voir gendFormAlreadySent) : enveloppe verte. */
-  .cand-doc-mail-btn.is-sent { background: #e0f3e4; color: var(--statut-validee); }
-  .cand-doc-mail-btn.is-sent:hover:not(:disabled) { background: #c8ebd0; }
+  .cand-doc-mail-btn.is-sent { background: var(--background-contrast-success); color: var(--text-default-success); }
+  .cand-doc-mail-btn.is-sent:hover:not(:disabled) { background: var(--background-contrast-success-hover); }
 
   /* ---- Aperçu au survol (popover) --------------------------------------- */
   .attach-preview {
     position: fixed;
     z-index: 200;
     max-width: 20rem;
-    background: #fff;
+    background: var(--background-raised-grey);
     border: 1px solid var(--border-default-grey);
     border-radius: 0.5rem;
     box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
@@ -912,7 +921,7 @@
     height: 22rem;
     border: 1px solid var(--border-default-grey);
     border-radius: 0.25rem;
-    background: #fff;
+    background: var(--background-raised-grey);
   }
   .attach-preview__reason { font-size: 0.85em; color: var(--text-mention-grey); }
   .attach-preview__pages { margin: 0.3rem 0 0; font-size: 0.75em; color: var(--text-mention-grey); text-align: center; }
@@ -937,8 +946,8 @@
     gap: 0.75rem;
     padding: 0.5rem 0.75rem;
     font-size: 0.92em;
-    background: #fff;
-    border: 1px solid rgba(0, 0, 0, 0.07);
+    background: var(--background-raised-grey);
+    border: 1px solid var(--border-default-grey);
     border-radius: 0.55rem;
     box-shadow: 0 1px 3px rgba(20, 10, 30, 0.06);
     box-sizing: border-box;
@@ -955,8 +964,8 @@
   .cand-field-block {
     flex: 1 1 0;
     min-width: 0;
-    background: #fff;
-    border: 1px solid rgba(0, 0, 0, 0.07);
+    background: var(--background-raised-grey);
+    border: 1px solid var(--border-default-grey);
     border-radius: 0.55rem;
     padding: 0.55rem 0.75rem;
     box-sizing: border-box;
@@ -1045,7 +1054,7 @@
 .cfg-chip::before { content: ''; width: 0.5rem; height: 0.5rem; border-radius: 999px; background: #8b8b96; flex: none; }
 .cfg-chip--ok { background: var(--uv-pastel-full); color: var(--statut-validee); }
 .cfg-chip--ok::before { background: var(--statut-validee); }
-.cfg-chip--warn { background: var(--statut-pastel-attente); color: #716200; }
+.cfg-chip--warn { background: var(--statut-pastel-attente); color: var(--text-default-warning); }
 .cfg-chip--warn::before { background: #b58900; }
 
 .cfg-help {
@@ -1098,7 +1107,7 @@
 .cfg-link-result { margin: 0; font-size: 0.88em; font-weight: 600; }
 .cfg-link-result--info { color: var(--text-mention-grey); font-weight: 400; }
 .cfg-link-result--success { color: var(--statut-validee); }
-.cfg-link-result--warn { color: #716200; }
+.cfg-link-result--warn { color: var(--text-default-warning); }
 .cfg-link-result--error { color: var(--statut-refusee); }
 
 /* Documents : un tableau (une ligne par document, deux colonnes de
@@ -1124,7 +1133,7 @@
   box-shadow: 0 -4px 14px rgba(20, 10, 30, 0.08);
 }
 .cfg-bar__state { font-size: 0.85em; color: var(--text-mention-grey); }
-.cfg-bar__state--dirty { color: #716200; font-weight: 700; }
+.cfg-bar__state--dirty { color: var(--text-default-warning); font-weight: 700; }
 .cfg-bar__state--dirty::before { content: '● '; }
 .cfg-bar__actions { display: flex; gap: 0.75rem; }
 
@@ -1156,17 +1165,17 @@
   #header-navigation .fr-nav__item[hidden] { display: none; }
   .bulk-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
   .bulk-head h2 { margin: 0; }
-  .bulk-table-wrap { overflow-x: auto; border: 1px solid var(--border-default-grey); border-radius: 0.5rem; background: #fff; }
+  .bulk-table-wrap { overflow-x: auto; border: 1px solid var(--border-default-grey); border-radius: 0.5rem; background: var(--background-raised-grey); }
   .bulk-table { width: 100%; border-collapse: collapse; }
   .bulk-table th, .bulk-table td { padding: 0.5rem 0.8rem; text-align: left; vertical-align: middle; border-top: 1px solid var(--border-default-grey); }
   .bulk-table thead th {
-    position: sticky; top: 0; z-index: 1; background: #f7f7fb; border-top: none;
+    position: sticky; top: 0; z-index: 1; background: var(--background-alt-grey); border-top: none;
     font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-mention-grey);
   }
   /* Vues tableau des pages eTuteur, Stagiaires et Encadrement : lignes cliquables. */
   .cand-table-wrap { margin-bottom: 1rem; }
   .cand-trow { cursor: pointer; }
-  .cand-trow:hover td, .cand-trow:focus-visible td { background: #f0f0f5; }
+  .cand-trow:hover td, .cand-trow:focus-visible td { background: var(--background-alt-grey); }
   .cand-trow:focus-visible { outline: 2px solid var(--bleu-france); outline-offset: -2px; }
   .cand-table td { vertical-align: middle; }
   .cand-table tbody tr:first-child td { border-top: none; }
@@ -1180,8 +1189,8 @@
   .bulk-table__check { width: 2.4rem; text-align: center !important; }
   .bulk-table__check input { width: 1.1rem; height: 1.1rem; cursor: pointer; }
   .bulk-table__name { font-weight: 700; white-space: nowrap; }
-  .bulk-table tr.is-selected td { background: #f0f0ff; }
-  .bulk-table tbody tr:hover td { background: #f6f6fb; }
+  .bulk-table tr.is-selected td { background: var(--background-alt-blue-france); }
+  .bulk-table tbody tr:hover td { background: var(--background-alt-grey); }
   .bulk-table tr.is-selected:hover td { background: #e8e8fb; }
   .bulk-bar {
     position: sticky; bottom: 0; z-index: 20; display: flex; align-items: center; flex-wrap: wrap; gap: 0.8rem 1.4rem;
@@ -1195,7 +1204,7 @@
     padding: 1rem; background: rgba(22, 22, 22, 0.55);
   }
   .bulk-dialog[hidden] { display: none; }
-  .bulk-dialog__box { width: 80vw; max-width: 100%; max-height: 100%; overflow-y: auto; padding: 1.2rem 1.5rem; background: #fff; border-radius: 0.5rem; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3); }
+  .bulk-dialog__box { width: 80vw; max-width: 100%; max-height: 100%; overflow-y: auto; padding: 1.2rem 1.5rem; background: var(--background-raised-grey); border-radius: 0.5rem; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3); }
   .bulk-dialog__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.8rem; }
   .bulk-dialog__head h3 { margin: 0; }
   .bulk-dialog__box textarea { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.85em; resize: vertical; }
@@ -1212,6 +1221,13 @@
   .bulk-dialog__delete { flex: none; min-width: 2rem; margin-right: auto; color: var(--statut-refusee) !important; }
   .bulk-dialog__delete[hidden] { display: none; }
   .bulk-dialog__foot { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1rem; }
+  /* État rationnaire par FA : liste des cadres dont un repas est à confirmer (repos, veille ou lendemain). */
+  .ration-meals { display: flex; flex-direction: column; gap: 0.6rem; max-height: 16rem; overflow-y: auto; }
+  .ration-meals__row { padding: 0.5rem 0.7rem; border: 1px solid var(--border-default-grey); border-radius: 0.4rem; background: var(--background-alt-grey); }
+  .ration-meals__name { font-weight: 700; font-size: 0.9em; }
+  .ration-meals__reason { font-weight: 400; font-size: 0.85em; color: var(--text-mention-grey); margin-left: 0.4rem; }
+  .ration-meals__checks { display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; margin-top: 0.35rem; }
+  .ration-meals__checks .fr-checkbox-group { margin: 0; }
   .bulk-table__actions { white-space: nowrap; text-align: right !important; }
   .bulk-table__actions .fr-btn { padding: 0.25rem 0.4rem; min-height: 0; }
   .bulk-bar__select { width: auto; min-width: 10rem; max-width: 16rem; }
@@ -1501,6 +1517,34 @@
         </div>
       </div>
     </div>
+
+    <!-- État rationnaire par FA : choix du jour considéré, puis confirmation des repas des cadres en repos
+         (ou dont le repos commence/finit la veille/le lendemain de ce jour) avant de générer le fichier. -->
+    <div class="bulk-dialog" id="rationDialog" role="dialog" aria-modal="true" aria-labelledby="rationTitle" hidden>
+      <div class="bulk-dialog__box">
+        <div class="bulk-dialog__head">
+          <h3 class="fr-h6" id="rationTitle">Télécharger : État rationnaire par FA</h3>
+          <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line" id="rationClose" type="button" title="Fermer">Fermer</button>
+        </div>
+        <p class="fr-text--sm">Choisissez le jour à considérer : seuls les stagiaires et cadres présents ce jour-là sont repris.</p>
+        <div class="fr-input-group" id="rationDate_group">
+          <label class="fr-label" for="rationDate">Jour considéré <span class="fr-hint-text">Saisie manuelle, format JJ/MM/AAAA.</span></label>
+          <input class="fr-input" type="text" id="rationDate" inputmode="numeric" maxlength="10" placeholder="JJ/MM/AAAA" autocomplete="off" aria-describedby="rationDate_err">
+          <p class="fr-error-text" id="rationDate_err" hidden>Date invalide : utilisez le format JJ/MM/AAAA (par ex. 15/09/2026).</p>
+        </div>
+        <p class="fr-text--sm" id="rationAbsenceNotice" hidden></p>
+        <div id="rationMealsWrap" hidden>
+          <p class="fr-text--sm fr-text--bold" style="margin:0.8rem 0 0.4rem">Repas à confirmer (aucun repas par défaut)</p>
+          <div id="rationMealsList" class="ration-meals"></div>
+        </div>
+        <p class="fr-error-text" id="rationError" hidden></p>
+        <p class="fr-text--sm" id="rationProgress" role="status" aria-live="polite" hidden></p>
+        <div class="bulk-dialog__foot">
+          <button class="fr-btn fr-btn--tertiary fr-btn--sm" id="rationCancel" type="button">Annuler</button>
+          <button class="fr-btn fr-btn--sm" id="rationGo" type="button" disabled>Télécharger</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Page cachée "Gestion des documents" (accessible par la roue crantée de la page Générer doc. en lot) :
@@ -1669,8 +1713,8 @@
         <div class="cfg-card__head">
           <span class="cfg-card__num" aria-hidden="true">2</span>
           <div>
-            <h3 class="cfg-card__title" id="cfgCardTitle3">Début de formation</h3>
-            <p class="cfg-card__desc">Date du 1er jour de la formation : sert à calculer le pictogramme « -18 » (mineur). Les autres colonnes (identité, documents, bande patronymique, suivi) sont fixées dans le code : voir « Sources de données du widget » ci-dessus.</p>
+            <h3 class="cfg-card__title" id="cfgCardTitle3">Début et fin de formation</h3>
+            <p class="cfg-card__desc">Date du 1er jour (sert à calculer le pictogramme « -18 », mineur) et dernier jour de la formation (plafond de la date de départ dans l'état rationnaire par FA). Les autres colonnes (identité, documents, bande patronymique, suivi) sont fixées dans le code : voir « Sources de données du widget » ci-dessus.</p>
           </div>
         </div>
 <div class="cfg-grid">
@@ -1679,6 +1723,12 @@
       <span class="fr-hint-text">Saisie manuelle, format JJ/MM/AAAA.</span></label>
     <input class="fr-input" type="text" id="cand_dateDebutFormation" inputmode="numeric" maxlength="10" placeholder="JJ/MM/AAAA" autocomplete="off" aria-describedby="cand_dateDebutFormation_err">
     <p class="fr-error-text" id="cand_dateDebutFormation_err" hidden>Date invalide : utilisez le format JJ/MM/AAAA (par ex. 15/09/2026).</p>
+  </div>
+<div class="fr-input-group" id="cand_dateFinFormation_group">
+    <label class="fr-label" for="cand_dateFinFormation">Fin de formation le
+      <span class="fr-hint-text">Saisie manuelle, format JJ/MM/AAAA.</span></label>
+    <input class="fr-input" type="text" id="cand_dateFinFormation" inputmode="numeric" maxlength="10" placeholder="JJ/MM/AAAA" autocomplete="off" aria-describedby="cand_dateFinFormation_err">
+    <p class="fr-error-text" id="cand_dateFinFormation_err" hidden>Date invalide : utilisez le format JJ/MM/AAAA (par ex. 15/09/2026).</p>
   </div>
 </div>
 
@@ -1771,7 +1821,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 10.1</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 10.5</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -1784,7 +1834,7 @@
   // (La date "Début de formation le" n'est PAS un rôle de colonne : elle est
   // saisie à la main dans la Configuration, voir settings.dateDebutFormation.)
   var ROLES = ['nid', 'stagiaire', 'email', 'telephone', 'dateNaissance',
-    'pon', 'civilite', 'nom', 'prenom', 'affectation', 'lieuNaissance', 'dpt', 'nigend', 'fonction', 'batiment', 'chambre',
+    'pon', 'civilite', 'nom', 'prenom', 'grade', 'affectation', 'lieuNaissance', 'dpt', 'nigend', 'fonction', 'batiment', 'chambre',
     'autorise', 'identiteComplete', 'droitImage', 'qualifSecourisme', 'regimeAlimentaire', 'motifDepart', 'dateDepart',
     'nomUrgence', 'prenomUrgence', 'telUrgence', 'allergies', 'traitements', 'precisionsMedicales', 'lateralite', 'modeTransport', 'immatriculation',
     'usageRS', 'validationUsageRS', 'formImage', 'validationFormImage', 'ead', 'validationEAD',
@@ -1797,7 +1847,7 @@
   // rôles restent dans la table principale (candidats).
   var ROLE_LABELS = {
     nid: 'NID', stagiaire: 'Stagiaire', email: 'E-mail', telephone: 'Téléphone',
-    pon: 'PON', civilite: 'Civilité', nom: 'Nom', prenom: 'Prénom', affectation: 'Affectation', lieuNaissance: 'Lieu de naissance',
+    pon: 'PON', civilite: 'Civilité', nom: 'Nom', prenom: 'Prénom', grade: 'Grade', affectation: 'Affectation', lieuNaissance: 'Lieu de naissance',
     dpt: 'Dpt', nigend: 'Nigend', fonction: 'Fonction', batiment: 'Bât.', chambre: 'Ch.', autorise: 'Autorisé',
     identiteComplete: 'Identité complète', droitImage: 'Droit à l\'image', qualifSecourisme: 'Qualif. secourisme',
     regimeAlimentaire: 'Régime alimentaire', motifDepart: 'Motif de départ', dateDepart: 'Date de départ', nomUrgence: 'Nom contact urgence', prenomUrgence: 'Prénom contact urgence',
@@ -1890,7 +1940,7 @@
   function defaultConfig() {
     var col = {};
     ROLES.forEach(function (role) { col[role] = ''; });
-    return { table: '', docsTable: '', docsLinkCol: '', hideEtuteur: false, dateDebutFormation: '', eadMail: { subject: DEFAULT_EAD_MAIL.subject, body: DEFAULT_EAD_MAIL.body },
+    return { table: '', docsTable: '', docsLinkCol: '', hideEtuteur: false, dateDebutFormation: '', dateFinFormation: '', eadMail: { subject: DEFAULT_EAD_MAIL.subject, body: DEFAULT_EAD_MAIL.body },
       refusalMail: { subject: DEFAULT_REFUSAL_MAIL.subject, body: DEFAULT_REFUSAL_MAIL.body }, col: col };
   }
   function mergeConfig(loaded) {
@@ -1900,6 +1950,7 @@
     cfg.docsTable = loaded.docsTable || '';
     cfg.docsLinkCol = loaded.docsLinkCol || '';
     cfg.dateDebutFormation = (typeof loaded.dateDebutFormation === 'string') ? loaded.dateDebutFormation : '';
+    cfg.dateFinFormation = (typeof loaded.dateFinFormation === 'string') ? loaded.dateFinFormation : '';
     cfg.hideEtuteur = !!loaded.hideEtuteur; // masque l'onglet et la page eTuteur
     if (loaded.eadMail && typeof loaded.eadMail.subject === 'string' && typeof loaded.eadMail.body === 'string') {
       cfg.eadMail = { subject: loaded.eadMail.subject, body: loaded.eadMail.body }; // (une ancienne pièce jointe enregistrée est ignorée)
@@ -2084,6 +2135,8 @@
   var docsTableEl = document.getElementById('cand_docs_table');
   var startDateEl = document.getElementById('cand_dateDebutFormation');
   var startDateErrEl = document.getElementById('cand_dateDebutFormation_err');
+  var finDateEl = document.getElementById('cand_dateFinFormation');
+  var finDateErrEl = document.getElementById('cand_dateFinFormation_err');
   var mailSubjectEl = document.getElementById('cfg_mail_subject');
   var mailBodyEl = document.getElementById('cfg_mail_body');
   var refusalSubjectEl = document.getElementById('cfg_refusal_subject');
@@ -2253,7 +2306,7 @@
   // « Stagiaires » et champs d'identité.
   var SUGGEST_LABELS = {
     photo: ['PHOTO'], docsNid: ['NID'], nid: ['NID'], telephone: ['TELEPHONE'], email: ['EMAIL PERSO'], dateNaissance: ['DDN'],
-    pon: ['PON'], civilite: ['CIVILITE'], nom: ['NOM'], prenom: ['PRENOM'], affectation: ['AFFECTATION'],
+    pon: ['PON'], civilite: ['CIVILITE'], nom: ['NOM'], prenom: ['PRENOM'], grade: ['GRADE'], affectation: ['AFFECTATION'],
     lieuNaissance: ['LIEU DE NAISSANCE'], dpt: ['DPT'], nigend: ['NIGEND'], fonction: ['FONCTION'],
     batiment: ['BAT.', 'BAT'], chambre: ['CH.', 'CH'], autorise: ['AUTORISE'],
     identiteComplete: ['IDENTITE COMPLETE'], droitImage: ['DROIT A L\'IMAGE'],
@@ -2324,6 +2377,7 @@
       fillSelectWithOptions(candTableEl, allTableIds, settings.table, 'Choisir une table…');
       fillSelectWithOptions(docsTableEl, allTableIds, settings.docsTable, 'Choisir une table…');
       startDateEl.value = settings.dateDebutFormation;
+      finDateEl.value = settings.dateFinFormation;
       document.getElementById('cfg_hideEtuteur').checked = !!settings.hideEtuteur;
       mailSubjectEl.value = settings.eadMail.subject;
       mailBodyEl.value = settings.eadMail.body;
@@ -2366,13 +2420,15 @@
     return date;
   }
   // Ajoute les "/" pendant la frappe : 15092026 -> 15/09/2026.
-  startDateEl.addEventListener('input', function () {
-    var digits = startDateEl.value.replace(/\D/g, '').slice(0, 8);
+  function autoSlashDate(el) {
+    var digits = el.value.replace(/\D/g, '').slice(0, 8);
     var out = digits.slice(0, 2);
     if (digits.length > 2) out += '/' + digits.slice(2, 4);
     if (digits.length > 4) out += '/' + digits.slice(4);
-    if (startDateEl.value !== out) startDateEl.value = out;
-  });
+    if (el.value !== out) el.value = out;
+  }
+  startDateEl.addEventListener('input', function () { autoSlashDate(startDateEl); });
+  finDateEl.addEventListener('input', function () { autoSlashDate(finDateEl); });
 
   // ---- Lecture / validation du formulaire --------------------------------
 
@@ -2392,6 +2448,7 @@
     // besoin qu'elle passe isWritableColId comme les colonnes de rôle.
     cfg.hideEtuteur = document.getElementById('cfg_hideEtuteur').checked;
     cfg.dateDebutFormation = startDateEl.value.trim();
+    cfg.dateFinFormation = finDateEl.value.trim();
     cfg.eadMail = { subject: mailSubjectEl.value.trim(), body: mailBodyEl.value };
     cfg.refusalMail = { subject: refusalSubjectEl.value.trim(), body: refusalBodyEl.value };
     ROLES.forEach(function (role) {
@@ -2407,6 +2464,9 @@
     if (!cfg.table) errors.push('Table « Stagiaires » introuvable dans ce document.');
     if (cfg.dateDebutFormation && !parseFrDate(cfg.dateDebutFormation)) {
       errors.push('« Début de formation le » doit être une date valide au format JJ/MM/AAAA (par ex. 15/09/2026).');
+    }
+    if (cfg.dateFinFormation && !parseFrDate(cfg.dateFinFormation)) {
+      errors.push('« Fin de formation le » doit être une date valide au format JJ/MM/AAAA (par ex. 15/09/2026).');
     }
     // Variables des courriels : seules celles de la liste du courriel concerné existent.
     [['Courriel EAD', cfg.eadMail, MAIL_VARIABLES], ['Courriel de refus', cfg.refusalMail, REFUSAL_MAIL_VARIABLES]].forEach(function (def) {
@@ -2470,6 +2530,15 @@
     startDateErrEl.hidden = !showDateErr;
     startDateEl.setAttribute('aria-invalid', showDateErr ? 'true' : 'false');
     startDateEl.closest('.fr-input-group').classList.toggle('fr-input-group--error', showDateErr);
+
+    var finDateInvalid = !!cfg.dateFinFormation && !parseFrDate(cfg.dateFinFormation);
+    if (!cfg.dateFinFormation) chip('', 'Fin de formation : non renseigné (état rationnaire par FA : pas de plafond de date de départ)');
+    else if (finDateInvalid) chip('warn', 'Fin de formation : date invalide');
+    else chip('ok', 'Fin de formation : ' + cfg.dateFinFormation);
+    var showFinDateErr = finDateInvalid && cfg.dateFinFormation.length === 10;
+    finDateErrEl.hidden = !showFinDateErr;
+    finDateEl.setAttribute('aria-invalid', showFinDateErr ? 'true' : 'false');
+    finDateEl.closest('.fr-input-group').classList.toggle('fr-input-group--error', showFinDateErr);
 
     cfgSummary.innerHTML = chips.join('');
   }
@@ -3606,7 +3675,7 @@
   // Les colonnes sont en dur : retrouvées par libellé Grist (voir
   // HARD_STG_ROLES), sans réglage dans la Configuration.
 
-  var HARD_STG_ROLES = ['pon', 'civilite', 'nom', 'prenom', 'affectation', 'lieuNaissance', 'dpt', 'nigend', 'fonction',
+  var HARD_STG_ROLES = ['pon', 'civilite', 'nom', 'prenom', 'grade', 'affectation', 'lieuNaissance', 'dpt', 'nigend', 'fonction',
     'batiment', 'chambre', 'autorise', 'identiteComplete', 'droitImage', 'qualifSecourisme', 'regimeAlimentaire', 'motifDepart', 'dateDepart',
     'nomUrgence', 'prenomUrgence', 'telUrgence', 'allergies', 'traitements', 'precisionsMedicales', 'lateralite', 'modeTransport', 'immatriculation'];
   // Colonnes EN DUR par identifiant Grist (identité, documents et validations, bande
@@ -4188,7 +4257,8 @@
         settings.col.dateDepart ? dCustomSpec('Date de départ', stgTextValue(departText), { empty: !departText }) : null // lecture seule
       ]),
       dGroup('Renseignements militaires', [
-        dFieldStg(row, 'nigend', 'Nigend', { editable: true }), dFieldStg(row, 'nid', 'NID'), dFieldStg(row, 'affectation', 'Affectation')
+        dFieldStg(row, 'grade', 'Grade', { editable: true }),
+        dFieldStg(row, 'nigend', 'Nigend', { editable: true }), dFieldStg(row, 'nid', 'NID', { editable: true }), dFieldStg(row, 'affectation', 'Affectation')
       ]),
       dGroup('Santé', [
         dFieldStg(row, 'regimeAlimentaire', 'Régime alimentaire', { wide: true }),
@@ -4647,8 +4717,8 @@
       // trait est doublé d'un liseré de la couleur du fond pour bien « couper » l'appareil.
       imgFlag.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">' +
         '<path fill="currentColor" d="M9 2 7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9z"/>' +
-        '<circle cx="12" cy="12.2" r="4.3" fill="#ffe6d1"/><circle cx="12" cy="12.2" r="2.6" fill="currentColor"/>' +
-        '<line x1="3.5" y1="3.5" x2="20.5" y2="20.5" stroke="#ffe6d1" stroke-width="4.4" stroke-linecap="round"/>' +
+        '<circle cx="12" cy="12.2" r="4.3" fill="var(--background-contrast-warning)"/><circle cx="12" cy="12.2" r="2.6" fill="currentColor"/>' +
+        '<line x1="3.5" y1="3.5" x2="20.5" y2="20.5" stroke="var(--background-contrast-warning)" stroke-width="4.4" stroke-linecap="round"/>' +
         '<line x1="3.5" y1="3.5" x2="20.5" y2="20.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' +
         '<span class="fr-sr-only">Pas de droit à l’image</span>';
       flags.appendChild(imgFlag);
@@ -4975,12 +5045,25 @@
   function encGroupTags(row) {
     return encValues(row, 'groupe');
   }
+  // Sigles de groupe (colonne Groupe saisie en abrégé dans Grist) -> libellé complet, pour l'affichage
+  // uniquement (la valeur brute sert toujours à l'identification/au regroupement/à la couleur du choix).
+  // « SECR » = Secrétariat ; « SEC » (sans le R) = Formateurs secourisme — à ne pas confondre (voir TROMBI_MERGED).
+  var GROUP_SHORT_LABELS = {
+    CDT: 'Commandement', AE: 'Adjudant d\'escadron', SECR: 'Secrétariat', SEC: 'Formateurs secourisme',
+    ARM: 'Armurier', SAN: 'Soutien sanitaire'
+  };
+  function groupDisplayLabel(raw) {
+    var text = textOf(raw).trim();
+    if (!text) return text;
+    return GROUP_SHORT_LABELS[trombiKeyFull(text)] || text;
+  }
   // Libellé condensé du groupe pour l'étiquette qui chevauche la photo : « Formateurs IP » -> « IP »,
   // « Formateur secourisme » -> « Secourisme » (le préfixe « Formateur(s) » est retiré, première lettre en
-  // majuscule). Les autres groupes sont inchangés.
+  // majuscule) ; « SEC »/« SECR » sont d'abord développés (voir GROUP_SHORT_LABELS). Les autres groupes sont inchangés.
   function condenseGroup(text) {
-    var m = /^formateurs?\s+(?:de\s+|d')?(.+)$/i.exec(normalizeAccentsKeep(text));
-    if (!m) return text;
+    var expanded = GROUP_SHORT_LABELS[trombiKeyFull(text)] || text;
+    var m = /^formateurs?\s+(?:de\s+|d')?(.+)$/i.exec(normalizeAccentsKeep(expanded));
+    if (!m) return expanded;
     var rest = m[1].trim();
     return rest.charAt(0).toUpperCase() + rest.slice(1);
   }
@@ -5083,6 +5166,7 @@
         input.id = boxId;
         input.value = v;
         input.checked = encFilters[def.key].indexOf(v) !== -1;
+        var encFilterDisplayLabel = def.key === 'groupe' ? groupDisplayLabel(v) : v;
         input.addEventListener('change', function () {
           var sel = encFilters[def.key].filter(function (x) { return x !== v; });
           if (input.checked) sel.push(v);
@@ -5092,7 +5176,7 @@
         var label = document.createElement('label');
         label.className = 'fr-label';
         label.setAttribute('for', boxId);
-        label.appendChild(document.createTextNode(v + ' '));
+        label.appendChild(document.createTextNode(encFilterDisplayLabel + ' '));
         var count = document.createElement('span');
         count.className = 'stg-multi__count';
         count.textContent = '(' + (counts[v] || 0) + ')';
@@ -5103,7 +5187,8 @@
       });
       var sel = encFilters[def.key];
       summary.classList.toggle('stg-multi__summary--active', sel.length > 0);
-      summary.textContent = !sel.length ? def.all : (sel.length <= 2 ? sel.join(', ') : sel.length + ' ' + def.noun + ' sélectionnés');
+      var selDisplay = def.key === 'groupe' ? sel.map(groupDisplayLabel) : sel;
+      summary.textContent = !sel.length ? def.all : (sel.length <= 2 ? selDisplay.join(', ') : sel.length + ' ' + def.noun + ' sélectionnés');
     });
     if (focusedId) { var back = document.getElementById(focusedId); if (back && back.focus) back.focus(); }
     var anyFilter = ENC_FILTER_DEFS.some(function (def) { return encFilters[def.key].length > 0; });
@@ -5127,7 +5212,7 @@
       groups = Object.keys(byGpe).sort(function (a, b) {
         if (!a !== !b) return a ? -1 : 1; // « Sans groupe » en dernier
         return (rank(a) - rank(b)) || gpeCollator.compare(a, b);
-      }).map(function (g) { return { title: g || 'Sans groupe', rows: byGpe[g] }; });
+      }).map(function (g) { return { title: g ? groupDisplayLabel(g) : 'Sans groupe', rows: byGpe[g] }; });
     } else groups = [{ title: '', rows: rows }];
     displayedIds.encadrement = [];
     groups.forEach(function (g) { g.rows.forEach(function (r) { displayedIds.encadrement.push(r.id); }); }); // ordre affiché = ordre des flèches de la modale
@@ -5174,7 +5259,7 @@
   function buildEncRow(row) {
     var tr = document.createElement('tr');
     // Tags : valeurs de la colonne Groupe, dans la couleur définie dans Grist.
-    var tags = encGroupTags(row).map(function (g) { return applyChoiceColors(buildPlainTag(g, 'stg-tag--pon', 'Groupe : ' + g), enc.cols.groupe && enc.cols.groupe.choiceOptions, g); });
+    var tags = encGroupTags(row).map(function (g) { return applyChoiceColors(buildPlainTag(groupDisplayLabel(g), 'stg-tag--pon', 'Groupe : ' + groupDisplayLabel(g)), enc.cols.groupe && enc.cols.groupe.choiceOptions, g); });
     tr.appendChild(tdMain(buildEncAvatar(row), encDisplayName(row), tags));
     var end = document.createElement('span');
     end.className = 'cand-row__end';
@@ -5244,7 +5329,7 @@
     var box = document.createElement('span');
     box.className = 'stg-item__value enc-courses';
     groups.forEach(function (g) {
-      box.appendChild(applyChoiceColors(buildPlainTag(g, 'stg-tag--pon', 'Groupe : ' + g), enc.cols.groupe && enc.cols.groupe.choiceOptions, g));
+      box.appendChild(applyChoiceColors(buildPlainTag(groupDisplayLabel(g), 'stg-tag--pon', 'Groupe : ' + groupDisplayLabel(g)), enc.cols.groupe && enc.cols.groupe.choiceOptions, g));
     });
     return box;
   }
@@ -5327,8 +5412,8 @@
       imgFlag.title = 'Pas de droit à l’image';
       imgFlag.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">' +
         '<path fill="currentColor" d="M9 2 7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9z"/>' +
-        '<circle cx="12" cy="12.2" r="4.3" fill="#ffe6d1"/><circle cx="12" cy="12.2" r="2.6" fill="currentColor"/>' +
-        '<line x1="3.5" y1="3.5" x2="20.5" y2="20.5" stroke="#ffe6d1" stroke-width="4.4" stroke-linecap="round"/>' +
+        '<circle cx="12" cy="12.2" r="4.3" fill="var(--background-contrast-warning)"/><circle cx="12" cy="12.2" r="2.6" fill="currentColor"/>' +
+        '<line x1="3.5" y1="3.5" x2="20.5" y2="20.5" stroke="var(--background-contrast-warning)" stroke-width="4.4" stroke-linecap="round"/>' +
         '<line x1="3.5" y1="3.5" x2="20.5" y2="20.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' +
         '<span class="fr-sr-only">Pas de droit à l’image</span>';
       flags.appendChild(imgFlag);
@@ -5486,12 +5571,18 @@
     }
     return textOf(v);
   }
-  // Ligne virtuelle « Trombinoscope » (document intégré, absent du tableau Grist) : affichée sur la page
-  // Documents uniquement, avec les seules actions Télécharger / Imprimer.
+  // Lignes virtuelles (documents intégrés, absents du tableau Grist) : affichées sur la page Documents
+  // uniquement. Trombinoscope : Télécharger / Imprimer (PDF). État rationnaire par FA : Télécharger seul
+  // (fichier Excel, pas de mise en page imprimable).
   function bulkBuiltinRows() {
-    var values = {};
-    values[bulk.nameCol.id] = TROMBI_NAME;
-    return [{ id: 'builtin:trombi', builtin: 'trombi', values: values }];
+    var trombiValues = {};
+    trombiValues[bulk.nameCol.id] = TROMBI_NAME;
+    var rationnaireValues = {};
+    rationnaireValues[bulk.nameCol.id] = RATIONNAIRE_NAME;
+    return [
+      { id: 'builtin:trombi', builtin: 'trombi', values: trombiValues },
+      { id: 'builtin:rationnaire', builtin: 'rationnaire', values: rationnaireValues }
+    ];
   }
   function bulkVisibleRows(withBuiltin) {
     var q = normalizeKey(bulkSearchText);
@@ -5605,6 +5696,8 @@
       var actions = manage ?
         [['Éditer', 'fr-icon-edit-line', function () { openBulkDialog(row); }],
          ['Supprimer', 'fr-icon-delete-line', function () { deleteBulkDoc(row); }]] :
+        row.builtin === 'rationnaire' ?
+        [['Télécharger', 'fr-icon-download-line', function () { openRationDialog(); }]] :
         [['Télécharger', 'fr-icon-download-line', function () { openGenDialog(row, 'download'); }],
          ['Imprimer', 'fr-icon-printer-line', function () { openGenDialog(row, 'print'); }]];
       actions.forEach(function (a) {
@@ -5861,16 +5954,308 @@
   // ---- Trombinoscope (document intégré, non modifiable) ----
   //
   // Un trombinoscope par groupe (colonne Gpe de la table Encadrement) : les cadres du groupe puis, pour les
-  // groupes P1 à P4, les stagiaires dont le PON correspond. Les groupes CDT, AE, SEC, ARM et SAN sont regroupés
-  // en un seul trombinoscope « Commandement et soutien », sections dans cet ordre. Format paysage, photos
-  // réduites, police Marianne ; cadres classés chef, adjoint, puis les autres (par nom) ; stagiaires par nom.
+  // groupes P1 à P4, les stagiaires dont le PON correspond. Les groupes CDT, AE, SECR, ARM et SAN sont regroupés
+  // en un seul trombinoscope « Commandement et soutien », sections dans cet ordre (SEC, sans le R, reste à part :
+  // voir TROMBI_MERGED). Format paysage, photos réduites, police Marianne ; cadres classés chef, adjoint, puis
+  // les autres (par nom) ; stagiaires par nom.
   var TROMBI_NAME = 'Trombinoscope';
+  // ---- État rationnaire par FA (document intégré, page Générer doc. en lot) ------------------------------
+  // Un fichier Excel (.xlsx), un onglet par affectation (colonne Affectation des tables Stagiaires et
+  // Encadrement) — GGD77, GGD78, GGD91 et GGD95 regroupés dans un même onglet « RGIF ». Le jour considéré
+  // (choisi dans une modale) est affiché en en-tête de chaque onglet. Colonnes : Nom, Prénom, Affectation,
+  // Cadre ou stagiaire, Petit-déjeuner, Déjeuner, Dîner (croix si pris), Régime — seuls les stagiaires et
+  // cadres présents ce jour-là sont repris (dates de stage/détachement, départs ; pas de petit-déjeuner le
+  // premier jour, pas de dîner le dernier). Pour les cadres en repos ce jour-là (table « Gestion des
+  // absences », voir loadAbsences), ou dont le repos commence le lendemain ou finit la veille de ce jour,
+  // aucun repas n'est pris par défaut : la modale demande confirmation avant de générer le fichier.
+  var RATIONNAIRE_NAME = 'État rationnaire par FA';
+  var RGIF_CODES = ['GGD77', 'GGD78', 'GGD91', 'GGD95'];
+  function faGroupLabel(affectation) {
+    var text = textOf(affectation).trim();
+    var key = normalizeKey(text).replace(/[^A-Z0-9]/g, '');
+    if (RGIF_CODES.indexOf(key) !== -1) return 'RGIF';
+    return text || 'Sans affectation';
+  }
+  function sameDayUTC(a, b) { return !!a && !!b && a.getTime() === b.getTime(); }
+  function addDaysUTC(d, n) { return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + n)); }
+
+  // Table « Gestion des absences » (en dur, comme les autres tables du widget) : Militaire (référence vers
+  // Encadrement), Type de demande, Date de début, Date de fin, Décision. Seules les lignes Type = « Repos »
+  // et Décision = « Accordée » comptent comme repos confirmé.
+  var ABSENCE_TABLE = 'GESTION DES ABSENCES';
+  var ABSENCE_FIELDS = { militaire: ['MILITAIRE'], type: ['TYPE DE DEMANDE'], debut: ['DATE DE DEBUT'], fin: ['DATE DE FIN'], decision: ['DECISION'] };
+  var absences = { loaded: false, error: '', tableId: '', rows: [] }; // rows déjà filtrées (Repos + Accordée)
+  function loadAbsences() {
+    return Promise.all([grist.docApi.listTables(), grist.docApi.fetchTable('_grist_Tables'), grist.docApi.fetchTable('_grist_Tables_column')]).then(function (res) {
+      var tableId = null;
+      res[0].forEach(function (t) { if (!tableId && bulkKey(t) === ABSENCE_TABLE) tableId = t; });
+      if (!tableId) throw new Error('Table « Gestion des absences » introuvable dans ce document.');
+      var tables = res[1], meta = res[2], tableRowId = null;
+      for (var i = 0; i < tables.id.length; i++) if (tables.tableId[i] === tableId) tableRowId = tables.id[i];
+      var cols = [];
+      for (var j = 0; j < meta.id.length; j++) {
+        if (meta.parentId[j] !== tableRowId || /^gristHelper_|^manualSort$/.test(meta.colId[j])) continue;
+        cols.push({ id: meta.colId[j], label: meta.label[j] || meta.colId[j] });
+      }
+      return grist.docApi.fetchTable(tableId).then(function (data) { return { tableId: tableId, cols: cols, data: data }; });
+    }).then(function (r) {
+      var map = {};
+      Object.keys(ABSENCE_FIELDS).forEach(function (k) { var c = encFindCol(r.cols, ABSENCE_FIELDS[k]); if (c) map[k] = c; });
+      if (!map.militaire || !map.debut || !map.fin) {
+        throw new Error('Colonnes « Militaire », « Date de début » ou « Date de fin » introuvables dans la table « ' + r.tableId + ' ».');
+      }
+      var rows = [];
+      for (var i = 0; i < r.data.id.length; i++) {
+        if (map.type && normalizeKey(textOf(r.data[map.type.id][i])) !== 'REPOS') continue;
+        if (map.decision && normalizeKey(textOf(r.data[map.decision.id][i])) !== normalizeKey('Accordée')) continue;
+        var debut = dateOf(r.data[map.debut.id][i]);
+        var fin = dateOf(r.data[map.fin.id][i]);
+        if (!debut || !fin) continue;
+        rows.push({ militaireId: Number(r.data[map.militaire.id][i]) || 0, debut: debut, fin: fin });
+      }
+      absences = { loaded: true, error: '', tableId: r.tableId, rows: rows };
+    }).catch(function (e) {
+      absences = { loaded: false, error: friendlyErrorMessage(e), tableId: '', rows: [] };
+    });
+  }
+  // Pour un cadre et le jour choisi : quels repas sont à confirmer (aucun pris par défaut), et pourquoi —
+  // en repos ce jour-là (les 3 repas), veille du 1er jour de repos (dîner), lendemain du dernier jour (p.dej).
+  var RATION_REASON_LABELS = { repos: 'en repos', veille: 'veille de repos', lendemain: 'lendemain de repos' };
+  function encMealQuestions(encRow, date) {
+    var q = { pdej: false, dej: false, diner: false, reasons: [] };
+    absences.rows.forEach(function (a) {
+      if (a.militaireId !== encRow.id) return;
+      if (date.getTime() >= a.debut.getTime() && date.getTime() <= a.fin.getTime()) {
+        q.pdej = q.dej = q.diner = true;
+        if (q.reasons.indexOf('repos') === -1) q.reasons.push('repos');
+      }
+      if (sameDayUTC(date, addDaysUTC(a.debut, -1))) { q.diner = true; if (q.reasons.indexOf('veille') === -1) q.reasons.push('veille'); }
+      if (sameDayUTC(date, addDaysUTC(a.fin, 1))) { q.pdej = true; if (q.reasons.indexOf('lendemain') === -1) q.reasons.push('lendemain'); }
+    });
+    return q;
+  }
+  // Une ligne par stagiaire et par membre de l'encadrement présents le jour choisi, triées par nom puis prénom.
+  function rationnaireRows(date, mealOverrides) {
+    var rows = [];
+    var start = settings.dateDebutFormation ? parseFrDate(settings.dateDebutFormation) : null;
+    var finForm = settings.dateFinFormation ? parseFrDate(settings.dateFinFormation) : null;
+    candidates.rows.forEach(function (row) {
+      if (start && date.getTime() < start.getTime()) return; // stage pas encore commencé
+      var depart = settings.col.dateDepart ? dateOf(row.dateDepart) : null;
+      var effectiveEnd = depart || finForm;
+      if (effectiveEnd && date.getTime() > effectiveEnd.getTime()) return; // déjà parti
+      var isArrival = start && sameDayUTC(start, date);
+      var isDeparture = effectiveEnd && sameDayUTC(effectiveEnd, date);
+      var affectation = textOf(row.affectation);
+      rows.push({
+        nom: textOf(row.nom), prenom: textOf(row.prenom), affectation: affectation, groupe: faGroupLabel(affectation),
+        type: 'Stagiaire', pdej: !isArrival, dej: true, diner: !isDeparture, regime: textOf(row.regimeAlimentaire)
+      });
+    });
+    (enc.rows || []).forEach(function (row) {
+      var debut = enc.cols.debut ? dateOf(row.f.debut) : null;
+      var fin = enc.cols.fin ? dateOf(row.f.fin) : null;
+      if (debut && date.getTime() < debut.getTime()) return; // pas encore en détachement
+      if (fin && date.getTime() > fin.getTime()) return; // détachement terminé
+      var isArrival = debut && sameDayUTC(debut, date);
+      var isDeparture = fin && sameDayUTC(fin, date);
+      var normal = { pdej: !isArrival, dej: true, diner: !isDeparture };
+      var asked = encMealQuestions(row, date);
+      var override = (mealOverrides && mealOverrides[row.id]) || {};
+      var affectation = encText(row, 'affectation');
+      rows.push({
+        nom: encText(row, 'nom'), prenom: encText(row, 'prenom'), affectation: affectation, groupe: faGroupLabel(affectation),
+        type: 'Cadre',
+        pdej: asked.pdej ? !!override.pdej : normal.pdej,
+        dej: asked.dej ? !!override.dej : normal.dej,
+        diner: asked.diner ? !!override.diner : normal.diner,
+        regime: encText(row, 'regime')
+      });
+    });
+    rows.sort(function (a, b) { return nameCollator.compare(a.nom + ' ' + a.prenom, b.nom + ' ' + b.prenom); });
+    return rows;
+  }
+  // Nom d'onglet Excel valide (31 caractères max, sans : \ / ? * [ ]) et unique dans le classeur.
+  function sanitizeSheetName(name, used) {
+    var base = String(name || '').replace(/[:\\\/?*\[\]]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 31) || 'Affectation';
+    var out = base, n = 1;
+    while (used[out.toLowerCase()]) { n++; var suffix = ' (' + n + ')'; out = base.slice(0, 31 - suffix.length) + suffix; }
+    used[out.toLowerCase()] = true;
+    return out;
+  }
+  var XLSX_LIB_URL = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+  var xlsxLibPromise = null;
+  function ensureXlsxLib() {
+    if (window.XLSX) return Promise.resolve();
+    if (!xlsxLibPromise) xlsxLibPromise = loadScriptOnce(XLSX_LIB_URL).then(function () {}, function (e) { xlsxLibPromise = null; throw e; });
+    return xlsxLibPromise;
+  }
+  var RATION_CROSS = 'X';
+  // Construit et télécharge le classeur : un onglet par affectation (regroupée, voir faGroupLabel), la date
+  // choisie en en-tête (fusionnée) de chaque onglet, trié par ordre alphabétique du nom d'onglet.
+  function generateRationnaireFile(date, mealOverrides) {
+    var rows = rationnaireRows(date, mealOverrides);
+    if (!rows.length) { window.alert('Aucun stagiaire ni cadre présent le ' + fmtDateFr(date) + '.'); return Promise.resolve(); }
+    var byGroup = {}, order = [];
+    rows.forEach(function (r) {
+      if (!byGroup[r.groupe]) { byGroup[r.groupe] = []; order.push(r.groupe); }
+      byGroup[r.groupe].push(r);
+    });
+    order.sort(function (a, b) { return nameCollator.compare(a, b); });
+    return ensureXlsxLib().then(function () {
+      var headers = ['Nom', 'Prénom', 'Affectation', 'Cadre ou stagiaire', 'Petit-déjeuner', 'Déjeuner', 'Dîner', 'Régime'];
+      var wb = XLSX.utils.book_new();
+      var used = {};
+      order.forEach(function (g) {
+        var data = [[RATIONNAIRE_NAME + ' — ' + fmtDateFr(date)], [], headers].concat(byGroup[g].map(function (r) {
+          return [r.nom, r.prenom, r.affectation, r.type, r.pdej ? RATION_CROSS : '', r.dej ? RATION_CROSS : '', r.diner ? RATION_CROSS : '', r.regime];
+        }));
+        var ws = XLSX.utils.aoa_to_sheet(data);
+        ws['!cols'] = [{ wch: 18 }, { wch: 14 }, { wch: 14 }, { wch: 16 }, { wch: 14 }, { wch: 12 }, { wch: 10 }, { wch: 20 }];
+        ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: headers.length - 1 } }];
+        XLSX.utils.book_append_sheet(wb, ws, sanitizeSheetName(g, used));
+      });
+      var bytes = XLSX.write(wb, { type: 'array', bookType: 'xlsx' });
+      saveBlob(new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), 'Etat_rationnaire_par_FA_' + fmtDateFr(date).replace(/\//g, '-') + '.xlsx');
+    });
+  }
+
+  // ---- Modale : choix du jour, puis confirmation des repas des cadres en repos avant de générer ----------
+  var rationDialog = document.getElementById('rationDialog');
+  var rationDateEl = document.getElementById('rationDate');
+  var rationDateErrEl = document.getElementById('rationDate_err');
+  var rationAbsenceNotice = document.getElementById('rationAbsenceNotice');
+  var rationMealsWrap = document.getElementById('rationMealsWrap');
+  var rationMealsList = document.getElementById('rationMealsList');
+  var rationErrorEl = document.getElementById('rationError');
+  var rationProgressEl = document.getElementById('rationProgress');
+  var rationCancelBtn = document.getElementById('rationCancel');
+  var rationGoBtn = document.getElementById('rationGo');
+  var rationBusy = false;
+  var rationMealOverrides = {}; // cadre id -> { pdej, dej, diner }
+  function currentRationDate() { return parseFrDate(rationDateEl.value.trim()); }
+  function updateRationMeals() {
+    var date = currentRationDate();
+    var showErr = rationDateEl.value.trim().length === 10 && !date;
+    rationDateErrEl.hidden = !showErr;
+    rationDateEl.setAttribute('aria-invalid', showErr ? 'true' : 'false');
+    rationDateEl.closest('.fr-input-group').classList.toggle('fr-input-group--error', showErr);
+    rationGoBtn.disabled = !date;
+    rationMealsList.innerHTML = '';
+    if (!date || !absences.loaded) { rationMealsWrap.hidden = true; return; }
+    var entries = [];
+    (enc.rows || []).forEach(function (row) {
+      var q = encMealQuestions(row, date);
+      if (!q.pdej && !q.dej && !q.diner) return;
+      entries.push({ row: row, q: q });
+    });
+    rationMealsWrap.hidden = !entries.length;
+    entries.sort(function (a, b) { return compareEncRows(a.row, b.row); });
+    entries.forEach(function (entry) {
+      var row = entry.row, q = entry.q;
+      var box = document.createElement('div');
+      box.className = 'ration-meals__row';
+      var name = document.createElement('span');
+      name.className = 'ration-meals__name';
+      name.textContent = encDisplayName(row);
+      var reason = document.createElement('span');
+      reason.className = 'ration-meals__reason';
+      reason.textContent = '(' + q.reasons.map(function (r) { return RATION_REASON_LABELS[r]; }).join(', ') + ')';
+      box.appendChild(name);
+      box.appendChild(reason);
+      var checks = document.createElement('div');
+      checks.className = 'ration-meals__checks';
+      [['pdej', 'Petit-déjeuner'], ['dej', 'Déjeuner'], ['diner', 'Dîner']].forEach(function (m) {
+        if (!q[m[0]]) return;
+        var wrap = document.createElement('div');
+        wrap.className = 'fr-checkbox-group fr-checkbox-group--sm';
+        var cb = document.createElement('input');
+        cb.type = 'checkbox';
+        var boxId = 'rationMeal_' + row.id + '_' + m[0];
+        cb.id = boxId;
+        var saved = rationMealOverrides[row.id] || {};
+        cb.checked = !!saved[m[0]];
+        cb.addEventListener('change', function () {
+          rationMealOverrides[row.id] = rationMealOverrides[row.id] || {};
+          rationMealOverrides[row.id][m[0]] = cb.checked;
+        });
+        var lbl = document.createElement('label');
+        lbl.className = 'fr-label';
+        lbl.setAttribute('for', boxId);
+        lbl.textContent = m[1];
+        wrap.appendChild(cb);
+        wrap.appendChild(lbl);
+        checks.appendChild(wrap);
+      });
+      box.appendChild(checks);
+      rationMealsList.appendChild(box);
+    });
+  }
+  function openRationDialog() {
+    if (!candidates.rows.length && !(enc.loaded && enc.rows.length)) {
+      window.alert('Aucune donnée : ni les stagiaires ni l’encadrement ne sont chargés.');
+      return;
+    }
+    rationDateEl.value = '';
+    rationDateErrEl.hidden = true;
+    rationDateEl.closest('.fr-input-group').classList.remove('fr-input-group--error');
+    rationMealOverrides = {};
+    rationMealsWrap.hidden = true;
+    rationMealsList.innerHTML = '';
+    rationErrorEl.hidden = true;
+    rationProgressEl.hidden = true;
+    rationGoBtn.disabled = true;
+    rationAbsenceNotice.hidden = true;
+    rationDialog.hidden = false;
+    rationDateEl.focus();
+    loadAbsences().then(function () {
+      if (absences.error) {
+        rationAbsenceNotice.hidden = false;
+        rationAbsenceNotice.textContent = 'Table « Gestion des absences » introuvable ou incomplète (' + absences.error + ') : les repos des cadres ne sont pas pris en compte.';
+      }
+      updateRationMeals();
+    });
+  }
+  function closeRationDialog() { if (rationBusy) return; rationDialog.hidden = true; }
+  rationDateEl.addEventListener('input', function () { autoSlashDate(rationDateEl); updateRationMeals(); });
+  document.getElementById('rationClose').addEventListener('click', closeRationDialog);
+  rationCancelBtn.addEventListener('click', closeRationDialog);
+  var rationDownOnBackdrop = false;
+  rationDialog.addEventListener('mousedown', function (e) { rationDownOnBackdrop = e.target === rationDialog; });
+  rationDialog.addEventListener('click', function (e) { if (e.target === rationDialog && rationDownOnBackdrop) closeRationDialog(); });
+  rationDialog.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); closeRationDialog(); } });
+  rationGoBtn.addEventListener('click', function () {
+    var date = currentRationDate();
+    if (!date) return;
+    rationBusy = true;
+    rationGoBtn.disabled = true;
+    rationCancelBtn.disabled = true;
+    rationErrorEl.hidden = true;
+    rationProgressEl.hidden = false;
+    rationProgressEl.textContent = 'Génération du fichier…';
+    generateRationnaireFile(date, rationMealOverrides).then(function () {
+      rationBusy = false;
+      rationCancelBtn.disabled = false;
+      rationGoBtn.disabled = false;
+      rationProgressEl.hidden = true;
+      closeRationDialog();
+    }).catch(function (e) {
+      rationBusy = false;
+      rationCancelBtn.disabled = false;
+      rationGoBtn.disabled = false;
+      rationProgressEl.hidden = true;
+      rationErrorEl.hidden = false;
+      rationErrorEl.textContent = 'Impossible de générer le fichier : ' + friendlyErrorMessage(e);
+    });
+  });
   var TROMBI_W = 1123, TROMBI_H = 794, TROMBI_PAD = 32; // page A4 paysage à 96 dpi
   var TROMBI_INNER_H = TROMBI_H - 2 * TROMBI_PAD;
   var TROMBI_TITLE_H = 54, TROMBI_HEAD_H = 26;
   var TROMBI_MERGED_LABEL = 'Commandement et soutien';
   // Groupes regroupés, dans l'ordre d'affichage : sigle -> libellé du Gpe (l'un ou l'autre est reconnu).
-  var TROMBI_MERGED = [['CDT', 'Commandement'], ['AE', 'Adjudant d\'escadron'], ['SEC', 'Secrétariat'], ['ARM', 'Armurier'], ['SAN', 'Soutien sanitaire']];
+  // « SECR » = Secrétariat ; « SEC » (sans le R) reste réservé aux formateurs secourisme, qui gardent leur
+  // propre page dans le trombinoscope (voir TROMBI_GROUP_ORDER) — les deux sigles ne doivent pas être confondus.
+  var TROMBI_MERGED = [['CDT', 'Commandement'], ['AE', 'Adjudant d\'escadron'], ['SECR', 'Secrétariat'], ['ARM', 'Armurier'], ['SAN', 'Soutien sanitaire']];
   // Ordre d'affichage des autres groupes ; ceux qui n'y figurent pas passent après, par ordre alphabétique.
   var TROMBI_GROUP_ORDER = ['P1', 'P2', 'P3', 'P4', 'Formateurs IP', 'Renfort Mess', 'Formateurs secourisme', 'DRJ', 'Acculturation'].map(function (g) { return trombiKeyFull(g); });
   function trombiKeyFull(v) { return normalizeKey(v).replace(/[^A-Z0-9]/g, ''); }
@@ -5914,7 +6299,7 @@
         var g = byKey[k], kf = trombiKeyFull(g.label);
         if (!found && (kf === trombiKeyFull(pair[0]) || kf === trombiKeyFull(pair[1]))) found = k;
       });
-      if (found) { subs.push({ label: byKey[found].label, members: sortEncadrementMembers(byKey[found].members) }); delete byKey[found]; order = order.filter(function (k) { return k !== found; }); }
+      if (found) { subs.push({ label: groupDisplayLabel(byKey[found].label), members: sortEncadrementMembers(byKey[found].members) }); delete byKey[found]; order = order.filter(function (k) { return k !== found; }); }
     });
     var groups = order.map(function (k) {
       var g = byKey[k];
@@ -6071,7 +6456,7 @@
       cur.h += h;
       cur.html += html;
     }
-    push(TROMBI_TITLE_H, '<h1>Trombinoscope — ' + escapeHtml(g.label) + '</h1>');
+    push(TROMBI_TITLE_H, '<h1>Trombinoscope — ' + escapeHtml(groupDisplayLabel(g.label)) + '</h1>');
     secs.forEach(function (sec, si) {
       var m = d.meta[si];
       for (var i = 0, first = true; i < sec.items.length; i += d.perRow, first = false) {
@@ -6162,7 +6547,7 @@
     var list = document.getElementById('bulkGenList');
     list.innerHTML = '';
     var items = trombi ?
-      groups.map(function (g) { return { value: g.key, text: g.label + ' — ' + g.members.length + ' cadre(s), ' + g.trainees.length + ' stagiaire(s)' }; }) :
+      groups.map(function (g) { return { value: g.key, text: groupDisplayLabel(g.label) + ' — ' + g.members.length + ' cadre(s), ' + g.trainees.length + ' stagiaire(s)' }; }) :
       candidates.rows.slice().sort(compareCandidatesByName).map(function (r) { return { value: r.id, text: stagiaireDisplayName(r) }; });
     items.forEach(function (it) {
       var label = document.createElement('label');
