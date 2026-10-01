@@ -1865,7 +1865,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 10.6</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 10.7</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -6027,10 +6027,10 @@
 
   // Table « Gestion des absences » (en dur, comme les autres tables du widget) : Militaire (référence vers
   // Encadrement), Type de demande, Date de début, Date de fin, Décision. Seules les lignes Type = « Repos »
-  // et Décision = « Accordée » comptent comme repos confirmé.
+  // et Décision = « Validée » comptent comme repos confirmé.
   var ABSENCE_TABLE = 'GESTION DES ABSENCES';
   var ABSENCE_FIELDS = { militaire: ['MILITAIRE'], type: ['TYPE DE DEMANDE'], debut: ['DATE DE DEBUT'], fin: ['DATE DE FIN'], decision: ['DECISION'] };
-  var absences = { loaded: false, error: '', tableId: '', rows: [] }; // rows déjà filtrées (Repos + Accordée)
+  var absences = { loaded: false, error: '', tableId: '', rows: [] }; // rows déjà filtrées (Repos + Validée)
   function loadAbsences() {
     return Promise.all([grist.docApi.listTables(), grist.docApi.fetchTable('_grist_Tables'), grist.docApi.fetchTable('_grist_Tables_column')]).then(function (res) {
       var tableId = null;
@@ -6053,7 +6053,7 @@
       var rows = [];
       for (var i = 0; i < r.data.id.length; i++) {
         if (map.type && normalizeKey(textOf(r.data[map.type.id][i])) !== 'REPOS') continue;
-        if (map.decision && normalizeKey(textOf(r.data[map.decision.id][i])) !== normalizeKey('Accordée')) continue;
+        if (map.decision && normalizeKey(textOf(r.data[map.decision.id][i])) !== normalizeKey('Validée')) continue;
         var debut = dateOf(r.data[map.debut.id][i]);
         var fin = dateOf(r.data[map.fin.id][i]);
         if (!debut || !fin) continue;
