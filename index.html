@@ -1228,6 +1228,11 @@
   .ration-meals__reason { font-weight: 400; font-size: 0.85em; color: var(--text-mention-grey); margin-left: 0.4rem; }
   .ration-meals__checks { display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; margin-top: 0.35rem; }
   .ration-meals__checks .fr-checkbox-group { margin: 0; }
+  /* Export .csv : liste des colonnes à cocher. */
+  .export-cols__tools { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.6rem; }
+  .export-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.1rem 1rem; max-height: 20rem; overflow-y: auto; padding: 0.5rem 0.7rem; border: 1px solid var(--border-default-grey); border-radius: 0.4rem; background: var(--background-alt-grey); }
+  .export-cols .fr-checkbox-group { margin: 0.2rem 0; }
+  @media (max-width: 40rem) { .export-cols { grid-template-columns: 1fr; } }
   .ration-extra-form { margin-top: 0.6rem; padding: 0.7rem; border: 1px solid var(--border-default-grey); border-radius: 0.4rem; background: var(--background-alt-grey); }
   .ration-extra-form__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem 0.8rem; }
   .ration-extra-form .fr-input-group, .ration-extra-form .fr-select-group { margin: 0; }
@@ -1454,6 +1459,9 @@
       </button>
       <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-refresh-line fr-btn--icon-left" id="encReloadBtn" type="button" title="Recharger l'encadrement depuis la table Grist">
         Actualiser
+      </button>
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-download-line fr-btn--icon-left" id="encExportBtn" type="button" disabled title="Exporter la vue active (l'encadrement affichés) en .csv, avec choix des colonnes">
+        Exporter en .csv
       </button>
       <p class="cand-count cand-count--push" id="encCount"></p>
     </div>
@@ -1683,6 +1691,9 @@
       <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-refresh-line fr-btn--icon-left" id="stgReloadBtn" type="button" title="Recharger les stagiaires depuis la table Grist">
         Actualiser
       </button>
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-download-line fr-btn--icon-left" id="stgExportBtn" type="button" disabled title="Exporter la vue active (stagiaires affichés) en .csv, avec choix des colonnes">
+        Exporter en .csv
+      </button>
       <p class="cand-count cand-count--push" id="stgCount"></p>
     </div>
 
@@ -1844,6 +1855,28 @@
 
 </div>
 
+<!-- Export .csv de la vue active (pages Stagiaires et Encadrement) : choix des colonnes. -->
+<div class="bulk-dialog" id="exportDialog" role="dialog" aria-modal="true" aria-labelledby="exportTitle" hidden>
+  <div class="bulk-dialog__box bulk-dialog__box--md">
+    <div class="bulk-dialog__head">
+      <h3 class="fr-h6" id="exportTitle">Exporter en .csv</h3>
+      <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line" id="exportClose" type="button" title="Fermer">Fermer</button>
+    </div>
+    <p class="fr-text--sm" id="exportIntro"></p>
+    <div class="export-cols__tools">
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm" id="exportAll" type="button">Tout cocher</button>
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm" id="exportNone" type="button">Tout décocher</button>
+      <span class="fr-text--sm" id="exportCount"></span>
+    </div>
+    <div class="export-cols" id="exportCols"></div>
+    <p class="fr-error-text" id="exportError" hidden></p>
+    <div class="bulk-dialog__foot">
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm" id="exportCancel" type="button">Annuler</button>
+      <button class="fr-btn fr-btn--sm" id="exportGo" type="button">Exporter</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modale "Fiche candidat" : ouverte au clic sur une bande de la liste
      (voir openCandidateModal), affiche l'intégralité des informations de
      la fiche candidat et les actions Accepter/Refuser sur les pièces
@@ -1865,7 +1898,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 10.8</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 10.9</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -3436,6 +3469,9 @@
   var stgSearchInput = document.getElementById('stgSearchInput');
   var stgSearchBtn = document.getElementById('stgSearchBtn');
   var stgResetBtn = document.getElementById('stgResetBtn');
+  var stgExportBtn = document.getElementById('stgExportBtn');
+  var encExportBtn = document.getElementById('encExportBtn');
+  var activeViewRows = { stagiaires: [], encadrement: [] }; // lignes affichées (recherche + filtres), pour l'export .csv
   var stgReloadBtn = document.getElementById('stgReloadBtn');
 
   stgSearchBtn.addEventListener('click', function () { stgSearchText = stgSearchInput.value; renderStagiaires(); });
@@ -3497,6 +3533,8 @@
 
   function renderStagiaires() {
     stgZone.innerHTML = '';
+    activeViewRows.stagiaires = [];
+    stgExportBtn.disabled = true;
     if (candidates.error) {
       stgZone.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm"><p>' + escapeHtml(candidates.error) + '</p></div>';
       stgCount.textContent = '';
@@ -3579,6 +3617,8 @@
 
     var rows = candidates.rows.filter(function (r) { return stgMatches(r); }).sort(compareCandidatesByName);
     displayedIds.stagiaire = rows.map(function (r) { return r.id; });
+    activeViewRows.stagiaires = rows;
+    stgExportBtn.disabled = !rows.length;
     stgCount.textContent = rows.length + ' stagiaire(s) affiché(s) sur ' + candidates.rows.length;
     if (!rows.length) {
       stgZone.innerHTML = '<p class="cand-empty-state">Aucun stagiaire ne correspond à l’affichage actuel.</p>';
@@ -5171,6 +5211,8 @@
 
   function renderEncadrement() {
     encZone.innerHTML = '';
+    activeViewRows.encadrement = [];
+    encExportBtn.disabled = true;
     if (enc.error) {
       encZone.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm"><p>' + escapeHtml(enc.error) + '</p></div>';
       encCount.textContent = '';
@@ -5239,6 +5281,8 @@
     encResetBtn.disabled = !anyFilter && !encSearchText.trim();
 
     var rows = enc.rows.filter(function (r) { return encMatches(r); }).sort(compareEncRows);
+    activeViewRows.encadrement = rows;
+    encExportBtn.disabled = !rows.length;
     // « Afficher par » : ordre alphabétique (une seule liste triée par nom) ou groupe (une section par valeur de la
     // colonne Gpe, dans l'ordre ENC_GROUP_ORDER ; membres triés par nom ; un membre de plusieurs groupes figure dans chacun).
     var byGroupAvailable = !!enc.cols.gpe;
@@ -6003,6 +6047,159 @@
   // voir TROMBI_MERGED). Format paysage, photos réduites, police Marianne ; cadres classés chef, adjoint, puis
   // les autres (par nom) ; stagiaires par nom.
   var TROMBI_NAME = 'Trombinoscope';
+  // ---- Export .csv de la vue active (pages Stagiaires et Encadrement) ------------------------------------
+  // Un bouton « Exporter en .csv » dans la barre d'outils de chaque page ouvre une modale : choix des colonnes
+  // (toutes cochées la première fois, choix ensuite mémorisé), puis téléchargement des lignes actuellement
+  // affichées (recherche et filtres actifs, voir activeViewRows). Séparateur « ; », UTF-8 avec BOM (s'ouvre
+  // correctement dans Excel), dates en JJ/MM/AAAA, cases à cocher en Oui/Non.
+  var EXPORT_STORE_KEY = 'candStageExportCols_';
+  function exportFormat(v, type) {
+    if (v === null || v === undefined) return '';
+    if (v === true || v === false) return v ? 'Oui' : 'Non';
+    if (type === 'Bool') return v ? 'Oui' : 'Non';
+    if ((type === 'Date' || type === 'DateTime') && typeof v === 'number') { var d = dateOf(v); return d ? fmtDateFr(d) : ''; }
+    return textOf(v);
+  }
+  // Colonnes proposées pour les stagiaires : tous les champs réglés (identité, documents, suivi…), les pièces
+  // jointes étant exportées sous forme de noms de fichiers.
+  function stgExportColumns() {
+    var cols = [];
+    ROLES.forEach(function (role) {
+      var colId = settings.col[role];
+      if (!colId) return;
+      var label = ROLE_LABELS[role] || role;
+      if (ATTACHMENT_ROLES.indexOf(role) !== -1) {
+        cols.push({ id: role, label: label + ' (fichiers)', files: true, get: function (row) { return row[role]; } });
+        return;
+      }
+      var tableId = (DOC_TABLE_ROLES.indexOf(role) !== -1 && role !== 'ead') ? settings.docsTable : settings.table;
+      var type = String((columnTypesMap[tableId] || {})[colId] || '').split(':')[0];
+      if (type === 'Attachments') return;
+      cols.push({ id: role, label: label, get: function (row) { return role === 'stagiaire' ? textOfRef(row.stagiaire) : exportFormat(row[role], type); } });
+    });
+    cols.push({ id: 'numCand', label: ROLE_LABELS.numCand, get: function (row) { return textOf(row.numCand); } });
+    if (candidates.hasInfos) cols.push({ id: 'infosLibre', label: 'Infos', get: function (row) { return textOf(row.infosLibre); } });
+    return cols;
+  }
+  function encExportColumns() {
+    return Object.keys(ENC_LABELS).filter(function (k) { return enc.cols[k] && k !== 'photo'; }).map(function (k) {
+      return { id: k, label: ENC_LABELS[k], get: function (row) { return encText(row, k); } };
+    });
+  }
+  function csvCell(v) {
+    var s = String(v === null || v === undefined ? '' : v);
+    return /[";\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+  var exportDialog = document.getElementById('exportDialog');
+  var exportTitleEl = document.getElementById('exportTitle');
+  var exportIntroEl = document.getElementById('exportIntro');
+  var exportColsEl = document.getElementById('exportCols');
+  var exportCountEl = document.getElementById('exportCount');
+  var exportErrorEl = document.getElementById('exportError');
+  var exportGoBtn = document.getElementById('exportGo');
+  var exportCancelBtn = document.getElementById('exportCancel');
+  var exportKind = null, exportColumns = [], exportBusy = false;
+  function exportLoadSaved(kind) {
+    try { var raw = window.localStorage.getItem(EXPORT_STORE_KEY + kind); return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
+  }
+  function exportSaveSelected(kind, ids) {
+    try { window.localStorage.setItem(EXPORT_STORE_KEY + kind, JSON.stringify(ids)); } catch (e) { /* stockage indisponible : choix non mémorisé */ }
+  }
+  function exportCheckedIds() {
+    return Array.prototype.map.call(exportColsEl.querySelectorAll('input:checked'), function (i) { return i.value; });
+  }
+  function exportUpdateCount() {
+    var n = exportCheckedIds().length;
+    exportCountEl.textContent = n + ' colonne(s) sur ' + exportColumns.length;
+    exportGoBtn.disabled = n === 0 || exportBusy;
+  }
+  function exportRowsFor(kind) { return kind === 'stagiaires' ? activeViewRows.stagiaires : activeViewRows.encadrement; }
+  function openExportDialog(kind) {
+    var rows = exportRowsFor(kind);
+    if (!rows.length) return;
+    exportKind = kind;
+    exportColumns = kind === 'stagiaires' ? stgExportColumns() : encExportColumns();
+    var saved = exportLoadSaved(kind);
+    var useSaved = !!saved && exportColumns.some(function (c) { return saved.indexOf(c.id) !== -1; });
+    exportTitleEl.textContent = 'Exporter en .csv : ' + (kind === 'stagiaires' ? 'Stagiaires' : 'Encadrement');
+    exportIntroEl.textContent = rows.length + (kind === 'stagiaires' ? ' stagiaire(s)' : ' membre(s) de l’encadrement') +
+      ' affiché(s) (recherche et filtres actifs) seront exportés. Choisissez les colonnes :';
+    exportColsEl.innerHTML = '';
+    exportColumns.forEach(function (c, i) {
+      var wrap = document.createElement('div');
+      wrap.className = 'fr-checkbox-group fr-checkbox-group--sm';
+      var input = document.createElement('input');
+      input.type = 'checkbox';
+      input.id = 'exportCol_' + i;
+      input.value = c.id;
+      input.checked = useSaved ? saved.indexOf(c.id) !== -1 : true;
+      input.addEventListener('change', exportUpdateCount);
+      var label = document.createElement('label');
+      label.className = 'fr-label';
+      label.setAttribute('for', input.id);
+      label.textContent = c.label;
+      wrap.appendChild(input);
+      wrap.appendChild(label);
+      exportColsEl.appendChild(wrap);
+    });
+    exportErrorEl.hidden = true;
+    exportBusy = false;
+    exportCancelBtn.disabled = false;
+    exportUpdateCount();
+    exportDialog.hidden = false;
+    exportGoBtn.focus();
+  }
+  function closeExportDialog() { if (exportBusy) return; exportDialog.hidden = true; }
+  stgExportBtn.addEventListener('click', function () { openExportDialog('stagiaires'); });
+  encExportBtn.addEventListener('click', function () { openExportDialog('encadrement'); });
+  document.getElementById('exportAll').addEventListener('click', function () {
+    Array.prototype.forEach.call(exportColsEl.querySelectorAll('input'), function (i) { i.checked = true; });
+    exportUpdateCount();
+  });
+  document.getElementById('exportNone').addEventListener('click', function () {
+    Array.prototype.forEach.call(exportColsEl.querySelectorAll('input'), function (i) { i.checked = false; });
+    exportUpdateCount();
+  });
+  document.getElementById('exportClose').addEventListener('click', closeExportDialog);
+  exportCancelBtn.addEventListener('click', closeExportDialog);
+  var exportDownOnBackdrop = false;
+  exportDialog.addEventListener('mousedown', function (e) { exportDownOnBackdrop = e.target === exportDialog; });
+  exportDialog.addEventListener('click', function (e) { if (e.target === exportDialog && exportDownOnBackdrop) closeExportDialog(); });
+  exportDialog.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); closeExportDialog(); } });
+  exportGoBtn.addEventListener('click', function () {
+    var ids = exportCheckedIds();
+    if (!ids.length) return;
+    exportSaveSelected(exportKind, ids);
+    var kind = exportKind;
+    var cols = exportColumns.filter(function (c) { return ids.indexOf(c.id) !== -1; });
+    var rows = exportRowsFor(kind);
+    exportBusy = true;
+    exportGoBtn.disabled = true;
+    exportCancelBtn.disabled = true;
+    exportErrorEl.hidden = true;
+    var needMeta = cols.some(function (c) { return c.files; });
+    (needMeta ? loadAttachmentsMeta() : Promise.resolve({})).then(function (meta) {
+      var lines = [cols.map(function (c) { return csvCell(c.label); }).join(';')];
+      rows.forEach(function (row) {
+        lines.push(cols.map(function (c) {
+          if (!c.files) return csvCell(c.get(row));
+          return csvCell(extractAttachmentIds(c.get(row)).map(function (id) { return (meta[id] && meta[id].fileName) || ('Pièce jointe #' + id); }).join(', '));
+        }).join(';'));
+      });
+      var today = new Date();
+      var stamp = fmtDateFr(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()))).replace(/\//g, '-');
+      saveBlob(new Blob(['﻿' + lines.join('\r\n') + '\r\n'], { type: 'text/csv;charset=utf-8' }), (kind === 'stagiaires' ? 'stagiaires' : 'encadrement') + '_' + stamp + '.csv');
+      exportBusy = false;
+      closeExportDialog();
+    }).catch(function (e) {
+      exportBusy = false;
+      exportCancelBtn.disabled = false;
+      exportUpdateCount();
+      exportErrorEl.hidden = false;
+      exportErrorEl.textContent = 'Impossible de générer le fichier : ' + friendlyErrorMessage(e);
+    });
+  });
+
   // ---- État rationnaire par FA (document intégré, page Générer doc. en lot) ------------------------------
   // Un fichier Excel (.xlsx), quatre onglets fixes selon l'affectation (colonne Affectation des tables
   // Stagiaires et Encadrement) : GR, GAE, GTA (valeurs exactes) et RGIF (tout le reste), plus un onglet
