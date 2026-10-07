@@ -1228,6 +1228,33 @@
   .ration-meals__reason { font-weight: 400; font-size: 0.85em; color: var(--text-mention-grey); margin-left: 0.4rem; }
   .ration-meals__checks { display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; margin-top: 0.35rem; }
   .ration-meals__checks .fr-checkbox-group { margin: 0; }
+  /* Appréciation des stagiaires (onglet Notation) : curseurs DSFR à 5 crans. La position de la pastille de valeur
+     et le remplissage dépendent de --ratio (0 à 1), posée par le script ; le script DSFR n'est pas chargé. */
+  .appr-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem 1.2rem; }
+  .cand-modal-stack--compare .appr-grid { grid-template-columns: 1fr; }
+  @media (max-width: 40rem) { .appr-grid { grid-template-columns: 1fr; } }
+  .appr-summary { margin: 0 0 0.6rem; color: var(--text-mention-grey); }
+  .appr-summary--warn { color: var(--text-default-error); font-weight: 700; }
+  .appr-item { padding: 0.6rem 0.9rem 0.7rem; border: 1px solid var(--border-default-grey); border-radius: 0.5rem; background: var(--background-raised-grey); }
+  .appr-item.is-low { border-color: var(--border-plain-error, var(--statut-refusee)); }
+  .appr-item__head { display: flex; align-items: center; gap: 0.6rem; }
+  .appr-item__head .fr-label { font-weight: 700; flex: none; }
+  .appr-item__status { flex: 1 1 auto; font-size: 0.75rem; color: var(--text-mention-grey); min-width: 0; }
+  .appr-item__status--ok { color: var(--text-default-success); }
+  .appr-item__status--warn, .appr-item__status--error { color: var(--text-default-error); }
+  .appr-item__clear { flex: none; margin-left: auto; padding: 0.1rem 0.4rem !important; min-height: 0 !important; }
+  .appr-item__clear[hidden] { display: none; }
+  .appr-slider .fr-range { padding-top: 1.25rem; padding-bottom: 0.25rem; --thumb-size: 1.5rem;
+    --progress-right: calc(var(--thumb-size) * 0.5 + var(--ratio, 0.5) * (100% - var(--thumb-size)));
+    --step-width: calc((100% - var(--thumb-size)) / 4); }
+  .appr-slider .fr-range__output { position: absolute; top: 0; left: calc(var(--thumb-size) * 0.5 + var(--ratio, 0.5) * (100% - var(--thumb-size)));
+    transform: translateX(calc(var(--ratio, 0.5) * -100%)); white-space: nowrap; font-weight: 700; }
+  .appr-item.is-unset .fr-range__output { color: var(--text-mention-grey); font-weight: 400; }
+  .appr-item.is-unset .fr-range:after { opacity: 0; }
+  .appr-item.is-unset input[type=range]::-webkit-slider-thumb { opacity: 0.55; }
+  .appr-item.is-unset input[type=range]::-moz-range-thumb { opacity: 0.55; }
+  .appr-item__comment .fr-input-group { margin: 0.6rem 0 0; }
+  .appr-item__comment .fr-label { font-size: 0.8rem; }
   /* Export .csv : liste des colonnes à cocher. */
   .export-cols__tools { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.6rem; }
   .export-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.1rem 1rem; max-height: 20rem; overflow-y: auto; padding: 0.5rem 0.7rem; border: 1px solid var(--border-default-grey); border-radius: 0.4rem; background: var(--background-alt-grey); }
@@ -1380,6 +1407,9 @@
           <option value="missing">Documents manquants</option>
           <option value="eadMailNotSent">Email EAD non envoyé</option>
           <option value="eadNotValidated">EAD non validé</option>
+          <option value="duplicates">Doublons</option>
+          <option value="noNumCand">Sans n° CAND</option>
+          <option value="rsImageMissing">Usage RS et Droit à l'image manquants</option>
         </select>
       </div>
       <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-circle-line fr-btn--icon-left" id="candResetBtn" type="button" disabled title="Efface la recherche et le filtre sur les documents">
@@ -1898,7 +1928,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 10.10</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 10.12</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -2109,7 +2139,7 @@
   var candidates = { rows: [], loaded: false };
   var allTableIds = [];
   var searchText = '';
-  var docFilter = 'all'; // 'all' | 'complete' | 'rejected' | 'toValidate' | 'missing' | 'eadMailNotSent' | 'eadNotValidated' (voir DOC_FILTERS)
+  var docFilter = 'all'; // 'all' | 'complete' | 'rejected' | 'toValidate' | 'missing' | 'eadMailNotSent' | 'eadNotValidated' | 'duplicates' | 'noNumCand' | 'rsImageMissing' (voir DOC_FILTERS)
 
   // ---- Références DOM ----------------------------------------------------
   var panelEtuteur = document.getElementById('panelEtuteur');
@@ -2710,6 +2740,7 @@
         ' (candidats) = ' + (settings.docsLinkCol ? '<span class="cfg-sources__col">' + escapeHtml(settings.docsLinkCol) + '</span>' : 'colonne NID <span class="cfg-pill cfg-pill--na">non réglée</span>') + ' (Documents)'],
       ['Table EAD (pièce EAD - Bloc 1)', known ? tableState(eadInfo && eadInfo.tableId, 'Alimentation EAD') : tableName('Alimentation EAD') + ' <span class="cfg-pill cfg-pill--na">non vérifiée</span>'],
       ['Table Encadrement (page Encadrement)', enc.loaded || enc.error ? tableState(enc.tableId, 'Encadrement') : tableName('Encadrement') + ' <span class="cfg-pill cfg-pill--na">non vérifiée</span>'],
+      ['Table Appréciation stagiaires (onglet Notation des stagiaires)', appr.loaded || appr.error ? tableState(appr.tableId, 'Appréciation stagiaires') : tableName('Appréciation stagiaires') + ' <span class="cfg-pill cfg-pill--na">non vérifiée</span>'],
       ['Table Editeur de documents (page Générer doc. en lot)', bulk.loaded || bulk.error ? tableState(bulk.tableId, 'Editeur de documents') : tableName('Editeur de documents') + ' <span class="cfg-pill cfg-pill--na">non vérifiée</span>']
     ]);
 
@@ -2907,6 +2938,7 @@
   function loadCandidates() {
     loadBulk();
     loadEncadrement();
+    loadAppreciations();
     if (hardTablesError) {
       candidates = { rows: [], loaded: false, error: hardTablesError };
       renderAll();
@@ -3234,7 +3266,16 @@
     // Identifiants GendForm pas encore envoyés (aucune mention dans Blocages / Infos, voir gendFormAlreadySent).
     eadMailNotSent: function (st, row) { return !gendFormAlreadySent(row); },
     // EAD - Bloc 1 pas encore validé (manquant, en attente ou refusé).
-    eadNotValidated: function (st, row) { return !!settings.col.ead && docStatus(row, 'ead') !== 'ok'; }
+    eadNotValidated: function (st, row) { return !!settings.col.ead && docStatus(row, 'ead') !== 'ok'; },
+    // Doublons : même NID sur plusieurs lignes (table des candidats ou table Documents, voir duplicateReasons).
+    duplicates: function (st, row) { return duplicateReasons(row).length > 0; },
+    // Sans n° CAND (colonne N_Cand vide).
+    noNumCand: function (st, row) { return !textOf(row.numCand); },
+    // Reconnaissance de responsabilité (Usage RS) ET Droit à l'image : aucun fichier déposé pour les deux.
+    rsImageMissing: function (st, row) {
+      var roles = ['usageRS', 'formImage'].filter(function (role) { return !!settings.col[role]; });
+      return roles.length > 0 && roles.every(function (role) { return docStatus(row, role) === 'missing'; });
+    }
   };
   // Effectifs affichés sur chaque filtre : calculés sur les candidats qui
   // passent déjà la recherche, pour que les nombres correspondent à ce
@@ -3242,7 +3283,8 @@
   // masqué tant qu'aucun document n'est configuré.
   var DOC_FILTER_LABELS = {
     all: 'Tous les dossiers', complete: 'Dossiers complets', rejected: 'Documents rejetés',
-    toValidate: 'Documents à valider', missing: 'Documents manquants', eadMailNotSent: 'Email EAD non envoyé', eadNotValidated: 'EAD non validé'
+    toValidate: 'Documents à valider', missing: 'Documents manquants', eadMailNotSent: 'Email EAD non envoyé', eadNotValidated: 'EAD non validé',
+    duplicates: 'Doublons', noNumCand: 'Sans n° CAND', rsImageMissing: 'Usage RS et Droit à l\'image manquants'
   };
   function updateDocFilterCounts() {
     var hasDocs = ATTACHMENT_ROLES.some(function (role) { return !!settings.col[role]; });
@@ -4370,10 +4412,412 @@
     return wrap;
   }
 
+  // ---- Appréciation des stagiaires : curseurs de l'onglet « Notation » ------------------------------------
+  // Table « Appréciation stagiaires » (en dur, retrouvée par son nom comme les autres tables) : une ligne par
+  // stagiaire (colonne « Stagiaire » = référence vers la table des stagiaires). Chaque matière (APJA, ASM, SIC,
+  // Personnalité, Potentiel, FGIP, FTI, MSAA, MAAA, CIAPT-Tir…) est une colonne évaluée sur cinq niveaux par un
+  // curseur DSFR ; la colonne « …_Précisions » correspondante reçoit un commentaire, obligatoire quand la matière
+  // est « Insuffisant » (rien n'est enregistré tant qu'il manque : voir apprPending). Les autres colonnes
+  // (Appréciation littérale, Décision, Potentiel officier…) sont modifiables au clic, comme les autres fiches.
+  var APPR_TABLE = 'APPRECIATION STAGIAIRES';
+  var APPR_LEVELS = ['Insuffisant', 'Moyen', 'Bien', 'Très bien', 'Exceptionnel']; // de gauche à droite sur le curseur
+  var appr = { loaded: false, error: '', tableId: '', stagiaireCol: null, domains: [], extras: [], byStagiaire: {}, queue: {} };
+  // stagiaire (id de ligne) -> { colId: { comment } } : « Insuffisant » choisi mais précisions pas encore saisies.
+  var apprPending = {};
+  function apprLevelIndex(v) {
+    var k = normalizeKey(textOf(v));
+    for (var i = 0; i < APPR_LEVELS.length; i++) if (normalizeKey(APPR_LEVELS[i]) === k) return i;
+    return -1;
+  }
+  // Valeur à écrire pour un niveau : celle du choix de la colonne si elle en a (même libellé à la casse près).
+  function apprStoredValue(col, level) {
+    if (level < 0) return '';
+    var label = APPR_LEVELS[level];
+    var hit = (col.choices || []).filter(function (c) { return normalizeKey(c) === normalizeKey(label); })[0];
+    return hit || label;
+  }
+  function loadAppreciations() {
+    return Promise.all([grist.docApi.listTables(), grist.docApi.fetchTable('_grist_Tables'), grist.docApi.fetchTable('_grist_Tables_column')]).then(function (res) {
+      var tableId = null;
+      res[0].forEach(function (t) { if (!tableId && bulkKey(t) === APPR_TABLE) tableId = t; });
+      if (!tableId) throw new Error('Table « Appréciation stagiaires » introuvable dans ce document.');
+      var tables = res[1], meta = res[2], tableRowId = null;
+      for (var i = 0; i < tables.id.length; i++) if (tables.tableId[i] === tableId) tableRowId = tables.id[i];
+      var cols = [];
+      for (var j = 0; j < meta.id.length; j++) {
+        if (meta.parentId[j] !== tableRowId || /^gristHelper_|^manualSort$/.test(meta.colId[j])) continue;
+        var choices = [];
+        try { choices = (JSON.parse(meta.widgetOptions[j] || '{}').choices) || []; } catch (e) { choices = []; }
+        cols.push({ id: meta.colId[j], label: meta.label[j] || meta.colId[j], type: bulkBaseType(meta.type[j]), choices: choices, pos: meta.parentPos[j], formula: !!meta.isFormula[j] });
+      }
+      cols.sort(function (a, b) { return a.pos - b.pos; });
+      return grist.docApi.fetchTable(tableId).then(function (data) { return { tableId: tableId, cols: cols, data: data }; });
+    }).then(function (r) {
+      var stagCol = bulkFindCol(r.cols, 'STAGIAIRE');
+      if (!stagCol) throw new Error('Colonne « Stagiaire » introuvable dans la table « ' + r.tableId + ' ».');
+      var precCols = [], others = [];
+      r.cols.forEach(function (c) {
+        if (c === stagCol) return;
+        (bulkKey(c.label).indexOf('PRECISION') !== -1 ? precCols : others).push(c);
+      });
+      // Une matière = une colonne qui a sa colonne « …_Précisions » (nom identique, ou commençant par le même
+      // radical : « CIAPT-Tir » <-> « CIAPT_Précisions ») ; les autres colonnes sont des champs généraux.
+      var used = {}, domains = [];
+      precCols.forEach(function (p) {
+        var base = bulkKey(p.label).replace(/\s*PRECISIONS?\s*$/, '').trim();
+        var found = others.filter(function (c) { return !used[c.id] && bulkKey(c.label) === base; })[0] ||
+          others.filter(function (c) { var k = bulkKey(c.label); return !used[c.id] && k.indexOf(base) === 0 && /[^A-Z0-9]/.test(k.charAt(base.length)); })[0];
+        if (!found || found.formula) return;
+        used[found.id] = true;
+        domains.push({ col: found, prec: p.formula ? null : p, label: found.label });
+      });
+      domains.sort(function (a, b) { return a.col.pos - b.col.pos; });
+      var extras = others.filter(function (c) { return !used[c.id] && ['Text', 'Choice', 'Int', 'Numeric'].indexOf(c.type) !== -1; });
+      var byStagiaire = {};
+      for (var i = 0; i < r.data.id.length; i++) {
+        var sid = Number(r.data[stagCol.id][i]) || 0;
+        if (!sid || byStagiaire[sid]) continue; // première ligne par stagiaire
+        var vals = {};
+        r.cols.forEach(function (c) { vals[c.id] = r.data[c.id] ? r.data[c.id][i] : null; });
+        byStagiaire[sid] = { id: r.data.id[i], vals: vals };
+      }
+      appr = { loaded: true, error: '', tableId: r.tableId, stagiaireCol: stagCol, domains: domains, extras: extras, byStagiaire: byStagiaire, queue: {} };
+    }).catch(function (e) {
+      appr = { loaded: false, error: friendlyErrorMessage(e), tableId: '', stagiaireCol: null, domains: [], extras: [], byStagiaire: {}, queue: {} };
+    }).then(function () {
+      if (currentModalRowId !== null && currentModalKind === 'stagiaire' && !dEditRole) renderModalContent();
+      renderSourcesPanel();
+    });
+  }
+  // Écritures sérialisées par stagiaire (la première crée la ligne d'appréciation, les suivantes la mettent à jour).
+  function apprWrite(stagiaireId, fields) {
+    var run = function () {
+      var rec = appr.byStagiaire[stagiaireId];
+      var action;
+      if (rec) action = ['UpdateRecord', appr.tableId, rec.id, fields];
+      else {
+        var created = {};
+        Object.keys(fields).forEach(function (k) { created[k] = fields[k]; });
+        created[appr.stagiaireCol.id] = stagiaireId;
+        action = ['AddRecord', appr.tableId, null, created];
+      }
+      return grist.docApi.applyUserActions([action]).then(function (res) {
+        if (!rec) {
+          rec = appr.byStagiaire[stagiaireId] = { id: res && res.retValues ? res.retValues[0] : 0, vals: {} };
+        }
+        Object.keys(fields).forEach(function (k) { rec.vals[k] = fields[k]; });
+      });
+    };
+    var p = (appr.queue[stagiaireId] || Promise.resolve()).then(run);
+    appr.queue[stagiaireId] = p.catch(function () { /* l'échec est traité par l'appelant */ });
+    return p;
+  }
+
+  // Curseur DSFR (composant « Curseur » : .fr-range) à 5 crans. Le script DSFR n'étant pas chargé, la position de
+  // la pastille et le remplissage sont pilotés par la variable CSS --ratio (voir .appr-slider).
+  function buildApprItem(row, d, idx, onChange) {
+    var item = document.createElement('div');
+    item.className = 'appr-item';
+    var saved = (function () {
+      var rec = appr.byStagiaire[row.id];
+      return { level: rec ? apprLevelIndex(rec.vals[d.col.id]) : -1, comment: rec && d.prec ? textOf(rec.vals[d.prec.id]) : '' };
+    })();
+    var pend = (apprPending[row.id] || {})[d.col.id];
+    var state = { level: pend ? 0 : saved.level, comment: pend ? pend.comment : saved.comment, pending: !!pend };
+    var inputId = 'apprRange_' + row.id + '_' + idx;
+
+    var group = document.createElement('div');
+    group.className = 'fr-range-group appr-slider';
+    var head = document.createElement('div');
+    head.className = 'appr-item__head';
+    var label = document.createElement('label');
+    label.className = 'fr-label';
+    label.setAttribute('for', inputId);
+    label.textContent = d.label;
+    var status = document.createElement('span');
+    status.className = 'appr-item__status';
+    status.setAttribute('role', 'status');
+    status.setAttribute('aria-live', 'polite');
+    var clear = document.createElement('button');
+    clear.type = 'button';
+    clear.className = 'fr-btn fr-btn--tertiary-no-outline fr-btn--sm appr-item__clear';
+    clear.textContent = 'Effacer';
+    clear.title = 'Effacer l’évaluation de ' + d.label;
+    head.appendChild(label);
+    head.appendChild(status);
+    head.appendChild(clear);
+    group.appendChild(head);
+
+    var range = document.createElement('div');
+    range.className = 'fr-range fr-range--step';
+    range.setAttribute('data-fr-js-range', '');
+    var output = document.createElement('span');
+    output.className = 'fr-range__output';
+    var input = document.createElement('input');
+    input.type = 'range';
+    input.id = inputId;
+    input.name = inputId;
+    input.min = 0;
+    input.max = APPR_LEVELS.length - 1;
+    input.step = 1;
+    var min = document.createElement('span');
+    min.className = 'fr-range__min';
+    min.setAttribute('aria-hidden', 'true');
+    min.textContent = APPR_LEVELS[0];
+    var max = document.createElement('span');
+    max.className = 'fr-range__max';
+    max.setAttribute('aria-hidden', 'true');
+    max.textContent = APPR_LEVELS[APPR_LEVELS.length - 1];
+    range.appendChild(output);
+    range.appendChild(input);
+    range.appendChild(min);
+    range.appendChild(max);
+    group.appendChild(range);
+    item.appendChild(group);
+
+    var commentHost = document.createElement('div');
+    commentHost.className = 'appr-item__comment';
+    item.appendChild(commentHost);
+
+    var statusTimer = null;
+    function setStatus(text, kind) {
+      clearTimeout(statusTimer);
+      status.textContent = text;
+      status.className = 'appr-item__status' + (kind ? ' appr-item__status--' + kind : '');
+      if (kind === 'ok') statusTimer = setTimeout(function () { status.textContent = ''; }, 2500);
+    }
+    function paint(visual) {
+      var v = visual !== undefined ? visual : state.level;
+      var shown = v >= 0 ? v : 2;
+      input.value = shown;
+      range.style.setProperty('--ratio', String(shown / (APPR_LEVELS.length - 1)));
+      output.textContent = v >= 0 ? APPR_LEVELS[v] : 'Non évalué';
+      input.setAttribute('aria-valuetext', output.textContent);
+      item.classList.toggle('is-unset', v < 0);
+      item.classList.toggle('is-low', v === 0);
+      clear.hidden = v < 0 && !state.pending;
+    }
+    function commentMissing() { return !!d.prec && state.level === 0 && !state.comment.trim(); }
+    function renderComment() {
+      commentHost.innerHTML = '';
+      if (!d.prec || state.level !== 0) return;
+      var g = document.createElement('div');
+      g.className = 'fr-input-group';
+      var cid = inputId + '_prec';
+      var l = document.createElement('label');
+      l.className = 'fr-label';
+      l.setAttribute('for', cid);
+      l.textContent = 'Précisions (obligatoires : matière insuffisante)';
+      var ta = document.createElement('textarea');
+      ta.className = 'fr-input';
+      ta.id = cid;
+      ta.rows = 2;
+      ta.required = true;
+      ta.value = state.comment;
+      var err = document.createElement('p');
+      err.className = 'fr-error-text';
+      err.textContent = 'Les précisions sont obligatoires pour une matière « Insuffisant »' + (state.pending ? ' — rien n’est enregistré tant qu’elles manquent.' : '.');
+      function refreshError() {
+        var miss = commentMissing();
+        err.hidden = !miss;
+        g.classList.toggle('fr-input-group--error', miss);
+        ta.setAttribute('aria-invalid', miss ? 'true' : 'false');
+      }
+      ta.addEventListener('input', function () { state.comment = ta.value; refreshError(); onChange(); });
+      ta.addEventListener('change', function () {
+        state.comment = ta.value;
+        refreshError();
+        onChange();
+        if (commentMissing()) return; // jamais d'écriture sans précisions
+        if (!state.pending && state.comment.trim() === saved.comment.trim() && saved.level === 0) return;
+        save();
+      });
+      g.appendChild(l);
+      g.appendChild(ta);
+      g.appendChild(err);
+      commentHost.appendChild(g);
+      refreshError();
+    }
+    function fieldsFor() {
+      var f = {};
+      f[d.col.id] = apprStoredValue(d.col, state.level);
+      if (d.prec) f[d.prec.id] = state.level === 0 ? state.comment.trim() : '';
+      return f;
+    }
+    function save() {
+      var level = state.level, comment = state.comment.trim();
+      setStatus('Enregistrement…', 'info');
+      apprWrite(row.id, fieldsFor()).then(function () {
+        if (apprPending[row.id]) delete apprPending[row.id][d.col.id];
+        state.pending = false;
+        saved = { level: level, comment: level === 0 ? comment : '' };
+        setStatus('Enregistré', 'ok');
+        paint();
+        onChange();
+      }).catch(function (e) {
+        // L'écriture a échoué : retour à la dernière valeur enregistrée.
+        state.level = saved.level;
+        state.comment = saved.comment;
+        state.pending = false;
+        if (apprPending[row.id]) delete apprPending[row.id][d.col.id];
+        paint();
+        renderComment();
+        onChange();
+        setStatus('Échec de l’enregistrement : ' + friendlyErrorMessage(e), 'error');
+      });
+    }
+    function commit(v) {
+      state.level = v;
+      if (v === 0 && d.prec && !state.comment.trim()) {
+        // « Insuffisant » sans précisions : en attente (non enregistré) jusqu'à la saisie du commentaire.
+        state.pending = true;
+        (apprPending[row.id] = apprPending[row.id] || {})[d.col.id] = { comment: state.comment };
+        paint();
+        renderComment();
+        onChange();
+        setStatus('Non enregistré : précisions obligatoires', 'warn');
+        var ta = commentHost.querySelector('textarea');
+        if (ta) ta.focus();
+        return;
+      }
+      if (v !== 0) state.comment = '';
+      renderComment();
+      save();
+    }
+    input.addEventListener('input', function () { paint(Number(input.value)); });
+    input.addEventListener('change', function () { commit(Number(input.value)); });
+    // Aucune évaluation : le curseur est au milieu ; un clic sur le cran déjà sélectionné, ou Entrée / Espace,
+    // choisit ce niveau (sinon aucun événement ne serait émis, la valeur ne changeant pas).
+    input.addEventListener('click', function () { if (state.level < 0) commit(Number(input.value)); });
+    input.addEventListener('keydown', function (e) {
+      if ((e.key === 'Enter' || e.key === ' ') && state.level < 0) { e.preventDefault(); commit(Number(input.value)); }
+    });
+    clear.addEventListener('click', function () {
+      state.level = -1;
+      state.comment = '';
+      if (apprPending[row.id]) delete apprPending[row.id][d.col.id];
+      var wasPending = state.pending;
+      state.pending = false;
+      paint();
+      renderComment();
+      onChange();
+      if (wasPending && saved.level < 0) { setStatus('', ''); return; }
+      save();
+    });
+    item.__state = state;
+    item.__missing = commentMissing;
+    paint();
+    renderComment();
+    return item;
+  }
+
+  function apprExtraSpec(row, c) {
+    var rec = appr.byStagiaire[row.id];
+    var text = rec ? textOf(rec.vals[c.id]) : '';
+    var long = /LITTERAL/.test(bulkKey(c.label));
+    return dSpec('appr:' + c.id, c.label, stgTextValue(text, long), {
+      wide: long, empty: !text, pre: long, editable: !c.formula,
+      buildControl: function () {
+        var el;
+        if (c.type === 'Choice' && c.choices.length) {
+          el = document.createElement('select');
+          el.className = 'fr-select';
+          var values = [''].concat(c.choices);
+          if (text && values.indexOf(text) === -1) values.push(text);
+          values.forEach(function (v) {
+            var o = document.createElement('option');
+            o.value = v;
+            o.textContent = v || '—';
+            el.appendChild(o);
+          });
+          el.value = text;
+        } else if (long) {
+          el = document.createElement('textarea');
+          el.className = 'fr-input';
+          el.rows = 4;
+          el.value = text;
+        } else {
+          el = document.createElement('input');
+          el.type = 'text';
+          el.className = 'fr-input';
+          el.autocomplete = 'off';
+          el.value = text;
+        }
+        el.setAttribute('aria-label', c.label);
+        return el;
+      },
+      commit: function (ctl, buttons) {
+        var value = ctl.value.trim();
+        if (c.type === 'Int' || c.type === 'Numeric') {
+          if (value === '') value = null;
+          else {
+            var n = Number(value.replace(/\s/g, '').replace(',', '.'));
+            if (isNaN(n)) { window.alert('Valeur numérique invalide pour « ' + c.label + ' ».'); buttons.forEach(function (b) { b.disabled = false; }); return; }
+            value = c.type === 'Int' ? Math.round(n) : n;
+          }
+        }
+        var f = {};
+        f[c.id] = value;
+        ctl.disabled = true;
+        apprWrite(row.id, f).then(function () {
+          dEditRole = null;
+          renderModalContent();
+        }).catch(function (e) {
+          ctl.disabled = false;
+          buttons.forEach(function (b) { b.disabled = false; });
+          window.alert('Impossible d’enregistrer « ' + c.label + ' » : ' + friendlyErrorMessage(e));
+        });
+      }
+    });
+  }
+
+  function buildApprSection(row) {
+    var section = document.createElement('section');
+    section.className = 'detail-group';
+    var h = document.createElement('h3');
+    h.className = 'detail-title';
+    h.textContent = 'Appréciation par matière';
+    section.appendChild(h);
+    var summary = document.createElement('p');
+    summary.className = 'fr-text--sm appr-summary';
+    var grid = document.createElement('div');
+    grid.className = 'appr-grid';
+    var items = [];
+    function updateSummary() {
+      var done = items.filter(function (it) { return it.__state.level >= 0; }).length;
+      var missing = items.filter(function (it) { return it.__missing(); }).length;
+      summary.textContent = done + ' matière(s) évaluée(s) sur ' + items.length +
+        (missing ? ' — ' + missing + ' « Insuffisant » sans précisions (obligatoires)' : '');
+      summary.classList.toggle('appr-summary--warn', missing > 0);
+    }
+    appr.domains.forEach(function (d, i) {
+      var it = buildApprItem(row, d, i, updateSummary);
+      items.push(it);
+      grid.appendChild(it);
+    });
+    section.appendChild(summary);
+    section.appendChild(grid);
+    updateSummary();
+    return section;
+  }
+
   // ---- Onglet « Notation » ----------------------------------------------------------
-  // Colonnes dont le libellé évoque une note (note, notation, évaluation, moyenne,
-  // résultat, examen, score) parmi celles que la fiche n'affiche pas ailleurs.
+  // Curseurs d'appréciation (table « Appréciation stagiaires »), champs généraux de cette table, puis colonnes
+  // dont le libellé évoque une note (note, notation, évaluation, moyenne, résultat, examen, score) parmi celles
+  // que la fiche n'affiche pas ailleurs.
   function buildStgNotationTab(row) {
+    var wrap = document.createElement('div');
+    wrap.className = 'stg-docs-tab';
+    if (appr.loaded) {
+      if (appr.domains.length) wrap.appendChild(buildApprSection(row));
+      var general = dGroup('Appréciation générale', appr.extras.map(function (c) { return apprExtraSpec(row, c); }));
+      if (general) wrap.appendChild(general);
+    } else {
+      var info = document.createElement('div');
+      info.className = 'fr-alert fr-alert--info fr-alert--sm';
+      info.innerHTML = '<p>' + escapeHtml(appr.error ? appr.error + ' L’évaluation par curseurs est indisponible.' : 'Chargement des appréciations…') + '</p>';
+      wrap.appendChild(info);
+    }
     var extra = row.__extra || {};
     var labels = columnLabels[settings.table] || {};
     var types = columnTypesMap[settings.table] || {};
@@ -4390,11 +4834,14 @@
     });
     entries.sort(function (a, b) { return nameCollator.compare(a.label, b.label); });
     var card = dGroup('Notation', entries.map(function (e) { return dCustomSpec(e.label, stgTextValue(e.text)); }));
-    if (card) return card;
-    var empty = document.createElement('p');
-    empty.className = 'cand-empty-state';
-    empty.textContent = 'Aucune donnée de notation dans la table des candidats.';
-    return empty;
+    if (card) wrap.appendChild(card);
+    if (!wrap.childNodes.length) {
+      var empty = document.createElement('p');
+      empty.className = 'cand-empty-state';
+      empty.textContent = 'Aucune donnée de notation dans la table des candidats.';
+      return empty;
+    }
+    return wrap;
   }
 
   // ---- Pièces complémentaires (onglet Documents de la fiche Stagiaires) ------------
