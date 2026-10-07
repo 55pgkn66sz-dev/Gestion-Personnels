@@ -1928,7 +1928,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 10.12</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 10.13</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -4448,25 +4448,37 @@
         if (meta.parentId[j] !== tableRowId || /^gristHelper_|^manualSort$/.test(meta.colId[j])) continue;
         var choices = [];
         try { choices = (JSON.parse(meta.widgetOptions[j] || '{}').choices) || []; } catch (e) { choices = []; }
-        cols.push({ id: meta.colId[j], label: meta.label[j] || meta.colId[j], type: bulkBaseType(meta.type[j]), choices: choices, pos: meta.parentPos[j], formula: !!meta.isFormula[j] });
+        cols.push({ id: meta.colId[j], label: meta.label[j] || meta.colId[j], type: bulkBaseType(meta.type[j]), choices: choices, pos: meta.parentPos[j],
+          // Une « colonne vide » de Grist (isFormula vrai, formule vide) devient une colonne de données dès la première
+          // valeur écrite : seule une vraie formule (non vide) rend la colonne en lecture seule.
+          formula: !!meta.isFormula[j] && String(meta.formula ? meta.formula[j] : '').trim() !== '' });
       }
       cols.sort(function (a, b) { return a.pos - b.pos; });
       return grist.docApi.fetchTable(tableId).then(function (data) { return { tableId: tableId, cols: cols, data: data }; });
     }).then(function (r) {
       var stagCol = bulkFindCol(r.cols, 'STAGIAIRE');
       if (!stagCol) throw new Error('Colonne « Stagiaire » introuvable dans la table « ' + r.tableId + ' ».');
+      // Clé de comparaison : sans accents, espaces ni ponctuation (« APJA_Précisions » -> « APJAPRECISIONS »),
+      // calculée sur le libellé puis, à défaut de correspondance, sur l'identifiant de la colonne.
+      function apprKeys(c) {
+        return [c.label, c.id].map(function (s) { return normalizeKey(s).replace(/[^A-Z0-9]/g, ''); });
+      }
       var precCols = [], others = [];
       r.cols.forEach(function (c) {
         if (c === stagCol) return;
-        (bulkKey(c.label).indexOf('PRECISION') !== -1 ? precCols : others).push(c);
+        (apprKeys(c).some(function (k) { return k.indexOf('PRECISION') !== -1; }) ? precCols : others).push(c);
       });
       // Une matière = une colonne qui a sa colonne « …_Précisions » (nom identique, ou commençant par le même
       // radical : « CIAPT-Tir » <-> « CIAPT_Précisions ») ; les autres colonnes sont des champs généraux.
       var used = {}, domains = [];
       precCols.forEach(function (p) {
-        var base = bulkKey(p.label).replace(/\s*PRECISIONS?\s*$/, '').trim();
-        var found = others.filter(function (c) { return !used[c.id] && bulkKey(c.label) === base; })[0] ||
-          others.filter(function (c) { var k = bulkKey(c.label); return !used[c.id] && k.indexOf(base) === 0 && /[^A-Z0-9]/.test(k.charAt(base.length)); })[0];
+        var bases = apprKeys(p).filter(function (k) { return k.indexOf('PRECISION') !== -1; }).map(function (k) { return k.replace(/PRECISIONS?/g, ''); }).filter(Boolean);
+        var found = null;
+        bases.forEach(function (base) {
+          if (found) return;
+          found = others.filter(function (c) { return !used[c.id] && apprKeys(c).indexOf(base) !== -1; })[0] ||
+            others.filter(function (c) { return !used[c.id] && apprKeys(c).some(function (k) { return k.indexOf(base) === 0 && k.length > base.length; }); })[0] || null;
+        });
         if (!found || found.formula) return;
         used[found.id] = true;
         domains.push({ col: found, prec: p.formula ? null : p, label: found.label });
@@ -4481,7 +4493,7 @@
         r.cols.forEach(function (c) { vals[c.id] = r.data[c.id] ? r.data[c.id][i] : null; });
         byStagiaire[sid] = { id: r.data.id[i], vals: vals };
       }
-      appr = { loaded: true, error: '', tableId: r.tableId, stagiaireCol: stagCol, domains: domains, extras: extras, byStagiaire: byStagiaire, queue: {} };
+      appr = { loaded: true, error: '', tableId: r.tableId, stagiaireCol: stagCol, domains: domains, extras: extras, byStagiaire: byStagiaire, queue: {}, allCols: r.cols };
     }).catch(function (e) {
       appr = { loaded: false, error: friendlyErrorMessage(e), tableId: '', stagiaireCol: null, domains: [], extras: [], byStagiaire: {}, queue: {} };
     }).then(function () {
@@ -4810,6 +4822,13 @@
     wrap.className = 'stg-docs-tab';
     if (appr.loaded) {
       if (appr.domains.length) wrap.appendChild(buildApprSection(row));
+      else {
+        var diag = document.createElement('div');
+        diag.className = 'fr-alert fr-alert--warning fr-alert--sm';
+        diag.innerHTML = '<p>Aucune matière reconnue dans la table « ' + escapeHtml(appr.tableId) + ' » : il faut, pour chaque matière, une colonne « Matière » et une colonne « Matière_Précisions ». Colonnes lues : ' +
+          escapeHtml((appr.allCols || []).map(function (c) { return c.label + ' (' + c.type + (c.formula ? ', formule' : '') + ')'; }).join(', ')) + '.</p>';
+        wrap.appendChild(diag);
+      }
       var general = dGroup('Appréciation générale', appr.extras.map(function (c) { return apprExtraSpec(row, c); }));
       if (general) wrap.appendChild(general);
     } else {
