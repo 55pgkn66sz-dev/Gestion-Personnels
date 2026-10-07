@@ -1960,7 +1960,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 11.4</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 11.5</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -7488,8 +7488,12 @@
     return portraitSource(row).then(function (src) {
       if (!src) return { none: true };
       var reasons = [];
-      // 1. lecture du fichier
-      return fetch(src.url).then(function (resp) {
+      // 1. lecture du fichier. Grist n'autorise la lecture inter-origine (CORS) avec un jeton que pour les requêtes qui
+      //    déclenchent un pré-contrôle : si la requête simple est bloquée, on la renvoie avec « X-Requested-With »
+      //    (comme l'envoi de fichiers, voir uploadAttachment, et « Tester l'accès aux photos »).
+      return fetch(src.url).catch(function () {
+        return fetch(src.url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+      }).then(function (resp) {
         if (!resp.ok) throw new Error('HTTP ' + resp.status + (resp.status === 404 || resp.status === 403 ? ' (accès refusé par les règles d’accès de Grist)' : ''));
         return resp.blob();
       }).then(function (blob) {
