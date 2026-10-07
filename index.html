@@ -1898,7 +1898,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 10.9</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 10.10</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -5094,7 +5094,7 @@
         if (meta.parentId[j] !== tableRowId || /^gristHelper_|^manualSort$/.test(meta.colId[j])) continue;
         var choiceOptions = null;
         try { choiceOptions = JSON.parse(meta.widgetOptions[j] || '{}').choiceOptions || null; } catch (e) { choiceOptions = null; }
-        cols.push({ id: meta.colId[j], label: meta.label[j] || meta.colId[j], type: bulkBaseType(meta.type[j]), choiceOptions: choiceOptions });
+        cols.push({ id: meta.colId[j], label: meta.label[j] || meta.colId[j], type: bulkBaseType(meta.type[j]), fullType: meta.type[j], choiceOptions: choiceOptions });
       }
       return grist.docApi.fetchTable(tableId).then(function (data) { return { tableId: tableId, cols: cols, data: data }; });
     }).then(function (r) {
@@ -6219,6 +6219,20 @@
     var key = normalizeKey(textOf(affectation)).replace(/[^A-Z0-9]/g, '');
     return FA_GROUP_CODES.indexOf(key) !== -1 ? key : 'RGIF';
   }
+  // Jour calendaire d'une valeur Date / DateTime de Grist, ramené à minuit UTC : les comparaisons se font ainsi au
+  // jour près, quelle que soit l'heure stockée (colonne DateTime : jour dans le fuseau de la colonne, ex. Europe/Paris).
+  function dayOfValue(v, fullType) {
+    var d = dateOf(v);
+    if (!d) return null;
+    var m = /^DateTime:(.+)$/.exec(String(fullType || ''));
+    if (m) {
+      try {
+        var p = new Intl.DateTimeFormat('en-CA', { timeZone: m[1], year: 'numeric', month: '2-digit', day: '2-digit' }).format(d).split('-');
+        return new Date(Date.UTC(Number(p[0]), Number(p[1]) - 1, Number(p[2])));
+      } catch (e) { /* fuseau inconnu : jour UTC */ }
+    }
+    return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+  }
   function sameDayUTC(a, b) { return !!a && !!b && a.getTime() === b.getTime(); }
   function addDaysUTC(d, n) { return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + n)); }
 
@@ -6238,7 +6252,7 @@
       var cols = [];
       for (var j = 0; j < meta.id.length; j++) {
         if (meta.parentId[j] !== tableRowId || /^gristHelper_|^manualSort$/.test(meta.colId[j])) continue;
-        cols.push({ id: meta.colId[j], label: meta.label[j] || meta.colId[j] });
+        cols.push({ id: meta.colId[j], label: meta.label[j] || meta.colId[j], fullType: meta.type[j] });
       }
       return grist.docApi.fetchTable(tableId).then(function (data) { return { tableId: tableId, cols: cols, data: data }; });
     }).then(function (r) {
@@ -6251,8 +6265,8 @@
       for (var i = 0; i < r.data.id.length; i++) {
         if (map.type && normalizeKey(textOf(r.data[map.type.id][i])) !== 'REPOS') continue;
         if (map.decision && normalizeKey(textOf(r.data[map.decision.id][i])) !== normalizeKey('Validée')) continue;
-        var debut = dateOf(r.data[map.debut.id][i]);
-        var fin = dateOf(r.data[map.fin.id][i]);
+        var debut = dayOfValue(r.data[map.debut.id][i], map.debut.fullType);
+        var fin = dayOfValue(r.data[map.fin.id][i], map.fin.fullType);
         if (!debut && !fin) continue; // ni début ni fin exploitable : ligne ignorée
         rows.push({ militaireId: Number(r.data[map.militaire.id][i]) || 0, debut: debut, fin: fin });
       }
@@ -6290,7 +6304,7 @@
     var finForm = settings.dateFinFormation ? parseFrDate(settings.dateFinFormation) : null;
     candidates.rows.forEach(function (row) {
       if (start && date.getTime() < start.getTime()) return; // stage pas encore commencé
-      var depart = settings.col.dateDepart ? dateOf(row.dateDepart) : null;
+      var depart = settings.col.dateDepart ? dayOfValue(row.dateDepart, (columnTypesMap[settings.table] || {})[settings.col.dateDepart]) : null;
       var effectiveEnd = depart || finForm;
       if (effectiveEnd && date.getTime() > effectiveEnd.getTime()) return; // déjà parti
       var isArrival = start && sameDayUTC(start, date);
@@ -6303,8 +6317,8 @@
     });
     (enc.rows || []).forEach(function (row) {
       if (normalizeKey(encText(row, 'fonction')) === 'ETUTEUR') return; // jamais compté dans le rationnaire
-      var debut = enc.cols.debut ? dateOf(row.f.debut) : null;
-      var fin = enc.cols.fin ? dateOf(row.f.fin) : null;
+      var debut = enc.cols.debut ? dayOfValue(row.f.debut, enc.cols.debut.fullType) : null;
+      var fin = enc.cols.fin ? dayOfValue(row.f.fin, enc.cols.fin.fullType) : null;
       if (debut && date.getTime() < debut.getTime()) return; // pas encore en détachement
       if (fin && date.getTime() > fin.getTime()) return; // détachement terminé
       var isArrival = debut && sameDayUTC(debut, date);
