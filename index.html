@@ -441,6 +441,20 @@
   .stg-flags .stg-transport__icon svg { width: 1.15rem; height: 1.15rem; }
   .stg-flags .stg-transport__icon--other { color: var(--bleu-france); }
   .stg-flags button.stg-transport__btn:hover { box-shadow: 0 0 0 2px rgba(92, 90, 43, 0.4), 0 1px 3px rgba(0, 0, 0, 0.15); }
+  /* Icône « sortie » (départ du stagiaire) : même pastille que les autres icônes ; rouge quand un départ est enregistré. */
+  .stg-depart-flag { display: inline-flex; align-items: center; justify-content: center; width: 2.1rem; height: 2.1rem; padding: 0; border: 0; border-radius: 999px; cursor: pointer; flex: none; font-size: 1.05rem;
+    background: #e6e2c4; color: var(--bleu-france); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); }
+  .stg-depart-flag.is-set { background: var(--background-contrast-error); color: var(--text-default-error); }
+  .stg-depart-flag:hover { box-shadow: 0 0 0 2px rgba(92, 90, 43, 0.4), 0 1px 3px rgba(0, 0, 0, 0.15); }
+  .depart-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.2rem 1rem; }
+  .depart-form .fr-input-group, .depart-form .fr-select-group { margin: 0 0 0.6rem; }
+  .depart-form__wide { grid-column: 1 / -1; }
+  .depart-multi { margin: 0 0 0.6rem; padding: 0.5rem 0.7rem; border: 1px solid var(--border-default-grey); border-radius: 0.4rem; background: var(--background-alt-grey); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.1rem 1rem; }
+  .depart-multi legend { grid-column: 1 / -1; padding: 0 0.3rem; }
+  .depart-multi .fr-checkbox-group { margin: 0.2rem 0; }
+  .depart-checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.1rem 1rem; margin-top: 0.4rem; padding: 0.5rem 0.7rem; border: 1px solid var(--border-default-grey); border-radius: 0.4rem; background: var(--background-alt-grey); }
+  .depart-checks .fr-checkbox-group { margin: 0.2rem 0; }
+  @media (max-width: 40rem) { .depart-form, .depart-checks, .depart-multi { grid-template-columns: 1fr; } }
   .stg-hero__id .cand-modal-dialog__title { font-size: 1.6em; }
 
   /* Onglets (Informations / Notation / Documents). */
@@ -1907,6 +1921,24 @@
   </div>
 </div>
 
+<!-- Départ d'un stagiaire : modale « Gérer le départ d'un stagiaire » (table Gestion des départs), ouverte par l'icône « sortie » de la fiche. -->
+<div class="bulk-dialog" id="departDialog" role="dialog" aria-modal="true" aria-labelledby="departTitle" hidden>
+  <div class="bulk-dialog__box bulk-dialog__box--md">
+    <div class="bulk-dialog__head">
+      <h3 class="fr-h6" id="departTitle">Gérer le départ d’un stagiaire</h3>
+      <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line" id="departClose" type="button" title="Fermer">Fermer</button>
+    </div>
+    <p class="fr-text--sm" id="departIntro"><strong></strong></p>
+    <div id="departBody"></div>
+    <p class="fr-error-text" id="departError" hidden></p>
+    <div class="bulk-dialog__foot">
+      <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm bulk-dialog__delete" id="departDelete" type="button" hidden>Supprimer le départ</button>
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm" id="departCancel" type="button">Annuler</button>
+      <button class="fr-btn fr-btn--sm" id="departSave" type="button">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modale "Fiche candidat" : ouverte au clic sur une bande de la liste
      (voir openCandidateModal), affiche l'intégralité des informations de
      la fiche candidat et les actions Accepter/Refuser sur les pièces
@@ -1928,7 +1960,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 10.13</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 11.4</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -2741,6 +2773,7 @@
       ['Table EAD (pièce EAD - Bloc 1)', known ? tableState(eadInfo && eadInfo.tableId, 'Alimentation EAD') : tableName('Alimentation EAD') + ' <span class="cfg-pill cfg-pill--na">non vérifiée</span>'],
       ['Table Encadrement (page Encadrement)', enc.loaded || enc.error ? tableState(enc.tableId, 'Encadrement') : tableName('Encadrement') + ' <span class="cfg-pill cfg-pill--na">non vérifiée</span>'],
       ['Table Appréciation stagiaires (onglet Notation des stagiaires)', appr.loaded || appr.error ? tableState(appr.tableId, 'Appréciation stagiaires') : tableName('Appréciation stagiaires') + ' <span class="cfg-pill cfg-pill--na">non vérifiée</span>'],
+      ['Table Gestion des départs (icône « sortie » de la fiche stagiaire)', dep.loaded || dep.error ? tableState(dep.tableId, 'Gestion des départs') : tableName('Gestion des départs') + ' <span class="cfg-pill cfg-pill--na">non vérifiée</span>'],
       ['Table Editeur de documents (page Générer doc. en lot)', bulk.loaded || bulk.error ? tableState(bulk.tableId, 'Editeur de documents') : tableName('Editeur de documents') + ' <span class="cfg-pill cfg-pill--na">non vérifiée</span>']
     ]);
 
@@ -2939,6 +2972,7 @@
     loadBulk();
     loadEncadrement();
     loadAppreciations();
+    loadDeparts();
     if (hardTablesError) {
       candidates = { rows: [], loaded: false, error: hardTablesError };
       renderAll();
@@ -4525,6 +4559,295 @@
     return p;
   }
 
+  // ---- Départ d'un stagiaire : icône « sortie » de la fiche + modale « Gérer le départ d'un stagiaire » ------
+  // Table « Gestion des départs » (en dur, retrouvée par son nom) : une ligne par stagiaire (colonne « Stagiaire » =
+  // référence vers la table des stagiaires) ; les autres colonnes (Cadre, Motif de départ, Date de départ,
+  // Paquetage_1, Paquetage_2, Literie, Passant compagnie…) sont présentées selon leur type (liste, date, case à
+  // cocher, texte). La date de départ est obligatoire. Une icône rouge dans l'en-tête de la fiche signale un départ déjà enregistré.
+  var DEP_TABLE = 'GESTION DES DEPARTS';
+  var DEP_MOTIFS = ['Ne s’est pas présenté', 'Démission', 'Blessure', 'Exclusion', 'Fin d’acculturation']; // repli si la colonne « Motif de départ » n'a pas de choix
+  var DEP_LABELS = { 'PAQUETAGE 1': 'Cochez les éléments de paquetage réintégrés', 'PAQUETAGE 2': 'Cochez les éléments de paquetage réintégrés', 'LITERIE': 'Le stagiaire a réintégré sa literie', 'PASSANT COMPAGNIE': 'Le stagiaire a réintégré son passant (ou départ avant la marche au passant)' }; // libellé affiché à la place de celui de la colonne
+  var dep = { loaded: false, error: '', tableId: '', stagiaireCol: null, fields: [], refs: {}, byStagiaire: {} };
+  function loadDeparts() {
+    return Promise.all([grist.docApi.listTables(), grist.docApi.fetchTable('_grist_Tables'), grist.docApi.fetchTable('_grist_Tables_column')]).then(function (res) {
+      var tableId = null;
+      res[0].forEach(function (t) { if (!tableId && bulkKey(t) === DEP_TABLE) tableId = t; });
+      if (!tableId) throw new Error('Table « Gestion des départs » introuvable dans ce document.');
+      var tables = res[1], meta = res[2], tableRowId = null, colIdOf = {};
+      for (var i = 0; i < tables.id.length; i++) if (tables.tableId[i] === tableId) tableRowId = tables.id[i];
+      for (var k = 0; k < meta.id.length; k++) colIdOf[meta.id[k]] = meta.colId[k];
+      var cols = [];
+      for (var j = 0; j < meta.id.length; j++) {
+        if (meta.parentId[j] !== tableRowId || /^gristHelper_|^manualSort$/.test(meta.colId[j])) continue;
+        var choices = [];
+        try { choices = (JSON.parse(meta.widgetOptions[j] || '{}').choices) || []; } catch (e) { choices = []; }
+        cols.push({ id: meta.colId[j], label: meta.label[j] || meta.colId[j], type: bulkBaseType(meta.type[j]), fullType: String(meta.type[j] || ''), choices: choices, pos: meta.parentPos[j],
+          visible: meta.visibleCol ? colIdOf[meta.visibleCol[j]] || '' : '',
+          formula: !!meta.isFormula[j] && String(meta.formula ? meta.formula[j] : '').trim() !== '' });
+      }
+      cols.sort(function (a, b) { return a.pos - b.pos; });
+      var stagCol = bulkFindCol(cols, 'STAGIAIRE');
+      if (!stagCol) throw new Error('Colonne « Stagiaire » introuvable dans la table « ' + tableId + ' ».');
+      var fields = cols.filter(function (c) {
+        return c !== stagCol && !c.formula && ['Text', 'Choice', 'ChoiceList', 'Date', 'DateTime', 'Bool', 'Int', 'Numeric', 'Ref'].indexOf(c.type) !== -1;
+      });
+      // Colonnes de référence (ex. « Cadre » liée à une autre table) : valeurs proposées dans la liste déroulante.
+      var refs = {};
+      var refJobs = fields.filter(function (c) { return c.type === 'Ref'; }).map(function (c) {
+        var target = c.fullType.split(':')[1];
+        if (!target) return Promise.resolve();
+        return grist.docApi.fetchTable(target).then(function (t) {
+          var vc = c.visible && t[c.visible] ? c.visible : Object.keys(t).filter(function (n) { return n !== 'id' && !/^gristHelper_|^manualSort$/.test(n); })[0];
+          refs[c.id] = t.id.map(function (rid, n) { return { id: rid, label: vc ? textOf(t[vc][n]) : String(rid) }; });
+        }).catch(function () { refs[c.id] = []; });
+      });
+      return Promise.all(refJobs).then(function () { return grist.docApi.fetchTable(tableId); }).then(function (data) {
+        var byStagiaire = {};
+        for (var n = 0; n < data.id.length; n++) {
+          var sid = Number(data[stagCol.id][n]) || 0;
+          if (!sid) continue;
+          var vals = {};
+          cols.forEach(function (c) { vals[c.id] = data[c.id] ? data[c.id][n] : null; });
+          byStagiaire[sid] = { id: data.id[n], vals: vals }; // plusieurs lignes : la dernière (la plus récente) fait foi
+        }
+        dep = { loaded: true, error: '', tableId: tableId, stagiaireCol: stagCol, fields: fields, refs: refs, byStagiaire: byStagiaire, allCols: cols };
+      });
+    }).catch(function (e) {
+      dep = { loaded: false, error: friendlyErrorMessage(e), tableId: '', stagiaireCol: null, fields: [], refs: {}, byStagiaire: {} };
+    }).then(function () {
+      if (currentModalRowId !== null && currentModalKind === 'stagiaire' && !dEditRole && candModalOverlay.hidden === false) renderModalContent();
+      renderSourcesPanel();
+    });
+  }
+  function depField(key) { return dep.fields.filter(function (c) { return bulkKey(c.id) === key || bulkKey(c.label) === key; })[0] || null; }
+  // Icône « sortie » de l'en-tête de la fiche (à côté des icônes d'alerte) : ouvre la modale de gestion du départ.
+  function stgDepartFlag(row) {
+    var rec = dep.byStagiaire[row.id];
+    var info = '';
+    if (rec) {
+      var dc = depField('DATE DE DEPART'), mc = depField('MOTIF DE DEPART');
+      var d = dc ? dayOfValue(rec.vals[dc.id], dc.fullType) : null;
+      info = ' le ' + (d ? fmtDateFr(d) : 'date non renseignée') + (mc && textOf(rec.vals[mc.id]) ? ' (' + textOf(rec.vals[mc.id]) + ')' : '');
+    }
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'stg-depart-flag' + (rec ? ' is-set' : '');
+    btn.title = rec ? 'Départ enregistré' + info + ' — cliquer pour gérer' : 'Gérer le départ du stagiaire';
+    btn.setAttribute('aria-label', rec ? 'Départ enregistré' + info + ' (gérer)' : 'Gérer le départ du stagiaire');
+    btn.innerHTML = '<span class="fr-icon-logout-box-r-line" aria-hidden="true"></span>';
+    btn.addEventListener('click', function () { openDepartDialog(row); });
+    return btn;
+  }
+  var departDialog = document.getElementById('departDialog');
+  var departIntroEl = document.getElementById('departIntro');
+  var departBodyEl = document.getElementById('departBody');
+  var departErrorEl = document.getElementById('departError');
+  var departSaveBtn = document.getElementById('departSave');
+  var departCancelBtn = document.getElementById('departCancel');
+  var departDeleteBtn = document.getElementById('departDelete');
+  var departState = { row: null, getters: [], busy: false, confirmDelete: false };
+  function closeDepartDialog() { if (departState.busy) return; departDialog.hidden = true; }
+  function departShowError(msg) { departErrorEl.hidden = !msg; departErrorEl.textContent = msg || ''; }
+  function departFieldControl(c, rec, idx) {
+    var id = 'departF_' + idx, v = rec ? rec.vals[c.id] : null;
+    var key = bulkKey(c.label), wrap = document.createElement('div');
+    var label = document.createElement('label');
+    label.className = 'fr-label';
+    label.setAttribute('for', id);
+    label.textContent = (DEP_LABELS[key] || c.label) + (key === 'DATE DE DEPART' ? ' (obligatoire)' : '');
+    var control, get;
+    if (c.type === 'Bool') {
+      wrap.className = 'fr-checkbox-group fr-checkbox-group--sm';
+      control = document.createElement('input');
+      control.type = 'checkbox';
+      control.id = id;
+      control.checked = v === true;
+      wrap.appendChild(control);
+      wrap.appendChild(label);
+      return { el: wrap, bool: true, get: function () { return control.checked; } };
+    }
+    if (c.type === 'ChoiceList') {
+      // Liste à choix multiples : une case par choix de la colonne (valeur Grist : ['L', choix, …]).
+      var fs = document.createElement('fieldset');
+      fs.className = 'depart-multi depart-form__wide';
+      var legend = document.createElement('legend');
+      legend.className = 'fr-label';
+      legend.textContent = DEP_LABELS[key] || c.label;
+      legend.title = c.label; // les deux listes de paquetage portent le même intitulé : le nom de la colonne est en info-bulle
+      fs.appendChild(legend);
+      var current = Array.isArray(v) ? v.slice(1).map(String) : [];
+      var all = c.choices.map(String);
+      current.forEach(function (x) { if (all.indexOf(x) === -1) all.push(x); });
+      var boxes = [];
+      all.forEach(function (name, n) {
+        var g = document.createElement('div');
+        g.className = 'fr-checkbox-group fr-checkbox-group--sm';
+        var cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.id = id + '_' + n;
+        cb.value = name;
+        cb.checked = current.indexOf(name) !== -1;
+        var lb = document.createElement('label');
+        lb.className = 'fr-label';
+        lb.setAttribute('for', cb.id);
+        lb.textContent = name;
+        g.appendChild(cb);
+        g.appendChild(lb);
+        fs.appendChild(g);
+        boxes.push(cb);
+      });
+      if (!all.length) {
+        var none = document.createElement('p');
+        none.className = 'fr-hint-text';
+        none.textContent = 'Aucun choix défini dans cette colonne.';
+        fs.appendChild(none);
+      }
+      return { el: fs, bool: false, get: function () {
+        var sel = boxes.filter(function (b) { return b.checked; }).map(function (b) { return b.value; });
+        return sel.length ? ['L'].concat(sel) : null;
+      } };
+    }
+    wrap.className = (c.type === 'Choice' || c.type === 'Ref' ? 'fr-select-group' : 'fr-input-group');
+    if (c.type === 'Choice' || c.type === 'Ref' || key === 'MOTIF DE DEPART') {
+      control = document.createElement('select');
+      control.className = 'fr-select';
+      wrap.className = 'fr-select-group';
+      var opts = [];
+      if (c.type === 'Ref') {
+        // « Cadre » est une référence vers la table Encadrement : libellé « Grade NOM Prénom », trié par nom (données déjà chargées pour la page Encadrement).
+        if (enc.loaded && bulkKey(c.fullType.split(':')[1]) === ENC_TABLE) {
+          opts = enc.rows.slice().sort(compareEncRows).map(function (r) {
+            return { value: String(r.id), label: [encText(r, 'grade'), encDisplayName(r)].filter(Boolean).join(' ') };
+          });
+        } else opts = (dep.refs[c.id] || []).map(function (o) { return { value: String(o.id), label: o.label }; });
+      }
+      if (c.type !== 'Ref') {
+        var list = c.choices.length ? c.choices : (key === 'MOTIF DE DEPART' ? DEP_MOTIFS : []);
+        opts = list.map(function (o) { return { value: o, label: o }; });
+      }
+      var cur = c.type === 'Ref' ? (Number(v) ? String(Number(v)) : '') : textOf(v);
+      if (cur && !opts.some(function (o) { return o.value === cur; })) opts.push({ value: cur, label: cur });
+      control.appendChild(new Option('— Non renseigné —', ''));
+      opts.forEach(function (o) { control.appendChild(new Option(o.label, o.value)); });
+      control.value = cur;
+      get = function () { return c.type === 'Ref' ? (Number(control.value) || 0) : control.value; };
+    } else if (c.type === 'Date' || c.type === 'DateTime') {
+      control = document.createElement('input');
+      control.type = 'date';
+      control.className = 'fr-input';
+      var dd = dayOfValue(v, c.fullType);
+      control.value = dd ? dd.toISOString().slice(0, 10) : '';
+      get = function () { return control.value ? Date.UTC(+control.value.slice(0, 4), +control.value.slice(5, 7) - 1, +control.value.slice(8, 10)) / 1000 : null; };
+    } else if (c.type === 'Int' || c.type === 'Numeric') {
+      control = document.createElement('input');
+      control.type = 'number';
+      control.className = 'fr-input';
+      if (c.type === 'Int') control.step = '1';
+      control.value = typeof v === 'number' ? String(v) : '';
+      get = function () { return control.value === '' ? null : Number(control.value); };
+    } else {
+      control = document.createElement('input');
+      control.type = 'text';
+      control.className = 'fr-input';
+      control.value = textOf(v);
+      get = function () { return control.value; };
+    }
+    control.id = id;
+    wrap.appendChild(label);
+    wrap.appendChild(control);
+    return { el: wrap, bool: false, get: get, control: control, isDate: key === 'DATE DE DEPART' };
+  }
+  function openDepartDialog(row) {
+    departState = { row: row, getters: [], busy: false, confirmDelete: false };
+    departIntroEl.textContent = stagiaireDisplayName(row);
+    departBodyEl.innerHTML = '';
+    departShowError('');
+    departDeleteBtn.hidden = true;
+    departDeleteBtn.textContent = 'Supprimer le départ';
+    departCancelBtn.disabled = false;
+    if (!dep.loaded) {
+      var p = document.createElement('p');
+      p.className = 'fr-text--sm';
+      p.textContent = dep.error || 'Chargement de la table « Gestion des départs »…';
+      departBodyEl.appendChild(p);
+      departSaveBtn.disabled = true;
+    } else {
+      var rec = dep.byStagiaire[row.id] || null;
+      var form = document.createElement('div');
+      form.className = 'depart-form';
+      var checks = document.createElement('div');
+      checks.className = 'depart-checks';
+      dep.fields.forEach(function (c, i) {
+        var f = departFieldControl(c, rec, i);
+        f.col = c;
+        departState.getters.push(f);
+        (f.bool ? checks : form).appendChild(f.el);
+      });
+      departBodyEl.appendChild(form);
+      if (checks.children.length) departBodyEl.appendChild(checks);
+      departSaveBtn.disabled = false;
+      departDeleteBtn.hidden = !rec;
+    }
+    departDialog.hidden = false;
+    var first = departBodyEl.querySelector('input,select');
+    (first || departCancelBtn).focus();
+  }
+  function departWrite(actions) {
+    departState.busy = true;
+    departSaveBtn.disabled = true;
+    departCancelBtn.disabled = true;
+    departDeleteBtn.disabled = true;
+    departShowError('');
+    return grist.docApi.applyUserActions(actions).then(function () {
+      departState.busy = false;
+      departCancelBtn.disabled = false;
+      departDeleteBtn.disabled = false;
+      closeDepartDialog();
+      return loadDeparts();
+    }).catch(function (e) {
+      departState.busy = false;
+      departSaveBtn.disabled = false;
+      departCancelBtn.disabled = false;
+      departDeleteBtn.disabled = false;
+      departShowError('Enregistrement impossible : ' + friendlyErrorMessage(e));
+    });
+  }
+  departSaveBtn.addEventListener('click', function () {
+    if (departState.busy || !dep.loaded) return;
+    var fields = {};
+    var missing = null;
+    departState.getters.forEach(function (f) {
+      var val = f.get();
+      if (f.isDate && (val === null || val === '')) missing = f;
+      fields[f.col.id] = val;
+    });
+    if (missing) { departShowError('La date de départ est obligatoire.'); missing.control.focus(); return; }
+    var rec = dep.byStagiaire[departState.row.id];
+    var action;
+    if (rec) action = ['UpdateRecord', dep.tableId, rec.id, fields];
+    else {
+      fields[dep.stagiaireCol.id] = departState.row.id;
+      action = ['AddRecord', dep.tableId, null, fields];
+    }
+    departWrite([action]);
+  });
+  departDeleteBtn.addEventListener('click', function () {
+    var rec = dep.byStagiaire[departState.row.id];
+    if (!rec || departState.busy) return;
+    if (!departState.confirmDelete) {
+      departState.confirmDelete = true;
+      departDeleteBtn.textContent = 'Confirmer la suppression';
+      return;
+    }
+    departWrite([['RemoveRecord', dep.tableId, rec.id]]);
+  });
+  document.getElementById('departClose').addEventListener('click', closeDepartDialog);
+  departCancelBtn.addEventListener('click', closeDepartDialog);
+  var departDownOnBackdrop = false;
+  departDialog.addEventListener('mousedown', function (e) { departDownOnBackdrop = e.target === departDialog; });
+  departDialog.addEventListener('click', function (e) { if (e.target === departDialog && departDownOnBackdrop) closeDepartDialog(); });
+  departDialog.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); closeDepartDialog(); } });
+
   // Curseur DSFR (composant « Curseur » : .fr-range) à 5 crans. Le script DSFR n'étant pas chargé, la position de
   // la pastille et le remplissage sont pilotés par la variable CSS --ratio (voir .appr-slider).
   function buildApprItem(row, d, idx, onChange) {
@@ -5274,6 +5597,7 @@
       flags.appendChild(imgFlag);
     }
     if (settings.col.modeTransport) flags.appendChild(stgTransportFlag(row)); // mode de transport, à côté des icônes d'alerte
+    flags.appendChild(stgDepartFlag(row)); // départ du stagiaire (modale « Gérer le départ »)
     var closeBtn = document.createElement('button');
     closeBtn.type = 'button';
     closeBtn.className = 'fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-line cand-modal-dialog__close';
@@ -6173,7 +6497,7 @@
     Object.keys(bulkSelected).forEach(function (id) { if (!existing[id]) delete bulkSelected[id]; });
 
     var rows = bulkVisibleRows(!manage);
-    countEl.textContent = rows.length + ' document(s) affiché(s) sur ' + (bulk.rows.length + (manage ? 0 : 1));
+    countEl.textContent = rows.length + ' document(s) affiché(s) sur ' + (bulk.rows.length + (manage ? 0 : bulkBuiltinRows().length));
     resetBtn.disabled = !bulkSearchText.trim();
     if (!rows.length) {
       zone.innerHTML = '<p class="cand-empty-state">Aucun document collectif à afficher.</p>';
