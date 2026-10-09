@@ -2120,7 +2120,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 16.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 16.1</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -7916,7 +7916,7 @@
     });
     return box;
   }
-  // Courbes cumulées en escaliers, sur une vraie échelle de temps : le total (trait plein, un point par jour de départ) et, en option,
+  // Courbes cumulées sur une vraie échelle de temps (un point par jour) : le total (trait plein, un point par jour de départ) et, en option,
   // une courbe pastel en pointillés variés par série (motif). points = [{ t (ms, minuit UTC), value, parts? }], series = [{ label, color, values }].
   var STAT_DASH = ['', '7 4', '2 3', '9 3 2 3', '4 4', '1 4'];
   function statLine(points, series, range) {
@@ -7946,16 +7946,19 @@
       add('line', { x1: X(tt), x2: X(tt), y1: Y(0), y2: Y(0) + 4, class: 'stat-line__tick' });
       add('text', { x: X(tt), y: H - 10, 'text-anchor': d === 0 ? 'start' : 'middle', class: 'stat-line__ax' }, fmtDateFr(dt).slice(0, d === 0 || tt + dstep * DAY > t1 ? 10 : 5));
     }
-    // Escalier : palier horizontal jusqu'à la date, puis marche verticale
-    function stair(vals) {
-      var path = 'M' + X(t0) + ',' + Y(0), prev = 0;
-      points.forEach(function (p, i) { path += ' H' + X(p.t) + ' V' + Y(vals[i]); prev = vals[i]; });
-      return path + ' H' + X(t1);
+    // Courbe journalière : un point par jour de la période (cumul à ce jour), reliés par des segments ; plate entre deux départs.
+    function curve(vals) {
+      var path = '', j = -1, cur = 0;
+      for (var t = t0; t <= t1; t += DAY) {
+        while (j + 1 < points.length && points[j + 1].t <= t) { j++; cur = vals[j]; }
+        path += (path ? ' L' : 'M') + X(t).toFixed(1) + ',' + Y(cur).toFixed(1);
+      }
+      return path;
     }
-    var area = add('path', { d: stair(points.map(function (p) { return p.value; })) + ' V' + Y(0) + ' H' + X(t0) + ' Z', class: 'stat-line__area' });
-    add('path', { d: stair(points.map(function (p) { return p.value; })), class: 'stat-line__path' });
+    var area = add('path', { d: curve(points.map(function (p) { return p.value; })) + ' L' + X(t1).toFixed(1) + ',' + Y(0) + ' L' + X(t0).toFixed(1) + ',' + Y(0) + ' Z', class: 'stat-line__area' });
+    add('path', { d: curve(points.map(function (p) { return p.value; })), class: 'stat-line__path' });
     series.forEach(function (sr, k) {
-      var pl = add('path', { d: stair(sr.values), class: 'stat-line__serie' });
+      var pl = add('path', { d: curve(sr.values), class: 'stat-line__serie' });
       pl.style.stroke = sr.color;
       if (STAT_DASH[k % STAT_DASH.length]) pl.setAttribute('stroke-dasharray', STAT_DASH[k % STAT_DASH.length]);
       var t = document.createElementNS(NS, 'title'); t.textContent = sr.label + ' : ' + sr.values[sr.values.length - 1] + ' au total'; pl.appendChild(t);
