@@ -1332,6 +1332,10 @@
   .stat-leg { display: flex; flex-wrap: wrap; gap: 0.25rem 1.1rem; margin: 0.75rem 0 0; padding: 0; list-style: none; font-size: 0.8125rem; }
   .stat-leg li { display: inline-flex; align-items: center; margin: 0; }
   .stat-leg li::before { content: none; }
+  .stat-leg__btn { display: inline-flex; align-items: center; padding: 0.15rem 0.5rem; margin: 0 -0.5rem; border: 1px solid transparent; border-radius: 0.25rem; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+  .stat-leg__btn:hover { background: var(--st-tint); }
+  .stat-leg__btn[aria-pressed="true"] { border-color: var(--st-blue); background: var(--st-tint); font-weight: 700; }
+  .stat-leg__btn:focus-visible { outline: 2px solid var(--st-blue); outline-offset: 2px; }
   .stat-leg__sw { display: inline-block; width: 1rem; height: 1rem; margin-right: 0.4rem; border-radius: 3px; }
   .stat-gchart { overflow-x: auto; }
   .stat-gc__bars { display: flex; align-items: flex-end; gap: 0.35rem; height: 7.5rem; padding-top: 0.25rem; border-bottom: 1px solid var(--st-line); }
@@ -2120,7 +2124,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 16.1</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 16.3</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -3378,6 +3382,7 @@
     searchText = '';
     candSearchInput.value = '';
     docFilter = 'all';
+    docLegendFilter = null;
     candDocFilterEl.value = 'all';
     renderCandidates();
   });
@@ -3506,10 +3511,17 @@
       opt.textContent = DOC_FILTER_LABELS[key] + ' (' + n + ')';
     });
     // Le bouton n'est actif que si un filtre (recherche ou documents) l'est.
-    candResetBtn.disabled = docFilter === 'all' && !searchText.trim();
+    candResetBtn.disabled = docFilter === 'all' && !searchText.trim() && !docLegendFilter;
   }
 
+  // Filtre posé en cliquant sur la légende du graphique « Suivi des pièces du dossier » : 'ok' | 'pending' | 'rejected' | 'missing'
+  // (candidats ayant au moins une pièce dans cet état), ou null.
+  var docLegendFilter = null;
   function matchesFilters(row, skipDocFilter) {
+    if (docLegendFilter) {
+      var lroles = ATTACHMENT_ROLES.filter(function (r) { return settings.col[r]; });
+      if (!lroles.some(function (r) { return docStatus(row, r) === docLegendFilter; })) return false;
+    }
     if (searchText.trim()) {
       var q = normalizeKey(searchText);
       var hay = normalizeKey(textOf(row.nid) + ' ' + stagiaireDisplayName(row) + ' ' + textOfRef(row.inscriptionBande) + ' ' + textOf(row.numCand) + ' ' + (settings.col.email ? textOf(row.email) : ''));
@@ -7237,11 +7249,13 @@
   }
   // Mise à jour des N° CAND : seulement l'adresse e-mail (identification) et le N° CAND (valeur écrite).
   function numCandImportFields() {
-    return stgImportFields().filter(function (f) { return f.role === 'numCand' || f.role === 'email'; }).map(function (f) {
+    return stgImportFields().filter(function (f) { return f.role === 'numCand' || f.role === 'email' || f.role === 'nom' || f.role === 'prenom'; }).map(function (f) {
       var alias = f.alias ? f.alias.slice() : [];
       if (f.role === 'numCand') alias = alias.concat(['NUMEROCANDIDAT', 'NUMERODECANDIDAT', 'NCANDIDAT', 'CAND', 'NCANDIDATURE', 'NUMEROCANDIDATURE']);
-      else alias = alias.concat(['EMAIL', 'MAIL', 'COURRIEL', 'ADRESSEEMAIL', 'ADRESSEMAIL', 'ADRESSEELECTRONIQUE', 'EMAILPERSO']);
-      return Object.assign({}, f, { alias: alias });
+      else if (f.role === 'email') alias = alias.concat(['EMAIL', 'MAIL', 'COURRIEL', 'ADRESSEEMAIL', 'ADRESSEMAIL', 'ADRESSEELECTRONIQUE', 'EMAILPERSO']);
+      else if (f.role === 'nom') alias = alias.concat(['NOM', 'NOMDENAISSANCE', 'NOMDUSAGE', 'NOMPATRONYMIQUE', 'NOMDEFAMILLE']);
+      else alias = alias.concat(['PRENOM', 'PRENOMS', 'PRENOMDEUSAGE']);
+      return Object.assign({}, f, { alias: alias, keyOnly: f.role !== 'numCand' });
     });
   }
   function impFieldKeys(f) { return [impKey(f.label), impKey(f.role), impKey(f.colId)].concat(f.alias || []); }
@@ -7251,7 +7265,7 @@
     { kind: 'stagiaires', id: 'numCand', label: 'N° CAND', roles: ['numCand'], keys: function (r) { return [impKey(textOf(r.numCand))]; } },
     { kind: 'stagiaires', id: 'nigend', label: 'Nigend', roles: ['nigend'], keys: function (r) { return [impKey(textOf(r.nigend))]; } },
     { kind: 'stagiaires', id: 'email', label: 'E-mail', roles: ['email'], norm: impEmail, keys: function (r) { return [impEmail(textOf(r.email))]; } },
-    { kind: 'numCand', id: 'email', label: 'Adresse e-mail', roles: ['email'], norm: impEmail, keys: function (r) { return [impEmail(textOf(r.email))]; } },
+    { kind: 'numCand', id: 'auto', label: 'Adresse e-mail, à défaut nom et prénom', roles: [], auto: true },
     { kind: 'stagiaires', id: 'nomPrenom', label: 'Nom + Prénom', roles: ['nom', 'prenom'], keys: function (r) { var p = nameParts(r); return [impKey(p.nom + p.prenom), impKey(p.prenom + p.nom)]; } },
     { kind: 'stagiaires', id: 'stagiaire', label: 'Stagiaire (nom complet)', roles: ['stagiaire'], keys: function (r) { return [impKey(stagiaireDisplayName(r)), impKey(fullNamePrenomNom(r))]; } },
     { kind: 'encadrement', id: 'nigend', label: 'Nigend', roles: ['nigend'], keys: function (r) { return [impKey(encText(r, 'nigend'))]; } },
@@ -7327,7 +7341,7 @@
     imp = { kind: kind, fields: kind === 'encadrement' ? encImportFields() : kind === 'numCand' ? numCandImportFields() : stgImportFields(), headers: [], rows: [], map: [], keyId: '', clearEmpty: false, plan: null, busy: false };
     document.getElementById('importTitle').textContent = kind === 'stagiaires' ? 'Mettre à jour les stagiaires depuis un .csv' : kind === 'numCand' ? 'Mettre à jour les N° CAND depuis un .csv' : 'Mettre à jour l’encadrement depuis un .csv';
     document.getElementById('importIntro').textContent = kind === 'numCand' ?
-      'Le fichier doit contenir deux colonnes (titres sur la première ligne) : « N° CAND » et l’adresse e-mail du candidat. Chaque stagiaire est retrouvé par son adresse e-mail et reçoit son N° CAND ; rien n’est écrit avant votre confirmation.' :
+      'Le fichier doit contenir la colonne « N° CAND » et, pour retrouver chaque stagiaire, son adresse e-mail et/ou ses nom et prénom (titres sur la première ligne). Le stagiaire est cherché d’abord par e-mail, à défaut par nom et prénom ; rien n’est écrit avant votre confirmation.' :
       'La première ligne du fichier contient les titres des colonnes (mêmes libellés que l’export .csv). Chaque ligne met à jour ' + (kind === 'stagiaires' ? 'le stagiaire identifié' : 'le membre de l’encadrement identifié') + ' par la colonne choisie ; rien n’est écrit avant votre confirmation.';
     importFileEl.value = '';
     importBodyEl.innerHTML = '';
@@ -7379,6 +7393,7 @@
     var recognized = {};
     imp.map.forEach(function (f) { if (f) recognized[f.role] = true; });
     var opts = IMP_KEY_OPTIONS.filter(function (o) { return o.kind === imp.kind && o.roles.every(function (r) { return recognized[r]; }); });
+    if (imp.kind === 'numCand') opts = recognized.numCand && (recognized.email || (recognized.nom && recognized.prenom)) ? IMP_KEY_OPTIONS.filter(function (o) { return o.kind === 'numCand'; }) : [];
     imp.keyOptions = opts;
     imp.keyId = opts.length ? opts[0].id : '';
   }
@@ -7387,23 +7402,47 @@
     var plan = { opt: opt, matched: 0, unmatched: [], ambiguous: [], invalid: [], changes: [], rowsChanged: {} };
     imp.plan = plan;
     if (!opt) return;
-    var index = {};
-    impRows().forEach(function (r) {
-      opt.keys(r).forEach(function (k) { if (k) { (index[k] = index[k] || []); if (index[k].indexOf(r) === -1) index[k].push(r); } });
+    var index = {}, nameIndex = {};
+    function addIndex(map, k, r) { if (k) { (map[k] = map[k] || []); if (map[k].indexOf(r) === -1) map[k].push(r); } }
+    if (opt.auto) {
+      impRows().forEach(function (r) {
+        addIndex(index, impEmail(textOf(r.email)), r);
+        var np = nameParts(r);
+        addIndex(nameIndex, impKey(np.nom + np.prenom), r); addIndex(nameIndex, impKey(np.prenom + np.nom), r);
+      });
+    } else impRows().forEach(function (r) {
+      opt.keys(r).forEach(function (k) { addIndex(index, k, r); });
     });
     var colOf = {}; // champ -> numéro de colonne du fichier
     imp.map.forEach(function (f, i) { if (f) colOf[f.role] = i; });
-    var keyRoles = opt.roles;
+    var keyRoles = opt.auto ? ['email', 'nom', 'prenom'] : opt.roles;
     var updatable = imp.map.map(function (f, i) { return f && !f.keyOnly && keyRoles.indexOf(f.role) === -1 ? { f: f, i: i } : null; }).filter(Boolean);
+    var found;
     imp.rows.forEach(function (cells, n) {
-      var csvKeys;
-      if (opt.id === 'nomPrenom') csvKeys = [impKey((cells[colOf.nom] || '') + (cells[colOf.prenom] || ''))];
+      var csvKeys, via = '';
+      if (opt.auto) {
+        // 1. adresse e-mail ; 2. à défaut (ou si plusieurs fiches la partagent), nom + prénom du fichier
+        var em = impEmail(cells[colOf.email] || ''), nm = impKey((cells[colOf.nom] || '') + (cells[colOf.prenom] || ''));
+        var byMail = em ? (index[em] || []) : [], byName = nm ? (nameIndex[nm] || []) : [], hit = byMail;
+        via = 'e-mail';
+        if (byMail.length !== 1) {
+          var both = byMail.filter(function (r) { return byName.indexOf(r) !== -1; });
+          if (both.length === 1) { hit = both; via = 'e-mail et nom'; }
+          else if (!byMail.length && byName.length) { hit = byName; via = 'nom et prénom'; }
+        }
+        var lab = [String(cells[colOf.nom] || '').trim(), String(cells[colOf.prenom] || '').trim()].filter(Boolean).join(' ') || String(cells[colOf.email] || '').trim();
+        if (!em && !nm) return;
+        if (!hit.length) { plan.unmatched.push('ligne ' + (n + 2 + imp.headerRow) + ' : ' + lab + (em ? ' (' + String(cells[colOf.email]).trim() + ')' : '')); return; }
+        if (hit.length > 1) { plan.ambiguous.push('ligne ' + (n + 2 + imp.headerRow) + ' : ' + lab + ' (' + hit.length + ' fiches)'); return; }
+        csvKeys = null;
+        found = hit;
+      } else if (opt.id === 'nomPrenom') csvKeys = [impKey((cells[colOf.nom] || '') + (cells[colOf.prenom] || ''))];
       else csvKeys = [opt.id === 'nid' ? nidKey(cells[colOf[opt.roles[0]]]) : (opt.norm || impKey)(cells[colOf[opt.roles[0]]] || '')];
-      var label = opt.id === 'nomPrenom' ? ((cells[colOf.nom] || '') + ' ' + (cells[colOf.prenom] || '')).trim() : String(cells[colOf[opt.roles[0]]] || '').trim();
-      if (!csvKeys[0]) return; // ligne sans identifiant : ignorée
-      var found = index[csvKeys[0]] || [];
-      if (!found.length) { plan.unmatched.push('ligne ' + (n + 2 + imp.headerRow) + ' : ' + label); return; }
-      if (found.length > 1) { plan.ambiguous.push('ligne ' + (n + 2 + imp.headerRow) + ' : ' + label + ' (' + found.length + ' fiches)'); return; }
+      var label = opt.auto ? '' : opt.id === 'nomPrenom' ? ((cells[colOf.nom] || '') + ' ' + (cells[colOf.prenom] || '')).trim() : String(cells[colOf[opt.roles[0]]] || '').trim();
+      if (!opt.auto && !csvKeys[0]) return; // ligne sans identifiant : ignorée
+      if (!opt.auto) found = index[csvKeys[0]] || [];
+      if (!opt.auto && !found.length) { plan.unmatched.push('ligne ' + (n + 2 + imp.headerRow) + ' : ' + label); return; }
+      if (!opt.auto && found.length > 1) { plan.ambiguous.push('ligne ' + (n + 2 + imp.headerRow) + ' : ' + label + ' (' + found.length + ' fiches)'); return; }
       var row = found[0];
       plan.matched++;
       updatable.forEach(function (u) {
@@ -7412,7 +7451,7 @@
         var conv = impConvert(u.f, raw);
         if (!conv.ok) { plan.invalid.push('ligne ' + (n + 2 + imp.headerRow) + ', « ' + u.f.label + ' » : ' + conv.error); return; }
         if (impSame(u.f, impVal(row, u.f.role), conv)) return;
-        plan.changes.push({ row: row, f: u.f, value: conv.value, before: impShow(u.f, impVal(row, u.f.role)), after: conv.shown });
+        plan.changes.push({ via: via, row: row, f: u.f, value: conv.value, before: impShow(u.f, impVal(row, u.f.role)), after: conv.shown });
         plan.rowsChanged[row.id] = true;
       });
     });
@@ -7425,7 +7464,7 @@
  add((imp.fileName ? 'Fichier : <strong>' + escapeHtml(imp.fileName) + '</strong> · ' : '') + '<strong>' + imp.rows.length + '</strong> ligne(s) lue(s)' + (imp.headerRow ? ' (titres des colonnes lus à la ligne ' + (imp.headerRow + 1) + ')' : '') + '. Colonnes reconnues (' + ok.length + ') : ' + (ok.map(function (f) { return escapeHtml(f.label); }).join(', ') || 'aucune') +
       (ignored.length ? '.<br>Ignorées (' + ignored.length + ') : ' + ignored.map(escapeHtml).join(', ') : '') + '.');
     if (imp.kind === 'numCand' && (!imp.keyOptions.length || !imp.map.some(function (f) { return f && f.role === 'numCand'; }))) {
-      add('Colonnes non reconnues : le fichier doit contenir une colonne <strong>N° CAND</strong> et une colonne <strong>E-mail</strong> (adresse du candidat).', 'fr-error-text');
+      add('Colonnes non reconnues : le fichier doit contenir une colonne <strong>N° CAND</strong> et une colonne <strong>E-mail</strong> (adresse du candidat) ou les colonnes <strong>Nom</strong> et <strong>Prénom</strong>.', 'fr-error-text');
       importGoBtn.disabled = true;
       return;
     }
@@ -7475,11 +7514,11 @@
       wrap.className = 'imp-table-wrap';
       var tbl = document.createElement('table');
       tbl.className = 'imp-table';
-      tbl.innerHTML = '<thead><tr><th>' + (impIsEnc() ? 'Membre' : 'Stagiaire') + '</th><th>Champ</th><th>Actuel</th><th>Nouveau</th></tr></thead>';
+      tbl.innerHTML = '<thead><tr><th>' + (impIsEnc() ? 'Membre' : 'Stagiaire') + '</th><th>Champ</th><th>Actuel</th><th>Nouveau</th>' + (imp.kind === 'numCand' ? '<th>Retrouvé par</th>' : '') + '</tr></thead>';
       var tb = document.createElement('tbody');
       plan.changes.slice(0, 200).forEach(function (c) {
         var tr = document.createElement('tr');
-        [impName(c.row), c.f.label, c.before || '—', c.after || '—'].forEach(function (t) { var td = document.createElement('td'); td.textContent = t; tr.appendChild(td); });
+        [impName(c.row), c.f.label, c.before || '—', c.after || '—'].concat(imp.kind === 'numCand' ? [c.via] : []).forEach(function (t) { var td = document.createElement('td'); td.textContent = t; tr.appendChild(td); });
         tb.appendChild(tr);
       });
       tbl.appendChild(tb);
@@ -7691,7 +7730,7 @@
     return table;
   }
   // Barres empilées en pastilles arrondies (une ligne par groupe) : chaque tranche passe sous l'extrémité arrondie de la précédente.
-  function statStacked(rows, partDefs) {
+  function statStacked(rows, partDefs, legendOpts) {
     var box = statEl('div', 'stat-eb');
     rows.forEach(function (r) {
       var total = r.parts.reduce(function (s, v) { return s + v; }, 0);
@@ -7711,10 +7750,18 @@
       box.appendChild(row);
     });
     var leg = statEl('ul', 'stat-leg');
-    partDefs.forEach(function (d) {
+    partDefs.forEach(function (d, i) {
       var li = statEl('li'), sw = statEl('span', 'stat-leg__sw');
       sw.style.background = d.color;
-      li.appendChild(sw); li.appendChild(document.createTextNode(d.label));
+      if (legendOpts && legendOpts.onToggle) {
+        // légende cliquable : un clic filtre la liste sur cet élément, un second clic lève le filtre
+        var b = statEl('button', 'stat-leg__btn'); b.type = 'button';
+        b.setAttribute('aria-pressed', legendOpts.active === i ? 'true' : 'false');
+        b.title = legendOpts.active === i ? 'Cliquer pour afficher à nouveau tous les candidats' : 'Cliquer pour n’afficher que les candidats ayant une pièce « ' + d.label + ' »';
+        b.appendChild(sw); b.appendChild(document.createTextNode(d.label));
+        b.addEventListener('click', function () { legendOpts.onToggle(i); });
+        li.appendChild(b);
+      } else { li.appendChild(sw); li.appendChild(document.createTextNode(d.label)); }
       leg.appendChild(li);
     });
     box.appendChild(leg);
@@ -7740,14 +7787,14 @@
     return box;
   }
   // Barres empilées : état de chaque pièce jointe (validé, à valider, refusé, manquant) sur un ensemble de stagiaires.
-  function statDocChart(rows, roles) {
+  function statDocChart(rows, roles, legendOpts) {
     var defs = [{ label: 'Validé', color: 'var(--st-blue)', ink: '#fff' }, { label: 'À valider', color: statColor(2), ink: '#fff' }, { label: 'Refusé', color: statColor(4) }, { label: 'Manquant', color: statColor(6) }];
     var keys = ['ok', 'pending', 'rejected', 'missing'];
     return statStacked(roles.map(function (role) {
       var c = [0, 0, 0, 0];
       rows.forEach(function (r) { c[keys.indexOf(docStatus(r, role))]++; });
       return { label: DOC_TAG_LABELS[role] || ROLE_LABELS[role], parts: c };
-    }), defs);
+    }), defs, legendOpts);
   }
   // Page eTuteur : suivi des pièces du dossier au-dessus du tableau des candidats.
   function renderDocStats() {
@@ -7756,7 +7803,12 @@
     if (!candidates.loaded || candidates.error) return;
     var roles = ATTACHMENT_ROLES.filter(function (r) { return settings.col[r]; });
     if (!roles.length || !candidates.rows.length) return;
-    candDocStatsEl.appendChild(statCard('Suivi des pièces du dossier', candidates.rows.length + ' candidat(s) · validé, à valider, refusé ou manquant', statDocChart(candidates.rows, roles)));
+    var keys = ['ok', 'pending', 'rejected', 'missing'], names = ['Validé', 'À valider', 'Refusé', 'Manquant'];
+    var info = docLegendFilter ? ' · liste limitée aux candidats ayant au moins une pièce « ' + names[keys.indexOf(docLegendFilter)] + ' »' : ' · cliquer sur la légende pour filtrer la liste';
+    candDocStatsEl.appendChild(statCard('Suivi des pièces du dossier', candidates.rows.length + ' candidat(s) · validé, à valider, refusé ou manquant' + info, statDocChart(candidates.rows, roles, {
+      active: docLegendFilter ? keys.indexOf(docLegendFilter) : -1,
+      onToggle: function (i) { docLegendFilter = docLegendFilter === keys[i] ? null : keys[i]; renderCandidates(); }
+    })));
   }
   function statCard(title, source, body, wide) {
     var card = statEl('section', 'stat-card' + (wide ? ' stat-wide' : ''));
