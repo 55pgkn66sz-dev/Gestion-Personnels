@@ -1271,6 +1271,51 @@
   .appr-item__comment .fr-label { font-size: 0.8rem; }
   /* Export .csv : liste des colonnes à cocher. */
   .export-cols__tools { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.6rem; }
+  /* ---- Page Statistiques ---- */
+  :root { --stat-c1: #000091; --stat-c2: #e1000f; --stat-c3: #c98a00; --stat-c4: #18753c; --stat-c5: #6a6af4; --stat-c6: #009081; --stat-c7: #a558a0; --stat-c8: #8a8a8a; }
+  [data-fr-theme="dark"] { --stat-c1: #8585f6; --stat-c2: #ff6b6b; --stat-c3: #fcc63a; --stat-c4: #27a658; --stat-c5: #b4b4ff; --stat-c6: #3ccbbd; --stat-c7: #d99bd5; --stat-c8: #a0a0a0; }
+  .stat-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .stat-portrait { margin: 0.4rem 0 1rem; padding: 0.7rem 1rem; border-left: 4px solid var(--bleu-france); background: var(--background-alt-grey); border-radius: 0 0.4rem 0.4rem 0; }
+  .stat-section { margin: 0 0 1.8rem; }
+  .stat-section__title { font-size: 1.1rem; margin: 0 0 0.2rem; color: var(--bleu-france); }
+  .stat-section__hint { margin: 0 0 0.7rem; font-size: 0.82rem; color: var(--text-mention-grey); }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 1rem; }
+  .stat-grid__full { grid-column: 1 / -1; }
+  .stat-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0.8rem; }
+  .stat-kpi { display: flex; flex-direction: column; padding: 0.7rem 0.9rem; background: var(--background-raised-grey); border: 1px solid var(--border-default-grey); border-radius: 0.5rem; }
+  .stat-kpi__val { font-size: 1.7rem; font-weight: 700; line-height: 1.1; color: var(--bleu-france); }
+  .stat-kpi__lbl { font-size: 0.85rem; font-weight: 600; }
+  .stat-kpi__hint { font-size: 0.75rem; color: var(--text-mention-grey); }
+  .stat-card { padding: 0.9rem 1rem; background: var(--background-raised-grey); border: 1px solid var(--border-default-grey); border-radius: 0.5rem; min-width: 0; }
+  .stat-card--wide { grid-column: 1 / -1; }
+  .stat-card__title { font-size: 0.98rem; margin: 0 0 0.1rem; }
+  .stat-card__src { margin: 0 0 0.7rem; font-size: 0.75rem; color: var(--text-mention-grey); }
+  .stat-empty { margin: 0.3rem 0; }
+  .stat-donut { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .stat-donut__svg { width: 10rem; height: 10rem; flex: none; transform: rotate(0deg); }
+  .stat-donut__total { font-size: 6px; font-weight: 700; fill: var(--text-title-grey, currentColor); }
+  .stat-donut__sub { font-size: 2.6px; fill: var(--text-mention-grey); }
+  .stat-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.85rem; flex: 1; min-width: 9rem; }
+  .stat-legend--inline { flex-direction: row; flex-wrap: wrap; gap: 0.4rem 1rem; margin-top: 0.6rem; }
+  .stat-legend li { display: flex; align-items: center; gap: 0.45rem; padding: 0; margin: 0; }
+  .stat-legend li::before { content: none; }
+  .stat-legend__sw { width: 0.8rem; height: 0.8rem; border-radius: 2px; flex: none; }
+  .stat-legend__lbl { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .stat-legend__val { color: var(--text-mention-grey); white-space: nowrap; }
+  .stat-bars { display: flex; flex-direction: column; gap: 0.4rem; }
+  .stat-bars__row { display: grid; grid-template-columns: minmax(5rem, 9rem) 1fr auto; align-items: center; gap: 0.6rem; font-size: 0.85rem; }
+  .stat-bars__lbl { overflow-wrap: anywhere; }
+  .stat-bars__track { display: flex; height: 1.25rem; background: var(--background-alt-grey); border-radius: 3px; overflow: hidden; }
+  .stat-bars__fill { display: block; height: 100%; min-width: 2px; border-radius: 3px; }
+  .stat-bars__seg { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 0.72rem; font-weight: 600; color: #fff; min-width: 1.1rem; }
+  [data-fr-theme="dark"] .stat-bars__seg { color: #161616; }
+  .stat-bars__val { color: var(--text-mention-grey); white-space: nowrap; font-size: 0.8rem; }
+  .stat-cols { display: flex; align-items: stretch; gap: 3px; height: 13rem; padding-top: 0.5rem; overflow-x: auto; }
+  .stat-cols__col { flex: 1; min-width: 1rem; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; }
+  .stat-cols__bar { display: block; width: 100%; background: var(--stat-c1); border-radius: 3px 3px 0 0; min-height: 0; }
+  .stat-cols__val { font-size: 0.7rem; color: var(--text-mention-grey); height: 1rem; }
+  .stat-cols__lbl { font-size: 0.7rem; height: 1.1rem; margin-top: 0.15rem; }
+  @media print { header.fr-header, .stat-head button { display: none !important; } .stat-card { break-inside: avoid; } }
   .imp-keyrow { margin: 0.6rem 0; max-width: 24rem; }
   .imp-warn { color: var(--text-default-warning); font-weight: 600; }
   .imp-details { margin: 0.4rem 0; font-size: 0.85rem; }
@@ -1350,6 +1395,9 @@
           </li>
           <li class="fr-nav__item">
             <button class="fr-nav__link" id="navEncadrement" type="button">Encadrement</button>
+          </li>
+          <li class="fr-nav__item">
+            <button class="fr-nav__link" id="navStats" type="button">Statistiques</button>
           </li>
           <li class="fr-nav__item">
             <button class="fr-nav__link" id="navBulk" type="button">Générer doc. en lot</button>
@@ -1440,6 +1488,9 @@
       <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-refresh-line fr-btn--icon-left" id="candReloadBtn" type="button" title="Recharger les candidats depuis la table Grist">
         Actualiser
       </button>
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-upload-line fr-btn--icon-left" id="candNumCandImportBtn" type="button" title="Mettre à jour les N° CAND d'après un fichier .csv contenant les N° CAND et les adresses e-mail">
+        Mettre à jour les N° CAND (.csv)
+      </button>
       <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-mail-line" id="candMailAllBtn" type="button" title="Envoyer un e-mail aux candidats du filtre actif (en copie cachée)">E-mail aux candidats du filtre</button>
       <p class="cand-count cand-count--push" id="candCount"></p>
     </div>
@@ -1478,6 +1529,15 @@
   </div>
 
   <!-- Page "Encadrement" : table « Encadrement » (en dur). Liste comme la page Stagiaires, fiche profil au clic. -->
+  <!-- Page Statistiques : graphiques de physionomie (voir renderStats). -->
+  <div id="panelStats" hidden>
+    <div class="stat-head">
+      <h2 class="fr-h6">Statistiques</h2>
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-refresh-line fr-btn--icon-left" id="statsReloadBtn" type="button" title="Recharger les données depuis Grist">Actualiser</button>
+    </div>
+    <div id="statsZone"></div>
+  </div>
+
   <div id="panelEncadrement" hidden>
     <h2 class="fr-h6">Encadrement</h2>
 
@@ -1514,6 +1574,9 @@
       </button>
       <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-download-line fr-btn--icon-left" id="encExportBtn" type="button" disabled title="Exporter la vue active (l'encadrement affichés) en .csv, avec choix des colonnes">
         Exporter en .csv
+      </button>
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-upload-line fr-btn--icon-left" id="encImportBtn" type="button" title="Mettre à jour l'encadrement en lot d'après un fichier .csv (colonnes reconnues d'après leurs titres)">
+        Mettre à jour depuis un .csv
       </button>
       <p class="cand-count cand-count--push" id="encCount"></p>
     </div>
@@ -1939,7 +2002,7 @@
       <h3 class="fr-h6" id="importTitle">Mettre à jour les stagiaires depuis un .csv</h3>
       <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line" id="importClose" type="button" title="Fermer">Fermer</button>
     </div>
-    <p class="fr-text--sm">La première ligne du fichier contient les titres des colonnes (mêmes libellés que l’export .csv). Chaque ligne met à jour le stagiaire identifié par la colonne choisie ; rien n’est écrit avant votre confirmation.</p>
+    <p class="fr-text--sm" id="importIntro"></p>
     <div class="fr-upload-group">
       <label class="fr-label" for="importFile">Fichier .csv</label>
       <input class="fr-upload" type="file" id="importFile" accept=".csv,.txt,text/csv">
@@ -1992,7 +2055,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 12.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 13.2</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -2213,7 +2276,8 @@
   var panelBulk = document.getElementById('panelBulk');
   var panelDocMgmt = document.getElementById('panelDocMgmt');
   var navEncadrement = document.getElementById('navEncadrement');
-  var currentPage = 'stagiaires'; // 'stagiaires' (page d'arrivée, 1er onglet) | 'etuteur' | 'encadrement' | 'bulk' | 'docmgmt' (cachée)
+  var navStats = document.getElementById('navStats');
+  var currentPage = 'stagiaires'; // 'stagiaires' (page d'arrivée, 1er onglet) | 'etuteur' | 'encadrement' | 'stats' | 'bulk' | 'docmgmt' (cachée)
   var settingsOpen = false;
   var panelSettings = document.getElementById('panelSettings');
   var brandGesture = document.getElementById('brandGesture');
@@ -2332,9 +2396,10 @@
     panelEtuteur.hidden = settingsOpen || currentPage !== 'etuteur';
     panelStagiaires.hidden = settingsOpen || currentPage !== 'stagiaires';
     panelEncadrement.hidden = settingsOpen || currentPage !== 'encadrement';
+    panelStats.hidden = settingsOpen || currentPage !== 'stats';
     panelBulk.hidden = settingsOpen || currentPage !== 'bulk';
     panelDocMgmt.hidden = settingsOpen || currentPage !== 'docmgmt'; // page cachée : pas d'onglet, atteinte par la roue crantée
-    [[navStagiaires, 'stagiaires'], [navEtuteur, 'etuteur'], [navEncadrement, 'encadrement'], [navBulk, 'bulk']].forEach(function (pair) {
+    [[navStagiaires, 'stagiaires'], [navEtuteur, 'etuteur'], [navEncadrement, 'encadrement'], [navStats, 'stats'], [navBulk, 'bulk']].forEach(function (pair) {
       if (currentPage === pair[1] || (pair[1] === 'bulk' && currentPage === 'docmgmt')) pair[0].setAttribute('aria-current', 'page');
       else pair[0].removeAttribute('aria-current');
     });
@@ -2351,6 +2416,8 @@
   navStagiaires.addEventListener('click', function () { showPage('stagiaires'); });
   navBulk.addEventListener('click', function () { showPage('bulk'); });
   navEncadrement.addEventListener('click', function () { showPage('encadrement'); });
+  navStats.addEventListener('click', function () { showPage('stats'); renderStats(); });
+  document.getElementById('statsReloadBtn').addEventListener('click', function () { loadCandidates(); });
   document.getElementById('bulkGearBtn').addEventListener('click', function () { showPage('docmgmt'); });
   document.getElementById('mgmtBackBtn').addEventListener('click', function () { showPage('bulk'); });
 
@@ -2997,6 +3064,7 @@
     renderStagiaires();
     renderBulk();
     renderEncadrement();
+    renderStats();
     renderSourcesPanel();
   }
 
@@ -4648,6 +4716,7 @@
       dep = { loaded: false, error: friendlyErrorMessage(e), tableId: '', stagiaireCol: null, fields: [], refs: {}, byStagiaire: {} };
     }).then(function () {
       if (currentModalRowId !== null && currentModalKind === 'stagiaire' && !dEditRole && candModalOverlay.hidden === false) renderModalContent();
+      renderStats();
       renderSourcesPanel();
     });
   }
@@ -5914,9 +5983,11 @@
       var cols = [];
       for (var j = 0; j < meta.id.length; j++) {
         if (meta.parentId[j] !== tableRowId || /^gristHelper_|^manualSort$/.test(meta.colId[j])) continue;
-        var choiceOptions = null;
-        try { choiceOptions = JSON.parse(meta.widgetOptions[j] || '{}').choiceOptions || null; } catch (e) { choiceOptions = null; }
-        cols.push({ id: meta.colId[j], label: meta.label[j] || meta.colId[j], type: bulkBaseType(meta.type[j]), fullType: meta.type[j], choiceOptions: choiceOptions });
+        var choiceOptions = null, encChoices = [];
+        try { var wo = JSON.parse(meta.widgetOptions[j] || '{}'); choiceOptions = wo.choiceOptions || null; encChoices = wo.choices || []; } catch (e) { choiceOptions = null; }
+        cols.push({ id: meta.colId[j], label: meta.label[j] || meta.colId[j], type: bulkBaseType(meta.type[j]), fullType: meta.type[j], choiceOptions: choiceOptions, choices: encChoices,
+          // vraie formule (non vide) : colonne en lecture seule (une « colonne vide » de Grist reste modifiable)
+          formula: !!meta.isFormula[j] && String(meta.formula ? meta.formula[j] : '').trim() !== '' });
       }
       return grist.docApi.fetchTable(tableId).then(function (data) { return { tableId: tableId, cols: cols, data: data }; });
     }).then(function (r) {
@@ -5935,6 +6006,7 @@
       }
       enc = { loaded: true, error: '', tableId: r.tableId, cols: map, rows: rows };
       renderEncadrement();
+      renderStats();
       renderSourcesPanel();
     }).catch(function (e) {
       enc = { loaded: false, error: friendlyErrorMessage(e), tableId: '', cols: {}, rows: [] };
@@ -7074,15 +7146,43 @@
     if (candidates.hasInfos) out.push({ role: 'infosLibre', label: 'Infos', colId: INFOS_COL, table: settings.table, type: 'Text', fullType: 'Text', choices: [], doc: false, keyOnly: false });
     return out;
   }
+  // Champs de l'encadrement pouvant être mis à jour : mêmes colonnes que l'export, hors photo et colonnes à formule.
+  function encImportFields() {
+    return Object.keys(ENC_LABELS).filter(function (k) { return enc.cols[k] && k !== 'photo' && !enc.cols[k].formula && ['Attachments', 'Ref', 'RefList'].indexOf(enc.cols[k].type) === -1; }).map(function (k) {
+      var c = enc.cols[k];
+      return { role: k, label: ENC_LABELS[k], colId: c.id, table: enc.tableId, type: c.type, fullType: c.fullType || c.type, choices: c.choices || [], doc: false, keyOnly: false };
+    });
+  }
+  // Mise à jour des N° CAND : seulement l'adresse e-mail (identification) et le N° CAND (valeur écrite).
+  function numCandImportFields() {
+    return stgImportFields().filter(function (f) { return f.role === 'numCand' || f.role === 'email'; }).map(function (f) {
+      var alias = f.alias ? f.alias.slice() : [];
+      if (f.role === 'numCand') alias = alias.concat(['NUMEROCANDIDAT', 'NUMERODECANDIDAT', 'NCANDIDAT', 'CAND', 'NCANDIDATURE', 'NUMEROCANDIDATURE']);
+      else alias = alias.concat(['EMAIL', 'MAIL', 'COURRIEL', 'ADRESSEEMAIL', 'ADRESSEMAIL', 'ADRESSEELECTRONIQUE', 'EMAILPERSO']);
+      return Object.assign({}, f, { alias: alias });
+    });
+  }
   function impFieldKeys(f) { return [impKey(f.label), impKey(f.role), impKey(f.colId)].concat(f.alias || []); }
+  function impEmail(t) { return normalizeKey(t).replace(/\s+/g, ''); } // adresse comparée sans tenir compte de la casse ni des espaces
   var IMP_KEY_OPTIONS = [
-    { id: 'nid', label: 'NID', roles: ['nid'], keys: function (r) { return [nidKey(r.nid)]; } },
-    { id: 'numCand', label: 'N° CAND', roles: ['numCand'], keys: function (r) { return [impKey(textOf(r.numCand))]; } },
-    { id: 'nigend', label: 'Nigend', roles: ['nigend'], keys: function (r) { return [impKey(textOf(r.nigend))]; } },
-    { id: 'email', label: 'E-mail', roles: ['email'], keys: function (r) { return [impKey(textOf(r.email))]; } },
-    { id: 'nomPrenom', label: 'Nom + Prénom', roles: ['nom', 'prenom'], keys: function (r) { var p = nameParts(r); return [impKey(p.nom + p.prenom), impKey(p.prenom + p.nom)]; } },
-    { id: 'stagiaire', label: 'Stagiaire (nom complet)', roles: ['stagiaire'], keys: function (r) { return [impKey(stagiaireDisplayName(r)), impKey(fullNamePrenomNom(r))]; } }
+    { kind: 'stagiaires', id: 'nid', label: 'NID', roles: ['nid'], keys: function (r) { return [nidKey(r.nid)]; } },
+    { kind: 'stagiaires', id: 'numCand', label: 'N° CAND', roles: ['numCand'], keys: function (r) { return [impKey(textOf(r.numCand))]; } },
+    { kind: 'stagiaires', id: 'nigend', label: 'Nigend', roles: ['nigend'], keys: function (r) { return [impKey(textOf(r.nigend))]; } },
+    { kind: 'stagiaires', id: 'email', label: 'E-mail', roles: ['email'], norm: impEmail, keys: function (r) { return [impEmail(textOf(r.email))]; } },
+    { kind: 'numCand', id: 'email', label: 'Adresse e-mail', roles: ['email'], norm: impEmail, keys: function (r) { return [impEmail(textOf(r.email))]; } },
+    { kind: 'stagiaires', id: 'nomPrenom', label: 'Nom + Prénom', roles: ['nom', 'prenom'], keys: function (r) { var p = nameParts(r); return [impKey(p.nom + p.prenom), impKey(p.prenom + p.nom)]; } },
+    { kind: 'stagiaires', id: 'stagiaire', label: 'Stagiaire (nom complet)', roles: ['stagiaire'], keys: function (r) { return [impKey(stagiaireDisplayName(r)), impKey(fullNamePrenomNom(r))]; } },
+    { kind: 'encadrement', id: 'nigend', label: 'Nigend', roles: ['nigend'], keys: function (r) { return [impKey(encText(r, 'nigend'))]; } },
+    { kind: 'encadrement', id: 'nomPrenom', label: 'Nom + Prénom', roles: ['nom', 'prenom'], keys: function (r) { var p = encNameParts(r); return [impKey(p.nom + p.prenom), impKey(p.prenom + p.nom)]; } },
+    { kind: 'encadrement', id: 'emailPro', label: 'Email pro', roles: ['emailPro'], keys: function (r) { return [impKey(encText(r, 'emailPro'))]; } },
+    { kind: 'encadrement', id: 'emailPerso', label: 'Email perso', roles: ['emailPerso'], keys: function (r) { return [impKey(encText(r, 'emailPerso'))]; } }
   ];
+  // Accès aux lignes selon la page : stagiaires (champs à plat) ou encadrement (champs dans row.f).
+  function impIsEnc() { return imp.kind === 'encadrement'; } // les autres modes (stagiaires, numCand) portent sur les stagiaires
+  function impRows() { return impIsEnc() ? enc.rows : candidates.rows; }
+  function impVal(row, role) { return impIsEnc() ? (row.f ? row.f[role] : null) : row[role]; }
+  function impName(row) { return impIsEnc() ? encDisplayName(row) : stagiaireDisplayName(row); }
+  function impNoun() { return impIsEnc() ? 'membre(s)' : 'stagiaire(s)'; }
   var IMP_TRUE = ['OUI', 'O', 'TRUE', 'VRAI', '1', 'X', 'YES'], IMP_FALSE = ['NON', 'N', 'FALSE', 'FAUX', '0', 'NO'];
   // Convertit le texte d'une cellule vers le type de la colonne Grist : { ok, value, shown } ou { ok: false, error }.
   function impConvert(f, raw) {
@@ -7138,11 +7238,15 @@
   var importErrorEl = document.getElementById('importError');
   var importGoBtn = document.getElementById('importGo');
   var importCancelBtn = document.getElementById('importCancel');
-  var imp = { fields: [], headers: [], rows: [], map: [], keyId: '', clearEmpty: false, plan: null, busy: false };
+  var imp = { kind: 'stagiaires', fields: [], headers: [], rows: [], map: [], keyId: '', clearEmpty: false, plan: null, busy: false };
   function closeImportDialog() { if (imp.busy) return; importDialog.hidden = true; }
   function importShowError(msg) { importErrorEl.hidden = !msg; importErrorEl.textContent = msg || ''; }
-  function openImportDialog() {
-    imp = { fields: stgImportFields(), headers: [], rows: [], map: [], keyId: '', clearEmpty: false, plan: null, busy: false };
+  function openImportDialog(kind) {
+    imp = { kind: kind, fields: kind === 'encadrement' ? encImportFields() : kind === 'numCand' ? numCandImportFields() : stgImportFields(), headers: [], rows: [], map: [], keyId: '', clearEmpty: false, plan: null, busy: false };
+    document.getElementById('importTitle').textContent = kind === 'stagiaires' ? 'Mettre à jour les stagiaires depuis un .csv' : kind === 'numCand' ? 'Mettre à jour les N° CAND depuis un .csv' : 'Mettre à jour l’encadrement depuis un .csv';
+    document.getElementById('importIntro').textContent = kind === 'numCand' ?
+      'Le fichier doit contenir deux colonnes (titres sur la première ligne) : « N° CAND » et l’adresse e-mail du candidat. Chaque stagiaire est retrouvé par son adresse e-mail et reçoit son N° CAND ; rien n’est écrit avant votre confirmation.' :
+      'La première ligne du fichier contient les titres des colonnes (mêmes libellés que l’export .csv). Chaque ligne met à jour ' + (kind === 'stagiaires' ? 'le stagiaire identifié' : 'le membre de l’encadrement identifié') + ' par la colonne choisie ; rien n’est écrit avant votre confirmation.';
     importFileEl.value = '';
     importBodyEl.innerHTML = '';
     importShowError('');
@@ -7161,20 +7265,31 @@
   function importLoad(text) {
     var rows = csvParse(text);
     if (rows.length < 2) throw new Error('le fichier ne contient pas de ligne de données (première ligne = titres des colonnes).');
-    imp.headers = rows[0].map(function (h) { return String(h).trim(); });
-    imp.rows = rows.slice(1);
-    // Reconnaissance des titres : un champ n'est lié qu'à la première colonne qui le porte.
-    var used = {};
-    imp.map = imp.headers.map(function (h) {
-      if (!h || /\(FICHIERS?\)\s*$/i.test(h)) return null;
-      var key = impKey(h), hit = null;
-      imp.fields.forEach(function (f) { if (!hit && !used[f.role] && impFieldKeys(f).indexOf(key) !== -1) hit = f; });
-      if (hit) used[hit.role] = true;
-      return hit;
-    });
+    // Reconnaissance des titres : un champ n'est lié qu'à la première colonne qui le porte. Les titres sont cherchés
+    // dans les premières lignes (un fichier peut avoir des lignes d'en-tête avant les vrais noms de colonnes) :
+    // la ligne qui reconnaît le plus de champs l'emporte, la plus haute en cas d'égalité.
+    function mapHeaders(headers) {
+      var used = {};
+      return headers.map(function (h) {
+        if (!h || /\(FICHIERS?\)\s*$/i.test(h)) return null;
+        var key = impKey(h), hit = null;
+        imp.fields.forEach(function (f) { if (!hit && !used[f.role] && impFieldKeys(f).indexOf(key) !== -1) hit = f; });
+        if (hit) used[hit.role] = true;
+        return hit;
+      });
+    }
+    var best = -1, bestIdx = 0;
+    for (var hi = 0; hi < Math.min(rows.length - 1, 6); hi++) {
+      var count = mapHeaders(rows[hi].map(function (h) { return String(h).trim(); })).filter(Boolean).length;
+      if (count > best) { best = count; bestIdx = hi; }
+    }
+    imp.headerRow = bestIdx;
+    imp.headers = rows[bestIdx].map(function (h) { return String(h).trim(); });
+    imp.rows = rows.slice(bestIdx + 1);
+    imp.map = mapHeaders(imp.headers);
     var recognized = {};
     imp.map.forEach(function (f) { if (f) recognized[f.role] = true; });
-    var opts = IMP_KEY_OPTIONS.filter(function (o) { return o.roles.every(function (r) { return recognized[r]; }); });
+    var opts = IMP_KEY_OPTIONS.filter(function (o) { return o.kind === imp.kind && o.roles.every(function (r) { return recognized[r]; }); });
     imp.keyOptions = opts;
     imp.keyId = opts.length ? opts[0].id : '';
   }
@@ -7184,7 +7299,7 @@
     imp.plan = plan;
     if (!opt) return;
     var index = {};
-    candidates.rows.forEach(function (r) {
+    impRows().forEach(function (r) {
       opt.keys(r).forEach(function (k) { if (k) { (index[k] = index[k] || []); if (index[k].indexOf(r) === -1) index[k].push(r); } });
     });
     var colOf = {}; // champ -> numéro de colonne du fichier
@@ -7194,21 +7309,21 @@
     imp.rows.forEach(function (cells, n) {
       var csvKeys;
       if (opt.id === 'nomPrenom') csvKeys = [impKey((cells[colOf.nom] || '') + (cells[colOf.prenom] || ''))];
-      else csvKeys = [opt.id === 'nid' ? nidKey(cells[colOf[opt.roles[0]]]) : impKey(cells[colOf[opt.roles[0]]] || '')];
+      else csvKeys = [opt.id === 'nid' ? nidKey(cells[colOf[opt.roles[0]]]) : (opt.norm || impKey)(cells[colOf[opt.roles[0]]] || '')];
       var label = opt.id === 'nomPrenom' ? ((cells[colOf.nom] || '') + ' ' + (cells[colOf.prenom] || '')).trim() : String(cells[colOf[opt.roles[0]]] || '').trim();
       if (!csvKeys[0]) return; // ligne sans identifiant : ignorée
       var found = index[csvKeys[0]] || [];
-      if (!found.length) { plan.unmatched.push('ligne ' + (n + 2) + ' : ' + label); return; }
-      if (found.length > 1) { plan.ambiguous.push('ligne ' + (n + 2) + ' : ' + label + ' (' + found.length + ' fiches)'); return; }
+      if (!found.length) { plan.unmatched.push('ligne ' + (n + 2 + imp.headerRow) + ' : ' + label); return; }
+      if (found.length > 1) { plan.ambiguous.push('ligne ' + (n + 2 + imp.headerRow) + ' : ' + label + ' (' + found.length + ' fiches)'); return; }
       var row = found[0];
       plan.matched++;
       updatable.forEach(function (u) {
         var raw = cells[u.i] === undefined ? '' : String(cells[u.i]);
         if (!raw.trim() && !imp.clearEmpty) return;
         var conv = impConvert(u.f, raw);
-        if (!conv.ok) { plan.invalid.push('ligne ' + (n + 2) + ', « ' + u.f.label + ' » : ' + conv.error); return; }
-        if (impSame(u.f, row[u.f.role], conv)) return;
-        plan.changes.push({ row: row, f: u.f, value: conv.value, before: impShow(u.f, row[u.f.role]), after: conv.shown });
+        if (!conv.ok) { plan.invalid.push('ligne ' + (n + 2 + imp.headerRow) + ', « ' + u.f.label + ' » : ' + conv.error); return; }
+        if (impSame(u.f, impVal(row, u.f.role), conv)) return;
+        plan.changes.push({ row: row, f: u.f, value: conv.value, before: impShow(u.f, impVal(row, u.f.role)), after: conv.shown });
         plan.rowsChanged[row.id] = true;
       });
     });
@@ -7218,16 +7333,24 @@
     box.innerHTML = '';
     function add(html, cls) { var p = document.createElement('p'); p.className = cls || 'fr-text--sm'; p.innerHTML = html; box.appendChild(p); return p; }
     var ok = imp.map.filter(Boolean), ignored = imp.headers.filter(function (h, i) { return h && !imp.map[i]; });
-    add('<strong>' + imp.rows.length + '</strong> ligne(s) lue(s). Colonnes reconnues (' + ok.length + ') : ' + (ok.map(function (f) { return escapeHtml(f.label); }).join(', ') || 'aucune') +
+ add('<strong>' + imp.rows.length + '</strong> ligne(s) lue(s)' + (imp.headerRow ? ' (titres des colonnes lus à la ligne ' + (imp.headerRow + 1) + ')' : '') + '. Colonnes reconnues (' + ok.length + ') : ' + (ok.map(function (f) { return escapeHtml(f.label); }).join(', ') || 'aucune') +
       (ignored.length ? '.<br>Ignorées (' + ignored.length + ') : ' + ignored.map(escapeHtml).join(', ') : '') + '.');
+    if (imp.kind === 'numCand' && (!imp.keyOptions.length || !imp.map.some(function (f) { return f && f.role === 'numCand'; }))) {
+      add('Colonnes non reconnues : le fichier doit contenir une colonne <strong>N° CAND</strong> et une colonne <strong>E-mail</strong> (adresse du candidat).', 'fr-error-text');
+      importGoBtn.disabled = true;
+      return;
+    }
     if (!imp.keyOptions.length) {
-      add('Aucune colonne d’identification reconnue : le fichier doit contenir au moins l’une des colonnes <strong>NID</strong>, <strong>N° CAND</strong>, <strong>Nigend</strong>, <strong>E-mail</strong>, <strong>Nom + Prénom</strong> ou <strong>Stagiaire</strong>.', 'fr-error-text');
+      add('Aucune colonne d’identification reconnue : le fichier doit contenir au moins ' + (imp.kind === 'stagiaires' ?
+        'l’une des colonnes <strong>NID</strong>, <strong>N° CAND</strong>, <strong>Nigend</strong>, <strong>E-mail</strong>, <strong>Nom + Prénom</strong> ou <strong>Stagiaire</strong>.' :
+        'l’une des colonnes <strong>Nigend</strong>, <strong>Nom + Prénom</strong>, <strong>Email pro</strong> ou <strong>Email perso</strong>.'), 'fr-error-text');
       importGoBtn.disabled = true;
       return;
     }
     var sel = document.createElement('div');
     sel.className = 'fr-select-group imp-keyrow';
-    sel.innerHTML = '<label class="fr-label" for="importKey">Identifier les stagiaires par</label><select class="fr-select" id="importKey"></select>';
+    sel.hidden = imp.kind === 'numCand'; // une seule clé possible (l'adresse e-mail)
+    sel.innerHTML = '<label class="fr-label" for="importKey">Identifier ' + (impIsEnc() ? 'les membres' : 'les stagiaires') + ' par</label><select class="fr-select" id="importKey"></select>';
     var s = sel.querySelector('select');
     imp.keyOptions.forEach(function (o) { s.appendChild(new Option(o.label, o.id)); });
     s.value = imp.keyId;
@@ -7236,11 +7359,12 @@
     var cb = document.createElement('div');
     cb.className = 'fr-checkbox-group fr-checkbox-group--sm';
     cb.innerHTML = '<input type="checkbox" id="importClear"><label class="fr-label" for="importClear">Une cellule vide efface la valeur actuelle (sinon elle est ignorée)</label>';
+    cb.hidden = imp.kind === 'numCand'; // un N° CAND vide ne doit jamais effacer l'existant
     cb.querySelector('input').checked = imp.clearEmpty;
     cb.querySelector('input').addEventListener('change', function (e) { imp.clearEmpty = e.target.checked; importAnalyse(); importRender(); });
     box.appendChild(cb);
     var nStg = Object.keys(plan.rowsChanged).length;
-    add('<strong>' + plan.matched + '</strong> stagiaire(s) reconnu(s) · <strong>' + plan.changes.length + '</strong> cellule(s) à modifier chez <strong>' + nStg + '</strong> stagiaire(s)' +
+    add('<strong>' + plan.matched + '</strong> ' + impNoun() + ' reconnu(s) · <strong>' + plan.changes.length + '</strong> cellule(s) à modifier chez <strong>' + nStg + '</strong> ' + impNoun() +
       (plan.unmatched.length ? ' · <span class="imp-warn">' + plan.unmatched.length + ' ligne(s) sans correspondance</span>' : '') +
       (plan.ambiguous.length ? ' · <span class="imp-warn">' + plan.ambiguous.length + ' ligne(s) ambiguë(s)</span>' : '') +
       (plan.invalid.length ? ' · <span class="imp-warn">' + plan.invalid.length + ' valeur(s) invalide(s)</span>' : '') + '.');
@@ -7262,11 +7386,11 @@
       wrap.className = 'imp-table-wrap';
       var tbl = document.createElement('table');
       tbl.className = 'imp-table';
-      tbl.innerHTML = '<thead><tr><th>Stagiaire</th><th>Champ</th><th>Actuel</th><th>Nouveau</th></tr></thead>';
+      tbl.innerHTML = '<thead><tr><th>' + (impIsEnc() ? 'Membre' : 'Stagiaire') + '</th><th>Champ</th><th>Actuel</th><th>Nouveau</th></tr></thead>';
       var tb = document.createElement('tbody');
       plan.changes.slice(0, 200).forEach(function (c) {
         var tr = document.createElement('tr');
-        [stagiaireDisplayName(c.row), c.f.label, c.before || '—', c.after || '—'].forEach(function (t) { var td = document.createElement('td'); td.textContent = t; tr.appendChild(td); });
+        [impName(c.row), c.f.label, c.before || '—', c.after || '—'].forEach(function (t) { var td = document.createElement('td'); td.textContent = t; tr.appendChild(td); });
         tb.appendChild(tr);
       });
       tbl.appendChild(tb);
@@ -7301,13 +7425,13 @@
       importBodyEl.innerHTML = '';
       var p = document.createElement('p');
       p.className = 'fr-text--sm';
-      p.innerHTML = '<strong>' + n + '</strong> cellule(s) mise(s) à jour chez <strong>' + s + '</strong> stagiaire(s).';
+      p.innerHTML = '<strong>' + n + '</strong> cellule(s) mise(s) à jour chez <strong>' + s + '</strong> ' + impNoun() + '.';
       importBodyEl.appendChild(p);
       importGoBtn.hidden = true;
       importCancelBtn.disabled = false;
       importCancelBtn.textContent = 'Fermer';
       imp.plan = null;
-      loadCandidates();
+      if (impIsEnc()) loadEncadrement(); else loadCandidates();
     }).catch(function (e) {
       imp.busy = false;
       importGoBtn.disabled = false;
@@ -7318,7 +7442,17 @@
   document.getElementById('stgImportBtn').addEventListener('click', function () {
     if (!candidates.loaded) { window.alert('Les stagiaires ne sont pas encore chargés.'); return; }
     importGoBtn.hidden = false;
-    openImportDialog();
+    openImportDialog('stagiaires');
+  });
+  document.getElementById('candNumCandImportBtn').addEventListener('click', function () {
+    if (!candidates.loaded) { window.alert('Les candidats ne sont pas encore chargés.'); return; }
+    importGoBtn.hidden = false;
+    openImportDialog('numCand');
+  });
+  document.getElementById('encImportBtn').addEventListener('click', function () {
+    if (!enc.loaded) { window.alert('L’encadrement n’est pas encore chargé.'); return; }
+    importGoBtn.hidden = false;
+    openImportDialog('encadrement');
   });
   importFileEl.addEventListener('change', function () {
     var file = importFileEl.files && importFileEl.files[0];
@@ -7339,6 +7473,430 @@
   importDialog.addEventListener('mousedown', function (e) { importDownOnBackdrop = e.target === importDialog; });
   importDialog.addEventListener('click', function (e) { if (e.target === importDialog && importDownOnBackdrop) closeImportDialog(); });
   importDialog.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); closeImportDialog(); } });
+
+  // ---- Page « Statistiques » : graphiques sur la physionomie de la formation --------------------------------
+  // Reprend les rubriques des rapports de synthèse (effectifs et attrition, répartition entre unités, féminisation,
+  // professions / diplômes, âge, département de résidence, encadrement, suivi des pièces du dossier). Tous les
+  // chiffres sont calculés en direct à partir des données Grist ; une rubrique dont la colonne est absente ou vide
+  // l'indique au lieu de disparaître. Graphiques dessinés en SVG / HTML (aucune bibliothèque), lisibles en mode sombre.
+  var panelStats = document.getElementById('panelStats');
+  var statsZone = document.getElementById('statsZone');
+  var STAT_PAL = 8;
+  function statColor(i) { return 'var(--stat-c' + ((i % STAT_PAL) + 1) + ')'; }
+  function statNum(n) { return String(Math.round(n * 10) / 10).replace('.', ','); }
+  function statPct(v, total) { return total ? statNum(v * 100 / total) + ' %' : '—'; }
+  function statEl(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
+  function statHint(text) { return statEl('p', 'fr-hint-text stat-empty', text); }
+  // Jeu de données { label, value }[] -> regroupe au-delà de `max` éléments dans « Autres », triés par effectif décroissant.
+  function statTop(items, max) {
+    var list = items.slice().sort(function (a, b) { return b.value - a.value || nameCollator.compare(a.label, b.label); });
+    if (!max || list.length <= max) return list;
+    var head = list.slice(0, max - 1), rest = list.slice(max - 1);
+    head.push({ label: 'Autres (' + rest.length + ')', value: rest.reduce(function (s, x) { return s + x.value; }, 0) });
+    return head;
+  }
+  function statCount(values) {
+    var m = {}, order = [];
+    values.forEach(function (v) { if (!(v in m)) { m[v] = 0; order.push(v); } m[v]++; });
+    return order.map(function (k) { return { label: k, value: m[k] }; });
+  }
+  function statLegend(items, total, colorOf) {
+    var ul = statEl('ul', 'stat-legend');
+    items.forEach(function (it, i) {
+      var li = statEl('li');
+      var sw = statEl('span', 'stat-legend__sw');
+      sw.style.background = it.color || (colorOf ? colorOf(i) : statColor(i));
+      li.appendChild(sw);
+      li.appendChild(statEl('span', 'stat-legend__lbl', it.label));
+      li.appendChild(statEl('span', 'stat-legend__val', it.value + ' · ' + statPct(it.value, total)));
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+  // Anneau : un cercle par part (technique stroke-dasharray, circonférence ramenée à 100).
+  function statDonut(items, centerLabel) {
+    var total = items.reduce(function (s, x) { return s + x.value; }, 0);
+    var wrap = statEl('div', 'stat-donut');
+    if (!total) { wrap.appendChild(statHint('Aucune donnée.')); return wrap; }
+    var NS = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 42 42');
+    svg.setAttribute('class', 'stat-donut__svg');
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', items.map(function (x) { return x.label + ' : ' + x.value; }).join(', '));
+    var offset = 0;
+    items.forEach(function (it, i) {
+      if (!it.value) return;
+      var pct = it.value * 100 / total;
+      var c = document.createElementNS(NS, 'circle');
+      c.setAttribute('cx', '21'); c.setAttribute('cy', '21'); c.setAttribute('r', '15.9155');
+      c.setAttribute('fill', 'none'); c.setAttribute('stroke-width', '7');
+      c.style.stroke = it.color || statColor(i);
+      c.setAttribute('stroke-dasharray', pct + ' ' + (100 - pct));
+      c.setAttribute('stroke-dashoffset', String(25 - offset));
+      var t = document.createElementNS(NS, 'title');
+      t.textContent = it.label + ' : ' + it.value + ' (' + statPct(it.value, total) + ')';
+      c.appendChild(t);
+      svg.appendChild(c);
+      offset += pct;
+    });
+    var tx = document.createElementNS(NS, 'text');
+    tx.setAttribute('x', '21'); tx.setAttribute('y', '22.2'); tx.setAttribute('text-anchor', 'middle'); tx.setAttribute('class', 'stat-donut__total');
+    tx.textContent = String(total);
+    svg.appendChild(tx);
+    if (centerLabel) {
+      var tl = document.createElementNS(NS, 'text');
+      tl.setAttribute('x', '21'); tl.setAttribute('y', '26.5'); tl.setAttribute('text-anchor', 'middle'); tl.setAttribute('class', 'stat-donut__sub');
+      tl.textContent = centerLabel;
+      svg.appendChild(tl);
+    }
+    wrap.appendChild(svg);
+    wrap.appendChild(statLegend(items, total));
+    return wrap;
+  }
+  // Barres horizontales (effectif + part du total).
+  function statBars(items, total) {
+    var box = statEl('div', 'stat-bars');
+    if (!items.length) { box.appendChild(statHint('Aucune donnée.')); return box; }
+    var max = Math.max.apply(null, items.map(function (x) { return x.value; })) || 1;
+    total = total || items.reduce(function (s, x) { return s + x.value; }, 0);
+    items.forEach(function (it, i) {
+      var row = statEl('div', 'stat-bars__row');
+      row.title = it.label + ' : ' + it.value + ' (' + statPct(it.value, total) + ')';
+      row.appendChild(statEl('span', 'stat-bars__lbl', it.label));
+      var track = statEl('span', 'stat-bars__track');
+      var fill = statEl('span', 'stat-bars__fill');
+      fill.style.width = (it.value * 100 / max) + '%';
+      fill.style.background = it.color || statColor(0);
+      track.appendChild(fill);
+      row.appendChild(track);
+      row.appendChild(statEl('span', 'stat-bars__val', it.value + ' · ' + statPct(it.value, total)));
+      box.appendChild(row);
+    });
+    return box;
+  }
+  // Barres horizontales empilées : une ligne par groupe, plusieurs parts colorées (ex. validé / à valider / manquant).
+  function statStacked(rows, partDefs) {
+    var box = statEl('div', 'stat-bars stat-bars--stacked');
+    rows.forEach(function (r) {
+      var total = r.parts.reduce(function (s, v) { return s + v; }, 0);
+      var row = statEl('div', 'stat-bars__row');
+      row.appendChild(statEl('span', 'stat-bars__lbl', r.label));
+      var track = statEl('span', 'stat-bars__track');
+      r.parts.forEach(function (v, i) {
+        if (!v) return;
+        var seg = statEl('span', 'stat-bars__seg');
+        seg.style.width = (total ? v * 100 / total : 0) + '%';
+        seg.style.background = partDefs[i].color;
+        seg.title = r.label + ' — ' + partDefs[i].label + ' : ' + v + ' (' + statPct(v, total) + ')';
+        seg.textContent = v;
+        track.appendChild(seg);
+      });
+      row.appendChild(track);
+      row.appendChild(statEl('span', 'stat-bars__val', String(total)));
+      box.appendChild(row);
+    });
+    var leg = statEl('ul', 'stat-legend stat-legend--inline');
+    partDefs.forEach(function (d) {
+      var li = statEl('li');
+      var sw = statEl('span', 'stat-legend__sw');
+      sw.style.background = d.color;
+      li.appendChild(sw);
+      li.appendChild(statEl('span', 'stat-legend__lbl', d.label));
+      leg.appendChild(li);
+    });
+    box.appendChild(leg);
+    return box;
+  }
+  // Histogramme (colonnes verticales) : un effectif par valeur ordonnée (ex. âge).
+  function statColumns(items) {
+    var box = statEl('div', 'stat-cols');
+    if (!items.length) { box.appendChild(statHint('Aucune donnée.')); return box; }
+    var max = Math.max.apply(null, items.map(function (x) { return x.value; })) || 1;
+    var every = items.length > 24 ? 2 : 1;
+    items.forEach(function (it, i) {
+      var col = statEl('div', 'stat-cols__col');
+      col.title = it.label + ' : ' + it.value;
+      col.appendChild(statEl('span', 'stat-cols__val', it.value ? String(it.value) : ''));
+      var bar = statEl('span', 'stat-cols__bar');
+      bar.style.height = (it.value * 100 / max) + '%';
+      col.appendChild(bar);
+      col.appendChild(statEl('span', 'stat-cols__lbl', i % every === 0 ? it.label : ''));
+      box.appendChild(col);
+    });
+    return box;
+  }
+  function statCard(title, source, body, wide) {
+    var card = statEl('section', 'stat-card' + (wide ? ' stat-card--wide' : ''));
+    card.appendChild(statEl('h4', 'stat-card__title', title));
+    if (source) card.appendChild(statEl('p', 'stat-card__src', source));
+    card.appendChild(body);
+    return card;
+  }
+  function statKpi(label, value, hint) {
+    var k = statEl('div', 'stat-kpi');
+    k.appendChild(statEl('span', 'stat-kpi__val', value));
+    k.appendChild(statEl('span', 'stat-kpi__lbl', label));
+    if (hint) k.appendChild(statEl('span', 'stat-kpi__hint', hint));
+    return k;
+  }
+
+  // -- Calculs sur les données --
+  // Une ligne par stagiaire : les fiches en doublon (même NID) ne comptent qu'une fois.
+  function statsRows() {
+    var seen = {}, out = [], dups = 0;
+    candidates.rows.forEach(function (r) {
+      var k = settings.col.nid ? nidKey(r.nid) : '';
+      if (k) { if (seen[k]) { dups++; return; } seen[k] = true; }
+      out.push(r);
+    });
+    out.dups = dups;
+    return out;
+  }
+  function statsSex(row) {
+    if (!settings.col.civilite) return '';
+    var k = normalizeKey(textOf(row.civilite)).replace(/[^A-Z]/g, '');
+    if (/^(MME|MADAME|MLLE|MADEMOISELLE|F|FEMME|FEMININ)$/.test(k)) return 'F';
+    if (/^(M|MR|MONSIEUR|H|HOMME|MASCULIN)$/.test(k)) return 'H';
+    return '';
+  }
+  function statsEncSex(row) {
+    if (!enc.cols.sexe) return '';
+    var k = normalizeKey(encText(row, 'sexe')).replace(/[^A-Z]/g, '');
+    if (/^(F|FEMME|FEMININ|MME|MADAME)$/.test(k)) return 'F';
+    if (/^(M|H|HOMME|MASCULIN|MR|MONSIEUR)$/.test(k)) return 'H';
+    return '';
+  }
+  // Famille d'affectation : GTA, GR, RGIF (groupements départementaux) ou autre.
+  function statsFA(row) {
+    var k = normalizeKey(textOf(row.affectation));
+    if (!k) return '';
+    if (/(^|[^A-Z])GTA([^A-Z]|$)/.test(k)) return 'GTA';
+    if (/(^|[^A-Z])GR([^A-Z]|$)|GARDE REPUBLICAINE/.test(k)) return 'GR';
+    if (/GGD|RGIF|DEPARTEMENTAL/.test(k)) return 'RGIF';
+    return 'Autres';
+  }
+  function statsDptGroup(row) {
+    var t = textOf(row.dpt);
+    if (!t) return '';
+    var k = normalizeKey(t);
+    if (/PARIS/.test(k)) return 'Paris';
+    var m = /(?:^|[^0-9A-Z])(\d{2,3}|2A|2B)(?:[^0-9A-Z]|$)/.exec(k) || /^(\d{2,3}|2A|2B)/.exec(k);
+    var code = m ? m[1] : '';
+    if (code === '75') return 'Paris';
+    if (['77', '78', '91', '92', '93', '94', '95'].indexOf(code) !== -1) return code;
+    return 'Autres départements';
+  }
+  function statsAge(row, j1) {
+    if (!settings.col.dateNaissance) return null;
+    var d = dayOfValue(row.dateNaissance, (columnTypesMap[settings.table] || {})[settings.col.dateNaissance]);
+    if (!d) return null;
+    var a = j1.getUTCFullYear() - d.getUTCFullYear();
+    if (j1.getUTCMonth() < d.getUTCMonth() || (j1.getUTCMonth() === d.getUTCMonth() && j1.getUTCDate() < d.getUTCDate())) a--;
+    return a >= 0 && a < 100 ? a : null;
+  }
+  function statsDeparture(row) {
+    var rec = dep.byStagiaire[row.id];
+    if (rec) {
+      var mc = depField('MOTIF DE DEPART');
+      return { motif: mc ? textOf(rec.vals[mc.id]) : '' };
+    }
+    var motif = settings.col.motifDepart ? textOf(row.motifDepart) : '';
+    var date = settings.col.dateDepart ? textOf(row.dateDepart) : '';
+    return motif || date ? { motif: motif } : null;
+  }
+  function statsMedian(list) {
+    var s = list.slice().sort(function (a, b) { return a - b; }), n = s.length;
+    return n ? (n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2) : 0;
+  }
+  // Colonnes « libres » de la table des stagiaires qui décrivent la population (profession, diplôme, situation…).
+  var STAT_EXTRA_PATTERN = /PROFESSION|SITUATION|DIPLOME|NIVEAU|ETUDIANT|EMPLOI|ACTIVITE|CORPS|STATUT|CSP|SECTEUR|SPECIALITE|ORIGINE/;
+  function statsExtraCols(rows) {
+    var labels = columnLabels[settings.table] || {}, types = columnTypesMap[settings.table] || {};
+    var cols = {};
+    rows.forEach(function (r) { Object.keys(r.__extra || {}).forEach(function (c) { cols[c] = true; }); });
+    return Object.keys(cols).filter(function (c) {
+      var t = String(types[c] || '').split(':')[0];
+      if (['Text', 'Choice', 'ChoiceList', 'Bool'].indexOf(t) === -1) return false;
+      return STAT_EXTRA_PATTERN.test(normalizeKey(labels[c] || c));
+    }).map(function (c) { return { id: c, label: labels[c] || c, type: String(types[c] || '').split(':')[0] }; });
+  }
+  function statsValuesOf(row, col) {
+    var v = (row.__extra || {})[col.id];
+    if (col.type === 'Bool') return [v === true ? 'Oui' : 'Non'];
+    var t = textOf(v);
+    if (!t) return [];
+    return col.type === 'ChoiceList' ? t.split(/\s*,\s*/).filter(Boolean) : [t];
+  }
+
+  function renderStats() {
+    statsZone.innerHTML = '';
+    function info(msg, kind) { statsZone.innerHTML = '<div class="fr-alert fr-alert--' + (kind || 'info') + ' fr-alert--sm"><p>' + escapeHtml(msg) + '</p></div>'; }
+    if (candidates.error) return info(candidates.error, 'error');
+    if (!isConfigComplete(settings)) return info('Aucune table de candidats n’est encore configurée.');
+    if (!candidates.loaded) return info('Chargement des données…');
+    var rows = statsRows(), n = rows.length;
+    if (!n) return info('Aucun stagiaire dans la table : rien à représenter.');
+    var j1 = parseFrDate(settings.dateDebutFormation);
+    var j1Known = !!j1;
+    if (!j1) { var now = new Date(); j1 = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())); }
+    function section(title, hint) {
+      var s = statEl('section', 'stat-section');
+      s.appendChild(statEl('h3', 'stat-section__title', title));
+      if (hint) s.appendChild(statEl('p', 'stat-section__hint', hint));
+      var grid = statEl('div', 'stat-grid');
+      s.appendChild(grid);
+      statsZone.appendChild(s);
+      return grid;
+    }
+    var prof = [];
+    var sexes = rows.map(statsSex), nF = sexes.filter(function (x) { return x === 'F'; }).length, nH = sexes.filter(function (x) { return x === 'H'; }).length;
+    var ages = rows.map(function (r) { return statsAge(r, j1); }).filter(function (a) { return a !== null; });
+    var departs = rows.map(statsDeparture);
+    var nDep = departs.filter(Boolean).length;
+
+    // 1. Effectifs et attrition
+    var g = section('Effectifs et attrition', 'Stagiaires de la table' + (rows.dups ? ' (' + rows.dups + ' fiche(s) en doublon écartée(s))' : '') + (settings.dateDebutFormation ? ' · début de formation le ' + settings.dateDebutFormation : ''));
+    var kp = statEl('div', 'stat-kpis stat-grid__full');
+    kp.appendChild(statKpi('Stagiaires', String(n)));
+    kp.appendChild(statKpi('Départs enregistrés', String(nDep), 'Attrition : ' + statPct(nDep, n)));
+    kp.appendChild(statKpi('Présents', String(n - nDep)));
+    if (enc.loaded) kp.appendChild(statKpi('Cadres', String(enc.rows.length)));
+    if (nF + nH) kp.appendChild(statKpi('Féminisation', statPct(nF, nF + nH), nF + ' femme(s)'));
+    if (ages.length) kp.appendChild(statKpi('Âge moyen', statNum(ages.reduce(function (s, a) { return s + a; }, 0) / ages.length) + ' ans', 'médian : ' + statNum(statsMedian(ages)) + ' ans'));
+    g.appendChild(kp);
+    g.appendChild(statCard('Effectif présent et départs', 'Rapport de synthèse : effectifs, attrition',
+      statDonut([{ label: 'Présents', value: n - nDep, color: statColor(3) }, { label: 'Départs', value: nDep, color: statColor(1) }], 'stagiaires')));
+    var motifs = statCount(departs.filter(Boolean).map(function (d) { return d.motif || 'Motif non renseigné'; }));
+    g.appendChild(statCard('Motifs de départ', 'Table « Gestion des départs » ou colonne Motif de départ', motifs.length ? statBars(statTop(motifs, 8), nDep) : statHint('Aucun départ enregistré.')));
+
+    // 2. Répartition entre les unités
+    g = section('Répartition entre les unités', 'Affectation du stagiaire');
+    if (!settings.col.affectation) g.appendChild(statCard('Affectation', '', statHint('Colonne « Affectation » non réglée.')));
+    else {
+      var fa = statCount(rows.map(statsFA).filter(Boolean));
+      var faOrder = ['RGIF', 'GR', 'GTA', 'Autres'];
+      fa.sort(function (a, b) { return faOrder.indexOf(a.label) - faOrder.indexOf(b.label); });
+      g.appendChild(statCard('Répartition en FA', 'Rapport Physionomie : répartition entre les unités', statDonut(fa, 'stagiaires')));
+      var rg = statTop(statCount(rows.filter(function (r) { return statsFA(r) === 'RGIF'; }).map(function (r) { return textOf(r.affectation); })), 8);
+      rg.sort(function (a, b) { return nameCollator.compare(a.label, b.label); });
+      g.appendChild(statCard('Répartition au sein de la RGIF', 'Groupements départementaux (affectations contenant « GGD »)', rg.length ? statDonut(rg, 'RGIF') : statHint('Aucune affectation de la RGIF.')));
+      var byAff = statTop(statCount(rows.map(function (r) { return textOf(r.affectation) || 'Non renseignée'; })), 12);
+      g.appendChild(statCard('Effectif par affectation', '', statBars(byAff, n)));
+    }
+    if (settings.col.pon) {
+      var pons = statCount(rows.map(function (r) { return textOf(r.pon) || 'Sans peloton'; }));
+      pons.sort(function (a, b) { return nameCollator.compare(a.label, b.label); });
+      g.appendChild(statCard('Effectif par peloton', 'Colonne PON', statBars(pons, n)));
+    }
+
+    // 3. Féminisation
+    g = section('Féminisation');
+    if (!settings.col.civilite) g.appendChild(statCard('Répartition H/F', '', statHint('Colonne « Civilité » non réglée.')));
+    else if (!(nF + nH)) g.appendChild(statCard('Répartition H/F', '', statHint('Civilité non reconnue (valeurs attendues : M., Mme…).')));
+    else {
+      g.appendChild(statCard('Répartition H/F', 'Rapport Physionomie : taux de féminisation', statDonut([{ label: 'Hommes', value: nH, color: statColor(0) }, { label: 'Femmes', value: nF, color: statColor(1) }], 'stagiaires')));
+      if (settings.col.affectation) {
+        var units = {}, order = [];
+        rows.forEach(function (r, i) {
+          var u = textOf(r.affectation) || 'Non renseignée';
+          if (!units[u]) { units[u] = [0, 0]; order.push(u); }
+          if (sexes[i] === 'H') units[u][0]++; else if (sexes[i] === 'F') units[u][1]++;
+        });
+        order.sort(nameCollator.compare);
+        g.appendChild(statCard('Féminisation par unité', 'Hommes / femmes selon l’affectation', statStacked(order.map(function (u) { return { label: u, parts: units[u] }; }),
+          [{ label: 'Hommes', color: statColor(0) }, { label: 'Femmes', color: statColor(1) }])));
+      }
+    }
+
+    // 4. Profil : professions, diplômes, situations…
+    var extras = statsExtraCols(rows);
+    g = section('Profil des stagiaires', 'Colonnes de la table dont le nom évoque la profession, le diplôme ou la situation');
+    if (!extras.length) g.appendChild(statCard('Professions', 'Rapport Physionomie : professions des élèves', statHint('Aucune colonne « Profession », « Diplôme » ou « Situation » trouvée dans la table des stagiaires (colonne non utilisée par les champs de la fiche).')));
+    extras.slice(0, 6).forEach(function (c) {
+      var vals = [];
+      rows.forEach(function (r) { statsValuesOf(r, c).forEach(function (v) { vals.push(v); }); });
+      var items = statTop(statCount(vals), 8);
+      if (!items.length) { g.appendChild(statCard(c.label, '', statHint('Colonne vide.'))); return; }
+      prof.push({ col: c, items: items });
+      g.appendChild(statCard(c.label, 'Colonne « ' + c.label + ' »', items.length <= 6 ? statDonut(items, 'réponses') : statBars(items, vals.length)));
+    });
+
+    // 5. Âge
+    g = section('Âge des stagiaires', j1Known ? 'Âge au premier jour de la formation' : 'Âge à la date du jour (début de formation non renseigné dans la Configuration)');
+    if (!settings.col.dateNaissance) g.appendChild(statCard('Âge', '', statHint('Colonne « Date de naissance » non réglée.')));
+    else if (!ages.length) g.appendChild(statCard('Âge', '', statHint('Aucune date de naissance exploitable.')));
+    else {
+      var minA = Math.min.apply(null, ages), maxA = Math.max.apply(null, ages), hist = [];
+      for (var a = minA; a <= maxA; a++) hist.push({ label: String(a), value: ages.filter(function (x) { return x === a; }).length });
+      g.appendChild(statCard('Répartition par âge', 'Rapport Physionomie : âge des élèves · de ' + minA + ' à ' + maxA + ' ans', statColumns(hist), true));
+      var tr = [['Moins de 18 ans', 0, 17], ['18 – 19 ans', 18, 19], ['20 – 26 ans', 20, 26], ['27 – 35 ans', 27, 35], ['36 ans et plus', 36, 200]].map(function (t) {
+        return { label: t[0], value: ages.filter(function (x) { return x >= t[1] && x <= t[2]; }).length };
+      }).filter(function (x) { return x.value; });
+      g.appendChild(statCard('Tranches d’âge', 'Moyenne ' + statNum(ages.reduce(function (s, x) { return s + x; }, 0) / ages.length) + ' ans · médiane ' + statNum(statsMedian(ages)) + ' ans', statBars(tr, ages.length)));
+    }
+
+    // 6. Origine géographique
+    g = section('Origine géographique', 'Département de résidence (RGIF et GR : périmètre des groupements départementaux)');
+    if (!settings.col.dpt) g.appendChild(statCard('Département', '', statHint('Colonne « Dpt » non réglée.')));
+    else {
+      var perim = rows.filter(function (r) { var f = statsFA(r); return f !== 'GTA'; });
+      var dp = statCount(perim.map(statsDptGroup).filter(Boolean));
+      var dOrder = ['77', '78', '91', '92', '93', '94', '95', 'Paris', 'Autres départements'];
+      dp.sort(function (a, b) { return dOrder.indexOf(a.label) - dOrder.indexOf(b.label); });
+      dp.forEach(function (x) { if (/^\d/.test(x.label)) x.label = 'Dpt ' + x.label; });
+      g.appendChild(statCard('Département de résidence', 'Rapport Physionomie : où habitent les élèves', dp.length ? statDonut(dp, 'stagiaires') : statHint('Aucun département renseigné.')));
+    }
+
+    // 7. Encadrement
+    g = section('Encadrement', enc.loaded ? enc.rows.length + ' cadre(s)' : '');
+    if (!enc.loaded) g.appendChild(statCard('Encadrement', '', statHint(enc.error || 'Chargement de l’encadrement…')));
+    else {
+      function encCard(title, src, items, kind) {
+        if (!items.length) return;
+        g.appendChild(statCard(title, src, kind === 'donut' ? statDonut(items, 'cadres') : statBars(items, enc.rows.length)));
+      }
+      if (enc.cols.ar) encCard('Active / Réserve', 'Colonne A/R', statTop(statCount(enc.rows.map(function (r) { return encText(r, 'ar') || 'Non renseigné'; })), 6), 'donut');
+      if (enc.cols.sexe) {
+        var es = enc.rows.map(statsEncSex);
+        encCard('Hommes / femmes', 'Colonne Sexe', [{ label: 'Hommes', value: es.filter(function (x) { return x === 'H'; }).length, color: statColor(0) }, { label: 'Femmes', value: es.filter(function (x) { return x === 'F'; }).length, color: statColor(1) }].filter(function (x) { return x.value; }), 'donut');
+      }
+      if (enc.cols.groupe) {
+        var tags = [];
+        enc.rows.forEach(function (r) { encGroupTags(r).forEach(function (t) { tags.push(groupDisplayLabel(t)); }); });
+        encCard('Cadres par groupe', 'Un cadre compte dans chacun de ses groupes', statTop(statCount(tags), 12));
+      }
+      if (enc.cols.fonction) encCard('Cadres par fonction', 'Colonne Fonction', statTop(statCount(enc.rows.map(function (r) { return encText(r, 'fonction') || 'Non renseignée'; })), 10));
+      if (enc.cols.grade) encCard('Cadres par grade', 'Colonne Grade', statTop(statCount(enc.rows.map(function (r) { return encText(r, 'grade') || 'Non renseigné'; })), 10));
+      if (enc.cols.affectation) encCard('Origine des cadres', 'Colonne Affectation', statTop(statCount(enc.rows.map(function (r) { return encText(r, 'affectation') || 'Non renseignée'; })), 10));
+      if (!g.childNodes.length) g.appendChild(statCard('Encadrement', '', statHint('Aucune colonne exploitable (A/R, Sexe, Groupe, Fonction, Grade, Affectation).')));
+    }
+
+    // 8. Suivi des pièces du dossier (EAD, attestations…)
+    var docRoles = ATTACHMENT_ROLES.filter(function (r) { return settings.col[r]; });
+    g = section('Suivi des pièces du dossier', 'État de chaque pièce jointe : validée, à valider, refusée ou manquante');
+    if (!docRoles.length) g.appendChild(statCard('Pièces', '', statHint('Aucune pièce jointe configurée.')));
+    else {
+      var defs = [{ label: 'Validé', color: statColor(3) }, { label: 'À valider', color: statColor(2) }, { label: 'Refusé', color: statColor(1) }, { label: 'Manquant', color: statColor(7) }];
+      var keys = ['ok', 'pending', 'rejected', 'missing'];
+      g.appendChild(statCard('Statut des pièces', 'EAD préalable, attestations…', statStacked(docRoles.map(function (role) {
+        var c = [0, 0, 0, 0];
+        rows.forEach(function (r) { c[keys.indexOf(docStatus(r, role))]++; });
+        return { label: DOC_TAG_LABELS[role] || ROLE_LABELS[role], parts: c };
+      }), defs), true));
+    }
+
+    // Portrait du stagiaire moyen (synthèse)
+    var bits = [];
+    if (nF + nH) bits.push(nH >= nF ? 'masculin' : 'féminin');
+    if (ages.length) bits.push(Math.round(ages.reduce(function (s, a) { return s + a; }, 0) / ages.length) + ' ans');
+    prof.forEach(function (p) { if (p.items[0] && !/^Autres/.test(p.items[0].label)) bits.push(p.col.label.toLowerCase() + ' : ' + p.items[0].label); });
+    if (bits.length) {
+      var portrait = statEl('p', 'stat-portrait');
+      portrait.innerHTML = '<strong>Le stagiaire type</strong> : ' + bits.map(escapeHtml).join(' · ');
+      statsZone.insertBefore(portrait, statsZone.firstChild);
+    }
+  }
 
   // ---- État rationnaire par FA (document intégré, page Générer doc. en lot) ------------------------------
   // Un fichier Excel (.xlsx), quatre onglets fixes selon l'affectation (colonne Affectation des tables
