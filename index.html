@@ -1271,6 +1271,14 @@
   .appr-item__comment .fr-label { font-size: 0.8rem; }
   /* Export .csv : liste des colonnes à cocher. */
   .export-cols__tools { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.6rem; }
+  .imp-keyrow { margin: 0.6rem 0; max-width: 24rem; }
+  .imp-warn { color: var(--text-default-warning); font-weight: 600; }
+  .imp-details { margin: 0.4rem 0; font-size: 0.85rem; }
+  .imp-details ul { margin: 0.3rem 0 0; }
+  .imp-table-wrap { max-height: 18rem; overflow: auto; margin-top: 0.6rem; border: 1px solid var(--border-default-grey); border-radius: 0.4rem; }
+  .imp-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .imp-table th, .imp-table td { padding: 0.3rem 0.6rem; text-align: left; border-bottom: 1px solid var(--border-default-grey); }
+  .imp-table th { position: sticky; top: 0; background: var(--background-alt-grey); }
   .export-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.1rem 1rem; max-height: 20rem; overflow-y: auto; padding: 0.5rem 0.7rem; border: 1px solid var(--border-default-grey); border-radius: 0.4rem; background: var(--background-alt-grey); }
   .export-cols .fr-checkbox-group { margin: 0.2rem 0; }
   @media (max-width: 40rem) { .export-cols { grid-template-columns: 1fr; } }
@@ -1738,6 +1746,9 @@
       <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-download-line fr-btn--icon-left" id="stgExportBtn" type="button" disabled title="Exporter la vue active (stagiaires affichés) en .csv, avec choix des colonnes">
         Exporter en .csv
       </button>
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-upload-line fr-btn--icon-left" id="stgImportBtn" type="button" title="Mettre à jour les stagiaires en lot d'après un fichier .csv (colonnes reconnues d'après leurs titres)">
+        Mettre à jour depuis un .csv
+      </button>
       <p class="cand-count cand-count--push" id="stgCount"></p>
     </div>
 
@@ -1921,6 +1932,27 @@
   </div>
 </div>
 
+<!-- Mise à jour en lot des stagiaires d'après un .csv : choix du fichier, reconnaissance des colonnes, aperçu puis application. -->
+<div class="bulk-dialog" id="importDialog" role="dialog" aria-modal="true" aria-labelledby="importTitle" hidden>
+  <div class="bulk-dialog__box">
+    <div class="bulk-dialog__head">
+      <h3 class="fr-h6" id="importTitle">Mettre à jour les stagiaires depuis un .csv</h3>
+      <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line" id="importClose" type="button" title="Fermer">Fermer</button>
+    </div>
+    <p class="fr-text--sm">La première ligne du fichier contient les titres des colonnes (mêmes libellés que l’export .csv). Chaque ligne met à jour le stagiaire identifié par la colonne choisie ; rien n’est écrit avant votre confirmation.</p>
+    <div class="fr-upload-group">
+      <label class="fr-label" for="importFile">Fichier .csv</label>
+      <input class="fr-upload" type="file" id="importFile" accept=".csv,.txt,text/csv">
+    </div>
+    <div id="importBody"></div>
+    <p class="fr-error-text" id="importError" hidden></p>
+    <div class="bulk-dialog__foot">
+      <button class="fr-btn fr-btn--tertiary fr-btn--sm" id="importCancel" type="button">Annuler</button>
+      <button class="fr-btn fr-btn--sm" id="importGo" type="button" disabled>Appliquer</button>
+    </div>
+  </div>
+</div>
+
 <!-- Départ d'un stagiaire : modale « Gérer le départ d'un stagiaire » (table Gestion des départs), ouverte par l'icône « sortie » de la fiche. -->
 <div class="bulk-dialog" id="departDialog" role="dialog" aria-modal="true" aria-labelledby="departTitle" hidden>
   <div class="bulk-dialog__box bulk-dialog__box--md">
@@ -1960,7 +1992,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 11.5</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 12.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -6989,6 +7021,324 @@
       exportErrorEl.textContent = 'Impossible de générer le fichier : ' + friendlyErrorMessage(e);
     });
   });
+
+  // ---- Mise à jour en lot depuis un .csv (page Stagiaires) ---------------------------------------------------
+  // Le fichier (séparateur « ; », « , » ou tabulation détecté ; UTF-8 ou Windows-1252) est lu dans le navigateur.
+  // Les titres de colonnes sont reconnus d'après les libellés de l'export .csv (ou les noms des champs / colonnes
+  // Grist), sans tenir compte des accents, majuscules et ponctuation. Chaque ligne est rattachée à un stagiaire par
+  // une colonne d'identification (NID, N° CAND, Nigend, e-mail, nom + prénom ou nom complet, au choix). Un aperçu
+  // des changements est montré avant toute écriture ; une cellule vide laisse la valeur actuelle (sauf option contraire).
+  function csvParse(text) {
+    if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+    var counts = { ';': 0, ',': 0, '\t': 0 }, q = false, i, c;
+    for (i = 0; i < text.length; i++) {
+      c = text.charAt(i);
+      if (c === '"') q = !q;
+      else if (!q) { if (c === '\n' || c === '\r') break; if (counts[c] !== undefined) counts[c]++; }
+    }
+    var delim = counts[';'] >= counts[','] && counts[';'] >= counts['\t'] ? ';' : (counts[','] >= counts['\t'] ? ',' : '\t');
+    var rows = [], row = [], cell = '';
+    q = false;
+    for (i = 0; i < text.length; i++) {
+      c = text.charAt(i);
+      if (q) {
+        if (c === '"') { if (text.charAt(i + 1) === '"') { cell += '"'; i++; } else q = false; } else cell += c;
+      } else if (c === '"') q = true;
+      else if (c === delim) { row.push(cell); cell = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && text.charAt(i + 1) === '\n') i++;
+        row.push(cell); cell = '';
+        rows.push(row); row = [];
+      } else cell += c;
+    }
+    if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+    return rows.filter(function (r) { return r.some(function (x) { return String(x).trim() !== ''; }); });
+  }
+  function impKey(s) { return normalizeKey(s).replace(/[^A-Z0-9]/g, ''); }
+  // Champs pouvant être mis à jour (même périmètre que l'export, hors pièces jointes) + champs d'identification seule.
+  function stgImportFields() {
+    var out = [];
+    ROLES.forEach(function (role) {
+      var colId = settings.col[role];
+      if (!colId || ATTACHMENT_ROLES.indexOf(role) !== -1 || role === 'du') return;
+      var doc = DOC_TABLE_ROLES.indexOf(role) !== -1;
+      var tableId = doc ? settings.docsTable : settings.table;
+      var full = String((columnTypesMap[tableId] || {})[colId] || '');
+      var type = full.split(':')[0];
+      if (['Attachments', 'Ref', 'RefList'].indexOf(type) !== -1) return;
+      out.push({ role: role, label: ROLE_LABELS[role] || role, colId: colId, table: tableId, type: type || 'Text', fullType: full,
+        choices: (columnChoicesMap[tableId] || {})[colId] || [], doc: doc, keyOnly: role === 'nid' || role === 'stagiaire' });
+    });
+    var ncType = String((columnTypesMap[settings.table] || {})[NUM_CAND_COL] || 'Text');
+    out.push({ role: 'numCand', label: ROLE_LABELS.numCand, colId: NUM_CAND_COL, table: settings.table, type: ncType.split(':')[0], fullType: ncType, choices: (columnChoicesMap[settings.table] || {})[NUM_CAND_COL] || [], doc: false, keyOnly: false, alias: ['NUMCAND', 'NCAND', 'NUMEROCAND'] });
+    if (candidates.hasInfos) out.push({ role: 'infosLibre', label: 'Infos', colId: INFOS_COL, table: settings.table, type: 'Text', fullType: 'Text', choices: [], doc: false, keyOnly: false });
+    return out;
+  }
+  function impFieldKeys(f) { return [impKey(f.label), impKey(f.role), impKey(f.colId)].concat(f.alias || []); }
+  var IMP_KEY_OPTIONS = [
+    { id: 'nid', label: 'NID', roles: ['nid'], keys: function (r) { return [nidKey(r.nid)]; } },
+    { id: 'numCand', label: 'N° CAND', roles: ['numCand'], keys: function (r) { return [impKey(textOf(r.numCand))]; } },
+    { id: 'nigend', label: 'Nigend', roles: ['nigend'], keys: function (r) { return [impKey(textOf(r.nigend))]; } },
+    { id: 'email', label: 'E-mail', roles: ['email'], keys: function (r) { return [impKey(textOf(r.email))]; } },
+    { id: 'nomPrenom', label: 'Nom + Prénom', roles: ['nom', 'prenom'], keys: function (r) { var p = nameParts(r); return [impKey(p.nom + p.prenom), impKey(p.prenom + p.nom)]; } },
+    { id: 'stagiaire', label: 'Stagiaire (nom complet)', roles: ['stagiaire'], keys: function (r) { return [impKey(stagiaireDisplayName(r)), impKey(fullNamePrenomNom(r))]; } }
+  ];
+  var IMP_TRUE = ['OUI', 'O', 'TRUE', 'VRAI', '1', 'X', 'YES'], IMP_FALSE = ['NON', 'N', 'FALSE', 'FAUX', '0', 'NO'];
+  // Convertit le texte d'une cellule vers le type de la colonne Grist : { ok, value, shown } ou { ok: false, error }.
+  function impConvert(f, raw) {
+    raw = String(raw).trim();
+    var k = normalizeKey(raw), v;
+    if (f.type === 'Bool') {
+      if (!raw) return { ok: true, value: false, shown: 'Non' };
+      if (IMP_TRUE.indexOf(k) !== -1) return { ok: true, value: true, shown: 'Oui' };
+      if (IMP_FALSE.indexOf(k) !== -1) return { ok: true, value: false, shown: 'Non' };
+      return { ok: false, error: 'valeur « ' + raw + ' » non reconnue (Oui / Non attendu)' };
+    }
+    if (f.type === 'Date' || f.type === 'DateTime') {
+      if (!raw) return { ok: true, value: null, shown: '' };
+      var d = parseFrDate(raw);
+      if (!d) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(raw); if (m) { d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])); if (d.getUTCMonth() !== +m[2] - 1) d = null; } }
+      if (!d) return { ok: false, error: 'date « ' + raw + ' » non reconnue (JJ/MM/AAAA attendu)' };
+      return { ok: true, value: d.getTime() / 1000, shown: fmtDateFr(d), day: d.getTime() };
+    }
+    if (f.type === 'Int' || f.type === 'Numeric') {
+      if (!raw) return { ok: true, value: null, shown: '' };
+      v = Number(raw.replace(/\s/g, '').replace(',', '.'));
+      if (isNaN(v) || (f.type === 'Int' && Math.round(v) !== v)) return { ok: false, error: 'nombre « ' + raw + ' » invalide' };
+      return { ok: true, value: v, shown: String(v) };
+    }
+    if (f.type === 'ChoiceList') {
+      var items = raw ? raw.split(/\s*[,;|]\s*/).filter(Boolean) : [];
+      if (f.choices.length) items = items.map(function (it) { return f.choices.filter(function (c) { return normalizeKey(c) === normalizeKey(it); })[0] || it; });
+      return { ok: true, value: items.length ? ['L'].concat(items) : null, shown: items.join(', ') };
+    }
+    if (f.type === 'Choice' && raw && f.choices.length) {
+      var hit = f.choices.filter(function (c) { return normalizeKey(c) === k; })[0];
+      if (!hit) return { ok: false, error: '« ' + raw + ' » ne fait pas partie des choix de la colonne' };
+      return { ok: true, value: hit, shown: hit };
+    }
+    return { ok: true, value: raw, shown: raw };
+  }
+  function impSame(f, current, conv) {
+    if (f.type === 'Bool') return (current === true) === conv.value;
+    if (f.type === 'Date' || f.type === 'DateTime') { var d = dayOfValue(current, f.fullType); return conv.value === null ? !d : !!d && d.getTime() === conv.day; }
+    if (f.type === 'Int' || f.type === 'Numeric') return conv.value === null ? (current === null || current === undefined || current === '') : Number(current) === conv.value;
+    if (f.type === 'ChoiceList') { var a = textOf(current).split(', ').filter(Boolean).map(normalizeKey).sort().join('|'); return a === (conv.value ? conv.value.slice(1).map(normalizeKey).sort().join('|') : ''); }
+    return textOf(current).trim() === conv.value;
+  }
+  function impShow(f, current) {
+    if (f.type === 'Bool') return current === true ? 'Oui' : 'Non';
+    if (f.type === 'Date' || f.type === 'DateTime') { var d = dayOfValue(current, f.fullType); return d ? fmtDateFr(d) : ''; }
+    return textOf(current);
+  }
+
+  var importDialog = document.getElementById('importDialog');
+  var importFileEl = document.getElementById('importFile');
+  var importBodyEl = document.getElementById('importBody');
+  var importErrorEl = document.getElementById('importError');
+  var importGoBtn = document.getElementById('importGo');
+  var importCancelBtn = document.getElementById('importCancel');
+  var imp = { fields: [], headers: [], rows: [], map: [], keyId: '', clearEmpty: false, plan: null, busy: false };
+  function closeImportDialog() { if (imp.busy) return; importDialog.hidden = true; }
+  function importShowError(msg) { importErrorEl.hidden = !msg; importErrorEl.textContent = msg || ''; }
+  function openImportDialog() {
+    imp = { fields: stgImportFields(), headers: [], rows: [], map: [], keyId: '', clearEmpty: false, plan: null, busy: false };
+    importFileEl.value = '';
+    importBodyEl.innerHTML = '';
+    importShowError('');
+    importGoBtn.disabled = true;
+    importGoBtn.textContent = 'Appliquer';
+    importCancelBtn.disabled = false;
+    importCancelBtn.textContent = 'Annuler';
+    importDialog.hidden = false;
+    importFileEl.focus();
+  }
+  function importReadFile(file) {
+    return file.arrayBuffer().then(function (buf) {
+      try { return new TextDecoder('utf-8', { fatal: true }).decode(buf); } catch (e) { return new TextDecoder('windows-1252').decode(buf); }
+    });
+  }
+  function importLoad(text) {
+    var rows = csvParse(text);
+    if (rows.length < 2) throw new Error('le fichier ne contient pas de ligne de données (première ligne = titres des colonnes).');
+    imp.headers = rows[0].map(function (h) { return String(h).trim(); });
+    imp.rows = rows.slice(1);
+    // Reconnaissance des titres : un champ n'est lié qu'à la première colonne qui le porte.
+    var used = {};
+    imp.map = imp.headers.map(function (h) {
+      if (!h || /\(FICHIERS?\)\s*$/i.test(h)) return null;
+      var key = impKey(h), hit = null;
+      imp.fields.forEach(function (f) { if (!hit && !used[f.role] && impFieldKeys(f).indexOf(key) !== -1) hit = f; });
+      if (hit) used[hit.role] = true;
+      return hit;
+    });
+    var recognized = {};
+    imp.map.forEach(function (f) { if (f) recognized[f.role] = true; });
+    var opts = IMP_KEY_OPTIONS.filter(function (o) { return o.roles.every(function (r) { return recognized[r]; }); });
+    imp.keyOptions = opts;
+    imp.keyId = opts.length ? opts[0].id : '';
+  }
+  function importAnalyse() {
+    var opt = imp.keyOptions.filter(function (o) { return o.id === imp.keyId; })[0];
+    var plan = { opt: opt, matched: 0, unmatched: [], ambiguous: [], invalid: [], changes: [], rowsChanged: {} };
+    imp.plan = plan;
+    if (!opt) return;
+    var index = {};
+    candidates.rows.forEach(function (r) {
+      opt.keys(r).forEach(function (k) { if (k) { (index[k] = index[k] || []); if (index[k].indexOf(r) === -1) index[k].push(r); } });
+    });
+    var colOf = {}; // champ -> numéro de colonne du fichier
+    imp.map.forEach(function (f, i) { if (f) colOf[f.role] = i; });
+    var keyRoles = opt.roles;
+    var updatable = imp.map.map(function (f, i) { return f && !f.keyOnly && keyRoles.indexOf(f.role) === -1 ? { f: f, i: i } : null; }).filter(Boolean);
+    imp.rows.forEach(function (cells, n) {
+      var csvKeys;
+      if (opt.id === 'nomPrenom') csvKeys = [impKey((cells[colOf.nom] || '') + (cells[colOf.prenom] || ''))];
+      else csvKeys = [opt.id === 'nid' ? nidKey(cells[colOf[opt.roles[0]]]) : impKey(cells[colOf[opt.roles[0]]] || '')];
+      var label = opt.id === 'nomPrenom' ? ((cells[colOf.nom] || '') + ' ' + (cells[colOf.prenom] || '')).trim() : String(cells[colOf[opt.roles[0]]] || '').trim();
+      if (!csvKeys[0]) return; // ligne sans identifiant : ignorée
+      var found = index[csvKeys[0]] || [];
+      if (!found.length) { plan.unmatched.push('ligne ' + (n + 2) + ' : ' + label); return; }
+      if (found.length > 1) { plan.ambiguous.push('ligne ' + (n + 2) + ' : ' + label + ' (' + found.length + ' fiches)'); return; }
+      var row = found[0];
+      plan.matched++;
+      updatable.forEach(function (u) {
+        var raw = cells[u.i] === undefined ? '' : String(cells[u.i]);
+        if (!raw.trim() && !imp.clearEmpty) return;
+        var conv = impConvert(u.f, raw);
+        if (!conv.ok) { plan.invalid.push('ligne ' + (n + 2) + ', « ' + u.f.label + ' » : ' + conv.error); return; }
+        if (impSame(u.f, row[u.f.role], conv)) return;
+        plan.changes.push({ row: row, f: u.f, value: conv.value, before: impShow(u.f, row[u.f.role]), after: conv.shown });
+        plan.rowsChanged[row.id] = true;
+      });
+    });
+  }
+  function importRender() {
+    var plan = imp.plan, box = importBodyEl;
+    box.innerHTML = '';
+    function add(html, cls) { var p = document.createElement('p'); p.className = cls || 'fr-text--sm'; p.innerHTML = html; box.appendChild(p); return p; }
+    var ok = imp.map.filter(Boolean), ignored = imp.headers.filter(function (h, i) { return h && !imp.map[i]; });
+    add('<strong>' + imp.rows.length + '</strong> ligne(s) lue(s). Colonnes reconnues (' + ok.length + ') : ' + (ok.map(function (f) { return escapeHtml(f.label); }).join(', ') || 'aucune') +
+      (ignored.length ? '.<br>Ignorées (' + ignored.length + ') : ' + ignored.map(escapeHtml).join(', ') : '') + '.');
+    if (!imp.keyOptions.length) {
+      add('Aucune colonne d’identification reconnue : le fichier doit contenir au moins l’une des colonnes <strong>NID</strong>, <strong>N° CAND</strong>, <strong>Nigend</strong>, <strong>E-mail</strong>, <strong>Nom + Prénom</strong> ou <strong>Stagiaire</strong>.', 'fr-error-text');
+      importGoBtn.disabled = true;
+      return;
+    }
+    var sel = document.createElement('div');
+    sel.className = 'fr-select-group imp-keyrow';
+    sel.innerHTML = '<label class="fr-label" for="importKey">Identifier les stagiaires par</label><select class="fr-select" id="importKey"></select>';
+    var s = sel.querySelector('select');
+    imp.keyOptions.forEach(function (o) { s.appendChild(new Option(o.label, o.id)); });
+    s.value = imp.keyId;
+    s.addEventListener('change', function () { imp.keyId = s.value; importAnalyse(); importRender(); });
+    box.appendChild(sel);
+    var cb = document.createElement('div');
+    cb.className = 'fr-checkbox-group fr-checkbox-group--sm';
+    cb.innerHTML = '<input type="checkbox" id="importClear"><label class="fr-label" for="importClear">Une cellule vide efface la valeur actuelle (sinon elle est ignorée)</label>';
+    cb.querySelector('input').checked = imp.clearEmpty;
+    cb.querySelector('input').addEventListener('change', function (e) { imp.clearEmpty = e.target.checked; importAnalyse(); importRender(); });
+    box.appendChild(cb);
+    var nStg = Object.keys(plan.rowsChanged).length;
+    add('<strong>' + plan.matched + '</strong> stagiaire(s) reconnu(s) · <strong>' + plan.changes.length + '</strong> cellule(s) à modifier chez <strong>' + nStg + '</strong> stagiaire(s)' +
+      (plan.unmatched.length ? ' · <span class="imp-warn">' + plan.unmatched.length + ' ligne(s) sans correspondance</span>' : '') +
+      (plan.ambiguous.length ? ' · <span class="imp-warn">' + plan.ambiguous.length + ' ligne(s) ambiguë(s)</span>' : '') +
+      (plan.invalid.length ? ' · <span class="imp-warn">' + plan.invalid.length + ' valeur(s) invalide(s)</span>' : '') + '.');
+    [['Sans correspondance (ignorées)', plan.unmatched], ['Ambiguës (plusieurs fiches, ignorées)', plan.ambiguous], ['Valeurs invalides (ignorées)', plan.invalid]].forEach(function (g) {
+      if (!g[1].length) return;
+      var det = document.createElement('details');
+      det.className = 'imp-details';
+      var sum = document.createElement('summary');
+      sum.textContent = g[0] + ' : ' + g[1].length;
+      det.appendChild(sum);
+      var ul = document.createElement('ul');
+      g[1].slice(0, 30).forEach(function (t) { var li = document.createElement('li'); li.textContent = t; ul.appendChild(li); });
+      if (g[1].length > 30) { var more = document.createElement('li'); more.textContent = '… et ' + (g[1].length - 30) + ' autre(s)'; ul.appendChild(more); }
+      det.appendChild(ul);
+      box.appendChild(det);
+    });
+    if (plan.changes.length) {
+      var wrap = document.createElement('div');
+      wrap.className = 'imp-table-wrap';
+      var tbl = document.createElement('table');
+      tbl.className = 'imp-table';
+      tbl.innerHTML = '<thead><tr><th>Stagiaire</th><th>Champ</th><th>Actuel</th><th>Nouveau</th></tr></thead>';
+      var tb = document.createElement('tbody');
+      plan.changes.slice(0, 200).forEach(function (c) {
+        var tr = document.createElement('tr');
+        [stagiaireDisplayName(c.row), c.f.label, c.before || '—', c.after || '—'].forEach(function (t) { var td = document.createElement('td'); td.textContent = t; tr.appendChild(td); });
+        tb.appendChild(tr);
+      });
+      tbl.appendChild(tb);
+      wrap.appendChild(tbl);
+      box.appendChild(wrap);
+      if (plan.changes.length > 200) add('Aperçu limité aux 200 premières modifications (toutes seront appliquées).', 'fr-hint-text');
+    } else add('Aucune modification à appliquer : les données du fichier sont déjà à jour.', 'fr-hint-text');
+    importGoBtn.disabled = !plan.changes.length;
+  }
+  function importApply() {
+    var plan = imp.plan;
+    if (!plan || !plan.changes.length || imp.busy) return;
+    imp.busy = true;
+    importGoBtn.disabled = true;
+    importCancelBtn.disabled = true;
+    importShowError('');
+    // Les champs de la table Documents exigent la ligne liée au stagiaire : créée au besoin (voir ensureDocRowId).
+    var docRows = [];
+    plan.changes.forEach(function (c) { if (c.f.doc && docRows.indexOf(c.row) === -1) docRows.push(c.row); });
+    docRows.reduce(function (p, r) { return p.then(function () { return ensureDocRowId(r); }); }, Promise.resolve()).then(function () {
+      var byTarget = {}, order = [];
+      plan.changes.forEach(function (c) {
+        var rowId = c.f.doc ? c.row.__docRowId : c.row.id;
+        var key = c.f.table + '#' + rowId;
+        if (!byTarget[key]) { byTarget[key] = { table: c.f.table, rowId: rowId, fields: {} }; order.push(key); }
+        byTarget[key].fields[c.f.colId] = c.value;
+      });
+      return grist.docApi.applyUserActions(order.map(function (k) { var t = byTarget[k]; return ['UpdateRecord', t.table, t.rowId, t.fields]; }));
+    }).then(function () {
+      imp.busy = false;
+      var n = plan.changes.length, s = Object.keys(plan.rowsChanged).length;
+      importBodyEl.innerHTML = '';
+      var p = document.createElement('p');
+      p.className = 'fr-text--sm';
+      p.innerHTML = '<strong>' + n + '</strong> cellule(s) mise(s) à jour chez <strong>' + s + '</strong> stagiaire(s).';
+      importBodyEl.appendChild(p);
+      importGoBtn.hidden = true;
+      importCancelBtn.disabled = false;
+      importCancelBtn.textContent = 'Fermer';
+      imp.plan = null;
+      loadCandidates();
+    }).catch(function (e) {
+      imp.busy = false;
+      importGoBtn.disabled = false;
+      importCancelBtn.disabled = false;
+      importShowError('Mise à jour impossible (aucune modification enregistrée) : ' + friendlyErrorMessage(e));
+    });
+  }
+  document.getElementById('stgImportBtn').addEventListener('click', function () {
+    if (!candidates.loaded) { window.alert('Les stagiaires ne sont pas encore chargés.'); return; }
+    importGoBtn.hidden = false;
+    openImportDialog();
+  });
+  importFileEl.addEventListener('change', function () {
+    var file = importFileEl.files && importFileEl.files[0];
+    importBodyEl.innerHTML = '';
+    importShowError('');
+    importGoBtn.disabled = true;
+    if (!file) return;
+    importReadFile(file).then(function (text) {
+      importLoad(text);
+      importAnalyse();
+      importRender();
+    }).catch(function (e) { importShowError('Lecture du fichier impossible : ' + friendlyErrorMessage(e)); });
+  });
+  importGoBtn.addEventListener('click', importApply);
+  document.getElementById('importClose').addEventListener('click', closeImportDialog);
+  importCancelBtn.addEventListener('click', closeImportDialog);
+  var importDownOnBackdrop = false;
+  importDialog.addEventListener('mousedown', function (e) { importDownOnBackdrop = e.target === importDialog; });
+  importDialog.addEventListener('click', function (e) { if (e.target === importDialog && importDownOnBackdrop) closeImportDialog(); });
+  importDialog.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); closeImportDialog(); } });
 
   // ---- État rationnaire par FA (document intégré, page Générer doc. en lot) ------------------------------
   // Un fichier Excel (.xlsx), quatre onglets fixes selon l'affectation (colonne Affectation des tables
