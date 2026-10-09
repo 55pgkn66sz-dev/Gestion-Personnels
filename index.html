@@ -1274,6 +1274,7 @@
   /* ---- Page Statistiques ---- */
   :root { --stat-c1: #000091; --stat-c2: #e1000f; --stat-c3: #c98a00; --stat-c4: #18753c; --stat-c5: #6a6af4; --stat-c6: #009081; --stat-c7: #a558a0; --stat-c8: #8a8a8a; }
   [data-fr-theme="dark"] { --stat-c1: #8585f6; --stat-c2: #ff6b6b; --stat-c3: #fcc63a; --stat-c4: #27a658; --stat-c5: #b4b4ff; --stat-c6: #3ccbbd; --stat-c7: #d99bd5; --stat-c8: #a0a0a0; }
+  .stat-head__btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
   .stat-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
   .stat-portrait { margin: 0.4rem 0 1rem; padding: 0.7rem 1rem; border-left: 4px solid var(--bleu-france); background: var(--background-alt-grey); border-radius: 0 0.4rem 0.4rem 0; }
   .stat-section { margin: 0 0 1.8rem; }
@@ -1315,7 +1316,39 @@
   .stat-cols__bar { display: block; width: 100%; background: var(--stat-c1); border-radius: 3px 3px 0 0; min-height: 0; }
   .stat-cols__val { font-size: 0.7rem; color: var(--text-mention-grey); height: 1rem; }
   .stat-cols__lbl { font-size: 0.7rem; height: 1.1rem; margin-top: 0.15rem; }
-  @media print { header.fr-header, .stat-head button { display: none !important; } .stat-card { break-inside: avoid; } }
+  .stat-syn { margin: 0 0 1.5rem; }
+  .stat-detail { margin: 0 0 1.5rem; }
+  .stat-detail__sum { cursor: pointer; font-weight: 600; color: var(--bleu-france); padding: 0.5rem 0; margin-bottom: 0.8rem; }
+  .stat-scols__plot { display: flex; align-items: stretch; gap: 4px; height: 13rem; padding-top: 0.3rem; overflow-x: auto; }
+  .stat-scols__col { flex: 1; min-width: 1.6rem; max-width: 3.5rem; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; }
+  .stat-scols__stack { display: flex; flex-direction: column-reverse; width: 100%; border-radius: 3px 3px 0 0; overflow: hidden; gap: 2px; }
+  .stat-scols__seg { display: block; width: 100%; min-height: 3px; }
+  .stat-bars--gap { margin-top: 0.8rem; }
+  .stat-good { color: var(--text-default-success); }
+  .stat-bad { color: var(--text-default-error); }
+  .stat-meter__val { font-size: 1.9rem; font-weight: 700; line-height: 1.1; color: var(--bleu-france); }
+  .stat-meter__track { position: relative; height: 0.7rem; margin: 0.5rem 0 0.3rem; background: var(--background-alt-grey); border-radius: 4px; }
+  .stat-meter__fill { height: 100%; background: var(--stat-c1); border-radius: 4px; }
+  .stat-meter__ref { position: absolute; top: -0.3rem; width: 2px; height: 1.3rem; background: var(--text-title-grey, currentColor); }
+  .stat-meter__note { margin: 0.2rem 0 0; font-size: 0.8rem; color: var(--text-mention-grey); }
+  .stat-heat { display: grid; gap: 3px; font-size: 0.8rem; align-items: stretch; }
+  .stat-heat__h { font-size: 0.72rem; text-align: center; color: var(--text-mention-grey); align-self: end; }
+  .stat-heat__lbl { align-self: center; font-weight: 600; }
+  .stat-heat__cell { display: flex; align-items: center; justify-content: center; min-height: 1.6rem; border-radius: 3px; }
+  .stat-line__svg { width: 100%; max-height: 11rem; }
+  .stat-line__grid { stroke: var(--border-default-grey); stroke-width: 0.5; }
+  .stat-line__ax { font-size: 7px; fill: var(--text-mention-grey); }
+  .stat-line__area { fill: var(--stat-c1); opacity: 0.12; }
+  .stat-line__path { fill: none; stroke: var(--stat-c1); stroke-width: 2; stroke-linejoin: round; }
+  .stat-line__dot { fill: var(--stat-c1); stroke: var(--background-raised-grey); stroke-width: 1.5; }
+  @media print {
+    body { background: #fff !important; }
+    header.fr-header, footer, .stat-head button, .stat-detail { display: none !important; }
+    .stat-card, .stat-kpi { break-inside: avoid; box-shadow: none; }
+    .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+    .stat-card { padding: 0.5rem 0.7rem; }
+    .stat-donut__svg { width: 6.5rem; height: 6.5rem; }
+  }
   .imp-keyrow { margin: 0.6rem 0; max-width: 24rem; }
   .imp-warn { color: var(--text-default-warning); font-weight: 600; }
   .imp-details { margin: 0.4rem 0; font-size: 0.85rem; }
@@ -1495,6 +1528,7 @@
       <p class="cand-count cand-count--push" id="candCount"></p>
     </div>
 
+    <div id="candDocStats" class="fr-mb-2w"></div>
     <div id="candZone"></div>
     <div class="bulk-dialog" id="mailAllDialog" role="dialog" aria-modal="true" aria-labelledby="mailAllTitle" hidden>
       <div class="bulk-dialog__box bulk-dialog__box--md">
@@ -1533,7 +1567,10 @@
   <div id="panelStats" hidden>
     <div class="stat-head">
       <h2 class="fr-h6">Statistiques</h2>
-      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-refresh-line fr-btn--icon-left" id="statsReloadBtn" type="button" title="Recharger les données depuis Grist">Actualiser</button>
+      <div class="stat-head__btns">
+        <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-printer-line fr-btn--icon-left" id="statsPrintBtn" type="button" title="Imprimer la synthèse (une page)">Imprimer la synthèse</button>
+        <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-refresh-line fr-btn--icon-left" id="statsReloadBtn" type="button" title="Recharger les données depuis Grist">Actualiser</button>
+      </div>
     </div>
     <div id="statsZone"></div>
   </div>
@@ -1903,6 +1940,11 @@
     <input class="fr-input" type="text" id="cand_dateFinFormation" inputmode="numeric" maxlength="10" placeholder="JJ/MM/AAAA" autocomplete="off" aria-describedby="cand_dateFinFormation_err">
     <p class="fr-error-text" id="cand_dateFinFormation_err" hidden>Date invalide : utilisez le format JJ/MM/AAAA (par ex. 15/09/2026).</p>
   </div>
+<div class="fr-input-group" id="cand_attritionRef_group">
+    <label class="fr-label" for="cand_attritionRef">Attrition de référence (%)
+      <span class="fr-hint-text">Taux habituel d'un stage, repère de la page Statistiques (par ex. 5).</span></label>
+    <input class="fr-input" type="text" id="cand_attritionRef" inputmode="decimal" maxlength="5" placeholder="5" autocomplete="off">
+  </div>
 </div>
 
       </section>
@@ -2055,7 +2097,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 13.2</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 14.1</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -2174,7 +2216,7 @@
   function defaultConfig() {
     var col = {};
     ROLES.forEach(function (role) { col[role] = ''; });
-    return { table: '', docsTable: '', docsLinkCol: '', hideEtuteur: false, dateDebutFormation: '', dateFinFormation: '', eadMail: { subject: DEFAULT_EAD_MAIL.subject, body: DEFAULT_EAD_MAIL.body },
+    return { table: '', docsTable: '', docsLinkCol: '', hideEtuteur: false, dateDebutFormation: '', dateFinFormation: '', attritionRef: '', eadMail: { subject: DEFAULT_EAD_MAIL.subject, body: DEFAULT_EAD_MAIL.body },
       refusalMail: { subject: DEFAULT_REFUSAL_MAIL.subject, body: DEFAULT_REFUSAL_MAIL.body }, col: col };
   }
   function mergeConfig(loaded) {
@@ -2185,6 +2227,7 @@
     cfg.docsLinkCol = loaded.docsLinkCol || '';
     cfg.dateDebutFormation = (typeof loaded.dateDebutFormation === 'string') ? loaded.dateDebutFormation : '';
     cfg.dateFinFormation = (typeof loaded.dateFinFormation === 'string') ? loaded.dateFinFormation : '';
+    cfg.attritionRef = (typeof loaded.attritionRef === 'string' || typeof loaded.attritionRef === 'number') ? String(loaded.attritionRef) : '';
     cfg.hideEtuteur = !!loaded.hideEtuteur; // masque l'onglet et la page eTuteur
     if (loaded.eadMail && typeof loaded.eadMail.subject === 'string' && typeof loaded.eadMail.body === 'string') {
       cfg.eadMail = { subject: loaded.eadMail.subject, body: loaded.eadMail.body }; // (une ancienne pièce jointe enregistrée est ignorée)
@@ -2418,6 +2461,7 @@
   navEncadrement.addEventListener('click', function () { showPage('encadrement'); });
   navStats.addEventListener('click', function () { showPage('stats'); renderStats(); });
   document.getElementById('statsReloadBtn').addEventListener('click', function () { loadCandidates(); });
+  document.getElementById('statsPrintBtn').addEventListener('click', function () { window.print(); });
   document.getElementById('bulkGearBtn').addEventListener('click', function () { showPage('docmgmt'); });
   document.getElementById('mgmtBackBtn').addEventListener('click', function () { showPage('bulk'); });
 
@@ -2616,6 +2660,7 @@
       fillSelectWithOptions(docsTableEl, allTableIds, settings.docsTable, 'Choisir une table…');
       startDateEl.value = settings.dateDebutFormation;
       finDateEl.value = settings.dateFinFormation;
+      document.getElementById('cand_attritionRef').value = settings.attritionRef || '';
       document.getElementById('cfg_hideEtuteur').checked = !!settings.hideEtuteur;
       mailSubjectEl.value = settings.eadMail.subject;
       mailBodyEl.value = settings.eadMail.body;
@@ -2687,6 +2732,7 @@
     cfg.hideEtuteur = document.getElementById('cfg_hideEtuteur').checked;
     cfg.dateDebutFormation = startDateEl.value.trim();
     cfg.dateFinFormation = finDateEl.value.trim();
+    cfg.attritionRef = document.getElementById('cand_attritionRef').value.trim();
     cfg.eadMail = { subject: mailSubjectEl.value.trim(), body: mailBodyEl.value };
     cfg.refusalMail = { subject: refusalSubjectEl.value.trim(), body: refusalBodyEl.value };
     ROLES.forEach(function (role) {
@@ -2702,6 +2748,9 @@
     if (!cfg.table) errors.push('Table « Stagiaires » introuvable dans ce document.');
     if (cfg.dateDebutFormation && !parseFrDate(cfg.dateDebutFormation)) {
       errors.push('« Début de formation le » doit être une date valide au format JJ/MM/AAAA (par ex. 15/09/2026).');
+    }
+    if (cfg.attritionRef && (!isFinite(parseFloat(cfg.attritionRef.replace(',', '.'))) || parseFloat(cfg.attritionRef.replace(',', '.')) < 0 || parseFloat(cfg.attritionRef.replace(',', '.')) > 100)) {
+      errors.push('« Attrition de référence » doit être un pourcentage entre 0 et 100 (par ex. 5).');
     }
     if (cfg.dateFinFormation && !parseFrDate(cfg.dateFinFormation)) {
       errors.push('« Fin de formation le » doit être une date valide au format JJ/MM/AAAA (par ex. 15/09/2026).');
@@ -3485,6 +3534,7 @@
 
   function renderCandidates() {
     candZone.innerHTML = '';
+    renderDocStats();
     if (candidates.error) {
       candZone.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm"><p>' + escapeHtml(candidates.error) + '</p></div>';
       candCount.textContent = '';
@@ -7626,6 +7676,25 @@
     });
     return box;
   }
+  // Barres empilées : état de chaque pièce jointe (validé, à valider, refusé, manquant) sur un ensemble de stagiaires.
+  function statDocChart(rows, roles) {
+    var defs = [{ label: 'Validé', color: statColor(3) }, { label: 'À valider', color: statColor(2) }, { label: 'Refusé', color: statColor(1) }, { label: 'Manquant', color: statColor(7) }];
+    var keys = ['ok', 'pending', 'rejected', 'missing'];
+    return statStacked(roles.map(function (role) {
+      var c = [0, 0, 0, 0];
+      rows.forEach(function (r) { c[keys.indexOf(docStatus(r, role))]++; });
+      return { label: DOC_TAG_LABELS[role] || ROLE_LABELS[role], parts: c };
+    }), defs);
+  }
+  // Page eTuteur : suivi des pièces du dossier au-dessus du tableau des candidats.
+  function renderDocStats() {
+    var candDocStatsEl = document.getElementById('candDocStats');
+    candDocStatsEl.innerHTML = '';
+    if (!candidates.loaded || candidates.error) return;
+    var roles = ATTACHMENT_ROLES.filter(function (r) { return settings.col[r]; });
+    if (!roles.length || !candidates.rows.length) return;
+    candDocStatsEl.appendChild(statCard('Suivi des pièces du dossier', candidates.rows.length + ' candidat(s) · validé, à valider, refusé ou manquant', statDocChart(candidates.rows, roles)));
+  }
   function statCard(title, source, body, wide) {
     var card = statEl('section', 'stat-card' + (wide ? ' stat-card--wide' : ''));
     card.appendChild(statEl('h4', 'stat-card__title', title));
@@ -7698,12 +7767,12 @@
   function statsDeparture(row) {
     var rec = dep.byStagiaire[row.id];
     if (rec) {
-      var mc = depField('MOTIF DE DEPART');
-      return { motif: mc ? textOf(rec.vals[mc.id]) : '' };
+      var mc = depField('MOTIF DE DEPART'), dc = depField('DATE DE DEPART');
+      return { motif: mc ? textOf(rec.vals[mc.id]) : '', date: dc ? dayOfValue(rec.vals[dc.id], dc.fullType) : null };
     }
     var motif = settings.col.motifDepart ? textOf(row.motifDepart) : '';
-    var date = settings.col.dateDepart ? textOf(row.dateDepart) : '';
-    return motif || date ? { motif: motif } : null;
+    var date = settings.col.dateDepart ? dayOfValue(row.dateDepart, (columnTypesMap[settings.table] || {})[settings.col.dateDepart]) : null;
+    return motif || date ? { motif: motif, date: date } : null;
   }
   function statsMedian(list) {
     var s = list.slice().sort(function (a, b) { return a - b; }), n = s.length;
@@ -7729,6 +7798,121 @@
     return col.type === 'ChoiceList' ? t.split(/\s*,\s*/).filter(Boolean) : [t];
   }
 
+  // Colonnes empilées : une colonne par date, découpée par motif (parts = effectifs dans l'ordre de partDefs).
+  function statStackedCols(cols, partDefs) {
+    var box = statEl('div', 'stat-scols');
+    var max = Math.max.apply(null, cols.map(function (c) { return c.parts.reduce(function (s, v) { return s + v; }, 0); })) || 1;
+    var plot = statEl('div', 'stat-scols__plot');
+    var every = cols.length > 20 ? Math.ceil(cols.length / 20) : 1;
+    cols.forEach(function (c, i) {
+      var total = c.parts.reduce(function (s, v) { return s + v; }, 0);
+      var col = statEl('div', 'stat-scols__col');
+      col.title = c.label + ' : ' + total + ' départ(s)\n' + partDefs.map(function (d, k) { return c.parts[k] ? d.label + ' : ' + c.parts[k] : ''; }).filter(Boolean).join('\n');
+      col.appendChild(statEl('span', 'stat-cols__val', String(total)));
+      var stack = statEl('span', 'stat-scols__stack');
+      stack.style.height = (total * 100 / max) + '%';
+      c.parts.forEach(function (v, k) {
+        if (!v) return;
+        var seg = statEl('span', 'stat-scols__seg');
+        seg.style.flex = String(v);
+        seg.style.background = partDefs[k].color;
+        stack.appendChild(seg);
+      });
+      col.appendChild(stack);
+      col.appendChild(statEl('span', 'stat-cols__lbl', i % every === 0 ? c.label : ''));
+      plot.appendChild(col);
+    });
+    box.appendChild(plot);
+    var leg = statEl('ul', 'stat-legend stat-legend--inline');
+    partDefs.forEach(function (d) {
+      var li = statEl('li');
+      var sw = statEl('span', 'stat-legend__sw');
+      sw.style.background = d.color;
+      li.appendChild(sw);
+      li.appendChild(statEl('span', 'stat-legend__lbl', d.label));
+      leg.appendChild(li);
+    });
+    box.appendChild(leg);
+    return box;
+  }
+  // Matrice colorée (lignes × colonnes d'effectifs) : intensité proportionnelle à la part de la ligne.
+  function statHeat(rowDefs, colLabels) {
+    var box = statEl('div', 'stat-heat');
+    box.style.gridTemplateColumns = 'minmax(5rem, 9rem) repeat(' + colLabels.length + ', minmax(0, 1fr))';
+    box.appendChild(statEl('span', 'stat-heat__h', ''));
+    colLabels.forEach(function (l) { box.appendChild(statEl('span', 'stat-heat__h', l)); });
+    rowDefs.forEach(function (r) {
+      var last = r.counts.length - 1; // dernière colonne = « Non évalué » : neutre, hors du calcul d'intensité
+      var total = r.counts.reduce(function (s, v) { return s + v; }, 0), evaluated = total - r.counts[last];
+      box.appendChild(statEl('span', 'stat-heat__lbl', r.label));
+      r.counts.forEach(function (v, i) {
+        var cell = statEl('span', 'stat-heat__cell', String(v));
+        var share = evaluated ? v / evaluated : 0;
+        if (i === last) { cell.style.background = 'var(--background-alt-grey)'; cell.style.color = 'var(--text-mention-grey)'; }
+        else {
+          cell.style.background = 'color-mix(in srgb, var(--stat-c1) ' + Math.round(8 + share * 80) + '%, transparent)';
+          if (share > 0.55) cell.style.color = '#fff';
+        }
+        cell.title = r.label + ' — ' + colLabels[i] + ' : ' + v + ' (' + statPct(v, total) + ')';
+        box.appendChild(cell);
+      });
+    });
+    return box;
+  }
+  // Courbe (effectif cumulé dans le temps) : points { label, value }.
+  function statLine(points) {
+    var box = statEl('div', 'stat-line');
+    var NS = 'http://www.w3.org/2000/svg', W = 300, H = 110, L = 26, B = 18, T = 8, R = 8;
+    var max = Math.max.apply(null, points.map(function (p) { return p.value; })) || 1;
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.setAttribute('class', 'stat-line__svg');
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', 'Courbe cumulée : ' + points.map(function (p) { return p.label + ' ' + p.value; }).join(', '));
+    function X(i) { return points.length === 1 ? L : L + i * (W - L - R) / (points.length - 1); }
+    function Y(v) { return T + (H - T - B) * (1 - v / max); }
+    function add(tag, attrs, text) { var e = document.createElementNS(NS, tag); Object.keys(attrs).forEach(function (k) { e.setAttribute(k, attrs[k]); }); if (text !== undefined) e.textContent = text; svg.appendChild(e); return e; }
+    [0, max].forEach(function (v) {
+      add('line', { x1: L, x2: W - R, y1: Y(v), y2: Y(v), class: 'stat-line__grid' });
+      add('text', { x: L - 4, y: Y(v) + 3, 'text-anchor': 'end', class: 'stat-line__ax' }, String(v));
+    });
+    var pts = points.map(function (p, i) { return X(i) + ',' + Y(p.value); }).join(' ');
+    add('polygon', { points: L + ',' + Y(0) + ' ' + pts + ' ' + X(points.length - 1) + ',' + Y(0), class: 'stat-line__area' });
+    add('polyline', { points: pts, class: 'stat-line__path' });
+    points.forEach(function (p, i) { var c = add('circle', { cx: X(i), cy: Y(p.value), r: 3, class: 'stat-line__dot' }); var t = document.createElementNS(NS, 'title'); t.textContent = p.label + ' : ' + p.value; c.appendChild(t); });
+    add('text', { x: L, y: H - 4, 'text-anchor': 'start', class: 'stat-line__ax' }, points[0].label);
+    if (points.length > 1) add('text', { x: W - R, y: H - 4, 'text-anchor': 'end', class: 'stat-line__ax' }, points[points.length - 1].label);
+    box.appendChild(svg);
+    return box;
+  }
+  // Taux avec repère de référence : barre graduée + écart (vert sous la référence, rouge au-dessus).
+  function statMeter(pct, ref) {
+    var box = statEl('div', 'stat-meter');
+    var hasRef = ref !== null && isFinite(ref);
+    var top = Math.max(10, pct * 1.4, hasRef ? ref * 2 : 0);
+    box.appendChild(statEl('div', 'stat-meter__val', statNum(pct) + ' %'));
+    var track = statEl('div', 'stat-meter__track');
+    var fill = statEl('div', 'stat-meter__fill');
+    fill.style.width = Math.min(100, pct * 100 / top) + '%';
+    track.appendChild(fill);
+    if (hasRef) {
+      var mark = statEl('div', 'stat-meter__ref');
+      mark.style.left = Math.min(100, ref * 100 / top) + '%';
+      mark.title = 'Référence : ' + statNum(ref) + ' %';
+      track.appendChild(mark);
+    }
+    box.appendChild(track);
+    if (hasRef) {
+      var diff = Math.round((pct - ref) * 10) / 10;
+      var line = statEl('p', 'stat-meter__note');
+      line.appendChild(document.createTextNode('Référence : ' + statNum(ref) + ' % · '));
+      line.appendChild(statEl('strong', diff > 0 ? 'stat-bad' : 'stat-good', (diff > 0 ? '+' : diff < 0 ? '−' : '') + statNum(Math.abs(diff)) + ' pt ' + (diff > 0 ? 'au-dessus' : diff < 0 ? 'en dessous' : '(égal)')));
+      box.appendChild(line);
+    } else box.appendChild(statEl('p', 'stat-meter__note', 'Référence non réglée (Configuration, « Attrition de référence »).'));
+    return box;
+  }
+  var statDetailOpen = false;
+
   function renderStats() {
     statsZone.innerHTML = '';
     function info(msg, kind) { statsZone.innerHTML = '<div class="fr-alert fr-alert--' + (kind || 'info') + ' fr-alert--sm"><p>' + escapeHtml(msg) + '</p></div>'; }
@@ -7740,49 +7924,152 @@
     var j1 = parseFrDate(settings.dateDebutFormation);
     var j1Known = !!j1;
     if (!j1) { var now = new Date(); j1 = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())); }
+
+    var sexes = rows.map(statsSex), nF = sexes.filter(function (x) { return x === 'F'; }).length, nH = sexes.filter(function (x) { return x === 'H'; }).length;
+    var ages = rows.map(function (r) { return statsAge(r, j1); }).filter(function (a) { return a !== null; });
+    var departs = rows.map(statsDeparture);
+    var nDep = departs.filter(Boolean).length, nPresent = n - nDep;
+    var refRaw = parseFloat(String(settings.attritionRef || '').replace(',', '.'));
+    var attrRef = isFinite(refRaw) ? refRaw : null;
+    var extras = statsExtraCols(rows), prof = [];
+    var docRoles = ATTACHMENT_ROLES.filter(function (r) { return settings.col[r]; });
+
+    // ===== Synthèse : l'essentiel, sur une page =====
+    var syn = statEl('section', 'stat-syn');
+    syn.appendChild(statEl('h3', 'stat-section__title', 'Synthèse'));
+    syn.appendChild(statEl('p', 'stat-section__hint', n + ' stagiaire(s)' + (rows.dups ? ' (' + rows.dups + ' fiche(s) en doublon écartée(s))' : '') +
+      (settings.dateDebutFormation ? ' · début de formation le ' + settings.dateDebutFormation : '') + ' · situation au ' + fmtDateFr(new Date())));
+    var kp = statEl('div', 'stat-kpis');
+    kp.appendChild(statKpi('Stagiaires', String(n)));
+    kp.appendChild(statKpi('Départs enregistrés', String(nDep), 'Attrition : ' + statPct(nDep, n)));
+    kp.appendChild(statKpi('Présents', String(nPresent)));
+    if (enc.loaded && enc.rows.length) kp.appendChild(statKpi('Cadres', String(enc.rows.length), '1 cadre pour ' + statNum(nPresent / enc.rows.length) + ' stagiaires'));
+    if (nF + nH) kp.appendChild(statKpi('Féminisation', statPct(nF, nF + nH), nF + ' femme(s)'));
+    if (ages.length) kp.appendChild(statKpi('Âge moyen', statNum(ages.reduce(function (s, a) { return s + a; }, 0) / ages.length) + ' ans', 'médian : ' + statNum(statsMedian(ages)) + ' ans'));
+    syn.appendChild(kp);
+    var sg = statEl('div', 'stat-grid');
+    syn.appendChild(sg);
+
+    // Attrition (avec référence) et départs dans le temps
+    var attr = statEl('div');
+    attr.appendChild(statMeter(n ? nDep * 100 / n : 0, attrRef));
+    var motifs = statCount(departs.filter(Boolean).map(function (d) { return d.motif || 'Motif non renseigné'; }));
+    if (motifs.length) { var mb = statBars(statTop(motifs, 5), nDep); mb.classList.add('stat-bars--gap'); attr.appendChild(mb); }
+    sg.appendChild(statCard('Attrition', 'Départs enregistrés sur le total des stagiaires · motifs de départ', attr));
+    var dated = departs.filter(function (d) { return d && d.date; });
+    var timeBody;
+    if (!dated.length) timeBody = statHint(nDep ? 'Les départs enregistrés n’ont pas de date.' : 'Aucun départ enregistré.');
+    else {
+      var byDay = {};
+      dated.forEach(function (d) { var k = d.date.getTime(); byDay[k] = (byDay[k] || 0) + 1; });
+      var days = Object.keys(byDay).map(Number).sort(function (a, b) { return a - b; }), cum = 0, pts = [];
+      if (j1Known && days[0] > j1.getTime()) pts.push({ label: fmtDateFr(j1), value: 0 });
+      days.forEach(function (k) { cum += byDay[k]; pts.push({ label: fmtDateFr(new Date(k)), value: cum }); });
+      timeBody = statLine(pts);
+    }
+    sg.appendChild(statCard('Départs dans le temps', 'Nombre cumulé de départs, par date de départ', timeBody));
+
+    // Départs par date et par motif
+    var byDate = {}, motifTotals = {};
+    dated.forEach(function (d) {
+      var k = d.date.getTime(), m = d.motif || 'Motif non renseigné';
+      (byDate[k] = byDate[k] || {})[m] = (byDate[k][m] || 0) + 1;
+      motifTotals[m] = (motifTotals[m] || 0) + 1;
+    });
+    var motifOrder = Object.keys(motifTotals).sort(function (a, b) { return motifTotals[b] - motifTotals[a] || nameCollator.compare(a, b); });
+    var shown = motifOrder.length > 6 ? motifOrder.slice(0, 5) : motifOrder;
+    var partDefs = shown.map(function (m, i) { return { label: m, color: statColor(i) }; });
+    if (motifOrder.length > 6) partDefs.push({ label: 'Autres motifs', color: statColor(7) });
+    var dayKeys = Object.keys(byDate).map(Number).sort(function (a, b) { return a - b; });
+    var undated = nDep - dated.length;
+    sg.appendChild(statCard('Départs par date et par motif', dated.length ? 'Nombre de départs enregistrés chaque jour, par motif' + (undated ? ' · ' + undated + ' départ(s) sans date non représenté(s)' : '') : 'Date de départ et motif de départ',
+      dated.length ? statStackedCols(dayKeys.map(function (k) {
+        var parts = shown.map(function (m) { return byDate[k][m] || 0; });
+        if (motifOrder.length > 6) parts.push(Object.keys(byDate[k]).filter(function (m) { return shown.indexOf(m) === -1; }).reduce(function (sum, m) { return sum + byDate[k][m]; }, 0));
+        return { label: fmtDateFr(new Date(k)).slice(0, 5), parts: parts };
+      }), partDefs) : statHint(nDep ? 'Les départs enregistrés n’ont pas de date.' : 'Aucun départ enregistré.'), true));
+
+    // Unités, féminisation
+    if (settings.col.affectation) {
+      var fa = statCount(rows.map(statsFA).filter(Boolean)), faOrder = ['RGIF', 'GR', 'GTA', 'Autres'];
+      fa.sort(function (a, b) { return faOrder.indexOf(a.label) - faOrder.indexOf(b.label); });
+      sg.appendChild(statCard('Répartition entre les unités', 'RGIF, GR, GTA d’après l’affectation', statDonut(fa, 'stagiaires')));
+    }
+    if (nF + nH) sg.appendChild(statCard('Féminisation', 'Part des femmes parmi les stagiaires', statDonut([{ label: 'Hommes', value: nH, color: statColor(0) }, { label: 'Femmes', value: nF, color: statColor(1) }], 'stagiaires')));
+
+    // Âge et profil
+    if (ages.length) {
+      var tr = [['Moins de 18 ans', 0, 17], ['18 – 19 ans', 18, 19], ['20 – 26 ans', 20, 26], ['27 – 35 ans', 27, 35], ['36 ans et plus', 36, 200]].map(function (t) {
+        return { label: t[0], value: ages.filter(function (x) { return x >= t[1] && x <= t[2]; }).length };
+      }).filter(function (x) { return x.value; });
+      sg.appendChild(statCard('Tranches d’âge', j1Known ? 'Âge au premier jour de la formation' : 'Âge à la date du jour', statBars(tr, ages.length)));
+    }
+    extras.forEach(function (c, ci) {
+      var vals = [];
+      rows.forEach(function (r) { statsValuesOf(r, c).forEach(function (v) { vals.push(v); }); });
+      var items = statTop(statCount(vals), 8);
+      if (!items.length) return;
+      prof.push({ col: c, items: items, vals: vals.length, first: ci === 0 });
+    });
+    if (prof.length) sg.appendChild(statCard(prof[0].col.label, 'Colonne « ' + prof[0].col.label + ' »', prof[0].items.length <= 6 ? statDonut(prof[0].items, 'réponses') : statBars(prof[0].items, prof[0].vals)));
+
+    // Dossiers administratifs
+    if (docRoles.length) sg.appendChild(statCard('Suivi des pièces du dossier', 'Validé, à valider, refusé ou manquant', statDocChart(rows, docRoles), true));
+
+    // Appréciations
+    var ids = {};
+    rows.forEach(function (r) { ids[r.id] = true; });
+    if (appr.loaded && appr.domains.length) {
+      var order = APPR_LEVELS.slice().reverse(), evaluated = {};
+      var heatRows = appr.domains.map(function (d) {
+        var counts = [0, 0, 0, 0, 0, 0];
+        rows.forEach(function (r) {
+          var rec = appr.byStagiaire[r.id], lvl = rec ? apprLevelIndex(rec.vals[d.col.id]) : -1;
+          if (lvl < 0) counts[5]++; else { counts[order.indexOf(APPR_LEVELS[lvl])]++; evaluated[r.id] = true; }
+        });
+        return { label: d.label, counts: counts };
+      });
+      sg.appendChild(statCard('Appréciations par matière', Object.keys(evaluated).length + ' stagiaire(s) évalué(s) sur ' + n + ' · effectifs par niveau', statHeat(heatRows, order.concat(['Non évalué'])), true));
+    } else if (appr.error || appr.loaded) {
+      sg.appendChild(statCard('Appréciations par matière', '', statHint(appr.error || 'Aucune matière reconnue dans la table « Appréciation stagiaires ».'), true));
+    }
+    var decCol = appr.loaded ? appr.extras.filter(function (c) { return bulkKey(c.id) === 'DECISION' || bulkKey(c.label) === 'DECISION'; })[0] : null;
+    if (decCol) {
+      var dec = statCount(rows.map(function (r) { var rec = appr.byStagiaire[r.id]; return rec ? textOf(rec.vals[decCol.id]) : ''; }).filter(Boolean));
+      if (dec.length) sg.appendChild(statCard('Décisions', 'Colonne « ' + decCol.label + ' »', statDonut(statTop(dec, 6), 'décisions')));
+    }
+    statsZone.appendChild(syn);
+
+    // ===== Détail par rubrique =====
+    var det = document.createElement('details');
+    det.className = 'stat-detail';
+    det.open = statDetailOpen;
+    det.addEventListener('toggle', function () { statDetailOpen = det.open; });
+    det.appendChild(statEl('summary', 'stat-detail__sum', 'Détail par rubrique'));
+    statsZone.appendChild(det);
     function section(title, hint) {
       var s = statEl('section', 'stat-section');
       s.appendChild(statEl('h3', 'stat-section__title', title));
       if (hint) s.appendChild(statEl('p', 'stat-section__hint', hint));
       var grid = statEl('div', 'stat-grid');
       s.appendChild(grid);
-      statsZone.appendChild(s);
+      det.appendChild(s);
       return grid;
     }
-    var prof = [];
-    var sexes = rows.map(statsSex), nF = sexes.filter(function (x) { return x === 'F'; }).length, nH = sexes.filter(function (x) { return x === 'H'; }).length;
-    var ages = rows.map(function (r) { return statsAge(r, j1); }).filter(function (a) { return a !== null; });
-    var departs = rows.map(statsDeparture);
-    var nDep = departs.filter(Boolean).length;
+    var g;
+    if (motifs.length > 5 || nDep) {
+      g = section('Départs');
+      g.appendChild(statCard('Motifs de départ', 'Table « Gestion des départs » ou colonne Motif de départ', motifs.length ? statBars(statTop(motifs, 8), nDep) : statHint('Aucun départ enregistré.')));
+      g.appendChild(statCard('Effectif présent et départs', '', statDonut([{ label: 'Présents', value: nPresent, color: statColor(3) }, { label: 'Départs', value: nDep, color: statColor(1) }], 'stagiaires')));
+    }
 
-    // 1. Effectifs et attrition
-    var g = section('Effectifs et attrition', 'Stagiaires de la table' + (rows.dups ? ' (' + rows.dups + ' fiche(s) en doublon écartée(s))' : '') + (settings.dateDebutFormation ? ' · début de formation le ' + settings.dateDebutFormation : ''));
-    var kp = statEl('div', 'stat-kpis stat-grid__full');
-    kp.appendChild(statKpi('Stagiaires', String(n)));
-    kp.appendChild(statKpi('Départs enregistrés', String(nDep), 'Attrition : ' + statPct(nDep, n)));
-    kp.appendChild(statKpi('Présents', String(n - nDep)));
-    if (enc.loaded) kp.appendChild(statKpi('Cadres', String(enc.rows.length)));
-    if (nF + nH) kp.appendChild(statKpi('Féminisation', statPct(nF, nF + nH), nF + ' femme(s)'));
-    if (ages.length) kp.appendChild(statKpi('Âge moyen', statNum(ages.reduce(function (s, a) { return s + a; }, 0) / ages.length) + ' ans', 'médian : ' + statNum(statsMedian(ages)) + ' ans'));
-    g.appendChild(kp);
-    g.appendChild(statCard('Effectif présent et départs', 'Rapport de synthèse : effectifs, attrition',
-      statDonut([{ label: 'Présents', value: n - nDep, color: statColor(3) }, { label: 'Départs', value: nDep, color: statColor(1) }], 'stagiaires')));
-    var motifs = statCount(departs.filter(Boolean).map(function (d) { return d.motif || 'Motif non renseigné'; }));
-    g.appendChild(statCard('Motifs de départ', 'Table « Gestion des départs » ou colonne Motif de départ', motifs.length ? statBars(statTop(motifs, 8), nDep) : statHint('Aucun départ enregistré.')));
-
-    // 2. Répartition entre les unités
-    g = section('Répartition entre les unités', 'Affectation du stagiaire');
+    g = section('Unités et pelotons', 'Affectation du stagiaire');
     if (!settings.col.affectation) g.appendChild(statCard('Affectation', '', statHint('Colonne « Affectation » non réglée.')));
     else {
-      var fa = statCount(rows.map(statsFA).filter(Boolean));
-      var faOrder = ['RGIF', 'GR', 'GTA', 'Autres'];
-      fa.sort(function (a, b) { return faOrder.indexOf(a.label) - faOrder.indexOf(b.label); });
-      g.appendChild(statCard('Répartition en FA', 'Rapport Physionomie : répartition entre les unités', statDonut(fa, 'stagiaires')));
       var rg = statTop(statCount(rows.filter(function (r) { return statsFA(r) === 'RGIF'; }).map(function (r) { return textOf(r.affectation); })), 8);
       rg.sort(function (a, b) { return nameCollator.compare(a.label, b.label); });
       g.appendChild(statCard('Répartition au sein de la RGIF', 'Groupements départementaux (affectations contenant « GGD »)', rg.length ? statDonut(rg, 'RGIF') : statHint('Aucune affectation de la RGIF.')));
-      var byAff = statTop(statCount(rows.map(function (r) { return textOf(r.affectation) || 'Non renseignée'; })), 12);
-      g.appendChild(statCard('Effectif par affectation', '', statBars(byAff, n)));
+      g.appendChild(statCard('Effectif par affectation', '', statBars(statTop(statCount(rows.map(function (r) { return textOf(r.affectation) || 'Non renseignée'; })), 12), n)));
     }
     if (settings.col.pon) {
       var pons = statCount(rows.map(function (r) { return textOf(r.pon) || 'Sans peloton'; }));
@@ -7790,65 +8077,47 @@
       g.appendChild(statCard('Effectif par peloton', 'Colonne PON', statBars(pons, n)));
     }
 
-    // 3. Féminisation
-    g = section('Féminisation');
-    if (!settings.col.civilite) g.appendChild(statCard('Répartition H/F', '', statHint('Colonne « Civilité » non réglée.')));
-    else if (!(nF + nH)) g.appendChild(statCard('Répartition H/F', '', statHint('Civilité non reconnue (valeurs attendues : M., Mme…).')));
-    else {
-      g.appendChild(statCard('Répartition H/F', 'Rapport Physionomie : taux de féminisation', statDonut([{ label: 'Hommes', value: nH, color: statColor(0) }, { label: 'Femmes', value: nF, color: statColor(1) }], 'stagiaires')));
-      if (settings.col.affectation) {
-        var units = {}, order = [];
-        rows.forEach(function (r, i) {
-          var u = textOf(r.affectation) || 'Non renseignée';
-          if (!units[u]) { units[u] = [0, 0]; order.push(u); }
-          if (sexes[i] === 'H') units[u][0]++; else if (sexes[i] === 'F') units[u][1]++;
-        });
-        order.sort(nameCollator.compare);
-        g.appendChild(statCard('Féminisation par unité', 'Hommes / femmes selon l’affectation', statStacked(order.map(function (u) { return { label: u, parts: units[u] }; }),
-          [{ label: 'Hommes', color: statColor(0) }, { label: 'Femmes', color: statColor(1) }])));
-      }
+    if (nF + nH && settings.col.affectation) {
+      g = section('Féminisation par unité');
+      var units = {}, uorder = [];
+      rows.forEach(function (r, i) {
+        var u = textOf(r.affectation) || 'Non renseignée';
+        if (!units[u]) { units[u] = [0, 0]; uorder.push(u); }
+        if (sexes[i] === 'H') units[u][0]++; else if (sexes[i] === 'F') units[u][1]++;
+      });
+      uorder.sort(nameCollator.compare);
+      g.appendChild(statCard('Hommes / femmes selon l’affectation', '', statStacked(uorder.map(function (u) { return { label: u, parts: units[u] }; }), [{ label: 'Hommes', color: statColor(0) }, { label: 'Femmes', color: statColor(1) }]), true));
+    } else if (!settings.col.civilite) {
+      g = section('Féminisation');
+      g.appendChild(statCard('Répartition H/F', '', statHint('Colonne « Civilité » non réglée.')));
     }
 
-    // 4. Profil : professions, diplômes, situations…
-    var extras = statsExtraCols(rows);
     g = section('Profil des stagiaires', 'Colonnes de la table dont le nom évoque la profession, le diplôme ou la situation');
-    if (!extras.length) g.appendChild(statCard('Professions', 'Rapport Physionomie : professions des élèves', statHint('Aucune colonne « Profession », « Diplôme » ou « Situation » trouvée dans la table des stagiaires (colonne non utilisée par les champs de la fiche).')));
-    extras.slice(0, 6).forEach(function (c) {
-      var vals = [];
-      rows.forEach(function (r) { statsValuesOf(r, c).forEach(function (v) { vals.push(v); }); });
-      var items = statTop(statCount(vals), 8);
-      if (!items.length) { g.appendChild(statCard(c.label, '', statHint('Colonne vide.'))); return; }
-      prof.push({ col: c, items: items });
-      g.appendChild(statCard(c.label, 'Colonne « ' + c.label + ' »', items.length <= 6 ? statDonut(items, 'réponses') : statBars(items, vals.length)));
+    if (!extras.length) g.appendChild(statCard('Professions', '', statHint('Aucune colonne « Profession », « Diplôme » ou « Situation » trouvée dans la table des stagiaires (colonne non utilisée par les champs de la fiche).')));
+    prof.slice(1, 6).forEach(function (p) {
+      g.appendChild(statCard(p.col.label, 'Colonne « ' + p.col.label + ' »', p.items.length <= 6 ? statDonut(p.items, 'réponses') : statBars(p.items, p.vals)));
     });
+    if (prof.length <= 1 && extras.length) g.hidden = !g.childNodes.length;
 
-    // 5. Âge
     g = section('Âge des stagiaires', j1Known ? 'Âge au premier jour de la formation' : 'Âge à la date du jour (début de formation non renseigné dans la Configuration)');
     if (!settings.col.dateNaissance) g.appendChild(statCard('Âge', '', statHint('Colonne « Date de naissance » non réglée.')));
     else if (!ages.length) g.appendChild(statCard('Âge', '', statHint('Aucune date de naissance exploitable.')));
     else {
       var minA = Math.min.apply(null, ages), maxA = Math.max.apply(null, ages), hist = [];
       for (var a = minA; a <= maxA; a++) hist.push({ label: String(a), value: ages.filter(function (x) { return x === a; }).length });
-      g.appendChild(statCard('Répartition par âge', 'Rapport Physionomie : âge des élèves · de ' + minA + ' à ' + maxA + ' ans', statColumns(hist), true));
-      var tr = [['Moins de 18 ans', 0, 17], ['18 – 19 ans', 18, 19], ['20 – 26 ans', 20, 26], ['27 – 35 ans', 27, 35], ['36 ans et plus', 36, 200]].map(function (t) {
-        return { label: t[0], value: ages.filter(function (x) { return x >= t[1] && x <= t[2]; }).length };
-      }).filter(function (x) { return x.value; });
-      g.appendChild(statCard('Tranches d’âge', 'Moyenne ' + statNum(ages.reduce(function (s, x) { return s + x; }, 0) / ages.length) + ' ans · médiane ' + statNum(statsMedian(ages)) + ' ans', statBars(tr, ages.length)));
+      g.appendChild(statCard('Répartition par âge', 'De ' + minA + ' à ' + maxA + ' ans · moyenne ' + statNum(ages.reduce(function (s, x) { return s + x; }, 0) / ages.length) + ' ans · médiane ' + statNum(statsMedian(ages)) + ' ans', statColumns(hist), true));
     }
 
-    // 6. Origine géographique
     g = section('Origine géographique', 'Département de résidence (RGIF et GR : périmètre des groupements départementaux)');
     if (!settings.col.dpt) g.appendChild(statCard('Département', '', statHint('Colonne « Dpt » non réglée.')));
     else {
-      var perim = rows.filter(function (r) { var f = statsFA(r); return f !== 'GTA'; });
-      var dp = statCount(perim.map(statsDptGroup).filter(Boolean));
+      var dp = statCount(rows.filter(function (r) { return statsFA(r) !== 'GTA'; }).map(statsDptGroup).filter(Boolean));
       var dOrder = ['77', '78', '91', '92', '93', '94', '95', 'Paris', 'Autres départements'];
       dp.sort(function (a, b) { return dOrder.indexOf(a.label) - dOrder.indexOf(b.label); });
       dp.forEach(function (x) { if (/^\d/.test(x.label)) x.label = 'Dpt ' + x.label; });
-      g.appendChild(statCard('Département de résidence', 'Rapport Physionomie : où habitent les élèves', dp.length ? statDonut(dp, 'stagiaires') : statHint('Aucun département renseigné.')));
+      g.appendChild(statCard('Département de résidence', 'Où habitent les stagiaires', dp.length ? statDonut(dp, 'stagiaires') : statHint('Aucun département renseigné.')));
     }
 
-    // 7. Encadrement
     g = section('Encadrement', enc.loaded ? enc.rows.length + ' cadre(s)' : '');
     if (!enc.loaded) g.appendChild(statCard('Encadrement', '', statHint(enc.error || 'Chargement de l’encadrement…')));
     else {
@@ -7872,21 +8141,13 @@
       if (!g.childNodes.length) g.appendChild(statCard('Encadrement', '', statHint('Aucune colonne exploitable (A/R, Sexe, Groupe, Fonction, Grade, Affectation).')));
     }
 
-    // 8. Suivi des pièces du dossier (EAD, attestations…)
-    var docRoles = ATTACHMENT_ROLES.filter(function (r) { return settings.col[r]; });
-    g = section('Suivi des pièces du dossier', 'État de chaque pièce jointe : validée, à valider, refusée ou manquante');
-    if (!docRoles.length) g.appendChild(statCard('Pièces', '', statHint('Aucune pièce jointe configurée.')));
-    else {
-      var defs = [{ label: 'Validé', color: statColor(3) }, { label: 'À valider', color: statColor(2) }, { label: 'Refusé', color: statColor(1) }, { label: 'Manquant', color: statColor(7) }];
-      var keys = ['ok', 'pending', 'rejected', 'missing'];
-      g.appendChild(statCard('Statut des pièces', 'EAD préalable, attestations…', statStacked(docRoles.map(function (role) {
-        var c = [0, 0, 0, 0];
-        rows.forEach(function (r) { c[keys.indexOf(docStatus(r, role))]++; });
-        return { label: DOC_TAG_LABELS[role] || ROLE_LABELS[role], parts: c };
-      }), defs), true));
+    var potCol = appr.loaded ? appr.extras.filter(function (c) { return bulkKey(c.id) === 'POTENTIEL OFFICIER' || bulkKey(c.label) === 'POTENTIEL OFFICIER'; })[0] : null;
+    if (potCol) {
+      var pot = statCount(rows.map(function (r) { var rec = appr.byStagiaire[r.id]; return rec ? textOf(rec.vals[potCol.id]) : ''; }).filter(Boolean));
+      if (pot.length) { g = section('Appréciations'); g.appendChild(statCard('Potentiel officier', 'Colonne « ' + potCol.label + ' »', statBars(statTop(pot, 6)))); }
     }
 
-    // Portrait du stagiaire moyen (synthèse)
+    // Phrase de synthèse : le stagiaire type
     var bits = [];
     if (nF + nH) bits.push(nH >= nF ? 'masculin' : 'féminin');
     if (ages.length) bits.push(Math.round(ages.reduce(function (s, a) { return s + a; }, 0) / ages.length) + ' ans');
@@ -7894,7 +8155,7 @@
     if (bits.length) {
       var portrait = statEl('p', 'stat-portrait');
       portrait.innerHTML = '<strong>Le stagiaire type</strong> : ' + bits.map(escapeHtml).join(' · ');
-      statsZone.insertBefore(portrait, statsZone.firstChild);
+      syn.insertBefore(portrait, kp);
     }
   }
 
