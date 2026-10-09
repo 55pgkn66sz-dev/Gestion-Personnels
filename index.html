@@ -444,6 +444,8 @@
   /* Icône « sortie » (départ du stagiaire) : même pastille que les autres icônes ; rouge quand un départ est enregistré. */
   .stg-depart-flag { display: inline-flex; align-items: center; justify-content: center; width: 2.1rem; height: 2.1rem; padding: 0; border: 0; border-radius: 999px; cursor: pointer; flex: none; font-size: 1.05rem;
     background: #e6e2c4; color: var(--bleu-france); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); }
+  .detail-title--flag { display: flex; align-items: center; gap: 0.6rem; }
+  .stg-depart-flag--sm { width: 1.8rem; height: 1.8rem; font-size: 0.9rem; }
   .stg-depart-flag.is-set { background: var(--background-contrast-error); color: var(--text-default-error); }
   .stg-depart-flag:hover { box-shadow: 0 0 0 2px rgba(92, 90, 43, 0.4), 0 1px 3px rgba(0, 0, 0, 0.15); }
   .depart-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.2rem 1rem; }
@@ -1271,84 +1273,93 @@
   .appr-item__comment .fr-label { font-size: 0.8rem; }
   /* Export .csv : liste des colonnes à cocher. */
   .export-cols__tools { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.6rem; }
-  /* ---- Page Statistiques ---- */
-  :root { --stat-c1: #000091; --stat-c2: #e1000f; --stat-c3: #c98a00; --stat-c4: #18753c; --stat-c5: #6a6af4; --stat-c6: #009081; --stat-c7: #a558a0; --stat-c8: #8a8a8a; }
-  [data-fr-theme="dark"] { --stat-c1: #8585f6; --stat-c2: #ff6b6b; --stat-c3: #fcc63a; --stat-c4: #27a658; --stat-c5: #b4b4ff; --stat-c6: #3ccbbd; --stat-c7: #d99bd5; --stat-c8: #a0a0a0; }
-  .stat-head__btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  /* ---- Page Statistiques : mêmes composants que la page Statistiques du widget Candidats PMG ---- */
+  :root { --st-blue: var(--text-action-high-blue-france, #000091); --st-tint: var(--background-contrast-blue-france, #e3e3fd); --st-bg: var(--background-default-grey, #fff); --st-ink: var(--text-title-grey, #161616); --st-muted: var(--text-mention-grey, #666); --st-line: var(--border-default-grey, #ddd); }
   .stat-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-  .stat-portrait { margin: 0.4rem 0 1rem; padding: 0.7rem 1rem; border-left: 4px solid var(--bleu-france); background: var(--background-alt-grey); border-radius: 0 0.4rem 0.4rem 0; }
-  .stat-section { margin: 0 0 1.8rem; }
-  .stat-section__title { font-size: 1.1rem; margin: 0 0 0.2rem; color: var(--bleu-france); }
-  .stat-section__hint { margin: 0 0 0.7rem; font-size: 0.82rem; color: var(--text-mention-grey); }
-  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 1rem; }
-  .stat-grid__full { grid-column: 1 / -1; }
-  .stat-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0.8rem; }
-  .stat-kpi { display: flex; flex-direction: column; padding: 0.7rem 0.9rem; background: var(--background-raised-grey); border: 1px solid var(--border-default-grey); border-radius: 0.5rem; }
-  .stat-kpi__val { font-size: 1.7rem; font-weight: 700; line-height: 1.1; color: var(--bleu-france); }
-  .stat-kpi__lbl { font-size: 0.85rem; font-weight: 600; }
-  .stat-kpi__hint { font-size: 0.75rem; color: var(--text-mention-grey); }
-  .stat-card { padding: 0.9rem 1rem; background: var(--background-raised-grey); border: 1px solid var(--border-default-grey); border-radius: 0.5rem; min-width: 0; }
-  .stat-card--wide { grid-column: 1 / -1; }
-  .stat-card__title { font-size: 0.98rem; margin: 0 0 0.1rem; }
-  .stat-card__src { margin: 0 0 0.7rem; font-size: 0.75rem; color: var(--text-mention-grey); }
-  .stat-empty { margin: 0.3rem 0; }
-  .stat-donut { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
-  .stat-donut__svg { width: 10rem; height: 10rem; flex: none; transform: rotate(0deg); }
-  .stat-donut__total { font-size: 6px; font-weight: 700; fill: var(--text-title-grey, currentColor); }
-  .stat-donut__sub { font-size: 2.6px; fill: var(--text-mention-grey); }
-  .stat-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.85rem; flex: 1; min-width: 9rem; }
-  .stat-legend--inline { flex-direction: row; flex-wrap: wrap; gap: 0.4rem 1rem; margin-top: 0.6rem; }
-  .stat-legend li { display: flex; align-items: center; gap: 0.45rem; padding: 0; margin: 0; }
-  .stat-legend li::before { content: none; }
-  .stat-legend__sw { width: 0.8rem; height: 0.8rem; border-radius: 2px; flex: none; }
-  .stat-legend__lbl { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-  .stat-legend__val { color: var(--text-mention-grey); white-space: nowrap; }
-  .stat-bars { display: flex; flex-direction: column; gap: 0.4rem; }
-  .stat-bars__row { display: grid; grid-template-columns: minmax(5rem, 9rem) 1fr auto; align-items: center; gap: 0.6rem; font-size: 0.85rem; }
-  .stat-bars__lbl { overflow-wrap: anywhere; }
-  .stat-bars__track { display: flex; height: 1.25rem; background: var(--background-alt-grey); border-radius: 3px; overflow: hidden; }
-  .stat-bars__fill { display: block; height: 100%; min-width: 2px; border-radius: 3px; }
-  .stat-bars__seg { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 0.72rem; font-weight: 600; color: #fff; min-width: 1.1rem; }
-  [data-fr-theme="dark"] .stat-bars__seg { color: #161616; }
-  .stat-bars__val { color: var(--text-mention-grey); white-space: nowrap; font-size: 0.8rem; }
-  .stat-cols { display: flex; align-items: stretch; gap: 3px; height: 13rem; padding-top: 0.5rem; overflow-x: auto; }
-  .stat-cols__col { flex: 1; min-width: 1rem; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; }
-  .stat-cols__bar { display: block; width: 100%; background: var(--stat-c1); border-radius: 3px 3px 0 0; min-height: 0; }
-  .stat-cols__val { font-size: 0.7rem; color: var(--text-mention-grey); height: 1rem; }
-  .stat-cols__lbl { font-size: 0.7rem; height: 1.1rem; margin-top: 0.15rem; }
+  .stat-head__btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .stat-portrait { margin: 0.4rem 0 1rem; padding: 0.7rem 1rem; border-left: 4px solid var(--st-blue); background: var(--st-tint); border-radius: 0 0.4rem 0.4rem 0; }
+  .stat-section__title { font-size: 1.1rem; margin: 0 0 0.2rem; color: var(--st-blue); }
+  .stat-section__hint { margin: 0 0 0.7rem; font-size: 0.8125rem; color: var(--st-muted); }
   .stat-syn { margin: 0 0 1.5rem; }
-  .stat-detail { margin: 0 0 1.5rem; }
-  .stat-detail__sum { cursor: pointer; font-weight: 600; color: var(--bleu-france); padding: 0.5rem 0; margin-bottom: 0.8rem; }
-  .stat-scols__plot { display: flex; align-items: stretch; gap: 4px; height: 13rem; padding-top: 0.3rem; overflow-x: auto; }
-  .stat-scols__col { flex: 1; min-width: 1.6rem; max-width: 3.5rem; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; }
-  .stat-scols__stack { display: flex; flex-direction: column-reverse; width: 100%; border-radius: 3px 3px 0 0; overflow: hidden; gap: 2px; }
-  .stat-scols__seg { display: block; width: 100%; min-height: 3px; }
-  .stat-bars--gap { margin-top: 0.8rem; }
-  .stat-good { color: var(--text-default-success); }
-  .stat-bad { color: var(--text-default-error); }
-  .stat-meter__val { font-size: 1.9rem; font-weight: 700; line-height: 1.1; color: var(--bleu-france); }
-  .stat-meter__track { position: relative; height: 0.7rem; margin: 0.5rem 0 0.3rem; background: var(--background-alt-grey); border-radius: 4px; }
-  .stat-meter__fill { height: 100%; background: var(--stat-c1); border-radius: 4px; }
-  .stat-meter__ref { position: absolute; top: -0.3rem; width: 2px; height: 1.3rem; background: var(--text-title-grey, currentColor); }
-  .stat-meter__note { margin: 0.2rem 0 0; font-size: 0.8rem; color: var(--text-mention-grey); }
+  .stat-detail { margin: 2rem 0 1.5rem; padding-top: 1rem; border-top: 2px solid var(--st-blue); }
+  .stat-detail__sum { cursor: pointer; font-weight: 700; color: var(--st-blue); padding: 0.4rem 0; margin-bottom: 0.8rem; }
+  .stat-section { margin: 0 0 1.6rem; }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 1rem; margin: 1rem 0 1.5rem; }
+  .stat-tile { border: 1px solid var(--st-line); border-radius: 0.5rem; padding: 1rem 1.25rem; }
+  .stat-num { margin: 0; font-size: 2.25rem; line-height: 2.5rem; font-weight: 700; color: var(--st-blue); }
+  .stat-tile.is-alert .stat-num, .stat-bad { color: #ce0500; }
+  .stat-good { color: var(--text-default-success, #18753c); }
+  .stat-lbl { margin: 0.25rem 0 0; font-weight: 700; }
+  .stat-sub { margin: 0.25rem 0 0; font-size: 0.8125rem; color: var(--st-muted); }
+  .stat-hint { margin: 0 0 0.75rem; font-size: 0.8125rem; color: var(--st-muted); }
+  .stat-empty { margin: 0.3rem 0; }
+  .stat-cards { display: grid; grid-auto-flow: dense; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 1rem; align-items: start; }
+  .stat-card { position: relative; border: 1px solid var(--st-line); border-radius: 0.5rem; padding: 1rem 1.25rem; min-width: 0; }
+  .stat-card.stat-wide { grid-column: 1 / -1; }
+  .stat-card__title { margin: 0 0 0.75rem; }
+  .stat-table { width: 100%; border-collapse: collapse; }
+  .stat-table th, .stat-table td { padding: 0.4rem 0.5rem; text-align: left; font-weight: 400; border-bottom: 1px solid var(--st-line); vertical-align: middle; }
+  .stat-table tbody th { font-weight: 600; }
+  .stat-table .stat-n { text-align: right; font-variant-numeric: tabular-nums; width: 1%; white-space: nowrap; font-weight: 700; }
+  .stat-bar-cell { width: 55%; white-space: nowrap; }
+  .stat-bar { display: inline-block; width: calc(100% - 3.5rem); height: 0.75rem; border-radius: 999px; background: var(--st-tint); vertical-align: middle; overflow: hidden; }
+  .stat-bar > span { display: block; height: 100%; border-radius: 999px; background: color-mix(in srgb, var(--st-blue) 55%, var(--st-bg)); }
+  .stat-pct { display: inline-block; width: 3.2rem; text-align: right; font-size: 0.8125rem; color: var(--st-muted); }
+  .stat-pie-wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; }
+  .stat-pie { flex: none; }
+  .stat-pie path, .stat-pie circle { stroke: var(--st-bg); stroke-width: 2; }
+  .stat-pie path:hover, .stat-pie circle:hover { filter: brightness(1.15); }
+  .stat-pie-leg { flex: 1 1 11rem; margin: 0; padding: 0; list-style: none; }
+  .stat-pie-leg li { display: grid; grid-template-columns: 0.75rem 1fr auto 3.2rem; align-items: center; gap: 0.5rem; padding: 0.2rem 0; font-size: 0.875rem; margin: 0; }
+  .stat-pie-leg li::before { content: none; }
+  .stat-pie-sw { width: 0.75rem; height: 0.75rem; border-radius: 2px; }
+  .stat-pie-n { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .stat-pie-p { text-align: right; color: var(--st-muted); font-size: 0.8125rem; }
+  .stat-eb { display: flex; flex-direction: column; gap: 0.35rem; }
+  .stat-eb__row { display: grid; grid-template-columns: minmax(5rem, 10rem) 1fr 2.4rem; align-items: center; gap: 0.75rem; font-size: 0.9375rem; }
+  .stat-eb__l { font-weight: 600; overflow-wrap: anywhere; }
+  .stat-eb__bar { --h: 1.6rem; display: flex; height: var(--h); }
+  .stat-eb__seg { position: relative; display: grid; place-items: center; min-width: calc(var(--h) * 1.4); border-radius: 999px; box-shadow: 0 0 0 2px var(--st-bg); font-size: 0.8125rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .stat-eb__seg + .stat-eb__seg { margin-left: calc(var(--h) / -2); padding-left: calc(var(--h) / 2); }
+  .stat-eb__n { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .stat-leg { display: flex; flex-wrap: wrap; gap: 0.25rem 1.1rem; margin: 0.75rem 0 0; padding: 0; list-style: none; font-size: 0.8125rem; }
+  .stat-leg li { display: inline-flex; align-items: center; margin: 0; }
+  .stat-leg li::before { content: none; }
+  .stat-leg__sw { display: inline-block; width: 1rem; height: 1rem; margin-right: 0.4rem; border-radius: 3px; }
+  .stat-gchart { overflow-x: auto; }
+  .stat-gc__bars { display: flex; align-items: flex-end; gap: 0.35rem; height: 7.5rem; padding-top: 0.25rem; border-bottom: 1px solid var(--st-line); }
+  .stat-gc__bars--tall { height: 11rem; }
+  .stat-gc { flex: 1 1 0; width: 2.75rem; min-width: 1.4rem; max-width: 4.5rem; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; position: relative; padding-bottom: 1.5rem; }
+  .stat-gc__bar { display: block; width: 65%; max-width: 1.9rem; background: color-mix(in srgb, var(--st-blue) 55%, var(--st-bg)); border-radius: 0.6rem 0.6rem 0 0; }
+  .stat-gc__stack { display: flex; flex-direction: column-reverse; width: 65%; max-width: 1.9rem; border-radius: 0.6rem 0.6rem 0 0; overflow: hidden; gap: 2px; }
+  .stat-gc__seg { display: block; width: 100%; min-height: 3px; }
+  .stat-gc:hover .stat-gc__bar { filter: brightness(1.25); }
+  .stat-gc__n { font-size: 0.8125rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1rem; }
+  .stat-gc__l { position: absolute; bottom: 0.15rem; font-size: 0.75rem; color: var(--st-muted); white-space: nowrap; }
+  .stat-meter__track { position: relative; height: 0.75rem; margin: 0.6rem 0 0.3rem; background: var(--st-tint); border-radius: 999px; }
+  .stat-meter__fill { height: 100%; background: color-mix(in srgb, var(--st-blue) 55%, var(--st-bg)); border-radius: 999px; }
+  .stat-meter__ref { position: absolute; top: -0.3rem; width: 2px; height: 1.35rem; background: var(--st-ink); }
   .stat-heat { display: grid; gap: 3px; font-size: 0.8rem; align-items: stretch; }
-  .stat-heat__h { font-size: 0.72rem; text-align: center; color: var(--text-mention-grey); align-self: end; }
+  .stat-heat__h { font-size: 0.75rem; font-weight: 700; text-align: center; color: var(--st-muted); align-self: end; }
   .stat-heat__lbl { align-self: center; font-weight: 600; }
-  .stat-heat__cell { display: flex; align-items: center; justify-content: center; min-height: 1.6rem; border-radius: 3px; }
-  .stat-line__svg { width: 100%; max-height: 11rem; }
-  .stat-line__grid { stroke: var(--border-default-grey); stroke-width: 0.5; }
-  .stat-line__ax { font-size: 7px; fill: var(--text-mention-grey); }
-  .stat-line__area { fill: var(--stat-c1); opacity: 0.12; }
-  .stat-line__path { fill: none; stroke: var(--stat-c1); stroke-width: 2; stroke-linejoin: round; }
-  .stat-line__dot { fill: var(--stat-c1); stroke: var(--background-raised-grey); stroke-width: 1.5; }
+  .stat-heat__cell { display: flex; align-items: center; justify-content: center; min-height: 1.7rem; border-radius: 0.25rem; font-variant-numeric: tabular-nums; }
+  .stat-line__svg { width: 100%; height: auto; display: block; }
+  .stat-line__grid { stroke: var(--st-line); stroke-width: 0.5; }
+  .stat-line__ax { font-size: 9px; fill: var(--st-muted); }
+  .stat-line__area { fill: var(--st-blue); opacity: 0.1; }
+  .stat-line__serie { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .stat-line__path { fill: none; stroke: var(--st-blue); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+  .stat-line__dot { fill: var(--st-blue); stroke: var(--st-bg); stroke-width: 1.5; }
   @media print {
     body { background: #fff !important; }
     header.fr-header, footer, .stat-head button, .stat-detail { display: none !important; }
-    .stat-card, .stat-kpi { break-inside: avoid; box-shadow: none; }
-    .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
-    .stat-card { padding: 0.5rem 0.7rem; }
-    .stat-donut__svg { width: 6.5rem; height: 6.5rem; }
+    .stat-card, .stat-tile { break-inside: avoid; }
+    .stat-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
   }
+  .drop-zone { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.4rem 0.9rem; border: 2px dashed var(--border-action-high-blue-france, #000091); border-radius: 0.4rem; color: var(--text-action-high-blue-france, #000091); font-size: 0.875rem; cursor: pointer; background: transparent; }
+  .drop-zone:hover, .drop-zone:focus-visible, .drop-zone.is-over { background: var(--background-contrast-blue-france, #e3e3fd); }
+  .drop-zone.is-over { border-style: solid; }
+  .drop-zone:focus-visible { outline: 2px solid var(--text-action-high-blue-france, #000091); outline-offset: 2px; }
   .imp-keyrow { margin: 0.6rem 0; max-width: 24rem; }
   .imp-warn { color: var(--text-default-warning); font-weight: 600; }
   .imp-details { margin: 0.4rem 0; font-size: 0.85rem; }
@@ -1521,9 +1532,11 @@
       <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-refresh-line fr-btn--icon-left" id="candReloadBtn" type="button" title="Recharger les candidats depuis la table Grist">
         Actualiser
       </button>
-      <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-upload-line fr-btn--icon-left" id="candNumCandImportBtn" type="button" title="Mettre à jour les N° CAND d'après un fichier .csv contenant les N° CAND et les adresses e-mail">
-        Mettre à jour les N° CAND (.csv)
-      </button>
+      <div class="drop-zone" id="candNumCandDrop" role="button" tabindex="0" title="Mettre à jour les N° CAND d'après un fichier .csv contenant les N° CAND et les adresses e-mail">
+        <span class="fr-icon-upload-line" aria-hidden="true"></span>
+        <span>Mettre à jour les N° CAND : <strong>déposez un .csv ici</strong> ou cliquez pour le choisir</span>
+        <input type="file" id="candNumCandFile" accept=".csv,.txt,text/csv" hidden>
+      </div>
       <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-mail-line" id="candMailAllBtn" type="button" title="Envoyer un e-mail aux candidats du filtre actif (en copie cachée)">E-mail aux candidats du filtre</button>
       <p class="cand-count cand-count--push" id="candCount"></p>
     </div>
@@ -2097,7 +2110,7 @@
 
 <!-- Numéro de version : à mettre à jour ici (#widgetVersion) à chaque livraison : la décimale pour une petite modification (1.0 -> 1.1), le nombre pour une modification structurelle (1.x -> 2.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 14.1</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 15.1</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -4330,6 +4343,16 @@
   function dPack(specs) {
     return specs.filter(Boolean).map(function (s) { return dTr(s); });
   }
+  // Icône « sortie » (départ du stagiaire) à côté du titre « Stage » de la fiche : ouvre la modale « Gérer le départ ».
+  function stgStageWithDepartFlag(section, row) {
+    if (!section) return section;
+    var h = section.querySelector('.detail-title');
+    h.classList.add('detail-title--flag');
+    var btn = stgDepartFlag(row);
+    btn.classList.add('stg-depart-flag--sm');
+    h.appendChild(btn);
+    return section;
+  }
   function dGroup(title, specs) {
     var rows = dPack(specs);
     if (!rows.length) return null;
@@ -4560,12 +4583,12 @@
         dFieldStg(row, 'nom', 'Nom'), dFieldStg(row, 'prenom', 'Prénom'),
         settings.col.dateNaissance ? dCustomSpec('Date de naissance (âge)', bornNode, { wide: true, empty: !born }) : null
       ]),
-      dGroup('Stage', [
+      stgStageWithDepartFlag(dGroup('Stage', [
         dFieldStg(row, 'pon', 'Peloton', { editable: true, tag: true, tagClass: 'stg-tag--pon' }),
         dFieldStg(row, 'fonction', 'Fonction', { editable: true, tag: true, tagClass: 'stg-tag--fonction', list: true }),
         dFieldStg(row, 'motifDepart', 'Motif de départ', { wide: true }), // lecture seule (demandé explicitement)
         settings.col.dateDepart ? dCustomSpec('Date de départ', stgTextValue(departText), { empty: !departText }) : null // lecture seule
-      ]),
+      ]), row),
       dGroup('Renseignements militaires', [
         dFieldStg(row, 'grade', 'Grade', { editable: true }),
         dFieldStg(row, 'nigend', 'Nigend', { editable: true }), dFieldStg(row, 'nid', 'NID', { editable: true }), dFieldStg(row, 'affectation', 'Affectation')
@@ -5748,7 +5771,6 @@
       flags.appendChild(imgFlag);
     }
     if (settings.col.modeTransport) flags.appendChild(stgTransportFlag(row)); // mode de transport, à côté des icônes d'alerte
-    flags.appendChild(stgDepartFlag(row)); // départ du stagiaire (modale « Gérer le départ »)
     var closeBtn = document.createElement('button');
     closeBtn.type = 'button';
     closeBtn.className = 'fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-line cand-modal-dialog__close';
@@ -7307,9 +7329,16 @@
     importDialog.hidden = false;
     importFileEl.focus();
   }
+  // Décodages possibles du fichier, du plus probable au moins probable : UTF-8 s'il est valide ; sinon Windows-1252 (Excel Windows)
+  // ou MacRoman (Excel / Numbers sur Mac, où « é » devient « Ž » si on lit en Windows-1252) selon les octets rencontrés.
   function importReadFile(file) {
     return file.arrayBuffer().then(function (buf) {
-      try { return new TextDecoder('utf-8', { fatal: true }).decode(buf); } catch (e) { return new TextDecoder('windows-1252').decode(buf); }
+      try { return [new TextDecoder('utf-8', { fatal: true }).decode(buf)]; } catch (e) { /* pas de l'UTF-8 */ }
+      var bytes = new Uint8Array(buf), win = 0, mac = 0;
+      var macLetters = { 0x83: 1, 0x84: 1, 0x87: 1, 0x88: 1, 0x8A: 1, 0x8D: 1, 0x8E: 1, 0x8F: 1, 0x90: 1, 0x91: 1, 0x95: 1, 0x99: 1, 0x9D: 1, 0x9E: 1, 0x9F: 1 };
+      for (var i = 0; i < bytes.length; i++) { if (bytes[i] >= 0xC0) win++; else if (macLetters[bytes[i]]) mac++; }
+      var order = mac > win ? ['macintosh', 'windows-1252'] : ['windows-1252', 'macintosh'];
+      return order.map(function (enc) { return new TextDecoder(enc).decode(buf); });
     });
   }
   function importLoad(text) {
@@ -7383,7 +7412,7 @@
     box.innerHTML = '';
     function add(html, cls) { var p = document.createElement('p'); p.className = cls || 'fr-text--sm'; p.innerHTML = html; box.appendChild(p); return p; }
     var ok = imp.map.filter(Boolean), ignored = imp.headers.filter(function (h, i) { return h && !imp.map[i]; });
- add('<strong>' + imp.rows.length + '</strong> ligne(s) lue(s)' + (imp.headerRow ? ' (titres des colonnes lus à la ligne ' + (imp.headerRow + 1) + ')' : '') + '. Colonnes reconnues (' + ok.length + ') : ' + (ok.map(function (f) { return escapeHtml(f.label); }).join(', ') || 'aucune') +
+ add((imp.fileName ? 'Fichier : <strong>' + escapeHtml(imp.fileName) + '</strong> · ' : '') + '<strong>' + imp.rows.length + '</strong> ligne(s) lue(s)' + (imp.headerRow ? ' (titres des colonnes lus à la ligne ' + (imp.headerRow + 1) + ')' : '') + '. Colonnes reconnues (' + ok.length + ') : ' + (ok.map(function (f) { return escapeHtml(f.label); }).join(', ') || 'aucune') +
       (ignored.length ? '.<br>Ignorées (' + ignored.length + ') : ' + ignored.map(escapeHtml).join(', ') : '') + '.');
     if (imp.kind === 'numCand' && (!imp.keyOptions.length || !imp.map.some(function (f) { return f && f.role === 'numCand'; }))) {
       add('Colonnes non reconnues : le fichier doit contenir une colonne <strong>N° CAND</strong> et une colonne <strong>E-mail</strong> (adresse du candidat).', 'fr-error-text');
@@ -7494,28 +7523,50 @@
     importGoBtn.hidden = false;
     openImportDialog('stagiaires');
   });
-  document.getElementById('candNumCandImportBtn').addEventListener('click', function () {
+  // eTuteur : zone « cliquer / déposer » pour la mise à jour des N° CAND (le fichier ouvre directement l'aperçu).
+  var numCandDrop = document.getElementById('candNumCandDrop'), numCandFile = document.getElementById('candNumCandFile');
+  function numCandHandle(file) {
+    if (!file) return;
     if (!candidates.loaded) { window.alert('Les candidats ne sont pas encore chargés.'); return; }
     importGoBtn.hidden = false;
     openImportDialog('numCand');
+    if (!/\.(csv|txt)$/i.test(file.name) && file.type !== 'text/csv') { importShowError('Ce fichier n’est pas un .csv : « ' + file.name + ' ».'); return; }
+    importProcessFile(file);
+  }
+  numCandDrop.addEventListener('click', function (e) { if (e.target !== numCandFile) numCandFile.click(); });
+  numCandDrop.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); numCandFile.click(); } });
+  numCandFile.addEventListener('change', function () { numCandHandle(numCandFile.files && numCandFile.files[0]); numCandFile.value = ''; });
+  ['dragenter', 'dragover'].forEach(function (ev) {
+    numCandDrop.addEventListener(ev, function (e) { e.preventDefault(); numCandDrop.classList.add('is-over'); });
+  });
+  numCandDrop.addEventListener('dragleave', function () { numCandDrop.classList.remove('is-over'); });
+  numCandDrop.addEventListener('drop', function (e) {
+    e.preventDefault();
+    numCandDrop.classList.remove('is-over');
+    numCandHandle(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]);
   });
   document.getElementById('encImportBtn').addEventListener('click', function () {
     if (!enc.loaded) { window.alert('L’encadrement n’est pas encore chargé.'); return; }
     importGoBtn.hidden = false;
     openImportDialog('encadrement');
   });
-  importFileEl.addEventListener('change', function () {
-    var file = importFileEl.files && importFileEl.files[0];
+  // Lit le fichier .csv choisi (bouton « Parcourir » de la modale, ou glisser-déposer) puis affiche l'aperçu.
+  function importProcessFile(file) {
     importBodyEl.innerHTML = '';
     importShowError('');
     importGoBtn.disabled = true;
     if (!file) return;
-    importReadFile(file).then(function (text) {
-      importLoad(text);
+    imp.fileName = file.name;
+    importReadFile(file).then(function (texts) {
+      // Premier décodage qui permet de reconnaître les titres (un mauvais encodage abîme les accents) ; à défaut, le plus probable.
+      var ok = false;
+      for (var i = 0; i < texts.length && !ok; i++) { importLoad(texts[i]); ok = imp.keyOptions.length > 0 && imp.map.some(function (f) { return f && !f.keyOnly; }); }
+      if (!ok) importLoad(texts[0]);
       importAnalyse();
       importRender();
     }).catch(function (e) { importShowError('Lecture du fichier impossible : ' + friendlyErrorMessage(e)); });
-  });
+  }
+  importFileEl.addEventListener('change', function () { importProcessFile(importFileEl.files && importFileEl.files[0]); });
   importGoBtn.addEventListener('click', importApply);
   document.getElementById('importClose').addEventListener('click', closeImportDialog);
   importCancelBtn.addEventListener('click', closeImportDialog);
@@ -7532,7 +7583,11 @@
   var panelStats = document.getElementById('panelStats');
   var statsZone = document.getElementById('statsZone');
   var STAT_PAL = 8;
-  function statColor(i) { return 'var(--stat-c' + ((i % STAT_PAL) + 1) + ')'; }
+  // Rampe d'une seule teinte (comme la page Statistiques du widget Candidats PMG) : du bleu plein au pastel ; gris pour « Autres » / « Non renseigné ».
+  var STAT_RAMP = [100, 82, 64, 48, 36, 26, 18];
+  function statColor(i) { return 'color-mix(in srgb, var(--st-blue) ' + STAT_RAMP[i % STAT_RAMP.length] + '%, var(--st-bg))'; }
+  function statGrey(label) { return /^(Autres|Non renseign|Motif non renseign|Sans peloton)/i.test(label); }
+  var STAT_NONE = '#b5b4ac';
   function statNum(n) { return String(Math.round(n * 10) / 10).replace('.', ','); }
   function statPct(v, total) { return total ? statNum(v * 100 / total) + ' %' : '—'; }
   function statEl(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
@@ -7550,135 +7605,136 @@
     values.forEach(function (v) { if (!(v in m)) { m[v] = 0; order.push(v); } m[v]++; });
     return order.map(function (k) { return { label: k, value: m[k] }; });
   }
-  function statLegend(items, total, colorOf) {
-    var ul = statEl('ul', 'stat-legend');
-    items.forEach(function (it, i) {
-      var li = statEl('li');
-      var sw = statEl('span', 'stat-legend__sw');
-      sw.style.background = it.color || (colorOf ? colorOf(i) : statColor(i));
+  // Camembert + légende (pastille, libellé, effectif en gras, pourcentage).
+  function statDonut(items) {
+    var list = items.filter(function (x) { return x.value; }), total = list.reduce(function (s, x) { return s + x.value; }, 0);
+    var box = statEl('div', 'stat-pie-wrap');
+    if (!total) { box.appendChild(statHint('Aucune donnée.')); return box; }
+    var NS = 'http://www.w3.org/2000/svg', svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 120 120'); svg.setAttribute('width', '120'); svg.setAttribute('height', '120'); svg.setAttribute('class', 'stat-pie'); svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', list.map(function (x) { return x.label + ' ' + x.value + ' (' + statPct(x.value, total) + ')'; }).join(', '));
+    var ci = 0, a = 0, colors = list.map(function (x) { return statGrey(x.label) ? STAT_NONE : statColor(ci++); });
+    list.forEach(function (it, i) {
+      var a1 = a + 2 * Math.PI * it.value / total, el;
+      if (list.length === 1) { el = document.createElementNS(NS, 'circle'); el.setAttribute('cx', '60'); el.setAttribute('cy', '60'); el.setAttribute('r', '58'); }
+      else {
+        var x0 = 60 + 58 * Math.sin(a), y0 = 60 - 58 * Math.cos(a), x1 = 60 + 58 * Math.sin(a1), y1 = 60 - 58 * Math.cos(a1);
+        el = document.createElementNS(NS, 'path');
+        el.setAttribute('d', 'M60 60 L' + x0.toFixed(2) + ' ' + y0.toFixed(2) + ' A58 58 0 ' + (a1 - a > Math.PI ? 1 : 0) + ' 1 ' + x1.toFixed(2) + ' ' + y1.toFixed(2) + ' Z');
+      }
+      el.style.fill = colors[i];
+      var t = document.createElementNS(NS, 'title'); t.textContent = it.label + ' : ' + it.value + ' (' + statPct(it.value, total) + ')'; el.appendChild(t);
+      svg.appendChild(el);
+      a = a1;
+    });
+    box.appendChild(svg);
+    var ul = statEl('ul', 'stat-pie-leg');
+    list.forEach(function (it, i) {
+      var li = statEl('li'), sw = statEl('span', 'stat-pie-sw');
+      sw.style.background = colors[i];
       li.appendChild(sw);
-      li.appendChild(statEl('span', 'stat-legend__lbl', it.label));
-      li.appendChild(statEl('span', 'stat-legend__val', it.value + ' · ' + statPct(it.value, total)));
+      li.appendChild(statEl('span', 'stat-pie-l', it.label));
+      li.appendChild(statEl('span', 'stat-pie-n', String(it.value)));
+      li.appendChild(statEl('span', 'stat-pie-p', statPct(it.value, total)));
       ul.appendChild(li);
     });
-    return ul;
-  }
-  // Anneau : un cercle par part (technique stroke-dasharray, circonférence ramenée à 100).
-  function statDonut(items, centerLabel) {
-    var total = items.reduce(function (s, x) { return s + x.value; }, 0);
-    var wrap = statEl('div', 'stat-donut');
-    if (!total) { wrap.appendChild(statHint('Aucune donnée.')); return wrap; }
-    var NS = 'http://www.w3.org/2000/svg';
-    var svg = document.createElementNS(NS, 'svg');
-    svg.setAttribute('viewBox', '0 0 42 42');
-    svg.setAttribute('class', 'stat-donut__svg');
-    svg.setAttribute('role', 'img');
-    svg.setAttribute('aria-label', items.map(function (x) { return x.label + ' : ' + x.value; }).join(', '));
-    var offset = 0;
-    items.forEach(function (it, i) {
-      if (!it.value) return;
-      var pct = it.value * 100 / total;
-      var c = document.createElementNS(NS, 'circle');
-      c.setAttribute('cx', '21'); c.setAttribute('cy', '21'); c.setAttribute('r', '15.9155');
-      c.setAttribute('fill', 'none'); c.setAttribute('stroke-width', '7');
-      c.style.stroke = it.color || statColor(i);
-      c.setAttribute('stroke-dasharray', pct + ' ' + (100 - pct));
-      c.setAttribute('stroke-dashoffset', String(25 - offset));
-      var t = document.createElementNS(NS, 'title');
-      t.textContent = it.label + ' : ' + it.value + ' (' + statPct(it.value, total) + ')';
-      c.appendChild(t);
-      svg.appendChild(c);
-      offset += pct;
-    });
-    var tx = document.createElementNS(NS, 'text');
-    tx.setAttribute('x', '21'); tx.setAttribute('y', '22.2'); tx.setAttribute('text-anchor', 'middle'); tx.setAttribute('class', 'stat-donut__total');
-    tx.textContent = String(total);
-    svg.appendChild(tx);
-    if (centerLabel) {
-      var tl = document.createElementNS(NS, 'text');
-      tl.setAttribute('x', '21'); tl.setAttribute('y', '26.5'); tl.setAttribute('text-anchor', 'middle'); tl.setAttribute('class', 'stat-donut__sub');
-      tl.textContent = centerLabel;
-      svg.appendChild(tl);
-    }
-    wrap.appendChild(svg);
-    wrap.appendChild(statLegend(items, total));
-    return wrap;
-  }
-  // Barres horizontales (effectif + part du total).
-  function statBars(items, total) {
-    var box = statEl('div', 'stat-bars');
-    if (!items.length) { box.appendChild(statHint('Aucune donnée.')); return box; }
-    var max = Math.max.apply(null, items.map(function (x) { return x.value; })) || 1;
-    total = total || items.reduce(function (s, x) { return s + x.value; }, 0);
-    items.forEach(function (it, i) {
-      var row = statEl('div', 'stat-bars__row');
-      row.title = it.label + ' : ' + it.value + ' (' + statPct(it.value, total) + ')';
-      row.appendChild(statEl('span', 'stat-bars__lbl', it.label));
-      var track = statEl('span', 'stat-bars__track');
-      var fill = statEl('span', 'stat-bars__fill');
-      fill.style.width = (it.value * 100 / max) + '%';
-      fill.style.background = it.color || statColor(0);
-      track.appendChild(fill);
-      row.appendChild(track);
-      row.appendChild(statEl('span', 'stat-bars__val', it.value + ' · ' + statPct(it.value, total)));
-      box.appendChild(row);
-    });
+    box.appendChild(ul);
     return box;
   }
-  // Barres horizontales empilées : une ligne par groupe, plusieurs parts colorées (ex. validé / à valider / manquant).
+  // Tableau de répartition : libellé, effectif, barre arrondie sur piste claire (largeur = part du total) et pourcentage.
+  function statBars(items, total) {
+    if (!items.length) { var e = statEl('div'); e.appendChild(statHint('Aucune donnée.')); return e; }
+    total = total || items.reduce(function (s, x) { return s + x.value; }, 0);
+    var table = statEl('table', 'stat-table'), tb = statEl('tbody');
+    items.forEach(function (it) {
+      var tr = statEl('tr');
+      tr.title = it.label + ' : ' + it.value + ' (' + statPct(it.value, total) + ')';
+      var th = statEl('th', '', it.label); th.setAttribute('scope', 'row'); tr.appendChild(th);
+      tr.appendChild(statEl('td', 'stat-n', String(it.value)));
+      var td = statEl('td', 'stat-bar-cell'), bar = statEl('span', 'stat-bar'), fill = statEl('span');
+      fill.style.width = (total ? Math.min(100, it.value * 100 / total) : 0) + '%';
+      bar.appendChild(fill); td.appendChild(bar);
+      td.appendChild(document.createTextNode(' '));
+      td.appendChild(statEl('span', 'stat-pct', statPct(it.value, total)));
+      tr.appendChild(td);
+      tb.appendChild(tr);
+    });
+    table.appendChild(tb);
+    return table;
+  }
+  // Moyennes par groupe : libellé, moyenne en gras, barre (proportionnelle à la plus grande moyenne) et effectif concerné.
+  function statMeans(items, unit) {
+    if (!items.length) { var e = statEl('div'); e.appendChild(statHint('Aucune donnée.')); return e; }
+    var max = Math.max.apply(null, items.map(function (x) { return x.mean; })) || 1;
+    var table = statEl('table', 'stat-table'), tb = statEl('tbody');
+    items.forEach(function (it) {
+      var tr = statEl('tr');
+      tr.title = it.label + ' : ' + statNum(it.mean) + ' ' + unit + ' (sur ' + it.n + ')';
+      var th = statEl('th', '', it.label); th.setAttribute('scope', 'row'); tr.appendChild(th);
+      tr.appendChild(statEl('td', 'stat-n', statNum(it.mean) + ' ' + unit));
+      var td = statEl('td', 'stat-bar-cell'), bar = statEl('span', 'stat-bar'), fill = statEl('span');
+      fill.style.width = Math.min(100, it.mean * 100 / max) + '%';
+      bar.appendChild(fill); td.appendChild(bar);
+      td.appendChild(document.createTextNode(' '));
+      td.appendChild(statEl('span', 'stat-pct', 'n = ' + it.n));
+      tr.appendChild(td);
+      tb.appendChild(tr);
+    });
+    table.appendChild(tb);
+    return table;
+  }
+  // Barres empilées en pastilles arrondies (une ligne par groupe) : chaque tranche passe sous l'extrémité arrondie de la précédente.
   function statStacked(rows, partDefs) {
-    var box = statEl('div', 'stat-bars stat-bars--stacked');
+    var box = statEl('div', 'stat-eb');
     rows.forEach(function (r) {
       var total = r.parts.reduce(function (s, v) { return s + v; }, 0);
-      var row = statEl('div', 'stat-bars__row');
-      row.appendChild(statEl('span', 'stat-bars__lbl', r.label));
-      var track = statEl('span', 'stat-bars__track');
+      var row = statEl('div', 'stat-eb__row');
+      row.appendChild(statEl('span', 'stat-eb__l', r.label));
+      var track = statEl('span', 'stat-eb__bar'), z = r.parts.length;
       r.parts.forEach(function (v, i) {
         if (!v) return;
-        var seg = statEl('span', 'stat-bars__seg');
-        seg.style.width = (total ? v * 100 / total : 0) + '%';
-        seg.style.background = partDefs[i].color;
+        var seg = statEl('span', 'stat-eb__seg', String(v));
+        seg.style.flex = String(v); seg.style.zIndex = String(z - i);
+        seg.style.background = partDefs[i].color; seg.style.color = partDefs[i].ink || 'var(--st-ink)';
         seg.title = r.label + ' — ' + partDefs[i].label + ' : ' + v + ' (' + statPct(v, total) + ')';
-        seg.textContent = v;
         track.appendChild(seg);
       });
       row.appendChild(track);
-      row.appendChild(statEl('span', 'stat-bars__val', String(total)));
+      row.appendChild(statEl('span', 'stat-eb__n', String(total)));
       box.appendChild(row);
     });
-    var leg = statEl('ul', 'stat-legend stat-legend--inline');
+    var leg = statEl('ul', 'stat-leg');
     partDefs.forEach(function (d) {
-      var li = statEl('li');
-      var sw = statEl('span', 'stat-legend__sw');
+      var li = statEl('li'), sw = statEl('span', 'stat-leg__sw');
       sw.style.background = d.color;
-      li.appendChild(sw);
-      li.appendChild(statEl('span', 'stat-legend__lbl', d.label));
+      li.appendChild(sw); li.appendChild(document.createTextNode(d.label));
       leg.appendChild(li);
     });
     box.appendChild(leg);
     return box;
   }
-  // Histogramme (colonnes verticales) : un effectif par valeur ordonnée (ex. âge).
+  // Histogramme : colonnes arrondies, effectif au-dessus, libellé en dessous.
   function statColumns(items) {
-    var box = statEl('div', 'stat-cols');
+    var box = statEl('div', 'stat-gchart');
     if (!items.length) { box.appendChild(statHint('Aucune donnée.')); return box; }
-    var max = Math.max.apply(null, items.map(function (x) { return x.value; })) || 1;
-    var every = items.length > 24 ? 2 : 1;
+    var max = Math.max.apply(null, items.map(function (x) { return x.value; })) || 1, every = items.length > 24 ? 2 : 1;
+    var bars = statEl('div', 'stat-gc__bars');
     items.forEach(function (it, i) {
-      var col = statEl('div', 'stat-cols__col');
+      var col = statEl('div', 'stat-gc');
       col.title = it.label + ' : ' + it.value;
-      col.appendChild(statEl('span', 'stat-cols__val', it.value ? String(it.value) : ''));
-      var bar = statEl('span', 'stat-cols__bar');
-      bar.style.height = (it.value * 100 / max) + '%';
+      col.appendChild(statEl('span', 'stat-gc__n', it.value ? String(it.value) : ''));
+      var bar = statEl('span', 'stat-gc__bar');
+      bar.style.height = (it.value ? Math.max(3, Math.round(it.value / max * 100)) : 0) + '%';
       col.appendChild(bar);
-      col.appendChild(statEl('span', 'stat-cols__lbl', i % every === 0 ? it.label : ''));
-      box.appendChild(col);
+      col.appendChild(statEl('span', 'stat-gc__l', i % every === 0 ? it.label : ''));
+      bars.appendChild(col);
     });
+    box.appendChild(bars);
     return box;
   }
   // Barres empilées : état de chaque pièce jointe (validé, à valider, refusé, manquant) sur un ensemble de stagiaires.
   function statDocChart(rows, roles) {
-    var defs = [{ label: 'Validé', color: statColor(3) }, { label: 'À valider', color: statColor(2) }, { label: 'Refusé', color: statColor(1) }, { label: 'Manquant', color: statColor(7) }];
+    var defs = [{ label: 'Validé', color: 'var(--st-blue)', ink: '#fff' }, { label: 'À valider', color: statColor(2), ink: '#fff' }, { label: 'Refusé', color: statColor(4) }, { label: 'Manquant', color: statColor(6) }];
     var keys = ['ok', 'pending', 'rejected', 'missing'];
     return statStacked(roles.map(function (role) {
       var c = [0, 0, 0, 0];
@@ -7696,11 +7752,23 @@
     candDocStatsEl.appendChild(statCard('Suivi des pièces du dossier', candidates.rows.length + ' candidat(s) · validé, à valider, refusé ou manquant', statDocChart(candidates.rows, roles)));
   }
   function statCard(title, source, body, wide) {
-    var card = statEl('section', 'stat-card' + (wide ? ' stat-card--wide' : ''));
-    card.appendChild(statEl('h4', 'stat-card__title', title));
-    if (source) card.appendChild(statEl('p', 'stat-card__src', source));
+    var card = statEl('section', 'stat-card' + (wide ? ' stat-wide' : ''));
+    card.appendChild(statEl('h4', 'fr-h6 stat-card__title', title));
+    if (source) card.appendChild(statEl('p', 'stat-hint', source));
     card.appendChild(body);
     return card;
+  }
+  // Tuiles de chiffres : grand nombre bleu, libellé en gras, sous-titre ; rouge si l'élément [3] est vrai.
+  function statTiles(items) {
+    var grid = statEl('div', 'stat-grid');
+    items.forEach(function (it) {
+      var t = statEl('div', 'stat-tile' + (it[3] ? ' is-alert' : ''));
+      t.appendChild(statEl('p', 'stat-num', it[1]));
+      t.appendChild(statEl('p', 'stat-lbl', it[0]));
+      if (it[2]) t.appendChild(statEl('p', 'stat-sub', it[2]));
+      grid.appendChild(t);
+    });
+    return grid;
   }
   function statKpi(label, value, hint) {
     var k = statEl('div', 'stat-kpi');
@@ -7774,6 +7842,15 @@
     var date = settings.col.dateDepart ? dayOfValue(row.dateDepart, (columnTypesMap[settings.table] || {})[settings.col.dateDepart]) : null;
     return motif || date ? { motif: motif, date: date } : null;
   }
+  // Cadre pris en compte pour le ratio d'encadrement : hors formateurs secourisme, renforts mess et DRJ (repérés dans le groupe, la fonction ou l'affectation).
+  function statsCadreCounted(r) {
+    var texts = encGroupTags(r).concat([encText(r, 'groupe'), encText(r, 'fonction'), encText(r, 'affectation')]);
+    encGroupTags(r).forEach(function (t) { texts.push(groupDisplayLabel(t)); });
+    return !texts.some(function (t) {
+      var k = normalizeKey(t);
+      return /FORMATEURS? SECOURISME|^SEC$/.test(k) || /RENFORTS?.*MESS|MESS.*RENFORTS?/.test(k) || /(^|[^A-Z])DRJ([^A-Z]|$)/.test(k);
+    });
+  }
   function statsMedian(list) {
     var s = list.slice().sort(function (a, b) { return a - b; }), n = s.length;
     return n ? (n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2) : 0;
@@ -7798,43 +7875,6 @@
     return col.type === 'ChoiceList' ? t.split(/\s*,\s*/).filter(Boolean) : [t];
   }
 
-  // Colonnes empilées : une colonne par date, découpée par motif (parts = effectifs dans l'ordre de partDefs).
-  function statStackedCols(cols, partDefs) {
-    var box = statEl('div', 'stat-scols');
-    var max = Math.max.apply(null, cols.map(function (c) { return c.parts.reduce(function (s, v) { return s + v; }, 0); })) || 1;
-    var plot = statEl('div', 'stat-scols__plot');
-    var every = cols.length > 20 ? Math.ceil(cols.length / 20) : 1;
-    cols.forEach(function (c, i) {
-      var total = c.parts.reduce(function (s, v) { return s + v; }, 0);
-      var col = statEl('div', 'stat-scols__col');
-      col.title = c.label + ' : ' + total + ' départ(s)\n' + partDefs.map(function (d, k) { return c.parts[k] ? d.label + ' : ' + c.parts[k] : ''; }).filter(Boolean).join('\n');
-      col.appendChild(statEl('span', 'stat-cols__val', String(total)));
-      var stack = statEl('span', 'stat-scols__stack');
-      stack.style.height = (total * 100 / max) + '%';
-      c.parts.forEach(function (v, k) {
-        if (!v) return;
-        var seg = statEl('span', 'stat-scols__seg');
-        seg.style.flex = String(v);
-        seg.style.background = partDefs[k].color;
-        stack.appendChild(seg);
-      });
-      col.appendChild(stack);
-      col.appendChild(statEl('span', 'stat-cols__lbl', i % every === 0 ? c.label : ''));
-      plot.appendChild(col);
-    });
-    box.appendChild(plot);
-    var leg = statEl('ul', 'stat-legend stat-legend--inline');
-    partDefs.forEach(function (d) {
-      var li = statEl('li');
-      var sw = statEl('span', 'stat-legend__sw');
-      sw.style.background = d.color;
-      li.appendChild(sw);
-      li.appendChild(statEl('span', 'stat-legend__lbl', d.label));
-      leg.appendChild(li);
-    });
-    box.appendChild(leg);
-    return box;
-  }
   // Matrice colorée (lignes × colonnes d'effectifs) : intensité proportionnelle à la part de la ligne.
   function statHeat(rowDefs, colLabels) {
     var box = statEl('div', 'stat-heat');
@@ -7850,7 +7890,7 @@
         var share = evaluated ? v / evaluated : 0;
         if (i === last) { cell.style.background = 'var(--background-alt-grey)'; cell.style.color = 'var(--text-mention-grey)'; }
         else {
-          cell.style.background = 'color-mix(in srgb, var(--stat-c1) ' + Math.round(8 + share * 80) + '%, transparent)';
+          cell.style.background = 'color-mix(in srgb, var(--st-blue) ' + Math.round(8 + share * 80) + '%, var(--st-bg))';
           if (share > 0.55) cell.style.color = '#fff';
         }
         cell.title = r.label + ' — ' + colLabels[i] + ' : ' + v + ' (' + statPct(v, total) + ')';
@@ -7859,16 +7899,17 @@
     });
     return box;
   }
-  // Courbe (effectif cumulé dans le temps) : points { label, value }.
-  function statLine(points) {
+  // Courbes cumulées : le total (trait plein, points) et, en option, une courbe pastel par série (motif).
+  function statLine(points, series) {
+    series = series || [];
     var box = statEl('div', 'stat-line');
-    var NS = 'http://www.w3.org/2000/svg', W = 300, H = 110, L = 26, B = 18, T = 8, R = 8;
+    var NS = 'http://www.w3.org/2000/svg', W = 600, H = 170, L = 28, B = 20, T = 10, R = 10;
     var max = Math.max.apply(null, points.map(function (p) { return p.value; })) || 1;
     var svg = document.createElementNS(NS, 'svg');
     svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
     svg.setAttribute('class', 'stat-line__svg');
     svg.setAttribute('role', 'img');
-    svg.setAttribute('aria-label', 'Courbe cumulée : ' + points.map(function (p) { return p.label + ' ' + p.value; }).join(', '));
+    svg.setAttribute('aria-label', 'Courbes cumulées : total ' + points.map(function (p) { return p.label + ' ' + p.value; }).join(', '));
     function X(i) { return points.length === 1 ? L : L + i * (W - L - R) / (points.length - 1); }
     function Y(v) { return T + (H - T - B) * (1 - v / max); }
     function add(tag, attrs, text) { var e = document.createElementNS(NS, tag); Object.keys(attrs).forEach(function (k) { e.setAttribute(k, attrs[k]); }); if (text !== undefined) e.textContent = text; svg.appendChild(e); return e; }
@@ -7878,19 +7919,36 @@
     });
     var pts = points.map(function (p, i) { return X(i) + ',' + Y(p.value); }).join(' ');
     add('polygon', { points: L + ',' + Y(0) + ' ' + pts + ' ' + X(points.length - 1) + ',' + Y(0), class: 'stat-line__area' });
+    series.forEach(function (sr) {
+      var sp = sr.values.map(function (v, i) { return X(i) + ',' + Y(v); }).join(' ');
+      var pl = add('polyline', { points: sp, class: 'stat-line__serie' });
+      pl.style.stroke = sr.color;
+      var t = document.createElementNS(NS, 'title'); t.textContent = sr.label + ' : ' + sr.values[sr.values.length - 1] + ' au total'; pl.appendChild(t);
+    });
     add('polyline', { points: pts, class: 'stat-line__path' });
-    points.forEach(function (p, i) { var c = add('circle', { cx: X(i), cy: Y(p.value), r: 3, class: 'stat-line__dot' }); var t = document.createElementNS(NS, 'title'); t.textContent = p.label + ' : ' + p.value; c.appendChild(t); });
+    points.forEach(function (p, i) { var c = add('circle', { cx: X(i), cy: Y(p.value), r: 3, class: 'stat-line__dot' }); var t = document.createElementNS(NS, 'title'); t.textContent = p.label + ' : ' + p.value + ' au total' + series.map(function (sr) { return sr.values[i] ? '\n' + sr.label + ' : ' + sr.values[i] : ''; }).join(''); c.appendChild(t); });
     add('text', { x: L, y: H - 4, 'text-anchor': 'start', class: 'stat-line__ax' }, points[0].label);
     if (points.length > 1) add('text', { x: W - R, y: H - 4, 'text-anchor': 'end', class: 'stat-line__ax' }, points[points.length - 1].label);
     box.appendChild(svg);
+    if (series.length) {
+      var leg = statEl('ul', 'stat-leg');
+      var all = [{ label: 'Total', color: 'var(--st-blue)' }].concat(series);
+      all.forEach(function (d) {
+        var li = statEl('li'), sw = statEl('span', 'stat-leg__sw');
+        sw.style.background = d.color;
+        li.appendChild(sw); li.appendChild(document.createTextNode(d.label));
+        leg.appendChild(li);
+      });
+      box.appendChild(leg);
+    }
     return box;
   }
-  // Taux avec repère de référence : barre graduée + écart (vert sous la référence, rouge au-dessus).
+  // Taux avec repère de référence : barre arrondie + écart (vert sous la référence, rouge au-dessus).
   function statMeter(pct, ref) {
     var box = statEl('div', 'stat-meter');
     var hasRef = ref !== null && isFinite(ref);
     var top = Math.max(10, pct * 1.4, hasRef ? ref * 2 : 0);
-    box.appendChild(statEl('div', 'stat-meter__val', statNum(pct) + ' %'));
+    box.appendChild(statEl('p', 'stat-num' + (hasRef && pct > ref ? ' stat-bad' : ''), statNum(pct) + ' %'));
     var track = statEl('div', 'stat-meter__track');
     var fill = statEl('div', 'stat-meter__fill');
     fill.style.width = Math.min(100, pct * 100 / top) + '%';
@@ -7904,11 +7962,11 @@
     box.appendChild(track);
     if (hasRef) {
       var diff = Math.round((pct - ref) * 10) / 10;
-      var line = statEl('p', 'stat-meter__note');
+      var line = statEl('p', 'stat-sub');
       line.appendChild(document.createTextNode('Référence : ' + statNum(ref) + ' % · '));
       line.appendChild(statEl('strong', diff > 0 ? 'stat-bad' : 'stat-good', (diff > 0 ? '+' : diff < 0 ? '−' : '') + statNum(Math.abs(diff)) + ' pt ' + (diff > 0 ? 'au-dessus' : diff < 0 ? 'en dessous' : '(égal)')));
       box.appendChild(line);
-    } else box.appendChild(statEl('p', 'stat-meter__note', 'Référence non réglée (Configuration, « Attrition de référence »).'));
+    } else box.appendChild(statEl('p', 'stat-sub', 'Référence non réglée (Configuration, « Attrition de référence »).'));
     return box;
   }
   var statDetailOpen = false;
@@ -7939,37 +7997,35 @@
     syn.appendChild(statEl('h3', 'stat-section__title', 'Synthèse'));
     syn.appendChild(statEl('p', 'stat-section__hint', n + ' stagiaire(s)' + (rows.dups ? ' (' + rows.dups + ' fiche(s) en doublon écartée(s))' : '') +
       (settings.dateDebutFormation ? ' · début de formation le ' + settings.dateDebutFormation : '') + ' · situation au ' + fmtDateFr(new Date())));
-    var kp = statEl('div', 'stat-kpis');
-    kp.appendChild(statKpi('Stagiaires', String(n)));
-    kp.appendChild(statKpi('Départs enregistrés', String(nDep), 'Attrition : ' + statPct(nDep, n)));
-    kp.appendChild(statKpi('Présents', String(nPresent)));
-    if (enc.loaded && enc.rows.length) kp.appendChild(statKpi('Cadres', String(enc.rows.length), '1 cadre pour ' + statNum(nPresent / enc.rows.length) + ' stagiaires'));
-    if (nF + nH) kp.appendChild(statKpi('Féminisation', statPct(nF, nF + nH), nF + ' femme(s)'));
-    if (ages.length) kp.appendChild(statKpi('Âge moyen', statNum(ages.reduce(function (s, a) { return s + a; }, 0) / ages.length) + ' ans', 'médian : ' + statNum(statsMedian(ages)) + ' ans'));
+    var ind = [['Stagiaires', String(n), nPresent + ' présent(s)'],
+      ['Départs enregistrés', String(nDep), 'Attrition : ' + statPct(nDep, n), attrRef !== null && nDep * 100 / n > attrRef]];
+    if (enc.loaded && enc.rows.length) {
+      var cadresOk = enc.rows.filter(statsCadreCounted).length;
+      ind.push(['Cadres', String(enc.rows.length), cadresOk ? '1 cadre pour ' + statNum(nPresent / cadresOk) + ' stagiaires (hors Mess et formateurs ponctuels : ' + cadresOk + ' cadre(s))' : 'Aucun cadre permanent identifié']);
+    }
+    if (nF + nH) ind.push(['Femmes', statPct(nF, nF + nH), nF + ' femme(s)']);
+    if (ages.length) ind.push(['Âge moyen', statNum(ages.reduce(function (s, a) { return s + a; }, 0) / ages.length) + ' ans', 'médian : ' + statNum(statsMedian(ages)) + ' ans']);
+    var kp = statTiles(ind);
     syn.appendChild(kp);
-    var sg = statEl('div', 'stat-grid');
+    var sg = statEl('div', 'stat-cards');
     syn.appendChild(sg);
 
-    // Attrition (avec référence) et départs dans le temps
+    // Unités et détail RGIF
+    if (settings.col.affectation) {
+      var fa = statCount(rows.map(statsFA).filter(Boolean)), faOrder = ['RGIF', 'GR', 'GTA', 'Autres'];
+      fa.sort(function (a, b) { return faOrder.indexOf(a.label) - faOrder.indexOf(b.label); });
+      sg.appendChild(statCard('Répartition entre les unités', 'RGIF, GR, GTA d’après l’affectation', statDonut(fa, 'stagiaires')));
+      var rg = statTop(statCount(rows.filter(function (r) { return statsFA(r) === 'RGIF'; }).map(function (r) { return textOf(r.affectation); })), 8);
+      rg.sort(function (a, b) { return nameCollator.compare(a.label, b.label); });
+      if (rg.length) sg.appendChild(statCard('Répartition pour la RGIF', 'Détail par groupement (affectations contenant « GGD »)', statDonut(rg, 'RGIF')));
+    }
+    // Attrition (avec référence)
     var attr = statEl('div');
     attr.appendChild(statMeter(n ? nDep * 100 / n : 0, attrRef));
     var motifs = statCount(departs.filter(Boolean).map(function (d) { return d.motif || 'Motif non renseigné'; }));
-    if (motifs.length) { var mb = statBars(statTop(motifs, 5), nDep); mb.classList.add('stat-bars--gap'); attr.appendChild(mb); }
-    sg.appendChild(statCard('Attrition', 'Départs enregistrés sur le total des stagiaires · motifs de départ', attr));
+    sg.appendChild(statCard('Attrition', 'Départs enregistrés sur le total des stagiaires', attr));
     var dated = departs.filter(function (d) { return d && d.date; });
-    var timeBody;
-    if (!dated.length) timeBody = statHint(nDep ? 'Les départs enregistrés n’ont pas de date.' : 'Aucun départ enregistré.');
-    else {
-      var byDay = {};
-      dated.forEach(function (d) { var k = d.date.getTime(); byDay[k] = (byDay[k] || 0) + 1; });
-      var days = Object.keys(byDay).map(Number).sort(function (a, b) { return a - b; }), cum = 0, pts = [];
-      if (j1Known && days[0] > j1.getTime()) pts.push({ label: fmtDateFr(j1), value: 0 });
-      days.forEach(function (k) { cum += byDay[k]; pts.push({ label: fmtDateFr(new Date(k)), value: cum }); });
-      timeBody = statLine(pts);
-    }
-    sg.appendChild(statCard('Départs dans le temps', 'Nombre cumulé de départs, par date de départ', timeBody));
-
-    // Départs par date et par motif
+    // Départs par jour et par motif (au-delà de 6 motifs, les moins fréquents sont regroupés dans « Autres motifs »).
     var byDate = {}, motifTotals = {};
     dated.forEach(function (d) {
       var k = d.date.getTime(), m = d.motif || 'Motif non renseigné';
@@ -7978,24 +8034,55 @@
     });
     var motifOrder = Object.keys(motifTotals).sort(function (a, b) { return motifTotals[b] - motifTotals[a] || nameCollator.compare(a, b); });
     var shown = motifOrder.length > 6 ? motifOrder.slice(0, 5) : motifOrder;
-    var partDefs = shown.map(function (m, i) { return { label: m, color: statColor(i) }; });
-    if (motifOrder.length > 6) partDefs.push({ label: 'Autres motifs', color: statColor(7) });
+    var ci2 = 0, partDefs = shown.map(function (m) { return { label: m, color: statGrey(m) ? STAT_NONE : statColor(ci2++) }; });
+    if (motifOrder.length > 6) partDefs.push({ label: 'Autres motifs', color: STAT_NONE });
     var dayKeys = Object.keys(byDate).map(Number).sort(function (a, b) { return a - b; });
-    var undated = nDep - dated.length;
-    sg.appendChild(statCard('Départs par date et par motif', dated.length ? 'Nombre de départs enregistrés chaque jour, par motif' + (undated ? ' · ' + undated + ' départ(s) sans date non représenté(s)' : '') : 'Date de départ et motif de départ',
-      dated.length ? statStackedCols(dayKeys.map(function (k) {
-        var parts = shown.map(function (m) { return byDate[k][m] || 0; });
-        if (motifOrder.length > 6) parts.push(Object.keys(byDate[k]).filter(function (m) { return shown.indexOf(m) === -1; }).reduce(function (sum, m) { return sum + byDate[k][m]; }, 0));
-        return { label: fmtDateFr(new Date(k)).slice(0, 5), parts: parts };
-      }), partDefs) : statHint(nDep ? 'Les départs enregistrés n’ont pas de date.' : 'Aucun départ enregistré.'), true));
-
-    // Unités, féminisation
-    if (settings.col.affectation) {
-      var fa = statCount(rows.map(statsFA).filter(Boolean)), faOrder = ['RGIF', 'GR', 'GTA', 'Autres'];
-      fa.sort(function (a, b) { return faOrder.indexOf(a.label) - faOrder.indexOf(b.label); });
-      sg.appendChild(statCard('Répartition entre les unités', 'RGIF, GR, GTA d’après l’affectation', statDonut(fa, 'stagiaires')));
+    function dayParts(k) {
+      var parts = shown.map(function (m) { return byDate[k][m] || 0; });
+      if (motifOrder.length > 6) parts.push(Object.keys(byDate[k]).filter(function (m) { return shown.indexOf(m) === -1; }).reduce(function (sum, m) { return sum + byDate[k][m]; }, 0));
+      return parts;
     }
-    if (nF + nH) sg.appendChild(statCard('Féminisation', 'Part des femmes parmi les stagiaires', statDonut([{ label: 'Hommes', value: nH, color: statColor(0) }, { label: 'Femmes', value: nF, color: statColor(1) }], 'stagiaires')));
+    var undated = nDep - dated.length;
+
+    // Départs dans le temps : courbe du total + une courbe par motif (pastels)
+    var timeBody;
+    if (!dated.length) timeBody = statHint(nDep ? 'Les départs enregistrés n’ont pas de date.' : 'Aucun départ enregistré.');
+    else {
+      var pts = [], cumTot = 0, cumParts = partDefs.map(function () { return 0; }), series = partDefs.map(function (d, i) { return { label: d.label, color: d.color === STAT_NONE ? STAT_NONE : 'color-mix(in srgb, var(--st-blue) ' + [66, 54, 44, 36, 30, 24][i % 6] + '%, var(--st-bg))', values: [] }; });
+      if (j1Known && dayKeys[0] > j1.getTime()) { pts.push({ label: fmtDateFr(j1), value: 0 }); series.forEach(function (sr) { sr.values.push(0); }); }
+      dayKeys.forEach(function (k) {
+        var parts = dayParts(k);
+        parts.forEach(function (v, i) { cumParts[i] += v; series[i].values.push(cumParts[i]); cumTot += v; });
+        pts.push({ label: fmtDateFr(new Date(k)), value: cumTot });
+      });
+      timeBody = statLine(pts, series);
+    }
+    sg.appendChild(statCard('Départs dans le temps', 'Nombre cumulé de départs : total et par motif' + (undated > 0 && dated.length ? ' · ' + undated + ' départ(s) sans date non représenté(s)' : ''), timeBody, true));
+
+    // Féminisation
+    if (nF + nH) sg.appendChild(statCard('Féminisation', 'Part des femmes parmi les stagiaires', statDonut([{ label: 'Hommes', value: nH }, { label: 'Femmes', value: nF }], 'stagiaires')));
+
+    // Pelotons : effectif, féminisation, âge moyen
+    if (settings.col.pon) {
+      var pel = {}, pelOrder = [];
+      rows.forEach(function (r, i) {
+        var k = textOf(r.pon) || 'Sans peloton';
+        if (!pel[k]) { pel[k] = { n: 0, f: 0, h: 0, ages: [] }; pelOrder.push(k); }
+        var o = pel[k];
+        o.n++;
+        if (sexes[i] === 'F') o.f++; else if (sexes[i] === 'H') o.h++;
+        var ag = statsAge(r, j1);
+        if (ag !== null) o.ages.push(ag);
+      });
+      pelOrder.sort(function (a, b) { return a.localeCompare(b, 'fr', { numeric: true }); });
+      sg.appendChild(statCard('Répartition par peloton', 'Effectif de chaque peloton (colonne PON)', statBars(pelOrder.map(function (k) { return { label: k, value: pel[k].n }; }), n)));
+      if (nF + nH) sg.appendChild(statCard('Féminisation par peloton', 'Hommes / femmes de chaque peloton · à droite, l’effectif', statStacked(pelOrder.map(function (k) {
+        return { label: k + (pel[k].f + pel[k].h ? ' · ' + statPct(pel[k].f, pel[k].f + pel[k].h) : ''), parts: [pel[k].h, pel[k].f] };
+      }), [{ label: 'Hommes', color: statColor(0), ink: '#fff' }, { label: 'Femmes', color: statColor(3) }])));
+      if (ages.length) sg.appendChild(statCard('Âge moyen par peloton', j1Known ? 'Âge au premier jour de la formation' : 'Âge à la date du jour', statMeans(pelOrder.filter(function (k) { return pel[k].ages.length; }).map(function (k) {
+        return { label: k, mean: pel[k].ages.reduce(function (sum, a) { return sum + a; }, 0) / pel[k].ages.length, n: pel[k].ages.length };
+      }), 'ans')));
+    }
 
     // Âge et profil
     if (ages.length) {
@@ -8051,7 +8138,7 @@
       var s = statEl('section', 'stat-section');
       s.appendChild(statEl('h3', 'stat-section__title', title));
       if (hint) s.appendChild(statEl('p', 'stat-section__hint', hint));
-      var grid = statEl('div', 'stat-grid');
+      var grid = statEl('div', 'stat-cards');
       s.appendChild(grid);
       det.appendChild(s);
       return grid;
@@ -8060,21 +8147,13 @@
     if (motifs.length > 5 || nDep) {
       g = section('Départs');
       g.appendChild(statCard('Motifs de départ', 'Table « Gestion des départs » ou colonne Motif de départ', motifs.length ? statBars(statTop(motifs, 8), nDep) : statHint('Aucun départ enregistré.')));
-      g.appendChild(statCard('Effectif présent et départs', '', statDonut([{ label: 'Présents', value: nPresent, color: statColor(3) }, { label: 'Départs', value: nDep, color: statColor(1) }], 'stagiaires')));
+      g.appendChild(statCard('Effectif présent et départs', '', statDonut([{ label: 'Présents', value: nPresent }, { label: 'Départs', value: nDep }])));
     }
 
     g = section('Unités et pelotons', 'Affectation du stagiaire');
     if (!settings.col.affectation) g.appendChild(statCard('Affectation', '', statHint('Colonne « Affectation » non réglée.')));
     else {
-      var rg = statTop(statCount(rows.filter(function (r) { return statsFA(r) === 'RGIF'; }).map(function (r) { return textOf(r.affectation); })), 8);
-      rg.sort(function (a, b) { return nameCollator.compare(a.label, b.label); });
-      g.appendChild(statCard('Répartition au sein de la RGIF', 'Groupements départementaux (affectations contenant « GGD »)', rg.length ? statDonut(rg, 'RGIF') : statHint('Aucune affectation de la RGIF.')));
       g.appendChild(statCard('Effectif par affectation', '', statBars(statTop(statCount(rows.map(function (r) { return textOf(r.affectation) || 'Non renseignée'; })), 12), n)));
-    }
-    if (settings.col.pon) {
-      var pons = statCount(rows.map(function (r) { return textOf(r.pon) || 'Sans peloton'; }));
-      pons.sort(function (a, b) { return nameCollator.compare(a.label, b.label); });
-      g.appendChild(statCard('Effectif par peloton', 'Colonne PON', statBars(pons, n)));
     }
 
     if (nF + nH && settings.col.affectation) {
@@ -8086,7 +8165,7 @@
         if (sexes[i] === 'H') units[u][0]++; else if (sexes[i] === 'F') units[u][1]++;
       });
       uorder.sort(nameCollator.compare);
-      g.appendChild(statCard('Hommes / femmes selon l’affectation', '', statStacked(uorder.map(function (u) { return { label: u, parts: units[u] }; }), [{ label: 'Hommes', color: statColor(0) }, { label: 'Femmes', color: statColor(1) }]), true));
+      g.appendChild(statCard('Hommes / femmes selon l’affectation', '', statStacked(uorder.map(function (u) { return { label: u, parts: units[u] }; }), [{ label: 'Hommes', color: statColor(0), ink: '#fff' }, { label: 'Femmes', color: statColor(3) }]), true));
     } else if (!settings.col.civilite) {
       g = section('Féminisation');
       g.appendChild(statCard('Répartition H/F', '', statHint('Colonne « Civilité » non réglée.')));
@@ -8128,7 +8207,7 @@
       if (enc.cols.ar) encCard('Active / Réserve', 'Colonne A/R', statTop(statCount(enc.rows.map(function (r) { return encText(r, 'ar') || 'Non renseigné'; })), 6), 'donut');
       if (enc.cols.sexe) {
         var es = enc.rows.map(statsEncSex);
-        encCard('Hommes / femmes', 'Colonne Sexe', [{ label: 'Hommes', value: es.filter(function (x) { return x === 'H'; }).length, color: statColor(0) }, { label: 'Femmes', value: es.filter(function (x) { return x === 'F'; }).length, color: statColor(1) }].filter(function (x) { return x.value; }), 'donut');
+        encCard('Hommes / femmes', 'Colonne Sexe', [{ label: 'Hommes', value: es.filter(function (x) { return x === 'H'; }).length }, { label: 'Femmes', value: es.filter(function (x) { return x === 'F'; }).length }].filter(function (x) { return x.value; }), 'donut');
       }
       if (enc.cols.groupe) {
         var tags = [];
