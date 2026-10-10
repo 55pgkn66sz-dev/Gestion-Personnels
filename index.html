@@ -5040,7 +5040,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.44.3</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.44.4</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -19958,6 +19958,26 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }
 
     var editingRowId = absEditingRowId;
+    // Modification : seules les colonnes réellement changées sont envoyées. Écrire toutes les colonnes réglées (même inchangées) déclenchait
+    // « Blocked by column update access rules » dès qu'une seule d'entre elles (date de demande, de décision…) est protégée par les règles d'accès.
+    if (editingRowId) {
+      var orig = absData.filter(function (r) { return r.id === editingRowId; })[0];
+      if (orig) {
+        var sec = function (v) { var d = parseGristDateTime(v); return d ? Math.round(d.getTime() / 1000) : null; };
+        var min = function (x) { return x === null || x === undefined ? null : Math.floor(x / 60); }; // les champs date-heure n'ont pas de secondes
+        var same = {};
+        same[absDemandeurRef ? absDemandeurRef.column : cfg.col.demandeur] = absDemandeurRef ? (Number(orig.demandeurRaw) === patch[absDemandeurRef.column]) : (textOf(orig.demandeur) === textOf(patch[cfg.col.demandeur]));
+        same[cfg.col.dateDebut] = min(sec(orig.dateDebut)) === min(patch[cfg.col.dateDebut]);
+        same[cfg.col.dateFin] = min(sec(orig.dateFin)) === min(patch[cfg.col.dateFin]);
+        if (cfg.col.motif) same[cfg.col.motif] = textOf(orig.motif) === textOf(patch[cfg.col.motif]);
+        if (cfg.col.destination) same[cfg.col.destination] = textOf(orig.destination) === textOf(patch[cfg.col.destination]);
+        if (cfg.col.commentaire) same[cfg.col.commentaire] = textOf(orig.commentaire) === textOf(patch[cfg.col.commentaire]);
+        if (cfg.col.creeLe) same[cfg.col.creeLe] = min(sec(orig.creeLe)) === min(patch[cfg.col.creeLe]);
+        if (cfg.col.derniereMiseAJour) same[cfg.col.derniereMiseAJour] = min(sec(orig.derniereMiseAJour)) === min(patch[cfg.col.derniereMiseAJour]);
+        Object.keys(same).forEach(function (k) { if (same[k] && Object.prototype.hasOwnProperty.call(patch, k)) delete patch[k]; });
+        if (!Object.keys(patch).length) { closeAbsEditModal(); showAbsStatus('info', 'Aucune modification à enregistrer.'); return; }
+      }
+    }
     var action = editingRowId
       ? ['UpdateRecord', cfg.table, editingRowId, patch]
       : ['AddRecord', cfg.table, null, patch];
