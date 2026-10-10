@@ -2460,11 +2460,18 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 #fsjConfirmModal[open], .fsj-dlg[open] { display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; z-index: 2000; margin: 0; padding: 1rem; width: 100%; height: 100%; max-width: none; max-height: none; border: none; background-color: rgba(0, 0, 18, 0.64); overflow-y: auto; }
 #fsjConfirmModal[open] > .fr-container, .fsj-dlg[open] > .fr-container { margin: auto; width: 100%; }
 #fsjConfirmModal .fr-modal__body, .fsj-dlg .fr-modal__body {
-  max-height: calc(100vh - 2rem); overflow-y: auto; background: var(--background-raised-grey); border-radius: 0.5rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
+  max-height: calc(100vh - 6rem); overflow-y: auto; background: var(--background-raised-grey); border-radius: 0.5rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
 #fsjPermModal .fsj-perm-row { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr) minmax(0, 1fr); gap: 0.5rem 0.8rem; align-items: end; margin: 0 0 0.9rem; }
 #fsjPermModal .fsj-perm-row .fr-select-group { margin: 0; }
 #fsjPermModal .fsj-perm-code { font-weight: 700; padding-bottom: 0.6rem; }
-@media (max-width: 40rem) { #fsjPermModal .fsj-perm-row { grid-template-columns: 1fr; } #fsjPermModal .fsj-perm-code { padding-bottom: 0; } }
+#fsjPermModal .fsj-perm-row .fr-label { font-size: 0.875rem; margin-bottom: 0.25rem; }
+#fsjPermModal .fsj-perm-row .fr-select { margin-top: 0; }
+/* Boutons toujours visibles en bas de la fenêtre, même quand la liste défile (petits écrans). */
+#fsjPermModal .fsj-perm-actions { display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-end; gap: 0.5rem; }
+#fsjPermModal .fsj-perm-actions > li { width: auto; flex: 0 1 auto; padding: 0; }
+#fsjPermModal .fsj-perm-actions .fr-btn { width: auto; }
+#fsjPermModal .fsj-perm-actions { position: sticky; bottom: 0; z-index: 2; margin: 0 -2rem -1.5rem; padding: 0.75rem 2rem; background: var(--background-raised-grey); border-top: 1px solid var(--border-default-grey); }
+@media (max-width: 40rem) { #fsjPermModal .fsj-perm-row { grid-template-columns: 1fr; gap: 0.35rem; margin-bottom: 0.7rem; } #fsjPermModal .fsj-perm-code { padding-bottom: 0; } #fsjPermModal .fsj-perm-actions { margin: 0 -1rem -1rem; padding: 0.6rem 1rem; } }
 #fsjRoot #absEditModal:not([data-fr-js-modal]) { display: none; }
 #fsjRoot #absEditModal[open]:not([data-fr-js-modal]) {
     display: flex;
@@ -3133,7 +3140,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
           <label class="fr-label fr-sr-only" for="dayPicker">Date de la feuille de service</label>
           <input class="fr-input" type="date" id="dayPicker" name="dayPicker">
           <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-arrow-right-s-line" id="fsjNextDay" type="button" title="Jour suivant"><span class="fr-sr-only">Jour suivant</span></button>
-          <button class="fr-btn fr-btn--tertiary fr-btn--sm" id="fsjYesterday" type="button">Hier</button>
           <button class="fr-btn fr-btn--tertiary fr-btn--sm" id="fsjToday" type="button">Aujourd’hui</button>
           <button class="fr-btn fr-btn--tertiary fr-btn--sm" id="fsjTomorrow" type="button">Demain</button>
         </div>
@@ -4997,7 +5003,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.43.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.44.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -11652,7 +11658,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       ['Comment configurer les tables des ressources ?', 'Dans la Configuration du widget (cinq clics rapides sur l’en-tête), rubriques « Véhicules », « Matériels », « Parc véhicules », « Parc matériel » et « Hébergement » : choisissez la table Grist et le rôle de chaque colonne, et adaptez les libellés de décision à ceux de votre table. Un badge indique si chaque rubrique est configurée. Ces réglages s’enregistrent avec le reste de la Configuration.']
     ] },
     { title: 'Gestion des temps et des activités', items: [
-      ['Que trouve-t-on dans ce menu ?', 'Trois entrées : <strong>Progression</strong> (planning de la semaine par peloton, ajout et modification des occurrences, progression en PDF, réglages des activités), <strong>Feuille de service journalier</strong> (génération du document d’un jour, versions stagiaires et/ou encadrement à cocher, un fichier par version cochée ; bouton-icône « Permanences du jour » pour affecter, changer ou retirer les cadres de permanence ; navigation Hier / Aujourd’hui / Demain ; la génération ouvre la fenêtre des permanences tant que la SOP n’est pas désignée (obligatoire), avertissements si un cadre absent est affecté, ou si le cadre de permanence est en repos le lendemain : une liste propose alors le cadre qui récupère la permanence à partir de 19 h, repris dans la feuille) et <strong>Gestion des absences</strong> (demandes, décisions, règles de conflit).'],
+      ['Que trouve-t-on dans ce menu ?', 'Trois entrées : <strong>Progression</strong> (planning de la semaine par peloton, ajout et modification des occurrences, progression en PDF, réglages des activités), <strong>Feuille de service journalier</strong> (génération du document d’un jour, versions stagiaires et/ou encadrement à cocher, un fichier par version cochée ; bouton-icône « Permanences du jour » pour affecter, changer ou retirer les cadres de permanence ; navigation jour précédent / suivant, Aujourd’hui / Demain ; la génération ouvre la fenêtre des permanences tant que la SOP n’est pas désignée (obligatoire), avertissements si un cadre absent est affecté, ou si le cadre de permanence est en repos le lendemain : une liste propose alors le cadre qui récupère la permanence à partir de 19 h, repris dans la feuille) et <strong>Gestion des absences</strong> (demandes, décisions, règles de conflit).'],
       ['Où se trouvent les occurrences du planning ?', 'Dans une table Grist qui porte les colonnes Début, Fin, Occurrence, Intitulé, Code, Lieu, Encadrement, Consignes, Apprenants et Type. Le widget la repère tout seul ; si elle n’est pas trouvée, ou si plusieurs tables conviennent, choisissez-la dans la Configuration du widget (« Temps et activités — période du stage », champ « Table des occurrences »). Les occurrences sont relues à chaque ouverture de la page et après chaque modification ; le bouton « Actualiser » (absences) recharge aussi les demandes.'],
       ['Où règle-t-on la période du stage, le PDF et les permanences ?', 'Dans la Configuration du widget (cinq clics rapides sur l’en-tête), trois rubriques « Temps et activités » : période du stage, exports PDF (dont la limitation de la feuille de service à trois jours) et signataire des autorisations d’absence. Les numéros de téléphone des permanences se règlent dans la page Réglages des activités. Ces réglages sont partagés par tous les utilisateurs.'],
       ['Comment filtrer le planning et les absences ?', 'Dans la barre de recherche de la page : cliquez dedans pour afficher les filtres en un clic (<strong>Par peloton</strong> et <strong>Par cadre</strong> pour la Progression ; <strong>Par décision</strong> et <strong>Par demandeur</strong> pour les absences), ou tapez un texte (code ou intitulé, nom, type, destination). « Réinitialiser les filtres » se trouve en haut du panneau.'],
@@ -22521,7 +22527,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   }
   document.getElementById('fsjPrevDay').addEventListener('click', function () { shiftFsjDay(-1); });
   document.getElementById('fsjNextDay').addEventListener('click', function () { shiftFsjDay(1); });
-  document.getElementById('fsjYesterday').addEventListener('click', function () { var t = new Date(); setFsjDay(new Date(t.getFullYear(), t.getMonth(), t.getDate() - 1)); });
   document.getElementById('fsjToday').addEventListener('click', function () { setFsjDay(new Date()); });
   document.getElementById('fsjTomorrow').addEventListener('click', function () { var t = new Date(); setFsjDay(new Date(t.getFullYear(), t.getMonth(), t.getDate() + 1)); });
 
@@ -23598,7 +23603,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       fsjPermDlg.innerHTML = '<div class="fr-container fr-container--fluid fr-container-md"><div class="fr-grid-row fr-grid-row--center"><div class="fr-col-12 fr-col-md-10 fr-col-lg-8">' +
         '<div class="fr-modal__body"><div class="fr-modal__header"><button type="button" class="fr-btn--close fr-btn" id="fsjPermClose" title="Fermer">Fermer</button></div><div class="fr-modal__content">' +
         '<h1 id="fsjPermTitle" class="fr-modal__title"></h1><p class="fr-hint-text" id="fsjPermHint"></p><div id="fsjPermStatus" aria-live="polite"></div><div id="fsjPermRows"></div>' +
-        '<ul class="fr-btns-group fr-btns-group--inline-md fr-btns-group--right fr-mt-2w"><li><button type="button" class="fr-btn fr-btn--secondary" id="fsjPermCancel">Annuler</button></li>' +
+        '<ul class="fr-btns-group fr-btns-group--inline-md fr-btns-group--right fr-mt-2w fsj-perm-actions"><li><button type="button" class="fr-btn fr-btn--secondary" id="fsjPermCancel">Annuler</button></li>' +
         '<li><button type="button" class="fr-btn" id="fsjPermSave">Enregistrer</button></li></ul></div></div></div></div></div>';
       document.body.appendChild(fsjPermDlg);
       fsjPermDlg.querySelector('#fsjPermClose').addEventListener('click', closeFsjPermModal);
