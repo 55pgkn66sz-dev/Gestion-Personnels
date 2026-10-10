@@ -1959,6 +1959,9 @@ table.req-table th { font-size: 0.95em; }
   /* Page Documents : documents stockés (gauche) et générateur (droite) côte à côte dès que la largeur le permet. */
   #docsPage:not([hidden]) { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.25rem 1.5rem; align-items: start; }
   #docsPage > h2, #docsPage > .docs-shared-search { grid-column: 1 / -1; margin: 0; }
+  /* Un seul bloc d'outils pour la page : les barres propres à chaque liste sont masquées (leurs boutons sont déplacés dans le bloc commun). */
+  #docsPage #panelDocuments > .cand-toolbar, #docsPage #panelBulk > .cand-toolbar { display: none; }
+  #docsPage .docs-count { margin-left: 0.6rem; font-size: 0.875rem; font-weight: 400; color: var(--text-mention-grey); white-space: nowrap; }
   #docsPage #panelDocuments .tb-search, #docsPage #panelBulk .tb-search, #docsPage #bulkResetBtn { display: none; }
   #docsPage #panelDocuments > h2, #docsPage #panelBulk .bulk-head h2 { margin: 0 0 1rem; }
   #docsPage > #panelDocuments { order: 1; min-width: 0; }
@@ -2480,6 +2483,28 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 #fsjRoot .fr-tooltip[role="tooltip"] { display: none; }
 .dis-tip { position: fixed; z-index: 3000; max-width: 22rem; padding: 0.6rem 0.8rem; border-radius: 0.5rem; border: 1px solid var(--border-default-grey); background: var(--background-raised-grey); color: var(--text-default-grey); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25); font-size: 0.85rem; line-height: 1.4; pointer-events: none; }
 .dis-tip[hidden] { display: none; }
+/* Choix des cadres : cadres de la catégorie proposée en premier, les autres derrière un bouton (sauf ceux déjà cochés) ; version « tags » dans le tableau. */
+.occ-checkbox-row:not(.show-all):not(.searching) .cadre-secondary:not(.is-selected) { display: none; }
+.cadres-more { margin: 0.4rem 0 0; }
+.occ-checkbox-row.cadre-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.cadre-tags .fr-fieldset__element { position: relative; margin: 0; padding: 0; width: auto; flex: 0 0 auto; }
+.cadre-tags input[type="checkbox"] { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.cadre-tags .cadre-tag { cursor: pointer; margin: 0; user-select: none; background: var(--background-contrast-grey); color: var(--text-default-grey); border: 1px solid transparent; }
+.cadre-tags .cadre-tag:hover { background: var(--background-contrast-grey-hover, #e0e0e0); }
+.cadre-tags input:checked + .cadre-tag { background: var(--background-action-high-blue-france, #000091); color: #fff; }
+.cadre-tags input:focus-visible + .cadre-tag { outline: 2px solid var(--bleu-france, #000091); outline-offset: 2px; }
+.cadre-tags .cadre-tag--vol { background: var(--background-contrast-success, #b8fec9); color: var(--text-default-success, #18753c); border-color: var(--border-plain-success, #18753c); }
+.cadre-tags input:checked + .cadre-tag--vol { background: var(--background-action-high-success, #18753c); color: #fff; }
+/* Permanences : numéros de téléphone (page Réglages des activités). Les champs débordaient de leurs colonnes et se recouvraient. */
+#permCard { background: var(--background-raised-grey); border: 1px solid var(--border-default-grey); border-radius: 0.5rem; padding: 0.75rem 1.25rem; margin: 0 0 1rem; }
+#permCard[open] { padding-bottom: 1.25rem; }
+#permCard > summary { cursor: pointer; font-weight: 700; color: var(--text-action-high-blue-france); }
+#permCard .cfg-hint { margin: 0.75rem 0; font-size: 0.85rem; color: var(--text-mention-grey); }
+#permCard .cfg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.9rem 1.25rem; margin: 0 0 0.5rem; }
+#permCard .fr-input-group { margin: 0; min-width: 0; }
+#permCard .fr-label { font-size: 0.875rem; font-weight: 700; margin-bottom: 0.3rem; }
+#permCard .fr-input { box-sizing: border-box; width: 100%; max-width: 100%; }
+#permCard #permSaveBtn { margin-top: 0.5rem; }
 #fsjConfirmModal:not([open]), .fsj-dlg:not([open]) { display: none; }
 #fsjConfirmModal[open], .fsj-dlg[open] { display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; z-index: 2000; margin: 0; padding: 1rem; width: 100%; height: 100%; max-width: none; max-height: none; border: none; background-color: rgba(0, 0, 18, 0.64); overflow-y: auto; }
 #fsjConfirmModal[open] > .fr-container, .fsj-dlg[open] > .fr-container { margin: auto !important; width: 100%; align-self: center !important; height: auto !important; }
@@ -3145,6 +3170,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         </div>
       </div>
       <button class="fr-btn fr-btn--secondary fr-icon-close-circle-line fr-btn--icon-left tb-icon" id="docsSearchReset" type="button" disabled title="Réinitialiser la recherche">Réinitialiser la recherche</button>
+      <div class="tb-actions" id="docsActions"></div>
     </div>
   </div>
 
@@ -3349,7 +3375,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
               <input class="fr-input" type="text" id="configPermTel_SOP" name="configPermTel_SOP" autocomplete="off">
             </div>
           </div>
-      <p class="cfg-hint">En l'absence de téléphone de permanence renseigné ci-dessus, c'est le numéro de téléphone du militaire (colonne Telephone de la table Encadrement) qui est utilisé.</p>
+      <p class="cfg-hint">En l'absence de téléphone de permanence renseigné ci-dessus, c'est le numéro de téléphone renseigné sur la fiche du militaire qui est utilisé.</p>
       <div id="permStatusZone" aria-live="polite"></div>
       <button class="fr-btn fr-btn--sm" id="permSaveBtn" type="button">Enregistrer les numéros</button>
     </details>
@@ -3698,7 +3724,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
                     </div>
                   </fieldset>
                   <div class="fr-input-group">
-                    <label class="fr-label" for="occPermDate">Date <span class="fr-hint-text">La permanence débute à 07:30</span></label>
+                    <label class="fr-label" for="occPermDate">Date <span class="fr-hint-text">La permanence dure de 07:30 au lendemain 07:30</span></label>
                     <input class="fr-input" type="date" id="occPermDate" name="occPermDate">
                   </div>
                   <div class="fr-select-group">
@@ -5040,7 +5066,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.44.4</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.48.1</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -5264,6 +5290,18 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var docsPage = document.getElementById('docsPage');
   docsPage.appendChild(panelBulk);
   docsPage.appendChild(document.getElementById('panelDocuments'));
+  (function () { // boutons des deux listes déplacés dans le bloc commun ; compteurs placés dans les titres
+    var actions = document.getElementById('docsActions');
+    ['docReloadBtn', 'bulkGearBtn', 'docNewBtn'].forEach(function (id) { var b = document.getElementById(id); if (b) actions.appendChild(b); });
+    [['docCount', '#panelDocuments > h2'], ['bulkCount', '#panelBulk .bulk-head h2']].forEach(function (p) {
+      var old = document.getElementById(p[0]), h = document.querySelector(p[1]);
+      if (!old || !h) return;
+      var span = document.createElement('span');
+      span.id = p[0]; span.className = 'docs-count'; span.setAttribute('aria-live', 'polite');
+      old.parentNode.removeChild(old);
+      h.appendChild(span);
+    });
+  })();
   (function () {
     var shared = document.getElementById('docsSearchInput'), reset = document.getElementById('docsSearchReset');
     function push() {
@@ -9294,6 +9332,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         function ms(v) { return typeof v === 'number' ? v * 1000 : (dateOf(v) ? dateOf(v).getTime() : NaN); }
         var from = ms(a), to = ms(b);
         if (isNaN(from) || isNaN(to)) return;
+        if (kind === 'REPOS') { // un repos s'entend de la veille 19 h au lendemain 7 h 30
+          var f0 = new Date(from), t0 = new Date(to);
+          from = new Date(f0.getFullYear(), f0.getMonth(), f0.getDate() - 1, 19, 0).getTime();
+          to = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + 1, 7, 30).getTime();
+        }
         list.push({ ref: refCol && d[refCol] ? d[refCol][i] : 0, name: encAbsNorm(d.Militaire_affiche && d.Militaire_affiche[i]).split(' ').filter(Boolean),
           from: from, to: to, label: kind === 'REPOS' ? 'Repos' : 'Autorisation d’absence' });
       });
@@ -9318,7 +9361,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var sameDay = end.getFullYear() === now.getFullYear() && end.getMonth() === now.getMonth() && end.getDate() === now.getDate();
     var date = end.toLocaleDateString('fr-FR');
     var hm = String(end.getHours()).padStart(2, '0') + ':' + String(end.getMinutes()).padStart(2, '0');
-    var until = /^AUTORISATION/.test(encAbsNorm(a.label)) ? ' jusqu’à ' + (sameDay ? '' : 'le ' + date + ' à ') + hm : ' jusqu’au ' + date;
+    var until = /^AUTORISATION/.test(encAbsNorm(a.label)) ? ' jusqu’à ' + (sameDay ? '' : 'le ' + date + ' à ') + hm : ' jusqu’au ' + date + (encAbsNorm(a.label) === 'REPOS' ? ' à ' + hm : '');
     return 'Absent aujourd’hui : ' + a.label + until;
   }
   function encExtraValues(row, key) {
@@ -11714,6 +11757,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     { title: 'Gestion des temps et des activités', items: [
       ['Que trouve-t-on dans ce menu ?', 'Trois entrées : <strong>Progression</strong> (planning de la semaine par peloton, ajout et modification des occurrences, progression en PDF, réglages des activités), <strong>Feuille de service journalier</strong> (génération du document d’un jour, versions stagiaires et/ou encadrement à cocher, un fichier par version cochée ; bouton-icône « Permanences du jour » pour affecter, changer ou retirer les cadres de permanence ; navigation jour précédent / suivant, Aujourd’hui / Demain ; la génération ouvre la fenêtre des permanences tant que la SOP n’est pas désignée (obligatoire), avertissements si un cadre absent est affecté, ou si le cadre de permanence est en repos le lendemain : une liste propose alors le cadre qui récupère la permanence à partir de 19 h, repris dans la feuille) et <strong>Gestion des absences</strong> (demandes, décisions, règles de conflit).'],
       ['Où se trouvent les occurrences du planning ?', 'Dans une table Grist qui porte les colonnes Début, Fin, Occurrence, Intitulé, Code, Lieu, Encadrement, Consignes, Apprenants et Type. Le widget la repère tout seul ; si elle n’est pas trouvée, ou si plusieurs tables conviennent, choisissez-la dans la Configuration du widget (« Temps et activités — période du stage », champ « Table des occurrences »). Les occurrences sont relues à chaque ouverture de la page et après chaque modification ; le bouton « Actualiser » (absences) recharge aussi les demandes.'],
+      ['Comment est compté un repos ?', 'Un repos s’entend de la <strong>veille 19 h au lendemain 7 h 30</strong> et compte pour <strong>1 jour</strong> (par jour de repos demandé). Cette période sert à repérer les conflits, les cadres absents (liste Encadrement, feuille de service) et le classement des demandes passées, en cours ou à venir. Une <strong>permanence</strong> va de <strong>7 h 30 au lendemain 7 h 30</strong> : une absence qui la recoupe est signalée (conflit, alerte de la feuille de service) ; un repos qui commence à 19 h le soir de la permanence donne lieu à la question de la relève à partir de 19 h.'],
       ['Où règle-t-on la période du stage, le PDF et les permanences ?', 'Dans la Configuration du widget (cinq clics rapides sur l’en-tête), trois rubriques « Temps et activités » : période du stage, exports PDF (dont la limitation de la feuille de service à trois jours) et signataire des autorisations d’absence. Les numéros de téléphone des permanences se règlent dans la page Réglages des activités. Ces réglages sont partagés par tous les utilisateurs.'],
       ['Comment filtrer le planning et les absences ?', 'Dans la barre de recherche de la page : cliquez dedans pour afficher les filtres en un clic (<strong>Par peloton</strong> et <strong>Par cadre</strong> pour la Progression ; <strong>Par décision</strong> et <strong>Par demandeur</strong> pour les absences), ou tapez un texte (code ou intitulé, nom, type, destination). « Réinitialiser les filtres » se trouve en haut du panneau.'],
       ['À quoi sert le bouton « Réglages des activités » ?', 'Le bouton-icône en forme de liste de la page Progression ouvre la liste des codes d’activité (type, numéro, durée, intitulé, cadres désignés, consignes aux stagiaires) qui alimente la création des occurrences.']
@@ -12224,6 +12268,17 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     return found;
   }
   // 'stagiaire', 'cadre' ou '' (inconnu ou ambigu) : filtre rapide Cadres / Stagiaires de la page Hébergement.
+  // Catégorie d'un cadre d'après son groupe : 'ip' (Formateurs IP : MIP et AMIP), 'soutien' (CDT, AE, SECR, ARM, SAN, MESS…) ou 'formation' (formation
+  // générale : les autres) ; '' si le cadre n'est pas retrouvé (ou ambigu).
+  window.ENC_CATEGORY = function (name) {
+    var f = candFindByName(name).filter(function (x) { return x.kind === 'cadre'; });
+    if (f.length !== 1) return '';
+    var row = f[0].row, groups = encValues(row, 'groupe').map(trombiKeyFull), fonction = trombiKeyFull(encText(row, 'fonction'));
+    if (groups.some(function (k) { return /FORMATEURS?IP/.test(k) || k === 'MIP' || k === 'AMIP'; }) || fonction === 'MIP' || fonction === 'AMIP') return 'ip';
+    var soutien = encSoutienKeys();
+    if (groups.length && groups.every(function (k) { return soutien.indexOf(k) !== -1; })) return 'soutien';
+    return 'formation';
+  };
   window.CAND_KIND = function (name) { var f = candFindByName(name); return f.length === 1 ? f[0].kind : ''; };
   // Affectation de la fiche d'un occupant déplacé dans la page Hébergement : renseigne les colonnes Bât. et Ch. de son stagiaire (ou cadre).
   // Renvoie { found, kind, written } (found = false si aucune fiche, ou plusieurs, ne correspondent).
@@ -19307,10 +19362,20 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var absActiveFilter = { decision: null, demandeur: null, period: ABS_PERIOD_DEFAULT.slice() }; // period : liste parmi 'passee' | 'cours' | 'future' (vide = toutes)
   var ABS_PERIOD_LABELS = { passee: 'Demandes passées', cours: 'Demandes en cours', future: 'Demandes dans le futur' };
   // Période d'une demande par rapport à maintenant ; une fin à minuit pile (colonne de type date) vaut la fin de cette journée.
+  // Période réelle d'une absence : un repos s'entend de la veille 19 h au lendemain 7 h 30 (il compte pour 1 jour : voir reposDaysForRow) ;
+  // pour une absence d'une autre nature, de la date-heure de début à celle de fin.
+  function absEffectivePeriod(r) {
+    var a = parseGristDateTime(r.dateDebut), b = parseGristDateTime(r.dateFin) || a;
+    if (!a) return null;
+    if (!!r.motif && normalizeNameKey(r.motif) === normalizeNameKey('Repos')) {
+      return { s: new Date(a.getFullYear(), a.getMonth(), a.getDate() - 1, 19, 0), e: new Date(b.getFullYear(), b.getMonth(), b.getDate() + 1, 7, 30) };
+    }
+    return { s: a, e: b < a ? a : b };
+  }
   function absPeriodOf(r) {
-    var a = parseGristDateTime(r.dateDebut), b = parseGristDateTime(r.dateFin), now = Date.now();
+    var per = absEffectivePeriod(r), a = per && per.s, b = per && per.e, now = Date.now();
     if (!a && !b) return null;
-    var from = a ? a.getTime() : -Infinity, to = b ? (b.getHours() === 0 && b.getMinutes() === 0 ? b.getTime() + 86400000 - 1 : b.getTime()) : Infinity;
+    var from = a ? a.getTime() : -Infinity, to = b ? b.getTime() : Infinity;
     if (to < now) return 'passee';
     if (from > now) return 'future';
     return 'cours';
@@ -20047,7 +20112,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     occEditApprenantsCheckboxes.forEach(function (cb) { cb.checked = !!seen[normalizePelotonToken(cb.value)]; });
   }
 
-  function buildCadreCheckboxGroup(containerEl, checkboxName, selectedNames, info, extraNames) {
+  function buildCadreCheckboxGroup(containerEl, checkboxName, selectedNames, info, extraNames, asTags) {
     var entries = [];
     var fallback = false;
     if (info && info.options && info.options.length) {
@@ -20068,7 +20133,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       entries = names.map(function (n) { return { value: n, label: n }; });
     }
 
+    if (containerEl._moreBtn) { containerEl._moreBtn.remove(); containerEl._moreBtn = null; }
     containerEl.innerHTML = '';
+    containerEl.classList.toggle('cadre-tags', !!asTags);
     if (!entries.length) {
       var hint = document.createElement('p');
       hint.className = 'fr-hint-text';
@@ -20081,8 +20148,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     entries.forEach(function (entry, i) {
       var wrap = document.createElement('div');
       wrap.className = 'fr-fieldset__element';
-      var group = document.createElement('div');
-      group.className = 'fr-checkbox-group fr-checkbox-group--sm';
+      var group = asTags ? wrap : document.createElement('div');
+      if (!asTags) group.className = 'fr-checkbox-group fr-checkbox-group--sm';
       var id = containerEl.id + '_' + i;
       var input = document.createElement('input');
       input.type = 'checkbox';
@@ -20092,12 +20159,12 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       input.setAttribute('data-label', entry.label);
       input.checked = !!selectedSet[normalizeNameKey(entry.label)];
       var label = document.createElement('label');
-      label.className = 'fr-label';
+      label.className = asTags ? 'fr-tag fr-tag--sm cadre-tag' : 'fr-label';
       label.setAttribute('for', id);
       label.textContent = entry.label;
       group.appendChild(input);
       group.appendChild(label);
-      wrap.appendChild(group);
+      if (!asTags) wrap.appendChild(group);
       containerEl.appendChild(wrap);
     });
     if (fallback) {
@@ -20106,6 +20173,50 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       note.textContent = 'Liste limitée aux cadres déjà présents dans les données : la colonne n\'a pas été reconnue comme un choix ou une référence (ou ses valeurs n\'ont pas pu être lues).';
       containerEl.appendChild(note);
     }
+  }
+  // Cadres proposés d'abord : la formation générale ; pour une activité de type « Cours IP », les Formateurs IP. Les autres sont derrière un bouton
+  // (ceux déjà cochés restent toujours visibles, et la recherche porte sur tous).
+  function isIpType(type) { return normalizeNameKey(type).replace(/\s+/g, ' ').indexOf('COURS IP') !== -1; }
+  function cadreCategoryOf(label) { return window.ENC_CATEGORY ? window.ENC_CATEGORY(label) : ''; }
+  function applyCadreScope(container, type, host) {
+    var ip = isIpType(type), others = 0;
+    container.classList.remove('show-all');
+    Array.prototype.forEach.call(container.querySelectorAll('input[type="checkbox"]'), function (cb) {
+      var el = cb.closest('.fr-fieldset__element');
+      if (!el) return;
+      var cat = cadreCategoryOf(cadreCheckboxLabel(cb));
+      var primary = ip ? cat === 'ip' : (cat === 'formation' || cat === '');
+      el.classList.toggle('cadre-secondary', !primary);
+      el.classList.toggle('is-selected', cb.checked);
+      if (!primary) others++;
+      if (!cb._scopeBound) { cb._scopeBound = true; cb.addEventListener('change', function () { el.classList.toggle('is-selected', cb.checked); }); }
+    });
+    // Ordre : les cadres proposés d'abord, les autres ensuite (visibles une fois le bouton activé).
+    var els = Array.prototype.slice.call(container.querySelectorAll('.fr-fieldset__element'));
+    els.filter(function (el) { return !el.classList.contains('cadre-secondary'); }).concat(els.filter(function (el) { return el.classList.contains('cadre-secondary'); }))
+      .forEach(function (el) { container.appendChild(el); });
+    Array.prototype.forEach.call(container.querySelectorAll(':scope > p'), function (n) { container.appendChild(n); }); // la note éventuelle reste en fin de liste
+    var btn = container._moreBtn;
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'fr-btn fr-btn--tertiary fr-btn--sm cadres-more';
+      btn.addEventListener('click', function () {
+        container.classList.toggle('show-all');
+        btn.textContent = container.classList.contains('show-all') ? 'Masquer les autres cadres' : btn._label;
+      });
+      container._moreBtn = btn;
+      (host || container.parentNode).insertBefore(btn, container.nextSibling);
+    }
+    btn._label = (ip ? 'Afficher les autres formateurs et le soutien' : 'Afficher les autres cadres (Formateurs IP, soutien)') + ' · ' + others;
+    btn.textContent = btn._label;
+    btn.hidden = others === 0;
+  }
+  function visibleCadreBoxes(container) {
+    return Array.prototype.filter.call(container.querySelectorAll('input[type="checkbox"]'), function (cb) {
+      var el = cb.closest('.fr-fieldset__element');
+      return !el || !el.classList.contains('cadre-secondary') || container.classList.contains('show-all') || el.classList.contains('is-selected');
+    });
   }
   function cadreCheckboxLabel(cb) {
     var d = cb.getAttribute('data-label');
@@ -20306,8 +20417,13 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     container.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
       var label = cb.parentNode && cb.parentNode.querySelector('label');
       if (!label) return;
-      var badge = label.querySelector('.cadre-volontaire');
       var isVolunteer = labels.some(function (l) { return volunteerMatchesCheckbox(cb, l); });
+      if (label.classList.contains('cadre-tag')) { // version « tags » : le tag lui-même devient vert
+        label.classList.toggle('cadre-tag--vol', isVolunteer);
+        label.title = isVolunteer ? 'Volontaire pour ce cours' : '';
+        return;
+      }
+      var badge = label.querySelector('.cadre-volontaire');
       if (isVolunteer && !badge) {
         var b = document.createElement('span');
         b.className = 'tag green cadre-volontaire';
@@ -20338,7 +20454,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       '<button type="button" class="fr-btn fr-btn--tertiary fr-btn--sm" data-check-volunteers>Cocher les volontaires</button>';
     hostEl.querySelector('[data-check-volunteers]').addEventListener('click', function () {
       container.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
-        if (labels.some(function (l) { return volunteerMatchesCheckbox(cb, l); })) cb.checked = true;
+        if (labels.some(function (l) { return volunteerMatchesCheckbox(cb, l); })) { cb.checked = true; cb.dispatchEvent(new Event('change')); }
       });
     });
   }
@@ -20502,6 +20618,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       var patch = {};
       patch[cfg.Code] = typeInput.value;
       patch[cfg.Debut] = Math.round(debut.getTime() / 1000);
+      if (cfg.Fin) patch[cfg.Fin] = Math.round(new Date(debut.getFullYear(), debut.getMonth(), debut.getDate() + 1, OCC_PERMANENCE_START_HOUR, OCC_PERMANENCE_START_MINUTE).getTime() / 1000); // une permanence va de 7 h 30 au lendemain 7 h 30
       if (cfg.Encadrement) patch[cfg.Encadrement] = encodeListForWrite([militaireValue], encadrementInfo);
       if (cfg.Lieu && tel) patch[cfg.Lieu] = tel;
       submitNewOccurrenceRows([patch], debut);
@@ -21068,9 +21185,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   }
 
   function conflictPeriod(r) {
-    var s = parseGristDateTime(r.dateDebut);
-    var e = parseGristDateTime(r.dateFin) || s;
-    return s ? { s: s, e: e < s ? s : e } : null;
+    return absEffectivePeriod(r);
   }
   function periodsOverlap(a, b) {
     return !!(a && b && a.s <= b.e && b.s <= a.e);
@@ -21134,20 +21249,22 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
           var fin = parseGristDateTime(o.Fin);
           var s0 = debut;
           var e0 = fin && fin > debut ? fin : debut;
-          if (perm && !(fin && fin > debut)) {
-            s0 = new Date(debut.getFullYear(), debut.getMonth(), debut.getDate(), 0, 0, 0);
-            e0 = new Date(debut.getFullYear(), debut.getMonth(), debut.getDate() + 1, 0, 0, 0, -1);
+          var eRepos = null;
+          if (perm) { // une permanence va de son début (7 h 30) au lendemain 7 h 30, quelle que soit la fin saisie
+            e0 = new Date(debut.getFullYear(), debut.getMonth(), debut.getDate() + 1, debut.getHours(), debut.getMinutes());
+            eRepos = new Date(debut.getFullYear(), debut.getMonth(), debut.getDate(), 18, 59, 59, 999); // un repos débute la veille à 19 h : relève à partir de 19 h, pas de conflit après
           }
           var who = splitCadreNames(textOf(o.Encadrement)).map(function (n) { return ctx.byKey[normalizeNameKey(n)]; }).filter(Boolean);
           if (!who.length) return;
-          planned.push({ p: { s: s0, e: e0 }, who: who, text: perm ? ('la permanence ' + textOf(o.Code)) : ('le cours ' + courseTitle), day: debut });
+          planned.push({ p: { s: s0, e: e0 }, pRepos: eRepos ? { s: s0, e: eRepos } : null, who: who, text: perm ? ('la permanence ' + textOf(o.Code)) : ('le cours ' + courseTitle), day: debut });
         });
         active.forEach(function (r) {
           var m = ctx.byKey[normalizeNameKey(r.demandeur)];
           var period = conflictPeriod(r);
           if (!m || !period) return;
           planned.forEach(function (x) {
-            if (x.who.indexOf(m) !== -1 && periodsOverlap(period, x.p)) {
+            var isRepos = !!r.motif && normalizeNameKey(r.motif) === normalizeNameKey('Repos');
+            if (x.who.indexOf(m) !== -1 && periodsOverlap(period, (isRepos && x.pRepos) ? x.pRepos : x.p)) {
               r.ruleConflicts.push({ label: label, detail: 'chevauche ' + x.text + ' du ' + fmtDayTitle(x.day) + ' à ' + fmtHM(x.day) });
             }
           });
@@ -21593,7 +21710,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       host.appendChild(control);
       var known = [];
       reglagesData.forEach(function (r) { known = known.concat(r.cadresDesignes); });
-      buildCadreCheckboxGroup(control, 'reglInlineCadres', row.cadresDesignes, reglagesCadresInfo, known);
+      buildCadreCheckboxGroup(control, 'reglInlineCadres', row.cadresDesignes, reglagesCadresInfo, known, true);
+      applyCadreScope(control, row.type, host);
       if (reglagesHasType && isCourseType(row.type)) {
         var inlineVolunteers = document.createElement('div');
         inlineVolunteers.className = 'reglage-volunteers';
@@ -21610,6 +21728,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       cadresSearch.addEventListener('input', function () {
         var q = normalizeNameKey(cadresSearch.value);
         var visible = 0;
+        control.classList.toggle('searching', !!q); // la recherche porte sur tous les cadres
         control.querySelectorAll('.fr-fieldset__element').forEach(function (el) {
           var cbEl = el.querySelector('input');
           var show = !q || (cbEl && normalizeNameKey(cadreCheckboxLabel(cbEl)).indexOf(q) !== -1);
@@ -21916,6 +22035,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     return reglageTypeInput.value.trim();
   }
   function refreshReglageVolunteers() {
+    applyCadreScope(reglageEditCadresList, reglagesHasType ? currentReglageTypeLabel() : '', reglageEditCadresList.parentNode);
     if (!reglagesHasType || !isCourseType(currentReglageTypeLabel())) {
       markVolunteers(reglageEditCadresList, []);
       reglageVolunteersEl.hidden = true;
@@ -21947,6 +22067,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       var reglagesKnownCadres = [];
       reglagesData.forEach(function (r) { reglagesKnownCadres = reglagesKnownCadres.concat(r.cadresDesignes); });
       buildCadreCheckboxGroup(reglageEditCadresList, 'reglageEditCadres', row ? row.cadresDesignes : [], reglagesCadresInfo, reglagesKnownCadres);
+      reglageEditCadresList._moreBtn = null; // la liste vient d'être reconstruite : nouveau bouton « autres cadres »
       refreshReglageVolunteers();
 
       reglageEditDeleteBtn.hidden = !row;
@@ -22269,10 +22390,10 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
   reglageNewBtn.addEventListener('click', function () { openReglageEditForm(null); });
   document.getElementById('reglageCadresAllBtn').addEventListener('click', function () {
-    reglageEditCadresList.querySelectorAll('input[type="checkbox"]').forEach(function (cb) { cb.checked = true; });
+    visibleCadreBoxes(reglageEditCadresList).forEach(function (cb) { cb.checked = true; cb.dispatchEvent(new Event('change')); });
   });
   document.getElementById('reglageCadresNoneBtn').addEventListener('click', function () {
-    reglageEditCadresList.querySelectorAll('input[type="checkbox"]').forEach(function (cb) { cb.checked = false; });
+    reglageEditCadresList.querySelectorAll('input[type="checkbox"]').forEach(function (cb) { cb.checked = false; cb.dispatchEvent(new Event('change')); });
   });
   document.getElementById('reglageEditForm').addEventListener('submit', function (e) { e.preventDefault(); });
   document.getElementById('reglageEditForm').addEventListener('keydown', function (e) {
@@ -23550,14 +23671,20 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var cfg = absencesConfig;
     var dayStart = new Date(day.getFullYear(), day.getMonth(), day.getDate()).getTime(), dayEnd = dayStart + 86400000 - 1;
     var absent = absData.filter(function (r) { return absDecisionState(cfg, r.decision).isValidee; }).map(function (r) {
-      var from = parseGristDateTime(r.dateDebut), to = parseGristDateTime(r.dateFin);
-      return { key: militaireSortKey(r.demandeur), from: from ? from.getTime() : NaN, to: to ? to.getTime() : NaN, motif: r.motif };
+      var per = absEffectivePeriod(r); // un repos s'étend de la veille 19 h au lendemain 7 h 30
+      return { key: militaireSortKey(r.demandeur), from: per ? per.s.getTime() : NaN, to: per ? per.e.getTime() : NaN, motif: r.motif, repos: !!r.motif && normalizeNameKey(r.motif) === normalizeNameKey('Repos') };
     }).filter(function (a) { return !isNaN(a.from) && !isNaN(a.to) && a.from <= dayEnd && a.to >= dayStart; });
     var out = [];
     occAll.forEach(function (o) {
       splitCadreNames(o.encadrement).forEach(function (name) {
         var k = militaireSortKey(name);
-        var a = absent.filter(function (x) { return x.key === k && x.from <= (o.fin || o.debut).getTime() && x.to >= o.debut.getTime(); })[0];
+        var perm = isPermanenceCode(o.code); // une permanence va de 7 h 30 au lendemain 7 h 30 (un repos qui commence à 19 h relève : voir l'alerte de relève)
+        var oStart = o.debut.getTime();
+        var oEnd = perm ? new Date(o.debut.getFullYear(), o.debut.getMonth(), o.debut.getDate() + 1, o.debut.getHours(), o.debut.getMinutes()).getTime() : (o.fin || o.debut).getTime();
+        var a = absent.filter(function (x) {
+          var end = (perm && x.repos) ? new Date(o.debut.getFullYear(), o.debut.getMonth(), o.debut.getDate(), 18, 59, 59, 999).getTime() : oEnd;
+          return x.key === k && x.from <= end && x.to >= oStart;
+        })[0];
         if (a) out.push({ name: name, motif: a.motif, occ: o });
       });
     });
@@ -23764,6 +23891,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
           if (st.ex) return withoutFormulaFields(patch).then(function (f) { return selTable.update({ id: st.ex.id, fields: f }); });
           patch[cfg.Code] = st.code;
           patch[cfg.Debut] = Math.round(debut.getTime() / 1000);
+          if (cfg.Fin) patch[cfg.Fin] = Math.round(new Date(debut.getFullYear(), debut.getMonth(), debut.getDate() + 1, OCC_PERMANENCE_START_HOUR, OCC_PERMANENCE_START_MINUTE).getTime() / 1000); // 7 h 30 → lendemain 7 h 30
           return withoutFormulaFields(patch).then(function (f) { return selTable.create({ fields: f }); });
         });
       });
