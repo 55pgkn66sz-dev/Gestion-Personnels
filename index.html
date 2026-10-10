@@ -508,7 +508,7 @@
   }
   .d-ed { padding: 0.1rem 0; }
   .d-ed .fr-input, .d-ed .fr-select, .d-ed textarea { width: 100%; margin-bottom: 0.5rem; box-sizing: border-box; }
-  .d-ed__actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .d-ed__hint { margin: 0; font-size: 0.75rem; color: var(--text-mention-grey); }
   .detail-table .stg-plate { margin: 0; }
   @media (max-width: 40rem) {
     .detail-table, .detail-table tbody, .detail-table tr, .detail-table th, .detail-table td { display: block; width: 100% !important; }
@@ -2452,6 +2452,10 @@ table.req-table th { font-size: 0.95em; }
     padding-top: 0.75rem;
     border-top: 1px solid rgba(0, 0, 0, 0.12);
   }
+button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events: none; }
+#fsjRoot .fr-tooltip[role="tooltip"] { display: none; }
+.dis-tip { position: fixed; z-index: 3000; max-width: 22rem; padding: 0.6rem 0.8rem; border-radius: 0.5rem; border: 1px solid var(--border-default-grey); background: var(--background-raised-grey); color: var(--text-default-grey); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25); font-size: 0.85rem; line-height: 1.4; pointer-events: none; }
+.dis-tip[hidden] { display: none; }
 #fsjConfirmModal:not([open]), .fsj-dlg:not([open]) { display: none; }
 #fsjConfirmModal[open], .fsj-dlg[open] { display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; z-index: 2000; margin: 0; padding: 1rem; width: 100%; height: 100%; max-width: none; max-height: none; border: none; background-color: rgba(0, 0, 18, 0.64); overflow-y: auto; }
 #fsjConfirmModal[open] > .fr-container, .fsj-dlg[open] > .fr-container { margin: auto; width: 100%; }
@@ -2999,7 +3003,7 @@ table.req-table th { font-size: 0.95em; }
         <span class="tb-lbl" aria-hidden="true">Rechercher un véhicule</span>
         <div class="fr-search-bar fr-search-bar--sm" role="search">
           <label class="fr-label" for="gvSearchInput">Rechercher un véhicule</label>
-          <input class="fr-input" type="search" id="gvSearchInput" placeholder="Identifiant, type…">
+          <input class="fr-input" type="search" id="gvSearchInput" placeholder="Plaque minéralogique, type…">
           <button class="fr-btn fr-btn--sm" id="gvSearchBtn" type="button" title="Rechercher">Rechercher</button>
         </div>
       </div>
@@ -3037,7 +3041,7 @@ table.req-table th { font-size: 0.95em; }
         <span class="tb-lbl" aria-hidden="true">Rechercher un matériel</span>
         <div class="fr-search-bar fr-search-bar--sm" role="search">
           <label class="fr-label" for="gmSearchInput">Rechercher un matériel</label>
-          <input class="fr-input" type="search" id="gmSearchInput" placeholder="Identifiant, catégorie…">
+          <input class="fr-input" type="search" id="gmSearchInput" placeholder="Identifiant, matériel, type…">
           <button class="fr-btn fr-btn--sm" id="gmSearchBtn" type="button" title="Rechercher">Rechercher</button>
         </div>
       </div>
@@ -3049,9 +3053,9 @@ table.req-table th { font-size: 0.95em; }
       </div>
       <div class="dropdown-menu" id="gmTypeFilterMenu">
         <button class="fr-btn fr-btn--tertiary fr-btn--sm fr-btn--icon-right fr-icon-arrow-down-s-line" id="gmTypeFilterBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="gmTypeFilterList">
-          Catégorie
+          Type
         </button>
-        <ul class="dropdown-menu__list" id="gmTypeFilterList" role="menu" aria-label="Filtrer le matériel par catégorie" hidden></ul>
+        <ul class="dropdown-menu__list" id="gmTypeFilterList" role="menu" aria-label="Filtrer le matériel par type" hidden></ul>
       </div>
       <button data-legacy hidden class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-line fr-btn--icon-left" id="gmRefreshBtn" type="button">
         Réinitialiser le(s) filtre(s)
@@ -4547,7 +4551,7 @@ table.req-table th { font-size: 0.95em; }
             <span class="cfg-card__num" aria-hidden="true">10</span>
             <div>
               <h3 class="cfg-card__title" id="res_cfgCardTitle3">Gérer les véhicules — recensement du parc <span class="fr-badge fr-badge--sm" id="gvConfigStatus"></span></h3>
-              <p class="cfg-card__desc">Recensement du parc de véhicules : identifiant, type et disponibilité.</p>
+              <p class="cfg-card__desc">Recensement du parc de véhicules : plaque minéralogique, type, affectation et disponibilité.</p>
             </div>
           </div>
             <div class="settings-grid">
@@ -4556,12 +4560,16 @@ table.req-table th { font-size: 0.95em; }
                 <select class="fr-select" id="gv_table" data-page="gestionVehicules"></select>
               </div>
               <div class="fr-select-group">
-                <label class="fr-label" for="gv_col_identifiant">Identifiant (nom / immatriculation)</label>
+                <label class="fr-label" for="gv_col_identifiant">Plaque minéralogique (immatriculation)</label>
                 <select class="fr-select" id="gv_col_identifiant" data-page="gestionVehicules" data-role="identifiant"></select>
               </div>
               <div class="fr-select-group">
                 <label class="fr-label" for="gv_col_type">Type de véhicule</label>
                 <select class="fr-select" id="gv_col_type" data-page="gestionVehicules" data-role="type"></select>
+              </div>
+              <div class="fr-select-group">
+                <label class="fr-label" for="gv_col_affectation">Affectation <span class="fr-hint-text">facultatif</span></label>
+                <select class="fr-select" id="gv_col_affectation" data-page="gestionVehicules" data-role="affectation"></select>
               </div>
               <div class="fr-select-group">
                 <label class="fr-label" for="gv_col_etat">Disponibilité</label>
@@ -4586,7 +4594,7 @@ table.req-table th { font-size: 0.95em; }
             <span class="cfg-card__num" aria-hidden="true">11</span>
             <div>
               <h3 class="cfg-card__title" id="res_cfgCardTitle4">Gérer le matériel — recensement du parc <span class="fr-badge fr-badge--sm" id="gmConfigStatus"></span></h3>
-              <p class="cfg-card__desc">Recensement du matériel : désignation, catégorie et disponibilité.</p>
+              <p class="cfg-card__desc">Recensement du matériel : désignation, matériel, type, précisions, affectation et disponibilité.</p>
             </div>
           </div>
             <div class="settings-grid">
@@ -4599,8 +4607,20 @@ table.req-table th { font-size: 0.95em; }
                 <select class="fr-select" id="gm_col_identifiant" data-page="gestionMateriels" data-role="identifiant"></select>
               </div>
               <div class="fr-select-group">
-                <label class="fr-label" for="gm_col_type">Catégorie</label>
+                <label class="fr-label" for="gm_col_materiel">Matériel (ex. PA MASG1) <span class="fr-hint-text">facultatif</span></label>
+                <select class="fr-select" id="gm_col_materiel" data-page="gestionMateriels" data-role="materiel"></select>
+              </div>
+              <div class="fr-select-group">
+                <label class="fr-label" for="gm_col_type">Type</label>
                 <select class="fr-select" id="gm_col_type" data-page="gestionMateriels" data-role="type"></select>
+              </div>
+              <div class="fr-select-group">
+                <label class="fr-label" for="gm_col_precisions">Précisions <span class="fr-hint-text">facultatif</span></label>
+                <select class="fr-select" id="gm_col_precisions" data-page="gestionMateriels" data-role="precisions"></select>
+              </div>
+              <div class="fr-select-group">
+                <label class="fr-label" for="gm_col_affectation">Affectation <span class="fr-hint-text">facultatif</span></label>
+                <select class="fr-select" id="gm_col_affectation" data-page="gestionMateriels" data-role="affectation"></select>
               </div>
               <div class="fr-select-group">
                 <label class="fr-label" for="gm_col_etat">Disponibilité</label>
@@ -4801,13 +4821,27 @@ table.req-table th { font-size: 0.95em; }
     <h1 id="parcTitle"></h1>
     <form id="parcForm">
       <div class="fr-input-group">
-        <label class="fr-label" for="parc_identifiant">Identifiant</label>
+        <label class="fr-label" for="parc_identifiant" id="parcIdLabel">Identifiant</label>
         <input class="fr-input" id="parc_identifiant" type="text" required autocomplete="off">
+      </div>
+      <div class="fr-input-group" id="parcMaterielGroup" hidden>
+        <label class="fr-label" for="parc_materiel">Matériel <span class="fr-hint-text">par exemple PA MASG1</span></label>
+        <input class="fr-input" id="parc_materiel" type="text" autocomplete="off">
       </div>
       <div class="fr-input-group">
         <label class="fr-label" for="parc_type" id="parcTypeLabel">Type</label>
+        <select class="fr-select" id="parc_type_select" hidden></select>
         <input class="fr-input" id="parc_type" type="text" list="parcTypeList" autocomplete="off">
         <datalist id="parcTypeList"></datalist>
+      </div>
+      <div class="fr-input-group" id="parcPrecisionsGroup" hidden>
+        <label class="fr-label" for="parc_precisions">Précisions</label>
+        <textarea class="fr-input" id="parc_precisions" rows="3"></textarea>
+      </div>
+      <div class="fr-input-group" id="parcAffectGroup" hidden>
+        <label class="fr-label" for="parc_affectation_select">Affectation</label>
+        <select class="fr-select" id="parc_affectation_select"></select>
+        <input class="fr-input" id="parc_affectation" type="text" autocomplete="off" hidden>
       </div>
       <div class="fr-select-group">
         <label class="fr-label" for="parc_etat">Disponibilité</label>
@@ -4963,7 +4997,7 @@ table.req-table th { font-size: 0.95em; }
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.37.1</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.43.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -5370,6 +5404,7 @@ table.req-table th { font-size: 0.95em; }
       if (settingsOpen) return;
     }
     currentPage = name;
+    try { sessionStorage.setItem('widgetLastPage', JSON.stringify({ page: name, fsjView: fsjView })); } catch (e) { /* stockage indisponible */ }
     applyPageVisibility();
     if (name === 'fsj' && window.FSJ) {
       window.FSJ.reload(false);
@@ -6075,6 +6110,20 @@ table.req-table th { font-size: 0.95em; }
 
   grist.ready({ requiredAccess: 'full' });
 
+  // Suivi des écritures en cours : à la fermeture d'une fiche, la relecture des données attend la fin des enregistrements automatiques.
+  var pendingWrites = 0, writeWaiters = [];
+  (function () {
+    var api = grist.docApi, orig = api.applyUserActions;
+    api.applyUserActions = function () {
+      pendingWrites++;
+      var p = orig.apply(api, arguments);
+      var done = function () { if (--pendingWrites === 0) writeWaiters.splice(0).forEach(function (f) { f(); }); };
+      p.then(done, done);
+      return p;
+    };
+  })();
+  function whenWritesDone() { return pendingWrites ? new Promise(function (r) { writeWaiters.push(r); }) : Promise.resolve(); }
+
   // Tables EN DUR : « Stagiaires » (candidats) et « ETuteur » (documents) — retrouvées par leur nom (sans accents ni casse).
   var HARD_TABLE_CANDIDATES = 'STAGIAIRES';
   var HARD_TABLE_DOCS = 'ETUTEUR';
@@ -6089,7 +6138,19 @@ table.req-table th { font-size: 0.95em; }
       settings.docsTable = docs || ''; // sans table « ETuteur », le widget fonctionne sans documents
     }).catch(function (e) { hardTablesError = 'Liste des tables illisible : ' + friendlyErrorMessage(e); });
   }
+  // Retour à la dernière page consultée (mémorisée pour l'onglet du navigateur) au lieu de l'accueil, quand le widget est rechargé.
+  var lastPageRestored = false;
+  function restoreLastPage() {
+    var saved = null;
+    try { saved = JSON.parse(sessionStorage.getItem('widgetLastPage') || 'null'); } catch (e) { saved = null; }
+    if (!saved || ['stagiaires', 'etuteur', 'encadrement', 'stats', 'faq', 'bulk', 'res', 'fsj'].indexOf(saved.page) === -1) return;
+    if (saved.page === 'fsj') { openFsj(['progression', 'generer', 'absences'].indexOf(saved.fsjView) !== -1 ? saved.fsjView : 'progression'); return; }
+    showPage(saved.page);
+    if (saved.page === 'stats') renderStats();
+    if (saved.page === 'faq') buildFaq();
+  }
   grist.onOptions(function (options) {
+    if (!lastPageRestored) { lastPageRestored = true; restoreLastPage(); }
     settings = mergeConfig(options && options.candidatsStageConfig);
     welOpts = (options && options.welcome) || null;
     faqOpts = (options && options.faq) || null;
@@ -7309,6 +7370,18 @@ table.req-table th { font-size: 0.95em; }
   // éditable qui, au clic (ou Entrée), se change en éditeur avec « Enregistrer » / « Annuler » — Entrée
   // enregistre (Ctrl/Cmd + Entrée pour une zone de texte), Échap annule.
   var dEditRole = null; // rôle actuellement en édition (un seul champ à la fois, comme dans PMG)
+  // Message d'erreur bref en haut de la fiche (window.alert est ignoré par un cadre sans « allow-modals »).
+  function dNotify(msg) {
+    var host = document.getElementById('candModalStack') || document.body;
+    var old = host.querySelector('.d-notify'); if (old) old.remove();
+    var box = document.createElement('div');
+    box.className = 'fr-alert fr-alert--error fr-alert--sm d-notify';
+    box.setAttribute('role', 'alert');
+    box.innerHTML = '<p></p>';
+    box.firstChild.textContent = msg;
+    host.insertBefore(box, host.firstChild);
+    setTimeout(function () { if (box.parentNode) box.remove(); }, 8000);
+  }
   function dStartEdit(role) { dEditRole = role; renderModalContent(); }
   function dCancelEdit() { dEditRole = null; renderModalContent(); }
   // Un champ de fiche : { role, label, node (affichage en lecture), wide, empty, pre, editable,
@@ -7331,30 +7404,27 @@ table.req-table th { font-size: 0.95em; }
       box.className = 'd-ed';
       var ctl = spec.buildControl();
       box.appendChild(ctl);
-      var actions = document.createElement('div');
-      actions.className = 'd-ed__actions';
-      var saveBtn = document.createElement('button');
-      saveBtn.type = 'button';
-      saveBtn.className = 'fr-btn fr-btn--sm';
-      saveBtn.textContent = 'Enregistrer';
-      var cancelBtn = document.createElement('button');
-      cancelBtn.type = 'button';
-      cancelBtn.className = 'fr-btn fr-btn--tertiary fr-btn--sm';
-      cancelBtn.textContent = 'Annuler';
-      saveBtn.addEventListener('click', function () {
-        saveBtn.disabled = true;
-        cancelBtn.disabled = true;
-        spec.commit(ctl, [saveBtn, cancelBtn]);
-      });
-      cancelBtn.addEventListener('click', dCancelEdit);
+      // Enregistrement automatique : Entrée (Ctrl/Cmd + Entrée dans une zone de texte), changement d'un choix, ou sortie du champ après
+      // modification. Échap annule. Une valeur inchangée n'écrit rien.
+      var initial = ctl.value, saving = false;
+      function autoSave() {
+        if (saving) return;
+        if (ctl.value === initial) return;
+        saving = true;
+        spec.commit(ctl, []);
+        setTimeout(function () { saving = false; }, 1500); // en cas d'échec ou de valeur refusée, un nouvel essai reste possible
+      }
       ctl.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' && ctl.tagName !== 'TEXTAREA') { e.preventDefault(); saveBtn.click(); }
-        else if (e.key === 'Enter' && ctl.tagName === 'TEXTAREA' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); saveBtn.click(); }
-        else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); dCancelEdit(); }
+        if (e.key === 'Enter' && ctl.tagName !== 'TEXTAREA') { e.preventDefault(); if (ctl.value === initial) dCancelEdit(); else autoSave(); }
+        else if (e.key === 'Enter' && ctl.tagName === 'TEXTAREA' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); if (ctl.value === initial) dCancelEdit(); else autoSave(); }
+        else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); saving = true; dCancelEdit(); }
       });
-      actions.appendChild(saveBtn);
-      actions.appendChild(cancelBtn);
-      box.appendChild(actions);
+      if (ctl.tagName === 'SELECT') ctl.addEventListener('change', autoSave);
+      ctl.addEventListener('blur', autoSave);
+      var hint = document.createElement('p');
+      hint.className = 'd-ed__hint';
+      hint.textContent = 'Enregistrement automatique · Échap pour annuler';
+      box.appendChild(hint);
       td.appendChild(box);
       setTimeout(function () { ctl.focus(); if (ctl.select) { try { ctl.select(); } catch (e) { /* select() non applicable (ex. <select>) */ } } }, 0);
     } else {
@@ -7571,7 +7641,7 @@ table.req-table th { font-size: 0.95em; }
         if (raw === '') value = null;
         else {
           var n = Number(raw.replace(/\s/g, '').replace(',', '.'));
-          if (isNaN(n)) { window.alert('Valeur numérique invalide pour « ' + label + ' ».'); buttons.forEach(function (b) { b.disabled = false; }); return; }
+          if (isNaN(n)) { dNotify('Valeur numérique invalide pour « ' + label + ' ».'); buttons.forEach(function (b) { b.disabled = false; }); return; }
           value = col.type === 'Int' ? Math.round(n) : n;
         }
       }
@@ -7586,7 +7656,7 @@ table.req-table th { font-size: 0.95em; }
       }).catch(function (e) {
         ctl.disabled = false;
         buttons.forEach(function (b) { b.disabled = false; });
-        window.alert('Impossible d’enregistrer « ' + label + ' » : ' + friendlyErrorMessage(e));
+        dNotify('Impossible d’enregistrer « ' + label + ' » : ' + friendlyErrorMessage(e));
       });
     };
   }
@@ -9181,6 +9251,16 @@ table.req-table th { font-size: 0.95em; }
     }
     return null;
   }
+  // Texte de l'absence du jour d'un cadre : « Absent aujourd’hui : Repos jusqu’au 10/10/2026 » ; pour une autorisation d'absence, l'heure de fin est ajoutée
+  // (« … jusqu’à 17:30 », précédée de la date si l'absence se termine un autre jour).
+  function encAbsentText(a) {
+    var end = new Date(a.to), now = new Date();
+    var sameDay = end.getFullYear() === now.getFullYear() && end.getMonth() === now.getMonth() && end.getDate() === now.getDate();
+    var date = end.toLocaleDateString('fr-FR');
+    var hm = String(end.getHours()).padStart(2, '0') + ':' + String(end.getMinutes()).padStart(2, '0');
+    var until = /^AUTORISATION/.test(encAbsNorm(a.label)) ? ' jusqu’à ' + (sameDay ? '' : 'le ' + date + ' à ') + hm : ' jusqu’au ' + date;
+    return 'Absent aujourd’hui : ' + a.label + until;
+  }
   function encExtraValues(row, key) {
     if (key === 'mission') {
       if (!enc.cols.groupe) return [];
@@ -9504,7 +9584,7 @@ table.req-table th { font-size: 0.95em; }
     var detach = encDetachStatus(row), absent = encAbsentToday(row);
     if (detach) tr.classList.add('cand-trow--left');
     if (detach || absent) {
-      addRowReason(tr, [detach ? encDetachText(detach) : '', absent ? 'Absent aujourd’hui : ' + absent.label + ' jusqu’au ' + new Date(absent.to).toLocaleDateString('fr-FR') : ''].filter(Boolean).join(' · '), !!absent && !detach);
+      addRowReason(tr, [detach ? encDetachText(detach) : '', absent ? encAbsentText(absent) : ''].filter(Boolean).join(' · '), !!absent && !detach);
     }
     if (absent) {
       tr.classList.add('cand-trow--absent');
@@ -9522,7 +9602,7 @@ table.req-table th { font-size: 0.95em; }
       var note = document.createElement('p');
       note.className = 'fr-badge fr-badge--warning fr-badge--no-icon';
       note.style.cssText = 'grid-column:1/-1;margin:0 0 0.5rem;justify-self:start';
-      note.textContent = [detachNow ? encDetachText(detachNow) : '', absentNow ? 'Absent aujourd’hui : ' + absentNow.label : ''].filter(Boolean).join(' · ');
+      note.textContent = [detachNow ? encDetachText(detachNow) : '', absentNow ? encAbsentText(absentNow) : ''].filter(Boolean).join(' · ');
       wrap.appendChild(note);
     }
     var left = document.createElement('div');
@@ -11572,7 +11652,7 @@ table.req-table th { font-size: 0.95em; }
       ['Comment configurer les tables des ressources ?', 'Dans la Configuration du widget (cinq clics rapides sur l’en-tête), rubriques « Véhicules », « Matériels », « Parc véhicules », « Parc matériel » et « Hébergement » : choisissez la table Grist et le rôle de chaque colonne, et adaptez les libellés de décision à ceux de votre table. Un badge indique si chaque rubrique est configurée. Ces réglages s’enregistrent avec le reste de la Configuration.']
     ] },
     { title: 'Gestion des temps et des activités', items: [
-      ['Que trouve-t-on dans ce menu ?', 'Trois entrées : <strong>Progression</strong> (planning de la semaine par peloton, ajout et modification des occurrences, progression en PDF, réglages des activités), <strong>Feuille de service journalier</strong> (génération du document d’un jour, versions stagiaires et/ou encadrement à cocher, un fichier par version cochée ; bouton-icône « Permanences du jour » pour affecter, changer ou retirer les cadres de permanence ; navigation Hier / Aujourd’hui / Demain ; avertissements si la permanence SOP n’est pas assignée, si un cadre absent est affecté, ou si le cadre de permanence est en repos le lendemain : une liste propose alors le cadre qui récupère la permanence à partir de 19 h, repris dans la feuille) et <strong>Gestion des absences</strong> (demandes, décisions, règles de conflit).'],
+      ['Que trouve-t-on dans ce menu ?', 'Trois entrées : <strong>Progression</strong> (planning de la semaine par peloton, ajout et modification des occurrences, progression en PDF, réglages des activités), <strong>Feuille de service journalier</strong> (génération du document d’un jour, versions stagiaires et/ou encadrement à cocher, un fichier par version cochée ; bouton-icône « Permanences du jour » pour affecter, changer ou retirer les cadres de permanence ; navigation Hier / Aujourd’hui / Demain ; la génération ouvre la fenêtre des permanences tant que la SOP n’est pas désignée (obligatoire), avertissements si un cadre absent est affecté, ou si le cadre de permanence est en repos le lendemain : une liste propose alors le cadre qui récupère la permanence à partir de 19 h, repris dans la feuille) et <strong>Gestion des absences</strong> (demandes, décisions, règles de conflit).'],
       ['Où se trouvent les occurrences du planning ?', 'Dans une table Grist qui porte les colonnes Début, Fin, Occurrence, Intitulé, Code, Lieu, Encadrement, Consignes, Apprenants et Type. Le widget la repère tout seul ; si elle n’est pas trouvée, ou si plusieurs tables conviennent, choisissez-la dans la Configuration du widget (« Temps et activités — période du stage », champ « Table des occurrences »). Les occurrences sont relues à chaque ouverture de la page et après chaque modification ; le bouton « Actualiser » (absences) recharge aussi les demandes.'],
       ['Où règle-t-on la période du stage, le PDF et les permanences ?', 'Dans la Configuration du widget (cinq clics rapides sur l’en-tête), trois rubriques « Temps et activités » : période du stage, exports PDF (dont la limitation de la feuille de service à trois jours) et signataire des autorisations d’absence. Les numéros de téléphone des permanences se règlent dans la page Réglages des activités. Ces réglages sont partagés par tous les utilisateurs.'],
       ['Comment filtrer le planning et les absences ?', 'Dans la barre de recherche de la page : cliquez dedans pour afficher les filtres en un clic (<strong>Par peloton</strong> et <strong>Par cadre</strong> pour la Progression ; <strong>Par décision</strong> et <strong>Par demandeur</strong> pour les absences), ou tapez un texte (code ou intitulé, nom, type, destination). « Réinitialiser les filtres » se trouve en haut du panneau.'],
@@ -13367,6 +13447,13 @@ table.req-table th { font-size: 0.95em; }
     });
   }
   function closeCandidateModal() {
+    var wasOpen = currentModalRowId !== null;
+    // Un champ en cours de modification est enregistré (sortie du champ) avant la fermeture.
+    if (wasOpen && document.activeElement && candModalOverlay.contains(document.activeElement) && document.activeElement.blur) document.activeElement.blur();
+    if (wasOpen) {
+      // Actualise les données une fois les enregistrements terminés.
+      window.setTimeout(function () { whenWritesDone().then(function () { if (currentModalRowId === null) loadCandidates(); }); }, 300);
+    }
     currentModalRowId = null;
     hideAttachPreview();
     candModalOverlay.classList.remove('is-open');
@@ -13937,7 +14024,7 @@ table.req-table th { font-size: 0.95em; }
         // Virgule française acceptée, espaces (séparateur de milliers) ignorés.
         var n = Number(rawValue.replace(/\s/g, '').replace(',', '.'));
         if (isNaN(n)) {
-          window.alert('Valeur numérique invalide pour « ' + ROLE_LABELS[role] + ' ».');
+          dNotify('Valeur numérique invalide pour « ' + ROLE_LABELS[role] + ' ».');
           inputEl.value = previousValue;
           return;
         }
@@ -13959,7 +14046,7 @@ table.req-table th { font-size: 0.95em; }
       renderStagiaires(); // liste, tags et filtres de la page Stagiaires
       if (currentModalRowId === row.id) renderModalContent();
     }).catch(function (e) {
-      window.alert('Impossible d’enregistrer « ' + ROLE_LABELS[role] + ' » : ' + friendlyErrorMessage(e));
+      dNotify('Impossible d’enregistrer « ' + ROLE_LABELS[role] + ' » : ' + friendlyErrorMessage(e));
       inputEl.disabled = false;
       inputEl.value = previousValue;
     });
@@ -15057,7 +15144,8 @@ table.req-table th { font-size: 0.95em; }
   // donc c'est lui qu'on complète s'il est encore vide.
   var VALIDATION_FILL_ROLE = { vehicules: 'objet', materiels: 'materielAccorde' };
   // Rôles de colonnes des deux pages de gestion du parc (onglets de la zone Configuration).
-  var GESTION_ROLES = ['identifiant', 'type', 'etat'];
+  var GESTION_ROLES = ['identifiant', 'type', 'affectation', 'etat'];
+  var MATERIEL_GESTION_ROLES = ['identifiant', 'materiel', 'type', 'precisions', 'affectation', 'etat']; // « Matériel » (ex. PA MASG1), « Précisions » et « Affectation » sont facultatifs
   // Rôles de colonnes de la page "Occupants par UV" : Bât. (sert à créer
   // un filtre), UV, Occupants (colonne Liste de choix / Références
   // multiples, une carte par UV avec un badge par occupant — voir
@@ -15080,7 +15168,7 @@ table.req-table th { font-size: 0.95em; }
   // toutes les pages.
   var ALL_PAGES = ['vehicules', 'materiels', 'occupants', 'gestionVehicules', 'gestionMateriels', 'gestionHebergement'];
   var FILTER_PAGES = ALL_PAGES.concat(['documents']);
-  var PAGE_ROLES = { vehicules: ROLES, materiels: MATERIEL_ROLES, occupants: OCCUPANTS_ROLES, gestionVehicules: GESTION_ROLES, gestionMateriels: GESTION_ROLES, gestionHebergement: INFRA_ROLES };
+  var PAGE_ROLES = { vehicules: ROLES, materiels: MATERIEL_ROLES, occupants: OCCUPANTS_ROLES, gestionVehicules: GESTION_ROLES, gestionMateriels: MATERIEL_GESTION_ROLES, gestionHebergement: INFRA_ROLES };
   var PAGE_ID_PREFIX = { vehicules: 'veh', materiels: 'mat', occupants: 'occ', gestionVehicules: 'gv', gestionMateriels: 'gm', gestionHebergement: 'gh', documents: 'doc' }; // vehZone, vehCount, vehRefreshBtn…
   var PAGE_FORM_PREFIX = { vehicules: 'veh_', materiels: 'mat_', occupants: 'occ_', gestionVehicules: 'gv_', gestionMateriels: 'gm_', gestionHebergement: 'gh_' }; // veh_table, veh_col_demandeur…
   var PAGE_REQUIRED_COLS = {
@@ -15098,8 +15186,8 @@ table.req-table th { font-size: 0.95em; }
     vehicules: ['demandeur', 'objet', 'quantite', 'conflit'],
     materiels: ['conflit', 'materielAccorde'],
     occupants: ['capacite'],
-    gestionVehicules: [],
-    gestionMateriels: [],
+    gestionVehicules: ['affectation'],
+    gestionMateriels: ['materiel', 'precisions', 'affectation'],
     gestionHebergement: []
   };
   var PAGE_VALEURS_DEFAULT = {
@@ -15178,7 +15266,7 @@ table.req-table th { font-size: 0.95em; }
     materiels: { decision: 'Etat', demandeur: 'Demandeur' },
     occupants: { batiment: 'Bât.' },
     gestionVehicules: { etat: 'Disponibilité', type: 'Type de véhicule' },
-    gestionMateriels: { etat: 'Disponibilité', type: 'Catégorie' },
+    gestionMateriels: { etat: 'Disponibilité', type: 'Type' },
     gestionHebergement: {},
     documents: { categorie: 'Catégorie' }
   };
@@ -15352,6 +15440,7 @@ table.req-table th { font-size: 0.95em; }
   }
   function resetAllFilters(pageKey) {
     if (reqObjFilter[pageKey]) reqObjFilter[pageKey] = [];
+    if (reqPeriod[pageKey]) reqPeriod[pageKey] = REQ_PERIOD_DEFAULT.slice();
     pageSearchText[pageKey] = '';
     var sIn = document.getElementById(PAGE_ID_PREFIX[pageKey] + 'SearchInput');
     if (sIn) sIn.value = '';
@@ -16257,6 +16346,7 @@ table.req-table th { font-size: 0.95em; }
       }
       if (filters.demandeur.length && filters.demandeur.indexOf(textOfRef(r.demandeur)) === -1) return false;
       if (reqObjFilter[pageKey] && reqObjFilter[pageKey].length && reqObjFilter[pageKey].indexOf(reqObjKey(pageKey, r, parcMap)) === -1) return false;
+      if (reqPeriod[pageKey] && reqPeriod[pageKey].length && reqPeriod[pageKey].indexOf(reqPeriodOf(r)) === -1) return false;
       if (!textFilterMatch(pageKey, r)) return false;
       return true;
     });
@@ -16563,7 +16653,7 @@ table.req-table th { font-size: 0.95em; }
     var zone = document.getElementById(PAGE_ID_PREFIX[pageKey] + 'Zone');
     var countEl = document.getElementById(PAGE_ID_PREFIX[pageKey] + 'Count');
     var itemLabel = pageKey === 'gestionVehicules' ? 'véhicule' : 'matériel';
-    var typeLabel = pageKey === 'gestionVehicules' ? 'Type de véhicule' : 'Catégorie';
+    var typeLabel = pageKey === 'gestionVehicules' ? 'Type de véhicule' : 'Type';
 
     if (!isPageConfigComplete(pageKey, cfg)) {
       countEl.textContent = '';
@@ -16605,10 +16695,17 @@ table.req-table th { font-size: 0.95em; }
       return;
     }
 
-    var colWidths = [30, 22, 34, 14];
-    var headCells = ['Identifiant', escapeHtml(typeLabel), 'Disponibilité', '<span class="fr-sr-only">Actions</span>'];
-    var head = '<tr>' + headCells.map(function (label, i) {
-      return '<th scope="col" style="width:' + colWidths[i] + '%">' + label + '</th>';
+    var idLabel = pageKey === 'gestionVehicules' ? 'Plaque minéralogique' : 'Identifiant';
+    var isMat = pageKey === 'gestionMateriels';
+    // Colonnes : plaque / identifiant, [matériel], type, [précisions], [affectation], disponibilité, actions ([ ] = facultatives, si la colonne est réglée).
+    var gcols = [{ k: 'id', label: idLabel, w: 16 }];
+    if (isMat && cfg.col.materiel) gcols.push({ k: 'materiel', label: 'Matériel', w: 16 });
+    gcols.push({ k: 'type', label: typeLabel, w: 15 });
+    if (isMat && cfg.col.precisions) gcols.push({ k: 'precisions', label: 'Précisions', w: 22 });
+    if (cfg.col.affectation) gcols.push({ k: 'affectation', label: 'Affectation', w: 15 });
+    gcols.push({ k: 'etat', label: 'Disponibilité', w: 16 }, { k: 'actions', label: '<span class="fr-sr-only">Actions</span>', w: 12 });
+    var head = '<tr>' + gcols.map(function (c) {
+      return '<th scope="col" style="width:' + c.w + '%">' + (c.k === 'actions' ? c.label : escapeHtml(c.label)) + '</th>';
     }).join('') + '</tr>';
 
     var body = rows.map(function (r) {
@@ -16619,18 +16716,24 @@ table.req-table th { font-size: 0.95em; }
       var badgeClass = isDisponible ? 'fr-badge--success' : 'fr-badge--error';
       var etatDisplay = etatText || cfg.valeurs.disponible;
 
+      var cellOf = {
+        id: '<td data-label="' + escapeHtml(idLabel) + '">' + escapeHtml(textOf(r.identifiant)) + '</td>',
+        materiel: '<td data-label="Matériel">' + escapeHtml(textOf(r.materiel)) + '</td>',
+        type: '<td data-label="' + escapeHtml(typeLabel) + '">' + escapeHtml(textOf(r.type)) + '</td>',
+        precisions: '<td data-label="Précisions">' + escapeHtml(textOf(r.precisions)) + '</td>',
+        affectation: '<td data-label="Affectation">' + escapeHtml(textOf(r.affectation)) + '</td>',
+        etat: '<td data-label="Disponibilité">' +
+          '<button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm ' + toggleIcon + ' fr-btn--icon-left gestion-etat-btn" data-action="toggle-etat" title="' + escapeHtml(toggleTitle) + '">' +
+          '<span class="fr-badge fr-badge--sm ' + badgeClass + '">' + escapeHtml(etatDisplay) + '</span>' +
+          '</button>' +
+          '</td>',
+        actions: '<td class="doc-table__actions" data-label="Actions">' +
+          '<button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-edit-line" data-action="edit-parc" title="Modifier"><span class="fr-sr-only">Modifier</span></button>' +
+          '<button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-delete-line" data-action="delete-parc" title="Supprimer"><span class="fr-sr-only">Supprimer</span></button>' +
+          '</td>'
+      };
       return '<tr data-row-id="' + r.id + '" data-status="' + (isDisponible ? 'disponible' : 'indisponible') + '">' +
-        '<td data-label="Identifiant">' + escapeHtml(textOf(r.identifiant)) + '</td>' +
-        '<td data-label="' + escapeHtml(typeLabel) + '">' + escapeHtml(textOf(r.type)) + '</td>' +
-        '<td data-label="Disponibilité">' +
-        '<button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm ' + toggleIcon + ' fr-btn--icon-left gestion-etat-btn" data-action="toggle-etat" title="' + escapeHtml(toggleTitle) + '">' +
-        '<span class="fr-badge fr-badge--sm ' + badgeClass + '">' + escapeHtml(etatDisplay) + '</span>' +
-        '</button>' +
-        '</td>' +
-        '<td class="doc-table__actions" data-label="Actions">' +
-        '<button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-edit-line" data-action="edit-parc" title="Modifier"><span class="fr-sr-only">Modifier</span></button>' +
-        '<button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-delete-line" data-action="delete-parc" title="Supprimer"><span class="fr-sr-only">Supprimer</span></button>' +
-        '</td>' +
+        gcols.map(function (c) { return cellOf[c.k]; }).join('') +
         '</tr>';
     }).join('');
 
@@ -16675,7 +16778,8 @@ table.req-table th { font-size: 0.95em; }
     if (rowId && !row) return;
     parcEdit = { pageKey: pageKey, rowId: row ? row.id : null };
     document.getElementById('parcTitle').textContent = (row ? 'Modifier le ' : 'Ajouter un ') + noun;
-    document.getElementById('parcTypeLabel').textContent = pageKey === 'gestionVehicules' ? 'Type de véhicule' : 'Catégorie';
+    document.getElementById('parcTypeLabel').textContent = pageKey === 'gestionVehicules' ? 'Type de véhicule' : 'Type de matériel';
+    document.getElementById('parcIdLabel').textContent = pageKey === 'gestionVehicules' ? 'Plaque minéralogique' : 'Identifiant';
     document.getElementById('parcSubmitBtn').textContent = row ? 'Enregistrer les modifications' : 'Ajouter le ' + noun;
     var types = {};
     pageData[pageKey].rows.forEach(function (r) { var t = textOf(r.type); if (t) types[t] = true; });
@@ -16683,18 +16787,45 @@ table.req-table th { font-size: 0.95em; }
     var etat = document.getElementById('parc_etat');
     etat.innerHTML = [cfg.valeurs.disponible, cfg.valeurs.indisponible].map(function (v) { return '<option value="' + escapeHtml(v) + '">' + escapeHtml(v) + '</option>'; }).join('');
     document.getElementById('parc_identifiant').value = row ? textOf(row.identifiant) : '';
-    document.getElementById('parc_type').value = row ? textOf(row.type) : '';
+    // Type et affectation : listes à choix (valeurs déjà utilisées dans le parc ; « Autre… » pour en ajouter une nouvelle).
+    function fillChoice(selId, inpId, known, curVal, otherLabel, placeholder) {
+      var sel = document.getElementById(selId), inp = document.getElementById(inpId);
+      known = known.slice();
+      if (curVal && known.indexOf(curVal) === -1) known.push(curVal);
+      known.sort(function (a, b) { return a.localeCompare(b, 'fr'); });
+      sel.hidden = false;
+      sel.innerHTML = '<option value="">— Choisir —</option>' + known.map(function (t) { return '<option value="' + escapeHtml(t) + '">' + escapeHtml(t) + '</option>'; }).join('') + '<option value="__autre">' + escapeHtml(otherLabel) + '</option>';
+      sel.value = curVal || '';
+      inp.hidden = true; inp.value = ''; inp.placeholder = placeholder;
+      sel.onchange = function () { inp.hidden = sel.value !== '__autre'; if (!inp.hidden) { inp.value = ''; inp.focus(); } };
+    }
+    var typeInp = document.getElementById('parc_type');
+    fillChoice('parc_type_select', 'parc_type', Object.keys(types), row ? textOf(row.type) : '', 'Autre type…', pageKey === 'gestionVehicules' ? 'Saisir le nouveau type de véhicule' : 'Saisir le nouveau type de matériel');
+    var affects = {};
+    pageData[pageKey].rows.forEach(function (r) { var t = textOf(r.affectation); if (t) affects[t] = true; });
+    document.getElementById('parcAffectGroup').hidden = !cfg.col.affectation;
+    if (cfg.col.affectation) fillChoice('parc_affectation_select', 'parc_affectation', Object.keys(affects), row ? textOf(row.affectation) : '', 'Autre affectation…', 'Saisir la nouvelle affectation');
+    var isMatPage = pageKey === 'gestionMateriels';
+    document.getElementById('parcMaterielGroup').hidden = !(isMatPage && cfg.col.materiel);
+    document.getElementById('parcPrecisionsGroup').hidden = !(isMatPage && cfg.col.precisions);
+    document.getElementById('parc_materiel').value = row ? textOf(row.materiel) : '';
+    document.getElementById('parc_precisions').value = row ? textOf(row.precisions) : '';
     var cur = row ? textOf(row.etat) : '';
     etat.value = cur && normalizeKey(cur) === normalizeKey(cfg.valeurs.indisponible) ? cfg.valeurs.indisponible : cfg.valeurs.disponible;
-    document.getElementById('parc_type').closest('.fr-input-group').hidden = !cfg.col.type;
+    typeInp.closest('.fr-input-group').hidden = !cfg.col.type;
     etat.closest('.fr-select-group').hidden = !cfg.col.etat;
     parcOverlay.hidden = false;
     document.getElementById('parc_identifiant').focus();
   }
   function submitParc() {
     var pageKey = parcEdit.pageKey, cfg = settings[pageKey], fields = {}, bad = '';
-    var values = { identifiant: document.getElementById('parc_identifiant').value.trim(), type: document.getElementById('parc_type').value.trim(), etat: document.getElementById('parc_etat').value };
-    ['identifiant', 'type', 'etat'].forEach(function (role) {
+    function choiceValue(selId, inpId) {
+      var sel = document.getElementById(selId);
+      return (sel.value !== '__autre') ? sel.value : document.getElementById(inpId).value.trim();
+    }
+    var values = { identifiant: document.getElementById('parc_identifiant').value.trim(), type: choiceValue('parc_type_select', 'parc_type'), etat: document.getElementById('parc_etat').value,
+      materiel: document.getElementById('parc_materiel').value.trim(), precisions: document.getElementById('parc_precisions').value.trim(), affectation: choiceValue('parc_affectation_select', 'parc_affectation') };
+    PAGE_ROLES[pageKey].forEach(function (role) {
       if (!cfg.col[role]) return;
       if (!isWritableColId(cfg.col[role])) bad = bad || role;
       fields[cfg.col[role]] = values[role];
@@ -18399,6 +18530,24 @@ table.req-table th { font-size: 0.95em; }
   var SP_TITLES = { decision: 'Affichage rapide par état de la demande', demandeur: 'Affichage rapide par demandeur', batiment: 'Affichage rapide par bâtiment', etat: 'Affichage rapide par disponibilité', categorie: 'Affichage rapide par catégorie' };
   // Véhicule ou matériel demandé : son type d'après le parc (page « Gérer… ») quand l'identifiant correspond, sinon l'objet de la demande lui-même.
   var reqObjFilter = { vehicules: [], materiels: [] };
+  // Période des demandes : par défaut, les demandes passées sont masquées (en cours et futures affichées) ; chaque case du panneau se coche ou se décoche.
+  var REQ_PERIOD_DEFAULT = ['cours', 'future'];
+  var REQ_PERIOD_LABELS = { passee: 'Demandes passées', cours: 'Demandes en cours', future: 'Demandes dans le futur' };
+  var reqPeriod = { vehicules: REQ_PERIOD_DEFAULT.slice(), materiels: REQ_PERIOD_DEFAULT.slice() };
+  function reqLocalDay(v, end) { // valeur date (secondes UTC à minuit) ou texte -> début / fin de journée locale
+    var d = parseGristDate(v);
+    if (!d) return null;
+    if (typeof v === 'number' && v % 86400 === 0) return end ? new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 23, 59, 59, 999) : new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+    if (typeof v !== 'number' && d.getHours() === 0 && d.getMinutes() === 0) return end ? new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999) : d;
+    return d;
+  }
+  function reqPeriodOf(r) {
+    var a = reqLocalDay(r.dateDebut, false), b = reqLocalDay(r.dateFin, true) || reqLocalDay(r.dateDebut, true), now = Date.now();
+    if (!a) return 'cours';
+    if (b.getTime() < now) return 'passee';
+    if (a.getTime() > now) return 'future';
+    return 'cours';
+  }
   function parcTypeMap(pageKey) {
     var map = {}, d = pageData[pageKey === 'vehicules' ? 'gestionVehicules' : 'gestionMateriels'];
     if (d && d.loaded) d.rows.forEach(function (r) { var id = normalizeKey(textOfRef(r.identifiant)); if (id && textOf(r.type)) map[id] = textOf(r.type); });
@@ -18422,13 +18571,21 @@ table.req-table th { font-size: 0.95em; }
       var out = [];
       if (!pageData[pageKey] || !pageData[pageKey].loaded) return out;
       FILTER_KEYS[pageKey].forEach(function (fk) {
-        var title = fk === 'type' ? (pageKey === 'gestionVehicules' ? 'Affichage rapide par type de véhicule' : 'Affichage rapide par catégorie de matériel') : SP_TITLES[fk];
+        var title = fk === 'type' ? (pageKey === 'gestionVehicules' ? 'Affichage rapide par type de véhicule' : 'Affichage rapide par type de matériel') : SP_TITLES[fk];
         var vals = getAllFieldValues(pageKey, fk);
         if (fk === 'decision' && isConflitFilterAvailable(pageKey)) vals = vals.concat([CONFLIT_FILTER_VALUE]);
         vals.forEach(function (v) {
           var n = pageData[pageKey].rows.filter(function (r) { return v === CONFLIT_FILTER_VALUE && fk === 'decision' ? isConflitChecked(r.conflit) : textOfRef(r[fk]) === v; }).length;
           out.push({ sec: title, l: v + ' (' + n + ')', keep: true, on: function () { return filterValueOn(pageKey, fk, v); }, run: function () { toggleFilterValue(pageKey, fk, v); } });
         });
+        if (fk === 'decision' && reqPeriod[pageKey]) {
+          ['passee', 'cours', 'future'].forEach(function (k) {
+            var n = pageData[pageKey].rows.filter(function (r) { return reqPeriodOf(r) === k; }).length;
+            out.push({ sec: 'Affichage rapide par période', l: REQ_PERIOD_LABELS[k] + ' (' + n + ')', keep: true,
+              on: function () { return reqPeriod[pageKey].indexOf(k) !== -1; },
+              run: function () { var a = reqPeriod[pageKey], i = a.indexOf(k); if (i === -1) a.push(k); else a.splice(i, 1); renderPage(pageKey); } });
+          });
+        }
         if (fk === 'decision' && reqObjFilter[pageKey]) {
           var map = parcTypeMap(pageKey), counts = {}, typed = false;
           pageData[pageKey].rows.forEach(function (r) { var k = reqObjKey(pageKey, r, map); if (k) { counts[k] = (counts[k] || 0) + 1; if (map[normalizeKey(textOfRef(r.objet))]) typed = true; } });
@@ -19076,7 +19233,18 @@ table.req-table th { font-size: 0.95em; }
   });
 
   var absData = []; // dernières lignes chargées depuis la table source (avec id Grist)
-  var absActiveFilter = { decision: null, demandeur: null };
+  var ABS_PERIOD_DEFAULT = ['cours', 'future']; // par défaut, les demandes passées sont masquées
+  var absActiveFilter = { decision: null, demandeur: null, period: ABS_PERIOD_DEFAULT.slice() }; // period : liste parmi 'passee' | 'cours' | 'future' (vide = toutes)
+  var ABS_PERIOD_LABELS = { passee: 'Demandes passées', cours: 'Demandes en cours', future: 'Demandes dans le futur' };
+  // Période d'une demande par rapport à maintenant ; une fin à minuit pile (colonne de type date) vaut la fin de cette journée.
+  function absPeriodOf(r) {
+    var a = parseGristDateTime(r.dateDebut), b = parseGristDateTime(r.dateFin), now = Date.now();
+    if (!a && !b) return null;
+    var from = a ? a.getTime() : -Infinity, to = b ? (b.getHours() === 0 && b.getMinutes() === 0 ? b.getTime() + 86400000 - 1 : b.getTime()) : Infinity;
+    if (to < now) return 'passee';
+    if (from > now) return 'future';
+    return 'cours';
+  }
   var absSearchQuery = '';
   var absTooltipSeq = 0; // identifiants uniques pour les infobulles DSFR du bouton PDF désactivé
 
@@ -19317,13 +19485,16 @@ table.req-table th { font-size: 0.95em; }
     if (absActiveFilter.demandeur) {
       rows = rows.filter(function (r) { return normalizeNameKey(r.demandeur) === normalizeNameKey(absActiveFilter.demandeur); });
     }
+    if (absActiveFilter.period.length) {
+      rows = rows.filter(function (r) { var k = absPeriodOf(r); return !k || absActiveFilter.period.indexOf(k) !== -1; });
+    }
     var absQ = normalizeNameKey(absSearchQuery);
     if (absQ) {
       rows = rows.filter(function (r) {
         return [r.demandeur, r.motif, r.destination, r.commentaire, r.decision].some(function (v) { return normalizeNameKey(v).indexOf(absQ) !== -1; });
       });
     }
-    var absFiltered = !!(absActiveFilter.decision || absActiveFilter.demandeur || absQ);
+    var absFiltered = !!(absActiveFilter.decision || absActiveFilter.demandeur || absQ || absActiveFilter.period.slice().sort().join() !== ABS_PERIOD_DEFAULT.slice().sort().join());
 
     absCount.textContent = rows.length + (rows.length > 1 ? ' demandes' : ' demande') + (absFiltered ? ' (filtrées)' : '');
 
@@ -19406,8 +19577,8 @@ table.req-table th { font-size: 0.95em; }
       var conflitDetected = (!!cfg.col.conflit && isConflitChecked(r.conflit)) || ruleConflicts.length > 0;
       var conflitTitle = ruleConflicts.map(function (c) { return c.label + ' : ' + c.detail; }).join(' | ');
       var conflitAttr = conflitTitle ? ' title="' + escapeHtml(conflitTitle) + '"' : '';
-      var conflitBadgeHtml = conflitDetected ? '<br><span class="tag orange"' + conflitAttr + '>Conflit</span>' : '';
-      var conflitBadgeInline = conflitDetected ? '<span class="tag orange"' + conflitAttr + '>Conflit</span>' : '';
+      var conflitBadgeHtml = conflitDetected ? '<br><span class="fr-badge fr-badge--warning fr-badge--sm"' + conflitAttr + '>Conflit</span>' : '';
+      var conflitBadgeInline = conflitDetected ? '<span class="fr-badge fr-badge--warning fr-badge--sm"' + conflitAttr + '>Conflit</span>' : '';
 
       function buildActionButtonsHtml(variant) {
         var pdfTooltipId = null;
@@ -19426,11 +19597,11 @@ table.req-table th { font-size: 0.95em; }
         }
         return '<button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-check-line" title="Valider" data-action="validee" aria-pressed="' + (st.isValidee ? 'true' : 'false') + '"' +
             (st.isValidee || validerBlockedByDroits ? ' disabled' : '') +
-            (validerBlockedByDroits ? (' aria-describedby="' + validerTooltipId + '"') : '') +
+            (validerBlockedByDroits ? (' aria-describedby="' + validerTooltipId + '"') : (st.isValidee ? ' data-reason="' + escapeHtml(blockedTooltipHtml('Validation impossible.', ['Cette demande est déjà validée.'])) + '"' : '')) +
             '></button>' +
           (validerBlockedByDroits ? ('<span class="fr-tooltip fr-placement" id="' + validerTooltipId + '" role="tooltip">' + validerTooltipHtml + '</span>') : '') +
-          '<button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line" title="Refuser" data-action="refusee" aria-pressed="' + (st.isRefusee ? 'true' : 'false') + '"' + (st.isRefusee ? ' disabled' : '') + '></button>' +
-          '<button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-time-line" title="Remettre en attente" data-action="attente" aria-pressed="' + (st.isAttente ? 'true' : 'false') + '"' + (st.isAttente ? ' disabled' : '') + '></button>' +
+          '<button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line" title="Refuser" data-action="refusee" aria-pressed="' + (st.isRefusee ? 'true' : 'false') + '"' + (st.isRefusee ? ' disabled data-reason="' + escapeHtml(blockedTooltipHtml('Refus impossible.', ['Cette demande est déjà refusée.'])) + '"' : '') + '></button>' +
+          '<button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-time-line" title="Remettre en attente" data-action="attente" aria-pressed="' + (st.isAttente ? 'true' : 'false') + '"' + (st.isAttente ? ' disabled data-reason="' + escapeHtml(blockedTooltipHtml('Action impossible.', ['Cette demande est déjà en attente.'])) + '"' : '') + '></button>' +
           '<button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-download-line" title="Télécharger le PDF" data-pdf-id="' + r.id + '"' +
             (pdfAvailable ? '' : (' disabled aria-describedby="' + pdfTooltipId + '"')) +
             '></button>' +
@@ -22141,22 +22312,28 @@ table.req-table th { font-size: 0.95em; }
   absSearchInput.addEventListener('input', applyAbsSearch);
   document.getElementById('absSearchBtn').addEventListener('click', applyAbsSearch);
   function resetAbsFilters() {
-    absActiveFilter.decision = null; absActiveFilter.demandeur = null; absSearchQuery = ''; absSearchInput.value = '';
+    absActiveFilter.decision = null; absActiveFilter.demandeur = null; absActiveFilter.period = ABS_PERIOD_DEFAULT.slice(); absSearchQuery = ''; absSearchInput.value = '';
     absDecisionFilterBtn.textContent = 'Décision'; absDemandeurFilterBtn.textContent = 'Demandeur';
     renderAbsencesList();
   }
   if (window.attachSearchPanel) window.attachSearchPanel(absSearchInput, function () {
     var out = [], cfg = absencesConfig, seen = {}, names = [];
+    ['passee', 'cours', 'future'].forEach(function (k) {
+      var n = absData.filter(function (r) { return absPeriodOf(r) === k; }).length;
+      out.push({ sec: 'Affichage rapide par période', l: ABS_PERIOD_LABELS[k] + ' (' + n + ')', keep: true,
+        on: function () { return absActiveFilter.period.indexOf(k) !== -1; },
+        run: function () { var a = absActiveFilter.period, i = a.indexOf(k); if (i === -1) a.push(k); else a.splice(i, 1); renderAbsencesList(); } });
+    });
     [cfg.valeurs.attente, cfg.valeurs.validee, cfg.valeurs.refusee].forEach(function (v) {
       var n = absData.filter(function (r) { return normalizeNameKey(r.decision || cfg.valeurs.attente) === normalizeNameKey(v); }).length;
-      out.push({ sec: 'Par décision', l: v + ' (' + n + ')', keep: true,
+      out.push({ sec: 'Affichage rapide par décision', l: v + ' (' + n + ')', keep: true,
         on: function () { return !!absActiveFilter.decision && normalizeNameKey(absActiveFilter.decision) === normalizeNameKey(v); },
         run: function () { absActiveFilter.decision = (absActiveFilter.decision && normalizeNameKey(absActiveFilter.decision) === normalizeNameKey(v)) ? null : v; renderAbsencesList(); } });
     });
     absData.forEach(function (r) { var k = normalizeNameKey(r.demandeur); if (r.demandeur && !seen[k]) { seen[k] = true; names.push(r.demandeur); } });
     names.sort(compareMilitaires).forEach(function (name) {
       var n = absData.filter(function (r) { return normalizeNameKey(r.demandeur) === normalizeNameKey(name); }).length;
-      out.push({ sec: 'Par demandeur', l: name + ' (' + n + ')', keep: true,
+      out.push({ sec: 'Affichage rapide par demandeur', l: name + ' (' + n + ')', keep: true,
         on: function () { return !!absActiveFilter.demandeur && normalizeNameKey(absActiveFilter.demandeur) === normalizeNameKey(name); },
         run: function () { absActiveFilter.demandeur = (absActiveFilter.demandeur && normalizeNameKey(absActiveFilter.demandeur) === normalizeNameKey(name)) ? null : name; renderAbsencesList(); } });
     });
@@ -22371,17 +22548,25 @@ table.req-table th { font-size: 0.95em; }
     if (res.missing.length) showStatus('warning', verb + ' : ' + names + '. Version ' + res.missing.join(' et ') + ' non générée (aucune occurrence).');
     else showStatus('success', verb + ' : ' + names);
   }
+  // La permanence SOP doit être désignée pour générer ou imprimer la FSJ : sinon la fenêtre des permanences s'ouvre (SOP obligatoire) et la génération reprend à l'enregistrement.
+  function fsjGuardSop(action) {
+    var occAll = getOccurrencesForDay(getSelectedDate(), 'cadres');
+    if (findPermanenceCadre(splitBySection(occAll).permanences, 'SOP')) { action(); return; }
+    if (openFsjPermModal({ requireSop: true, onDone: action }) === false) action(); // fenêtre impossible à ouvrir (table non configurée) : on ne bloque pas
+  }
   generateBtn.addEventListener('click', function () {
-    fsjAfterBuild(buildSelectedPdfs(), 'PDF généré' + (getSelectedModes().length > 1 ? 's' : ''), function (b) { b.doc.save(b.filename); });
+    fsjGuardSop(function () { fsjAfterBuild(buildSelectedPdfs(), 'PDF généré' + (getSelectedModes().length > 1 ? 's' : ''), function (b) { b.doc.save(b.filename); }); });
   });
   // Impression : le PDF s'ouvre dans un nouvel onglet avec la boîte de dialogue d'impression (téléchargé si l'ouverture est bloquée).
   document.getElementById('printFsjBtn').addEventListener('click', function () {
-    fsjAfterBuild(buildSelectedPdfs(), 'PDF prêt à imprimer', function (b) {
-      try {
-        b.doc.autoPrint();
-        var w = window.open(b.doc.output('bloburl'), '_blank');
-        if (!w) b.doc.save(b.filename);
-      } catch (e) { b.doc.save(b.filename); }
+    fsjGuardSop(function () {
+      fsjAfterBuild(buildSelectedPdfs(), 'PDF prêt à imprimer', function (b) {
+        try {
+          b.doc.autoPrint();
+          var w = window.open(b.doc.output('bloburl'), '_blank');
+          if (!w) b.doc.save(b.filename);
+        } catch (e) { b.doc.save(b.filename); }
+      });
     });
   });
   progressionPdfBtn.addEventListener('click', function () {
@@ -22933,8 +23118,8 @@ table.req-table th { font-size: 0.95em; }
       '<div class="week-timegrid__scroll">' + scrollHtml + '</div>';
   }
 
-  // Versions cochées ; getSelectedMode() sert à l'aperçu, à la semaine et à la progression : la version stagiaires dès qu'elle est cochée
-  // (la plus restrictive), sinon l'encadrement.
+  // Versions cochées ; getSelectedMode() sert à la semaine et à la progression : la version stagiaires dès qu'elle est cochée
+  // (la plus restrictive), sinon l'encadrement. L'aperçu de la page, lui, montre l'encadrement quand les deux sont cochées.
   function getSelectedModes() {
     return Array.prototype.filter.call(fsjRadios, function (b) { return b.checked; }).map(function (b) { return b.value; });
   }
@@ -23393,9 +23578,14 @@ table.req-table th { font-size: 0.95em; }
     });
     sel.value = current || '';
   }
-  function openFsjPermModal() {
+  // opts.requireSop : ouverture à la génération de la FSJ — la permanence SOP doit être désignée ; opts.onDone est alors relancé après l'enregistrement.
+  var fsjPermRequireSop = false, fsjPermOnDone = null;
+  function openFsjPermModal(opts) {
+    opts = (opts && opts.requireSop !== undefined) ? opts : {};
+    fsjPermRequireSop = !!opts.requireSop;
+    fsjPermOnDone = opts.onDone || null;
     var cfg = genColumnsConfig;
-    if (!gristSelectedTableAvailable() || !cfg.Code || !cfg.Debut) { showStatus('warning', 'Les permanences ne peuvent pas être gérées : la table des occurrences n’est pas configurée (Configuration, onglet « Temps et activités »).'); return; }
+    if (!gristSelectedTableAvailable() || !cfg.Code || !cfg.Debut) { showStatus('warning', 'Les permanences ne peuvent pas être gérées : la table des occurrences n’est pas configurée (Configuration, onglet « Temps et activités »).'); return false; }
     var day = getSelectedDate();
     fillPermMilitaireSelect();
     var entries = Array.prototype.slice.call(occPermMilitaire.options).filter(function (o) { return o.value; }).map(function (o) { return { value: o.value, label: o.textContent }; });
@@ -23416,7 +23606,9 @@ table.req-table th { font-size: 0.95em; }
     }
     var dlg = fsjPermDlg, rows = dlg.querySelector('#fsjPermRows');
     dlg.querySelector('#fsjPermTitle').textContent = 'Permanences du ' + fmtDayTitle(day);
-    dlg.querySelector('#fsjPermHint').textContent = 'Choisissez le cadre de chaque permanence (« Non assignée » la retire). La reprise à 19 h est facultative ; elle apparaît dans la feuille de service.';
+    dlg.querySelector('#fsjPermHint').textContent = fsjPermRequireSop
+      ? 'La permanence SOP n’est pas désignée : elle est obligatoire pour générer la feuille de service. Choisissez le cadre de la SOP (les autres permanences sont facultatives), puis enregistrez : la génération reprend aussitôt.'
+      : 'Choisissez le cadre de chaque permanence (« Non assignée » la retire). La reprise à 19 h est facultative ; elle apparaît dans la feuille de service.';
     dlg.querySelector('#fsjPermStatus').innerHTML = '';
     rows.innerHTML = '';
     var state = [];
@@ -23433,7 +23625,7 @@ table.req-table th { font-size: 0.95em; }
       var row = document.createElement('div');
       row.className = 'fsj-perm-row';
       row.innerHTML = '<div class="fsj-perm-code">' + escapeHtml(code) + '</div>' +
-        '<div class="fr-select-group"><label class="fr-label" for="fsjPerm_' + code + '">Cadre de permanence</label><select class="fr-select" id="fsjPerm_' + code + '"></select></div>' +
+        '<div class="fr-select-group"><label class="fr-label" for="fsjPerm_' + code + '">Cadre de permanence' + (fsjPermRequireSop && code === 'SOP' ? ' <span class="fr-hint-text">(obligatoire)</span>' : '') + '</label><select class="fr-select" id="fsjPerm_' + code + '"></select></div>' +
         '<div class="fr-select-group"><label class="fr-label" for="fsjPermRelief_' + code + '">Reprise à partir de 19 h par</label><select class="fr-select" id="fsjPermRelief_' + code + '"></select></div>';
       rows.appendChild(row);
       var sel = row.querySelector('#fsjPerm_' + code), rel = row.querySelector('#fsjPermRelief_' + code);
@@ -23447,14 +23639,26 @@ table.req-table th { font-size: 0.95em; }
     save.onclick = function () { fsjPermSave(day, state, save); };
     dlg.open = true;
     dlg.classList.add('fr-modal--opened');
+    if (fsjPermRequireSop) { var sopSel = dlg.querySelector('#fsjPerm_SOP'); if (sopSel) sopSel.focus(); }
+    return true;
   }
   function closeFsjPermModal() {
+    fsjPermOnDone = null; // fermeture sans enregistrer : la génération est abandonnée
+    fsjPermRequireSop = false;
     if (!fsjPermDlg) return;
     fsjPermDlg.classList.remove('fr-modal--opened');
     fsjPermDlg.open = false;
   }
   function fsjPermSave(day, state, saveBtn) {
     var cfg = genColumnsConfig, status = fsjPermDlg.querySelector('#fsjPermStatus');
+    if (fsjPermRequireSop) {
+      var sopState = state.filter(function (st) { return st.code === 'SOP'; })[0];
+      if (sopState && !sopState.sel.value) {
+        renderAlert(status, 'error', 'La permanence SOP est obligatoire pour générer la feuille de service : choisissez un cadre.');
+        sopState.sel.focus();
+        return;
+      }
+    }
     var debut = new Date(day.getFullYear(), day.getMonth(), day.getDate(), OCC_PERMANENCE_START_HOUR, OCC_PERMANENCE_START_MINUTE);
     saveBtn.disabled = true;
     var chain = Promise.resolve();
@@ -23478,15 +23682,73 @@ table.req-table th { font-size: 0.95em; }
     chain.then(function () {
       state.forEach(function (st) { fsjReliefSet('fsjRelief:' + toInputDateValue(day) + ':' + st.code, st.sel.value ? st.rel.value : ''); });
       saveBtn.disabled = false;
+      var onDone = fsjPermOnDone;
       closeFsjPermModal();
       renderPreview();
       showStatus('success', 'Permanences du ' + fmtDayTitle(day) + ' enregistrées.');
+      if (onDone) onDone();
     }).catch(function (e) {
       saveBtn.disabled = false;
       renderAlert(status, 'error', 'Enregistrement impossible : ' + friendlyErrorMessage(e));
     });
   }
-  document.getElementById('fsjPermBtn').addEventListener('click', openFsjPermModal);
+  document.getElementById('fsjPermBtn').addEventListener('click', function () { openFsjPermModal(); });
+
+  // Infobulle des boutons désactivés : la raison vient de l'élément désigné par aria-describedby, ou de data-reason. Un bouton désactivé ne reçoit
+  // aucun événement souris : on le rend « transparent » à la souris (CSS) et on teste sa position sous le pointeur.
+  (function () {
+    var tip = null, shownFor = null, raf = 0, hideTimer = 0;
+    function reasonHtml(b) {
+      var id = b.getAttribute('aria-describedby'), el = id && document.getElementById(id);
+      if (el && el.innerHTML.trim()) return el.innerHTML;
+      return b.getAttribute('data-reason') || '';
+    }
+    function hide() { if (tip) tip.hidden = true; shownFor = null; }
+    function place(b) {
+      var r = b.getBoundingClientRect(), t = tip.getBoundingClientRect();
+      var left = Math.min(Math.max(r.left + r.width / 2 - t.width / 2, 8), Math.max(window.innerWidth - t.width - 8, 8));
+      var top = r.bottom + 8;
+      if (top + t.height > window.innerHeight - 8 && r.top - t.height - 8 > 8) top = r.top - t.height - 8;
+      tip.style.left = left + 'px'; tip.style.top = top + 'px';
+    }
+    function show(b) {
+      var html = reasonHtml(b);
+      if (!html) { hide(); return; }
+      if (!tip) {
+        tip = document.createElement('div');
+        tip.className = 'dis-tip'; tip.setAttribute('role', 'tooltip'); tip.hidden = true;
+        document.body.appendChild(tip);
+      }
+      if (shownFor !== b) { tip.innerHTML = html; tip.hidden = false; shownFor = b; place(b); }
+    }
+    function under(x, y) {
+      var list = document.querySelectorAll('button:disabled[aria-describedby], button:disabled[data-reason]');
+      for (var i = 0; i < list.length; i++) {
+        var b = list[i];
+        if (!b.offsetParent) continue;
+        var r = b.getBoundingClientRect();
+        if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return b;
+      }
+      return null;
+    }
+    document.addEventListener('mousemove', function (e) {
+      if (raf) return;
+      raf = window.requestAnimationFrame(function () {
+        raf = 0;
+        var b = under(e.clientX, e.clientY);
+        if (b) show(b); else hide();
+      });
+    }, { passive: true });
+    document.addEventListener('click', function (e) { // écrans tactiles : un appui sur le bouton affiche la raison quelques secondes
+      var b = under(e.clientX, e.clientY);
+      if (!b) return;
+      show(b);
+      window.clearTimeout(hideTimer);
+      hideTimer = window.setTimeout(hide, 4000);
+    });
+    document.addEventListener('scroll', hide, true);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hide(); });
+  })();
 
   function renderPreview() {
     if (!recordsLoaded) {
@@ -23496,7 +23758,7 @@ table.req-table th { font-size: 0.95em; }
       return;
     }
     var day = getSelectedDate();
-    var mode = getSelectedMode();
+    var mode = getSelectedModes().length > 1 ? 'cadres' : getSelectedMode(); // les deux cases cochées : aperçu de la version encadrement (la plus complète)
     var dateLimitReason = fsjDateLimitReason(day);
     var occAll = getOccurrencesForDay(day, 'cadres');
     var occ = getOccurrencesForDay(day, mode);
@@ -23509,7 +23771,7 @@ table.req-table th { font-size: 0.95em; }
         '<div class="fr-alert fr-alert--info fr-alert--sm">' +
         '<p>Aucune occurrence trouvée pour le ' + escapeHtml(fmtDayTitle(day)) + '.</p>' +
         '</div>' +
-        (dateLimitReason ? '<div class="fr-alert fr-alert--warning fr-alert--sm fr-mt-2w"><p>' + escapeHtml(dateLimitReason) + ' Cette limite se règle dans la Configuration, onglet « Temps et activités », rubrique « Exports PDF ».</p></div>' : '');
+        (dateLimitReason ? '<div class="fr-alert fr-alert--warning fr-alert--sm fr-mt-2w"><p>' + escapeHtml(dateLimitReason) + '</p></div>' : '');
       applyGenerateBtnState(dateLimitReason || ('Aucune occurrence à exporter pour le ' + escapeHtml(fmtDayTitle(day)) + '.'));
       return;
     }
@@ -23517,7 +23779,7 @@ table.req-table th { font-size: 0.95em; }
     // Avertissements (non bloquants) : limite J+3, permanence SOP non assignée, cadres absents mais affectés.
     var alerts = [];
     if (dateLimitReason) {
-      alerts.push('<div class="fr-alert fr-alert--warning fr-alert--sm"><p>' + escapeHtml(dateLimitReason) + ' Cette limite se règle dans la Configuration, onglet « Temps et activités », rubrique « Exports PDF ».</p></div>');
+      alerts.push('<div class="fr-alert fr-alert--warning fr-alert--sm"><p>' + escapeHtml(dateLimitReason) + '</p></div>');
     }
     if (!findPermanenceCadre(splitBySection(occAll).permanences, 'SOP')) {
       alerts.push('<div class="fr-alert fr-alert--warning fr-alert--sm"><p>La permanence SOP n’est pas assignée pour le ' + escapeHtml(fmtDayTitle(day)) + '.</p></div>');
