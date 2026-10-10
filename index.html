@@ -52,6 +52,30 @@
 
 <!-- API du widget Grist -->
 <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+<script>
+// window.alert() est ignoré (sans rien afficher) dans un cadre sans « allow-modals », comme celui d'un widget Grist : les messages d'erreur
+// du widget passaient donc inaperçus. Remplacé par un bandeau non bloquant, qui reste affiché jusqu'à sa fermeture.
+(function () {
+  var box = null;
+  window.alert = function (msg) {
+    if (!box) {
+      box = document.createElement('div');
+      box.setAttribute('role', 'alert');
+      box.style.cssText = 'position:fixed;left:50%;bottom:1rem;transform:translateX(-50%);z-index:4000;display:flex;flex-direction:column;gap:0.5rem;width:min(40rem,calc(100vw - 2rem));pointer-events:none';
+      (document.body || document.documentElement).appendChild(box);
+    }
+    var n = document.createElement('div');
+    n.style.cssText = 'pointer-events:auto;display:flex;gap:0.75rem;align-items:flex-start;padding:0.8rem 1rem;border-radius:0.5rem;border:1px solid var(--border-default-error,#ce0500);border-left-width:6px;background:var(--background-raised-grey,#fff);color:var(--text-default-grey,#161616);box-shadow:0 6px 20px rgba(0,0,0,0.3);font-size:0.9rem;line-height:1.45';
+    var t = document.createElement('div');
+    t.style.cssText = 'flex:1;white-space:pre-line;overflow-wrap:anywhere;max-height:50vh;overflow:auto';
+    t.textContent = String(msg);
+    var x = document.createElement('button');
+    x.type = 'button'; x.textContent = 'Fermer'; x.className = 'fr-btn fr-btn--tertiary fr-btn--sm';
+    x.addEventListener('click', function () { n.remove(); });
+    n.appendChild(t); n.appendChild(x); box.appendChild(n);
+  };
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
@@ -5003,7 +5027,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.44.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.44.1</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -15105,6 +15129,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   // par un texte compréhensible, comme dans le widget Réservations.
   function friendlyErrorMessage(e) {
     var raw = (e && e.message) ? e.message : String(e || '');
+    if (/Unknown forward destination/i.test(raw)) {
+      return 'Le widget n’a pas accès à l’API de Grist (pièces jointes, jeton d’accès). Vérifiez que le widget a bien l’accès « Accès complet au document » (panneau de droite du widget Grist, section Accès aux données) puis rechargez la page. Détail technique : ' + raw;
+    }
     if (/blocked by .*access rules/i.test(raw)) {
       return 'Vous ne disposez pas des droits nécessaires. Contactez l\'équipe projet si vous pensez qu\'il s\'agit d\'une erreur.';
     }
@@ -16199,6 +16226,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   // telles quelles.
   function friendlyErrorMessage(e) {
     var raw = (e && e.message) ? e.message : String(e || '');
+    if (/Unknown forward destination/i.test(raw)) {
+      return 'Le widget n’a pas accès à l’API de Grist (pièces jointes, jeton d’accès). Vérifiez que le widget a bien l’accès « Accès complet au document » (panneau de droite du widget Grist, section Accès aux données) puis rechargez la page. Détail technique : ' + raw;
+    }
     if (/blocked by .*access rules/i.test(raw)) {
       return 'Vous ne disposez pas des droits nécessaires. Contactez l\'équipe projet si vous pensez qu\'il s\'agit d\'une erreur';
     }
@@ -18656,6 +18686,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
   function friendlyErrorMessage(e) {
     var raw = (e && e.message) ? e.message : String(e);
+    if (/Unknown forward destination/i.test(raw)) {
+      return 'Le widget n’a pas accès à l’API de Grist (pièces jointes, jeton d’accès). Vérifiez que le widget a bien l’accès « Accès complet au document » (panneau de droite du widget Grist, section Accès aux données) puis rechargez la page. Détail technique : ' + raw;
+    }
     if (raw && raw.indexOf('Blocked by column update access rules') !== -1) {
       return 'Vous ne disposez pas des droits nécessaires. Contactez l\'équipe projet si vous pensez qu\'il s\'agit d\'une erreur.';
     }
