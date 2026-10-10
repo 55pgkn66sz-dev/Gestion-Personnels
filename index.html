@@ -2482,9 +2482,22 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 .dis-tip[hidden] { display: none; }
 #fsjConfirmModal:not([open]), .fsj-dlg:not([open]) { display: none; }
 #fsjConfirmModal[open], .fsj-dlg[open] { display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; z-index: 2000; margin: 0; padding: 1rem; width: 100%; height: 100%; max-width: none; max-height: none; border: none; background-color: rgba(0, 0, 18, 0.64); overflow-y: auto; }
-#fsjConfirmModal[open] > .fr-container, .fsj-dlg[open] > .fr-container { margin: auto; width: 100%; }
+#fsjConfirmModal[open] > .fr-container, .fsj-dlg[open] > .fr-container { margin: auto !important; width: 100%; align-self: center !important; height: auto !important; }
 #fsjConfirmModal .fr-modal__body, .fsj-dlg .fr-modal__body {
   max-height: calc(100vh - 6rem); overflow-y: auto; background: var(--background-raised-grey); border-radius: 0.5rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
+/* Fenêtre de confirmation : pas d'en-tête, donc marges propres au contenu ; pas de vide sous les boutons. */
+#fsjConfirmModal .fr-modal__content { padding: 1.75rem 2rem 1.5rem; }
+#fsjConfirmModal .fr-modal__title { margin: 0 0 1rem; }
+#fsjConfirmModal #fsjConfirmMsg { margin: 0; }
+#fsjConfirmModal .fr-modal__content, .fsj-dlg .fr-modal__content { margin-bottom: 0; }
+#fsjConfirmModal .fr-btns-group { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: flex-end; gap: 0.5rem; margin: 1.5rem 0 0; }
+#fsjConfirmModal .fr-btns-group > li { width: auto; padding: 0; }
+#fsjConfirmModal .fr-btns-group .fr-btn { width: auto; margin: 0; }
+#fsjConfirmModal .fr-modal__content > :last-child { margin-bottom: 0; }
+/* Fenêtres centrées (le style du DSFR les plaque en bas de l'écran sur petit écran). */
+#fsjConfirmModal::before, #fsjConfirmModal::after, .fsj-dlg::before, .fsj-dlg::after { display: none !important; }
+.fsj-dlg .fr-grid-row { height: auto; align-items: center; }
+.fsj-dlg .fr-modal__body { align-self: center; margin: auto; }
 #fsjPermModal .fsj-perm-row { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr) minmax(0, 1fr); gap: 0.5rem 0.8rem; align-items: end; margin: 0 0 0.9rem; }
 #fsjPermModal .fsj-perm-row .fr-select-group { margin: 0; }
 #fsjPermModal .fsj-perm-code { font-weight: 700; padding-bottom: 0.6rem; }
@@ -5027,7 +5040,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.44.1</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.44.3</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -6178,7 +6191,24 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     showPage(saved.page);
     if (saved.page === 'stats') renderStats();
     if (saved.page === 'faq') buildFaq();
+    if (saved.page === 'res') { // sous-page des ressources (véhicules, matériels, hébergement)
+      var rv = null;
+      try { rv = sessionStorage.getItem('widgetResView'); } catch (e) { rv = null; }
+      if (window.RES && ['vehicules', 'materiels', 'occupants'].indexOf(rv) !== -1) window.RES.setView(rv);
+    }
+    // Position de défilement : retrouvée une fois le contenu rendu.
+    try {
+      var sc = JSON.parse(sessionStorage.getItem('widgetScroll') || 'null');
+      if (sc && sc.page === saved.page && sc.y > 0) [600, 1500].forEach(function (d) { window.setTimeout(function () { window.scrollTo(0, sc.y); }, d); });
+    } catch (e) { /* ignoré */ }
   }
+  (function () { // mémorise la position de défilement de la page courante
+    var t = 0;
+    window.addEventListener('scroll', function () {
+      window.clearTimeout(t);
+      t = window.setTimeout(function () { try { sessionStorage.setItem('widgetScroll', JSON.stringify({ page: currentPage, y: Math.round(window.scrollY) })); } catch (e) { /* ignoré */ } }, 250);
+    }, { passive: true });
+  })();
   grist.onOptions(function (options) {
     if (!lastPageRestored) { lastPageRestored = true; restoreLastPage(); }
     settings = mergeConfig(options && options.candidatsStageConfig);
@@ -15346,6 +15376,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   }
   function setView(view) {
     currentView = view;
+    try { sessionStorage.setItem('widgetResView', view); } catch (e) { /* stockage indisponible */ }
     resMode = 'view';
     renderResPanels();
   }
@@ -23575,7 +23606,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         document.body.appendChild(fsjConfirmDlg);
       }
       var dlg = fsjConfirmDlg, yes = dlg.querySelector('#fsjConfirmYes'), no = dlg.querySelector('#fsjConfirmNo');
-      dlg.querySelector('#fsjConfirmMsg').textContent = message;
+      dlg.querySelector('#fsjConfirmMsg').textContent = String(message).replace(/« /g, '«\u00a0').replace(/ »/g, '\u00a0»'); // pas de guillemet isolé en fin de ligne
       yes.textContent = okLabel || 'OK';
       function done(v) {
         dlg.classList.remove('fr-modal--opened');
