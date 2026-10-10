@@ -387,22 +387,21 @@
   .cand-modal-dialog__contact { margin: 0.3rem 0 0; font-size: 0.9em; font-weight: 400; color: var(--text-mention-grey); }
   .cand-modal-dialog__contact a.fr-link { color: inherit; }
   .cand-modal-dialog__header-actions { display: flex; align-items: center; gap: 0.6rem; flex: none; }
-  .cand-modal-dialog__close {
-    flex: none;
-    margin: -0.25rem -0.25rem 0 0;
-    border-radius: 999px !important;
-    background: var(--background-raised-grey) !important;
+  /* Boutons-icônes de l'en-tête des fiches (précédent, suivant, fermer) : même pastille ronde, 2,5 rem (cible tactile correcte), contour visible,
+     survol et focus marqués ; désactivé = estompé (la raison s'affiche au survol). */
+  .cand-modal-dialog__close, .cand-modal-dialog__nav {
+    flex: none; box-sizing: border-box; width: 2.5rem; height: 2.5rem; min-height: 0; padding: 0; margin: -0.25rem 0 0 0;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 0; line-height: 1;
+    border: 1px solid var(--border-default-grey) !important; border-radius: 999px !important;
+    background: var(--background-raised-grey) !important; color: var(--text-action-high-blue-france) !important; box-shadow: none !important;
+    transition: background-color 0.12s, border-color 0.12s;
   }
-  .cand-modal-dialog__close:hover { background: var(--background-contrast-grey) !important; }
-  /* Précédent / Suivant : même pastille ronde que la fermeture, de part et d'autre. */
-  .cand-modal-dialog__nav {
-    flex: none;
-    margin: -0.25rem 0 0 0;
-    border-radius: 999px !important;
-    background: var(--background-raised-grey) !important;
-  }
-  .cand-modal-dialog__nav:hover:not(:disabled) { background: var(--background-contrast-grey) !important; }
-  .cand-modal-dialog__nav:disabled { opacity: 0.35; cursor: not-allowed; }
+  .cand-modal-dialog__close { margin-right: -0.25rem; }
+  .cand-modal-dialog__close::before, .cand-modal-dialog__nav::before { margin: 0 !important; width: 1.15rem !important; height: 1.15rem !important; }
+  #candModalOverlay .cand-modal-dialog__close, #candModalOverlay .cand-modal-dialog__nav { width: 2.5rem; height: 2.5rem; min-height: 0; max-width: none; max-height: none; padding: 0; } /* l'icône « sm » du DSFR impose 2 rem : on la dépasse */
+  .cand-modal-dialog__close:hover, .cand-modal-dialog__nav:hover:not(:disabled) { background: var(--background-contrast-blue-france, #e3e3fd) !important; border-color: var(--border-action-high-blue-france, #000091) !important; }
+  .cand-modal-dialog__close:focus-visible, .cand-modal-dialog__nav:focus-visible, .stg-depart-flag:focus-visible, button.stg-transport__btn:focus-visible { outline: 2px solid var(--bleu-france, #000091); outline-offset: 2px; }
+  .cand-modal-dialog__nav:disabled { opacity: 0.4; cursor: not-allowed; }
   /* Pastille "mineur", affichée en haut à droite de la modale quand le
      candidat sera mineur au 1er jour de formation — calculé à partir de sa
      date de naissance et de la date du 1er jour de formation (voir
@@ -2505,6 +2504,25 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 #permCard .fr-label { font-size: 0.875rem; font-weight: 700; margin-bottom: 0.3rem; }
 #permCard .fr-input { box-sizing: border-box; width: 100%; max-width: 100%; }
 #permCard #permSaveBtn { margin-top: 0.5rem; }
+/* Page Référent pédagogique */
+#panelReferent .ref-title { margin: 1.5rem 0 0.6rem; }
+#panelReferent .ref-drop { display: flex; align-items: center; gap: 0.9rem; margin: 0 0 0.5rem; padding: 0.9rem 1.1rem; border: 2px dashed var(--border-default-grey); border-radius: 0.5rem; background: var(--background-alt-grey); color: var(--text-default-grey); cursor: pointer; font-size: 0.9rem; }
+#panelReferent .ref-drop:hover, #panelReferent .ref-drop.is-over, #panelReferent .ref-drop:focus-visible { border-color: var(--bleu-france, #000091); background: var(--background-contrast-blue-france, #e3e3fd); }
+#panelReferent .ref-drop > span:first-child { font-size: 1.6rem; color: var(--text-action-high-blue-france); }
+.ref-table { width: 100%; table-layout: auto !important; min-width: 0 !important; }
+.ref-table .ref-num { text-align: right; white-space: nowrap; }
+.ref-table .ref-rank { width: 1%; white-space: nowrap; }
+.ref-table .ref-act { width: 1%; text-align: right; white-space: nowrap; }
+.ref-medal { display: inline-block; min-width: 2.6rem; padding: 0.1rem 0.6rem; border-radius: 999px; font-weight: 700; text-align: center; background: var(--background-contrast-grey); color: var(--text-default-grey); }
+.ref-medal--1 { background: #ffe58a; color: #5c4400; }
+.ref-medal--2 { background: #dfe3ea; color: #2f3640; }
+.ref-medal--3 { background: #f1c9a0; color: #5a3410; }
+.ref-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 1rem; }
+.ref-grid--3 .fr-select-group, .ref-grid--3 .fr-input-group { margin-bottom: 0.75rem; }
+@media (max-width: 40rem) { .ref-grid { grid-template-columns: 1fr; } }
+.ref-actions .ref-del { margin-right: auto; }
+.ref-preview { margin-top: 0.5rem; }
+.ref-preview .ref-bad td { background: var(--statut-pastel-attente); }
 #fsjConfirmModal:not([open]), .fsj-dlg:not([open]) { display: none; }
 #fsjConfirmModal[open], .fsj-dlg[open] { display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; z-index: 2000; margin: 0; padding: 1rem; width: 100%; height: 100%; max-width: none; max-height: none; border: none; background-color: rgba(0, 0, 18, 0.64); overflow-y: auto; }
 #fsjConfirmModal[open] > .fr-container, .fsj-dlg[open] > .fr-container { margin: auto !important; width: 100%; align-self: center !important; height: auto !important; }
@@ -2814,6 +2832,39 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
        rapport à la capture d'écran d'origine (identité en tête, documents
        groupés avec leurs actions, informations complémentaires en bas,
        blocages mis en évidence). -->
+  <div id="panelReferent" hidden>
+    <div class="bulk-head">
+      <h2 class="fr-h6">Référent pédagogique</h2>
+      <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-arrow-left-line fr-btn--icon-left" id="refBackBtn" type="button">Retour aux stagiaires</button>
+    </div>
+    <div class="cand-toolbar">
+      <div class="tb-field tb-search">
+        <span class="tb-lbl" aria-hidden="true">Rechercher un stagiaire</span>
+        <div class="fr-search-bar fr-search-bar--sm" role="search">
+          <label class="fr-label" for="refSearchInput">Rechercher un stagiaire</label>
+          <input class="fr-input" type="search" id="refSearchInput" placeholder="Nom, peloton, affectation…">
+          <button class="fr-btn fr-btn--sm" type="button" title="Rechercher" tabindex="-1">Rechercher</button>
+        </div>
+      </div>
+      <p class="cand-count cand-count--push" id="refCount"></p>
+      <div class="tb-actions">
+        <button class="fr-btn fr-btn--secondary fr-icon-refresh-line fr-btn--icon-left tb-ghost" id="refReloadBtn" type="button" title="Recharger les notes depuis la table Grist">Actualiser</button>
+        <button class="fr-btn fr-btn--secondary fr-icon-upload-line fr-btn--icon-left tb-ghost" id="refImportBtn" type="button" title="Verser un fichier .csv de notes">Importer un fichier CSV</button>
+        <button class="fr-btn fr-icon-add-line fr-btn--icon-left" id="refAddBtn" type="button">Ajouter une note</button>
+      </div>
+    </div>
+    <div id="refStatus" aria-live="polite"></div>
+    <div class="ref-drop" id="refDrop" role="button" tabindex="0" aria-label="Verser un fichier CSV de notes : cliquer ou déposer le fichier">
+      <span class="fr-icon-upload-line" aria-hidden="true"></span>
+      <span><strong>Glissez un fichier .csv de notes ici</strong> ou cliquez pour le choisir. Les colonnes (stagiaire, note, matière, note max, coefficient) sont reconnues automatiquement.</span>
+      <input type="file" id="refFile" accept=".csv,.txt,text/csv" hidden>
+    </div>
+    <h3 class="fr-h6 ref-title">Classement général</h3>
+    <div id="refRanking"></div>
+    <h3 class="fr-h6 ref-title">Notes saisies</h3>
+    <div id="refNotes"></div>
+  </div>
+
   <div id="panelEtuteur" hidden>
     <div class="bulk-head">
       <h2 class="fr-h6">Candidats au stage</h2>
@@ -4196,6 +4247,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         <button class="fr-btn fr-btn--secondary fr-icon-teacher-line fr-btn--icon-left tb-ghost" id="navEtuteur" type="button" title="Ouvrir le suivi des dossiers eTuteur (pièces des candidats)">
           eTuteur
         </button>
+        <button class="fr-btn fr-btn--secondary fr-icon-award-line fr-btn--icon-left tb-ghost" id="navReferent" type="button" title="Référent pédagogique : notes, moyennes et classement des stagiaires">
+          Référent pédagogique
+        </button>
         <button class="fr-btn fr-btn--secondary fr-icon-refresh-line fr-btn--icon-left tb-ghost" id="stgReloadBtn" type="button" title="Recharger les stagiaires depuis la table Grist">
           Actualiser
         </button>
@@ -5066,7 +5120,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.48.1</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.50.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -5343,6 +5397,27 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var attachPreview = document.getElementById('attachPreview');
   var candModalOverlay = document.getElementById('candModalOverlay');
   var candModalStack = document.getElementById('candModalStack');
+  // Boutons-icônes des fiches (sans texte visible) : le titre natif est remplacé par une infobulle thématisée (data-tip), avec un nom accessible ;
+  // un bouton désactivé (premier / dernier élément) explique pourquoi.
+  function iconTips() {
+    Array.prototype.forEach.call(candModalOverlay.querySelectorAll('button'), function (b) {
+      var visible = (b.textContent || '').trim();
+      var isIcon = b.classList.contains('cand-modal-dialog__nav') || b.classList.contains('cand-modal-dialog__close') || b.classList.contains('stg-depart-flag') || b.classList.contains('stg-transport__btn') || !visible;
+      if (!isIcon) return;
+      var tip = b.getAttribute('data-tip') || b.title || visible;
+      if (b.classList.contains('cand-modal-dialog__close')) tip = 'Fermer (Échap)';
+      if (!tip) return;
+      b.removeAttribute('title');
+      b.setAttribute('data-tip', tip);
+      if (!b.getAttribute('aria-label')) b.setAttribute('aria-label', tip);
+      if (b.classList.contains('cand-modal-dialog__nav')) {
+        if (b.disabled) b.setAttribute('data-reason', blockedTipHtml(b.textContent.trim() === 'Précédent' ? 'Pas de fiche précédente.' : 'Pas de fiche suivante.', ['C’est ' + (b.textContent.trim() === 'Précédent' ? 'la première' : 'la dernière') + ' fiche de la liste affichée.']));
+        else b.removeAttribute('data-reason');
+      }
+    });
+  }
+  function blockedTipHtml(heading, lines) { return '<strong>' + heading + '</strong><br>' + lines.join('<br>'); }
+  new MutationObserver(function () { iconTips(); }).observe(candModalOverlay, { childList: true, subtree: true });
   // Identifiants des lignes actuellement affichées (filtrées et triées) dans chaque
   // liste : servent aux boutons Précédent / Suivant de la modale.
   var displayedIds = { etuteur: [], stagiaire: [], encadrement: [] };
@@ -5441,6 +5516,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (hideEtuteur && currentPage === 'etuteur') currentPage = 'stagiaires';
     panelSettings.hidden = !settingsOpen;
     panelEtuteur.hidden = settingsOpen || currentPage !== 'etuteur';
+    document.getElementById('panelReferent').hidden = settingsOpen || currentPage !== 'referent';
     document.getElementById('panelWelcome').hidden = settingsOpen || currentPage !== 'welcome';
     panelStagiaires.hidden = settingsOpen || currentPage !== 'stagiaires';
     panelEncadrement.hidden = settingsOpen || currentPage !== 'encadrement';
@@ -5469,7 +5545,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       if (currentPage === pair[1]) pair[0].setAttribute('aria-current', 'page');
       else pair[0].removeAttribute('aria-current');
     });
-    if (['stagiaires', 'etuteur', 'encadrement', 'stats'].indexOf(currentPage) !== -1) navStgMenu.setAttribute('aria-current', 'true'); else navStgMenu.removeAttribute('aria-current');
+    if (['stagiaires', 'etuteur', 'referent', 'encadrement', 'stats'].indexOf(currentPage) !== -1) navStgMenu.setAttribute('aria-current', 'true'); else navStgMenu.removeAttribute('aria-current');
   }
   var fsjView = 'progression', fsjStarted = false;
   function openFsj(view) {
@@ -6224,9 +6300,10 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function restoreLastPage() {
     var saved = null;
     try { saved = JSON.parse(sessionStorage.getItem('widgetLastPage') || 'null'); } catch (e) { saved = null; }
-    if (!saved || ['stagiaires', 'etuteur', 'encadrement', 'stats', 'faq', 'bulk', 'res', 'fsj'].indexOf(saved.page) === -1) return;
+    if (!saved || ['stagiaires', 'etuteur', 'referent', 'encadrement', 'stats', 'faq', 'bulk', 'res', 'fsj'].indexOf(saved.page) === -1) return;
     if (saved.page === 'fsj') { openFsj(['progression', 'generer', 'absences'].indexOf(saved.fsjView) !== -1 ? saved.fsjView : 'progression'); return; }
     showPage(saved.page);
+    if (saved.page === 'referent') loadNotes();
     if (saved.page === 'stats') renderStats();
     if (saved.page === 'faq') buildFaq();
     if (saved.page === 'res') { // sous-page des ressources (véhicules, matériels, hébergement)
@@ -6266,6 +6343,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
   // Rend les deux pages (eTuteur et Stagiaires) depuis les mêmes données.
   function renderAll() {
+    renderReferent();
     renderCandidates();
     renderStagiaires();
     renderBulk();
@@ -6275,6 +6353,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   }
 
   function loadCandidates() {
+    loadNotes();
     loadBulk();
     loadEncadrement();
     loadAppreciations();
@@ -8545,6 +8624,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function buildStgNotationTab(row) {
     var wrap = document.createElement('div');
     wrap.className = 'stg-docs-tab';
+    var notesCard = buildNotesCard(row); // notes, moyenne et classement : avant les appréciations
+    if (notesCard) wrap.appendChild(notesCard);
     if (appr.loaded) {
       if (appr.domains.length) wrap.appendChild(buildApprSection(row));
       else {
@@ -15212,6 +15293,417 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   // Grist renvoie un message technique en anglais lorsque les règles
   // d'accès du document interdisent l'écriture demandée : on le remplace
   // par un texte compréhensible, comme dans le widget Réservations.
+  // ==== Page cachée « Référent pédagogique » : notes des stagiaires, moyenne et classement ==================
+  // Table « Notation stagiaires » (Stagiaire, Note, Matière, Note max, Coeff). Les notes se saisissent à la main ou se versent par fichier CSV
+  // (colonnes reconnues automatiquement). Moyenne = moyenne pondérée ramenée sur 20 ; classement parmi les stagiaires présents (non partis).
+  var NOTES_TABLE_KEY = 'NOTATIONSTAGIAIRES';
+  var notes = { loaded: false, error: '', tableId: '', cols: {}, rows: [], version: 0 };
+  var refFilters = { sexe: [], pon: [], affectation: [] };
+  var refSearch = '';
+  var refExpanded = false;
+  function refKey(v) { return String(v === null || v === undefined ? '' : v).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]/g, '').toUpperCase(); }
+  function refNum(v) {
+    if (v === null || v === undefined || v === '') return null;
+    if (typeof v === 'number') return isFinite(v) ? v : null;
+    var n = Number(String(v).replace(/\s/g, '').replace(',', '.'));
+    return isFinite(n) && String(v).trim() !== '' ? n : null;
+  }
+  function refFmt(n, d) { return n === null || n === undefined || isNaN(n) ? '—' : n.toLocaleString('fr-FR', { minimumFractionDigits: d === undefined ? 2 : d, maximumFractionDigits: d === undefined ? 2 : d }); }
+  function refOrdinal(n, tie) { return (n === 1 ? '1er' : n + 'e') + (tie ? ' ex æquo' : ''); }
+
+  function loadNotes() {
+    return grist.docApi.listTables().then(function (tables) {
+      var tid = null;
+      (tables || []).forEach(function (t) { if (!tid && refKey(t) === NOTES_TABLE_KEY) tid = t; });
+      if (!tid) { notes = { loaded: false, error: 'Table « Notation stagiaires » introuvable dans ce document.', tableId: '', cols: {}, rows: [], version: notes.version + 1 }; return; }
+      return grist.docApi.fetchTable(tid).then(function (data) {
+        var want = { stagiaire: ['STAGIAIRE'], note: ['NOTE'], matiere: ['MATIERE'], max: ['NOTEMAX', 'NOTEMAXIMALE', 'MAX'], coeff: ['COEFF', 'COEFFICIENT', 'COEF'] };
+        var cols = {};
+        Object.keys(data || {}).forEach(function (c) { var k = refKey(c); Object.keys(want).forEach(function (r) { if (!cols[r] && want[r].indexOf(k) !== -1) cols[r] = c; }); });
+        var rows = (data.id || []).map(function (id, i) {
+          function cell(r) { return cols[r] && data[cols[r]] ? data[cols[r]][i] : null; }
+          var stg = cell('stagiaire');
+          if (Array.isArray(stg)) stg = null;
+          return { id: id, stg: typeof stg === 'number' && stg > 0 ? stg : null, stgRaw: stg, note: refNum(cell('note')), matiere: textOf(cell('matiere')), max: refNum(cell('max')), coeff: refNum(cell('coeff')) };
+        });
+        notes = { loaded: true, error: cols.stagiaire && cols.note ? '' : 'Colonnes « Stagiaire » et « Note » introuvables dans la table « ' + tid + ' ».', tableId: tid, cols: cols, rows: rows, version: notes.version + 1 };
+      });
+    }).catch(function (e) {
+      notes = { loaded: false, error: 'Lecture des notes impossible : ' + friendlyErrorMessage(e), tableId: '', cols: {}, rows: [], version: notes.version + 1 };
+    }).then(function () { renderReferent(); if (currentModalRowId !== null && currentModalKind !== 'encadrement') renderModalContent(); });
+  }
+
+  // Statistiques : par stagiaire { moy (sur 20), n, rank, tie } ; classement = stagiaires présents, par moyenne décroissante.
+  var notesStatsCache = { version: -1, rowsRef: null, value: null };
+  function notesStats() {
+    if (notesStatsCache.version === notes.version && notesStatsCache.rowsRef === candidates.rows) return notesStatsCache.value;
+    var by = {};
+    notes.rows.forEach(function (r) {
+      if (!r.stg || r.note === null) return;
+      var max = r.max && r.max > 0 ? r.max : 20, coeff = r.coeff !== null && r.coeff > 0 ? r.coeff : 1;
+      var s = by[r.stg] || (by[r.stg] = { sum: 0, w: 0, n: 0 });
+      s.sum += (r.note / max) * 20 * coeff; s.w += coeff; s.n++;
+    });
+    var list = [];
+    candidates.rows.forEach(function (row) {
+      var s = by[row.id];
+      if (!s || !s.w) return;
+      var st = { row: row, moy: s.sum / s.w, n: s.n, left: stgHasLeft(row) };
+      by[row.id] = st;
+      if (!st.left) list.push(st);
+    });
+    list.sort(function (a, b) { return b.moy - a.moy || compareCandidatesByName(a.row, b.row); });
+    list.forEach(function (st, i) {
+      var prev = list[i - 1];
+      st.rank = prev && Math.round(prev.moy * 100) === Math.round(st.moy * 100) ? prev.rank : i + 1;
+    });
+    list.forEach(function (st) { st.tie = list.filter(function (o) { return o.rank === st.rank; }).length > 1; });
+    var out = { by: by, ranking: list };
+    notesStatsCache = { version: notes.version, rowsRef: candidates.rows, value: out };
+    return out;
+  }
+
+  function refSexe(row) {
+    var extra = row.__extra || {}, labels = columnLabels[settings.table] || {}, v = '';
+    Object.keys(extra).forEach(function (c) { if (!v && refKey(labels[c] || c) === 'SEXE') v = textOf(extra[c]); });
+    if (!v) v = textOf(row.civilite);
+    var k = refKey(v);
+    if (!k) return '';
+    if (/^(F|FEM|FEMME|FEMININ|MME|MADAME|MLLE|MADEMOISELLE)/.test(k)) return 'Femmes';
+    if (/^(M|H|HOM|HOMME|MASC|MASCULIN|MR|MONSIEUR)/.test(k)) return 'Hommes';
+    return '';
+  }
+  function refAttr(row, key) { return key === 'sexe' ? refSexe(row) : textOf(row[key]).trim(); }
+  function refPasses(row) {
+    if (refSearch.trim()) {
+      var np = nameParts(row), hay = normalizeKey([np.nom, np.prenom, textOf(row.pon), textOf(row.affectation), textOf(row.nid)].join(' '));
+      if (hay.indexOf(normalizeKey(refSearch)) === -1) return false;
+    }
+    return ['sexe', 'pon', 'affectation'].every(function (k) { return !refFilters[k].length || refFilters[k].indexOf(refAttr(row, k)) !== -1; });
+  }
+  function refIsFiltered() { return !!refSearch.trim() || ['sexe', 'pon', 'affectation'].some(function (k) { return refFilters[k].length; }); }
+
+  var panelReferent = document.getElementById('panelReferent');
+  var refStatus = document.getElementById('refStatus');
+  function refShow(type, msg) { refStatus.innerHTML = ''; if (!msg) return; var d = document.createElement('div'); d.className = 'fr-alert fr-alert--' + type + ' fr-alert--sm fr-mb-2w'; d.innerHTML = '<p></p>'; d.firstChild.textContent = msg; refStatus.appendChild(d); }
+  function refStgLabel(id) { var r = candidates.rows.filter(function (x) { return x.id === id; })[0]; if (!r) return '(stagiaire supprimé)'; var np = nameParts(r); return [np.nom, np.prenom].filter(Boolean).join(' ') || stagiaireDisplayName(r); }
+
+  function renderReferent() {
+    if (!panelReferent || panelReferent.hidden) return;
+    var zoneR = document.getElementById('refRanking'), zoneN = document.getElementById('refNotes'), count = document.getElementById('refCount');
+    if (!candidates.loaded) { zoneR.innerHTML = '<p class="fr-hint-text">Chargement des stagiaires…</p>'; zoneN.innerHTML = ''; count.textContent = ''; return; }
+    if (notes.error && !notes.loaded) { refShow('error', notes.error); zoneR.innerHTML = ''; zoneN.innerHTML = ''; count.textContent = ''; return; }
+    if (notes.error) refShow('warning', notes.error); else if (!refStatus.querySelector('.fr-alert--success')) refShow('', '');
+    var st = notesStats(), ranking = st.ranking.filter(function (s) { return refPasses(s.row); });
+    count.textContent = ranking.length + ' stagiaire(s) classé(s)' + (refIsFiltered() ? ' (filtré)' : '') + ' sur ' + st.ranking.length + ' · ' + notes.rows.length + ' note(s)';
+    // -- classement général : 3 premiers, bouton pour développer
+    var shown = refExpanded ? ranking : ranking.slice(0, 3);
+    var html = '';
+    if (!ranking.length) html = '<p class="fr-hint-text">' + (st.ranking.length ? 'Aucun stagiaire ne correspond à la recherche.' : 'Aucune note enregistrée : ajoutez des notes ou versez un fichier CSV.') + '</p>';
+    else {
+      html = '<div class="req-table-wrap"><table class="req-table ref-table"><caption class="fr-sr-only">Classement général</caption><thead><tr><th scope="col" class="ref-rank">Rang</th><th scope="col">Stagiaire</th><th scope="col">Peloton</th><th scope="col">Affectation</th><th scope="col" class="ref-num">Moyenne /20</th><th scope="col" class="ref-num">Notes</th></tr></thead><tbody>' +
+        shown.map(function (s) {
+          var np = nameParts(s.row);
+          return '<tr data-stg="' + s.row.id + '"><td class="ref-rank" data-label="Rang"><span class="ref-medal ref-medal--' + Math.min(s.rank, 4) + '">' + escapeHtml(refOrdinal(s.rank, s.tie)) + '</span></td>' +
+            '<td data-label="Stagiaire"><strong>' + escapeHtml(np.nom) + '</strong> ' + escapeHtml(np.prenom) + '</td><td data-label="Peloton">' + escapeHtml(textOf(s.row.pon)) + '</td><td data-label="Affectation">' + escapeHtml(textOf(s.row.affectation)) + '</td>' +
+            '<td class="ref-num" data-label="Moyenne /20"><strong>' + refFmt(s.moy) + '</strong></td><td class="ref-num" data-label="Notes">' + s.n + '</td></tr>';
+        }).join('') + '</tbody></table></div>';
+      if (ranking.length > 3) html += '<button type="button" class="fr-btn fr-btn--tertiary fr-btn--sm fr-mt-1w" id="refToggleBtn">' + (refExpanded ? 'Réduire au podium' : 'Afficher tout le classement (' + ranking.length + ')') + '</button>';
+    }
+    zoneR.innerHTML = html;
+    var tg = document.getElementById('refToggleBtn'); if (tg) tg.addEventListener('click', function () { refExpanded = !refExpanded; renderReferent(); });
+    Array.prototype.forEach.call(zoneR.querySelectorAll('tr[data-stg]'), function (tr) { tr.style.cursor = 'pointer'; tr.title = 'Ouvrir la fiche (onglet Notation)'; tr.addEventListener('click', function () { openCandidateModal(Number(tr.getAttribute('data-stg')), 'stagiaire'); }); });
+    // -- notes saisies
+    var list = notes.rows.filter(function (r) { var row = r.stg ? candidates.rows.filter(function (x) { return x.id === r.stg; })[0] : null; return row ? refPasses(row) : !refIsFiltered(); });
+    list.sort(function (a, b) { return nameCollator.compare(a.matiere, b.matiere) || nameCollator.compare(refStgLabel(a.stg), refStgLabel(b.stg)); });
+    if (!list.length) zoneN.innerHTML = '<p class="fr-hint-text">Aucune note à afficher.</p>';
+    else zoneN.innerHTML = '<div class="req-table-wrap"><table class="req-table ref-table"><caption class="fr-sr-only">Notes saisies</caption><thead><tr><th scope="col">Matière</th><th scope="col">Stagiaire</th><th scope="col" class="ref-num">Note</th><th scope="col" class="ref-num">Coeff</th><th scope="col" class="ref-act"><span class="fr-sr-only">Actions</span></th></tr></thead><tbody>' +
+      list.map(function (r) {
+        return '<tr data-note="' + r.id + '"><td data-label="Matière">' + escapeHtml(r.matiere || '—') + '</td><td data-label="Stagiaire">' + escapeHtml(refStgLabel(r.stg)) + '</td>' +
+          '<td class="ref-num" data-label="Note">' + refFmt(r.note) + ' / ' + refFmt(r.max !== null ? r.max : 20, r.max !== null && r.max % 1 !== 0 ? 2 : 0) + '</td><td class="ref-num" data-label="Coeff">' + refFmt(r.coeff !== null ? r.coeff : 1, 1) + '</td>' +
+          '<td class="ref-act" data-label="Actions"><button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-edit-line" data-edit="' + r.id + '" title="Modifier la note"><span class="fr-sr-only">Modifier</span></button></td></tr>';
+      }).join('') + '</tbody></table></div>';
+    Array.prototype.forEach.call(zoneN.querySelectorAll('[data-edit]'), function (b) { b.addEventListener('click', function () { openNoteDialog(Number(b.getAttribute('data-edit'))); }); });
+    Array.prototype.forEach.call(zoneN.querySelectorAll('tr[data-note]'), function (tr) { tr.addEventListener('dblclick', function () { openNoteDialog(Number(tr.getAttribute('data-note'))); }); });
+  }
+
+  // -- barre de recherche et affichages rapides (sexe, peloton, affectation : cumulables)
+  (function () {
+    var inp = document.getElementById('refSearchInput');
+    inp.addEventListener('input', function () { refSearch = inp.value; renderReferent(); });
+    function reset() { refFilters = { sexe: [], pon: [], affectation: [] }; refSearch = ''; inp.value = ''; renderReferent(); }
+    attachSearchPanel(inp, function () {
+      var out = [], pool = candidates.rows.filter(function (r) { return notesStats().by[r.id]; });
+      if (!pool.length) pool = candidates.rows;
+      [['sexe', 'Affichage rapide par sexe'], ['pon', 'Affichage rapide par peloton'], ['affectation', 'Affichage rapide par affectation']].forEach(function (d) {
+        var counts = {};
+        pool.forEach(function (r) { var v = refAttr(r, d[0]); if (v) counts[v] = (counts[v] || 0) + 1; });
+        Object.keys(counts).sort(function (a, b) { return nameCollator.compare(a, b); }).forEach(function (v) {
+          out.push({ sec: d[1], l: v + ' (' + counts[v] + ')', keep: true, on: function () { return refFilters[d[0]].indexOf(v) !== -1; },
+            run: function () { var a = refFilters[d[0]], i = a.indexOf(v); if (i === -1) a.push(v); else a.splice(i, 1); renderReferent(); } });
+        });
+      });
+      return out;
+    }, reset);
+    document.getElementById('refReloadBtn').addEventListener('click', function () { loadNotes(); });
+    document.getElementById('refAddBtn').addEventListener('click', function () { openNoteDialog(null); });
+    document.getElementById('refImportBtn').addEventListener('click', function () { document.getElementById('refFile').click(); });
+  })();
+
+  // -- boîtes de dialogue (créées à la demande)
+  function refDialog(id, title) {
+    var d = document.getElementById(id);
+    if (!d) {
+      d = document.createElement('dialog');
+      d.id = id; d.className = 'fr-modal fsj-dlg'; d.setAttribute('aria-labelledby', id + 'Title');
+      d.innerHTML = '<div class="fr-container fr-container--fluid fr-container-md"><div class="fr-grid-row fr-grid-row--center"><div class="fr-col-12 fr-col-md-10 fr-col-lg-8"><div class="fr-modal__body"><div class="fr-modal__header"><button type="button" class="fr-btn--close fr-btn" data-close title="Fermer">Fermer</button></div><div class="fr-modal__content"><h1 class="fr-modal__title" id="' + id + 'Title"></h1><div data-body></div></div></div></div></div></div>';
+      document.body.appendChild(d);
+      d.querySelector('[data-close]').addEventListener('click', function () { refCloseDialog(d); });
+      d.addEventListener('click', function (e) { if (e.target === d) refCloseDialog(d); });
+    }
+    d.querySelector('.fr-modal__title').textContent = title;
+    return d;
+  }
+  function refOpenDialog(d) { d.open = true; d.classList.add('fr-modal--opened'); }
+  function refCloseDialog(d) { d.classList.remove('fr-modal--opened'); d.open = false; }
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') ['refNoteDlg', 'refImportDlg'].forEach(function (id) { var d = document.getElementById(id); if (d && d.open) refCloseDialog(d); }); });
+  function refWritable() {
+    if (!notes.loaded || !notes.tableId || !notes.cols.stagiaire || !notes.cols.note) { window.alert('La table « Notation stagiaires » (colonnes Stagiaire et Note) est introuvable : saisie impossible.'); return false; }
+    return true;
+  }
+  function refFields(v) {
+    var f = {}, c = notes.cols;
+    f[c.stagiaire] = v.stg; f[c.note] = v.note;
+    if (c.matiere) f[c.matiere] = v.matiere;
+    if (c.max) f[c.max] = v.max;
+    if (c.coeff) f[c.coeff] = v.coeff;
+    return f;
+  }
+
+  // Saisie / modification d'une note
+  function openNoteDialog(noteId) {
+    if (!refWritable()) return;
+    var cur = noteId ? notes.rows.filter(function (r) { return r.id === noteId; })[0] : null;
+    var d = refDialog('refNoteDlg', cur ? 'Modifier la note' : 'Ajouter une note'), body = d.querySelector('[data-body]');
+    var stagiaires = candidates.rows.filter(function (r) { return !stgHasLeft(r) || (cur && cur.stg === r.id); }).sort(compareCandidatesByName);
+    var matieres = {}; notes.rows.forEach(function (r) { if (r.matiere) matieres[r.matiere] = true; });
+    body.innerHTML = '<div id="refNoteStatus" aria-live="polite"></div>' +
+      '<div class="fr-select-group"><label class="fr-label" for="refNoteStg">Stagiaire</label><select class="fr-select" id="refNoteStg"><option value="">Choisir un stagiaire…</option>' +
+      stagiaires.map(function (r) { var np = nameParts(r); return '<option value="' + r.id + '">' + escapeHtml([np.nom, np.prenom].filter(Boolean).join(' ')) + (textOf(r.pon) ? ' (' + escapeHtml(textOf(r.pon)) + ')' : '') + '</option>'; }).join('') + '</select></div>' +
+      '<div class="fr-input-group"><label class="fr-label" for="refNoteMat">Matière</label><input class="fr-input" id="refNoteMat" type="text" list="refMatList" autocomplete="off"><datalist id="refMatList">' + Object.keys(matieres).map(function (m) { return '<option value="' + escapeHtml(m) + '">'; }).join('') + '</datalist></div>' +
+      '<div class="ref-grid"><div class="fr-input-group"><label class="fr-label" for="refNoteVal">Note</label><input class="fr-input" id="refNoteVal" type="text" inputmode="decimal" autocomplete="off"></div>' +
+      '<div class="fr-input-group"><label class="fr-label" for="refNoteMax">Note maximale <span class="fr-hint-text">la note est sur…</span></label><input class="fr-input" id="refNoteMax" type="text" inputmode="decimal" autocomplete="off"></div>' +
+      '<div class="fr-input-group"><label class="fr-label" for="refNoteCoeff">Coefficient</label><input class="fr-input" id="refNoteCoeff" type="text" inputmode="decimal" autocomplete="off"></div></div>' +
+      '<ul class="fr-btns-group fr-btns-group--inline-md fr-btns-group--right fr-mt-2w ref-actions">' + (cur ? '<li class="ref-del"><button type="button" class="fr-btn fr-btn--tertiary" id="refNoteDel">Supprimer</button></li>' : '') +
+      '<li><button type="button" class="fr-btn fr-btn--secondary" id="refNoteCancel">Annuler</button></li><li><button type="button" class="fr-btn" id="refNoteSave">Enregistrer</button></li></ul>';
+    var $ = function (i) { return body.querySelector('#' + i); };
+    $('refNoteStg').value = cur && cur.stg ? String(cur.stg) : '';
+    $('refNoteMat').value = cur ? cur.matiere : '';
+    $('refNoteVal').value = cur && cur.note !== null ? String(cur.note).replace('.', ',') : '';
+    $('refNoteMax').value = cur && cur.max !== null ? String(cur.max).replace('.', ',') : '20';
+    $('refNoteCoeff').value = cur && cur.coeff !== null ? String(cur.coeff).replace('.', ',') : '1';
+    $('refNoteCancel').addEventListener('click', function () { refCloseDialog(d); });
+    function err(m) { var z = $('refNoteStatus'); z.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w"><p></p></div>'; z.querySelector('p').textContent = m; }
+    $('refNoteSave').addEventListener('click', function () {
+      var stg = Number($('refNoteStg').value), note = refNum($('refNoteVal').value), max = refNum($('refNoteMax').value), coeff = refNum($('refNoteCoeff').value);
+      if (!stg) return err('Choisissez un stagiaire.');
+      if (note === null) return err('Saisissez la note.');
+      if (max === null || max <= 0) return err('La note maximale doit être un nombre positif (5, 10, 20…).');
+      if (note < 0 || note > max) return err('La note doit être comprise entre 0 et ' + refFmt(max, max % 1 ? 2 : 0) + '.');
+      if (coeff === null || coeff <= 0) return err('Le coefficient doit être un nombre positif.');
+      var fields = refFields({ stg: stg, note: note, matiere: $('refNoteMat').value.trim(), max: max, coeff: coeff });
+      var btn = $('refNoteSave'); btn.disabled = true;
+      var action = cur ? ['UpdateRecord', notes.tableId, cur.id, fields] : ['AddRecord', notes.tableId, null, fields];
+      grist.docApi.applyUserActions([action]).then(function () { refCloseDialog(d); refShow('success', cur ? 'Note modifiée.' : 'Note ajoutée.'); return loadNotes(); })
+        .catch(function (e) { btn.disabled = false; err('Enregistrement impossible : ' + friendlyErrorMessage(e)); });
+    });
+    var del = $('refNoteDel');
+    if (del) del.addEventListener('click', function () {
+      if (!del._sure) { del._sure = true; del.textContent = 'Confirmer la suppression'; return; }
+      del.disabled = true;
+      grist.docApi.applyUserActions([['RemoveRecord', notes.tableId, cur.id]]).then(function () { refCloseDialog(d); refShow('success', 'Note supprimée.'); return loadNotes(); })
+        .catch(function (e) { del.disabled = false; err('Suppression impossible : ' + friendlyErrorMessage(e)); });
+    });
+    refOpenDialog(d);
+  }
+
+  // -- Versement d'un fichier CSV : glisser-déposer ou clic, colonnes reconnues automatiquement
+  function refParseCsv(text) {
+    text = String(text || '').replace(/^﻿/, '');
+    var first = text.split(/\r?\n/, 1)[0] || '', delim = ';';
+    var counts = { ';': (first.match(/;/g) || []).length, ',': (first.match(/,/g) || []).length, '\t': (first.match(/\t/g) || []).length };
+    delim = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; })[0];
+    if (!counts[delim]) delim = ';';
+    var rows = [], row = [], cell = '', q = false;
+    for (var i = 0; i < text.length; i++) {
+      var ch = text[i];
+      if (q) { if (ch === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += ch; }
+      else if (ch === '"') q = true;
+      else if (ch === delim) { row.push(cell); cell = ''; }
+      else if (ch === '\n' || ch === '\r') { if (ch === '\r' && text[i + 1] === '\n') i++; row.push(cell); cell = ''; if (row.some(function (c) { return String(c).trim() !== ''; })) rows.push(row); row = []; }
+      else cell += ch;
+    }
+    row.push(cell); if (row.some(function (c) { return String(c).trim() !== ''; })) rows.push(row);
+    return rows;
+  }
+  var REF_COL_HINTS = {
+    nid: ['NID'],
+    stagiaire: ['STAGIAIRE', 'NOMPRENOM', 'IDENTITE', 'CANDIDAT', 'ELEVE', 'NOM'],
+    prenom: ['PRENOM'],
+    note: ['NOTE', 'RESULTAT', 'POINTS', 'SCORE'],
+    matiere: ['MATIERE', 'EPREUVE', 'MODULE', 'DISCIPLINE', 'EVALUATION', 'INTITULE'],
+    max: ['NOTEMAX', 'NOTEMAXIMALE', 'SUR', 'BAREME', 'MAXIMUM', 'MAX'],
+    coeff: ['COEFF', 'COEFFICIENT', 'COEF']
+  };
+  function refDetect(headers) {
+    var map = {}, used = {};
+    ['nid', 'note', 'max', 'coeff', 'matiere', 'prenom', 'stagiaire'].forEach(function (role) {
+      REF_COL_HINTS[role].some(function (hint) {
+        for (var i = 0; i < headers.length; i++) if (!used[i] && refKey(headers[i]) === hint) { map[role] = i; used[i] = true; return true; }
+        return false;
+      });
+    });
+    return map;
+  }
+  function refMatchStagiaire(nidVal, nameVal, prenomVal) {
+    var tokens = refKey2(String(nameVal || '') + ' ' + String(prenomVal || ''));
+    function byName(pool) {
+      if (!tokens.length) return [];
+      return pool.filter(function (r) { var np = nameParts(r), t = refKey2(np.nom + ' ' + np.prenom); return t.length >= 2 && t.every(function (x) { return tokens.indexOf(x) !== -1; }); });
+    }
+    var nk = nidKey(nidVal);
+    if (nk) {
+      var byNid = candidates.rows.filter(function (r) { return nidKey(r.nid) === nk; });
+      if (byNid.length === 1) return byNid[0];
+      if (byNid.length > 1) { // fiches en double (même NID) : le nom départage, à défaut la plus récente
+        var narrowed = byName(byNid);
+        var pick = (narrowed.length ? narrowed : byNid).slice().sort(function (a, b) { return b.id - a.id; });
+        return pick[0];
+      }
+    }
+    var found = byName(candidates.rows);
+    if (found.length === 1) return found[0];
+    if (found.length > 1) { // plusieurs fiches de même nom (doublons) : la plus récente
+      var uniqueNids = {}; found.forEach(function (r) { uniqueNids[nidKey(r.nid) || ('id' + r.id)] = 1; });
+      if (Object.keys(uniqueNids).length === 1) return found.slice().sort(function (a, b) { return b.id - a.id; })[0];
+      return null;
+    }
+    if (!prenomVal && tokens.length) { // nom de famille seul
+      var byNom = candidates.rows.filter(function (r) { var tn = refKey2(nameParts(r).nom); return tn.length && tn.every(function (x) { return tokens.indexOf(x) !== -1; }) && tokens.length <= tn.length; });
+      if (byNom.length === 1) return byNom[0];
+    }
+    return null;
+  }
+  function refKey2(v) { return String(v || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, ' ').trim().toUpperCase().split(' ').filter(Boolean); }
+
+  function refHandleFile(file) {
+    if (!file) return;
+    if (!refWritable()) return;
+    var reader = new FileReader();
+    reader.onerror = function () { refShow('error', 'Lecture du fichier impossible.'); };
+    reader.onload = function () {
+      var rows = refParseCsv(reader.result);
+      if (rows.length < 2) { refShow('error', 'Le fichier ne contient pas de ligne de notes (une ligne d’en-têtes, puis une ligne par note).'); return; }
+      openImportDialog(file.name, rows);
+    };
+    reader.readAsText(file, 'utf-8');
+  }
+  (function () {
+    var fileInput = document.getElementById('refFile'), drop = document.getElementById('refDrop');
+    fileInput.addEventListener('change', function () { var f = fileInput.files && fileInput.files[0]; fileInput.value = ''; refHandleFile(f); });
+    drop.addEventListener('click', function () { fileInput.click(); });
+    drop.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); } });
+    ['dragenter', 'dragover'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('is-over'); }); });
+    ['dragleave', 'drop'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove('is-over'); }); });
+    drop.addEventListener('drop', function (e) { var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; refHandleFile(f); });
+  })();
+
+  function openImportDialog(fileName, rows) {
+    var d = refDialog('refImportDlg', 'Verser des notes : ' + fileName), body = d.querySelector('[data-body]');
+    var headers = rows[0].map(function (h) { return String(h).trim(); }), data = rows.slice(1), map = refDetect(headers);
+    function colOptions(sel) { return '<option value="">— aucune —</option>' + headers.map(function (h, i) { return '<option value="' + i + '"' + (sel === i ? ' selected' : '') + '>' + escapeHtml(h || ('Colonne ' + (i + 1))) + '</option>'; }).join(''); }
+    function firstVal(i, fallback) { if (i === undefined) return fallback; for (var r = 0; r < data.length; r++) { var n = refNum(data[r][i]); if (n !== null) return n; } return fallback; }
+    var f0 = { max: firstVal(map.max, 20), coeff: firstVal(map.coeff, 1) };
+    body.innerHTML = '<div id="refImpStatus" aria-live="polite"></div>' +
+      '<p class="fr-hint-text">' + data.length + ' ligne(s) lue(s). Vérifiez les colonnes reconnues, puis indiquez la note maximale et le coefficient de cette évaluation.</p>' +
+      '<div class="ref-grid ref-grid--3">' +
+      [['nid', 'NID (facultatif)'], ['stagiaire', 'Nom du stagiaire (ou NOM Prénom)'], ['prenom', 'Prénom (si séparé)'], ['note', 'Note'], ['matiere', 'Matière'], ['max', 'Note maximale'], ['coeff', 'Coefficient']].map(function (c) {
+        return '<div class="fr-select-group"><label class="fr-label" for="refMap_' + c[0] + '">' + c[1] + '</label><select class="fr-select" id="refMap_' + c[0] + '">' + colOptions(map[c[0]]) + '</select></div>';
+      }).join('') + '</div>' +
+      '<div class="ref-grid ref-grid--3 ref-ask"><div class="fr-input-group"><label class="fr-label" for="refImpMat">Matière de cette évaluation <span class="fr-hint-text">si le fichier n’a pas de colonne Matière</span></label><input class="fr-input" id="refImpMat" type="text" list="refMatList2" autocomplete="off"><datalist id="refMatList2"></datalist></div>' +
+      '<div class="fr-input-group"><label class="fr-label" for="refImpMax">Note maximale de cette évaluation <span class="fr-hint-text">notée sur 4, 5, 10, 20…</span></label><input class="fr-input" id="refImpMax" type="text" inputmode="decimal" autocomplete="off"></div>' +
+      '<div class="fr-input-group"><label class="fr-label" for="refImpCoeff">Coefficient à appliquer</label><input class="fr-input" id="refImpCoeff" type="text" inputmode="decimal" autocomplete="off"></div></div>' +
+      '<p class="fr-hint-text">Quand le fichier a une colonne Note maximale ou Coefficient, sa valeur est utilisée ligne par ligne ; les champs ci-dessus servent alors de valeur par défaut.</p>' +
+      '<div id="refImpPreview" class="ref-preview"></div>' +
+      '<ul class="fr-btns-group fr-btns-group--inline-md fr-btns-group--right fr-mt-2w ref-actions"><li><button type="button" class="fr-btn fr-btn--secondary" id="refImpCancel">Annuler</button></li><li><button type="button" class="fr-btn" id="refImpGo">Verser les notes</button></li></ul>';
+    var $ = function (i) { return body.querySelector('#' + i); };
+    $('refImpMax').value = String(f0.max).replace('.', ','); $('refImpCoeff').value = String(f0.coeff).replace('.', ',');
+    $('refMatList2').innerHTML = Object.keys(notes.rows.reduce(function (a, r) { if (r.matiere) a[r.matiere] = 1; return a; }, {})).map(function (m) { return '<option value="' + escapeHtml(m) + '">'; }).join('');
+    if (map.matiere === undefined) $('refImpMat').value = fileName.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim();
+    var plan = [];
+    function compute() {
+      var m = {}; ['nid', 'stagiaire', 'prenom', 'note', 'matiere', 'max', 'coeff'].forEach(function (k) { var v = $('refMap_' + k).value; if (v !== '') m[k] = Number(v); });
+      var defMax = refNum($('refImpMax').value), defCoeff = refNum($('refImpCoeff').value), defMat = $('refImpMat').value.trim();
+      plan = data.map(function (r, idx) {
+        var row = (m.nid !== undefined || m.stagiaire !== undefined) ? refMatchStagiaire(m.nid !== undefined ? r[m.nid] : '', m.stagiaire !== undefined ? r[m.stagiaire] : '', m.prenom !== undefined ? r[m.prenom] : '') : null;
+        var note = m.note !== undefined ? refNum(r[m.note]) : null;
+        var max = (m.max !== undefined && refNum(r[m.max]) !== null) ? refNum(r[m.max]) : defMax;
+        var coeff = (m.coeff !== undefined && refNum(r[m.coeff]) !== null) ? refNum(r[m.coeff]) : defCoeff;
+        var mat = (m.matiere !== undefined && String(r[m.matiere]).trim()) ? String(r[m.matiere]).trim() : defMat;
+        var problem = !row ? 'stagiaire non reconnu' : note === null ? 'note illisible' : (max === null || max <= 0) ? 'note maximale manquante' : note < 0 || note > max ? 'note hors barème' : (coeff === null || coeff <= 0) ? 'coefficient manquant' : '';
+        return { n: idx + 2, row: row, note: note, max: max, coeff: coeff, matiere: mat, problem: problem, raw: r };
+      });
+      var ok = plan.filter(function (p) { return !p.problem; });
+      var prev = plan.slice(0, 8).map(function (p) {
+        return '<tr class="' + (p.problem ? 'ref-bad' : '') + '"><td>' + escapeHtml(p.row ? refStgLabel(p.row.id) : (m.stagiaire !== undefined ? String(p.raw[m.stagiaire]) : (m.nid !== undefined ? String(p.raw[m.nid]) : '—'))) + '</td><td>' + escapeHtml(p.matiere || '—') + '</td><td class="ref-num">' + (p.note === null ? '—' : refFmt(p.note) + ' / ' + (p.max === null ? '?' : refFmt(p.max, p.max % 1 ? 2 : 0))) + '</td><td class="ref-num">' + (p.coeff === null ? '—' : refFmt(p.coeff, 1)) + '</td><td>' + (p.problem ? '<span class="fr-badge fr-badge--sm fr-badge--warning">' + escapeHtml(p.problem) + '</span>' : '<span class="fr-badge fr-badge--sm fr-badge--success">OK</span>') + '</td></tr>';
+      }).join('');
+      $('refImpPreview').innerHTML = '<p><strong>' + ok.length + '</strong> note(s) prête(s) à être versée(s)' + (plan.length - ok.length ? ', <strong>' + (plan.length - ok.length) + '</strong> ligne(s) ignorée(s)' : '') + '.</p>' +
+        '<div class="req-table-wrap"><table class="req-table ref-table"><thead><tr><th>Stagiaire</th><th>Matière</th><th class="ref-num">Note</th><th class="ref-num">Coeff</th><th>État</th></tr></thead><tbody>' + prev + '</tbody></table></div>' + (plan.length > 8 ? '<p class="fr-hint-text">… et ' + (plan.length - 8) + ' autre(s) ligne(s).</p>' : '');
+      $('refImpGo').disabled = !ok.length;
+    }
+    body.addEventListener('input', compute); body.addEventListener('change', compute);
+    compute();
+    $('refImpCancel').addEventListener('click', function () { refCloseDialog(d); });
+    $('refImpGo').addEventListener('click', function () {
+      var ok = plan.filter(function (p) { return !p.problem; }), btn = $('refImpGo');
+      if (!ok.length) return;
+      btn.disabled = true; btn.textContent = 'Versement…';
+      var actions = ok.map(function (p) { return ['AddRecord', notes.tableId, null, refFields({ stg: p.row.id, note: p.note, matiere: p.matiere, max: p.max, coeff: p.coeff })]; });
+      var chunks = []; for (var i = 0; i < actions.length; i += 200) chunks.push(actions.slice(i, i + 200));
+      chunks.reduce(function (pr, ch) { return pr.then(function () { return grist.docApi.applyUserActions(ch); }); }, Promise.resolve()).then(function () {
+        refCloseDialog(d);
+        refShow('success', ok.length + ' note(s) versée(s)' + (plan.length - ok.length ? ' ; ' + (plan.length - ok.length) + ' ligne(s) ignorée(s).' : '.'));
+        return loadNotes();
+      }).catch(function (e) {
+        btn.disabled = false; btn.textContent = 'Verser les notes';
+        var z = $('refImpStatus'); z.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w"><p></p></div>'; z.querySelector('p').textContent = 'Versement impossible : ' + friendlyErrorMessage(e);
+      });
+    });
+    refOpenDialog(d);
+  }
+
+  // -- Fiche stagiaire, onglet Notation : notes, moyenne et classement (avant les appréciations)
+  function buildNotesCard(row) {
+    if (!notes.loaded) return null;
+    var mine = notes.rows.filter(function (r) { return r.stg === row.id; });
+    var st = notesStats().by[row.id];
+    var section = document.createElement('section');
+    section.className = 'detail-group';
+    var h = document.createElement('h3'); h.className = 'detail-title'; h.textContent = 'Notes'; section.appendChild(h);
+    if (!mine.length) { var p = document.createElement('p'); p.className = 'fr-hint-text'; p.textContent = 'Aucune note enregistrée (page Référent pédagogique).'; section.appendChild(p); return section; }
+    var html = '<div class="detail-wrap"><table class="detail-table"><tbody>' + mine.slice().sort(function (a, b) { return nameCollator.compare(a.matiere, b.matiere); }).map(function (r) {
+      return '<tr><th scope="row">' + escapeHtml(r.matiere || 'Évaluation') + '</th><td>' + refFmt(r.note) + ' / ' + refFmt(r.max !== null ? r.max : 20, r.max !== null && r.max % 1 ? 2 : 0) + ' <span class="fr-hint-text">coeff. ' + refFmt(r.coeff !== null ? r.coeff : 1, 1) + '</span></td></tr>';
+    }).join('');
+    if (st && st.moy !== undefined) {
+      html += '<tr><th scope="row">Moyenne</th><td><strong>' + refFmt(st.moy) + ' / 20</strong></td></tr>';
+      html += '<tr><th scope="row">Classement</th><td>' + (st.rank ? '<strong>' + escapeHtml(refOrdinal(st.rank, st.tie)) + '</strong> sur ' + notesStats().ranking.length : '<span class="fr-hint-text">hors classement (stagiaire parti)</span>') + '</td></tr>';
+    }
+    section.innerHTML += html + '</tbody></table></div>';
+    return section;
+  }
+  document.getElementById('navReferent').addEventListener('click', function () { showPage('referent'); loadNotes(); });
+  document.getElementById('refBackBtn').addEventListener('click', function () { showPage('stagiaires'); });
+
   function friendlyErrorMessage(e) {
     var raw = (e && e.message) ? e.message : String(e || '');
     if (/Unknown forward destination/i.test(raw)) {
@@ -19666,9 +20158,12 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       var fin = parseGristDateTime(r.dateFin);
       var st = absDecisionState(cfg, r.decision);
       var isRepos = !!r.motif && normalizeNameKey(r.motif) === normalizeNameKey('Repos');
-      var fmtAbsDate = function (d) { return isRepos ? fmtDayTitle(d) : (fmtDayTitle(d) + ' ' + fmtHM(d)); };
+      // Repos : heures de début et de fin affichées comme pour une autorisation d'absence ; elles valent celles de la période réelle (veille 19 h → lendemain 7 h 30).
+      var per = isRepos ? absEffectivePeriod(r) : null;
+      if (per) { debut = per.s; fin = per.e; }
+      var fmtAbsDate = function (d) { return fmtDayTitle(d) + ' ' + fmtHM(d); };
       var fmtAbsDateHtml = function (d) {
-        return '<span class="req-date">' + escapeHtml(fmtDayTitle(d)) + '</span>' + (isRepos ? '' : '<br><span class="req-time">' + escapeHtml(fmtHM(d)) + '</span>');
+        return '<span class="req-date">' + escapeHtml(fmtDayTitle(d)) + '</span><br><span class="req-time">' + escapeHtml(fmtHM(d)) + '</span>';
       };
 
       var isAutorisationType = !cfg.col.motif || (!!r.motif && normalizeNameKey(r.motif) === normalizeNameKey(ABSENCE_TYPE_AUTORISATION));
@@ -23918,7 +24413,10 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     function reasonHtml(b) {
       var id = b.getAttribute('aria-describedby'), el = id && document.getElementById(id);
       if (el && el.innerHTML.trim()) return el.innerHTML;
-      return b.getAttribute('data-reason') || '';
+      var r = b.getAttribute('data-reason');
+      if (r) return r;
+      var t = b.getAttribute('data-tip'); // texte simple (boutons-icônes) : échappé
+      return t ? escapeHtml(t) : '';
     }
     function hide() { if (tip) tip.hidden = true; shownFor = null; }
     function place(b) {
@@ -23952,10 +24450,12 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       if (raf) return;
       raf = window.requestAnimationFrame(function () {
         raf = 0;
-        var b = under(e.clientX, e.clientY);
-        if (b) show(b); else hide();
+        var b = under(e.clientX, e.clientY), t = e.target && e.target.closest ? e.target.closest('[data-tip]') : null;
+        if (b) show(b); else if (t) show(t); else hide();
       });
     }, { passive: true });
+    document.addEventListener('focusin', function (e) { var t = e.target && e.target.closest ? e.target.closest('[data-tip]') : null; if (t) show(t); });
+    document.addEventListener('focusout', function (e) { if (e.target && e.target.closest && e.target.closest('[data-tip]')) hide(); });
     document.addEventListener('click', function (e) { // écrans tactiles : un appui sur le bouton affiche la raison quelques secondes
       var b = under(e.clientX, e.clientY);
       if (!b) return;
