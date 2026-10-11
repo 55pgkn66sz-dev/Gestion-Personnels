@@ -2436,6 +2436,35 @@ table.req-table th { font-size: 0.95em; }
     padding: 1rem 1.25rem;
     margin-bottom: 1.25rem;
   }
+#fsjRoot .sync-panel > p, #fsjRoot #syncModalIntro { margin: 0.4rem 0 1rem; color: var(--text-default-grey); }
+#fsjRoot .sync-section { border: 0; margin: 0 0 1rem; padding: 0; }
+#fsjRoot .sync-section__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 0.25rem 1rem; margin-bottom: 0.4rem; }
+#fsjRoot .sync-section__title { margin: 0 0 0.4rem; font-size: 0.78em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-action-high-blue-france); }
+#fsjRoot .sync-section__head .sync-section__title { margin: 0; }
+#fsjRoot .sync-section__hint { margin-left: 0.5rem; font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--text-mention-grey); }
+#fsjRoot .sync-section__tools { display: flex; gap: 0.25rem; }
+#fsjRoot .sync-card { background: var(--background-default-grey); border: 1px solid var(--border-default-grey); border-radius: 0.5rem; overflow: hidden; }
+#fsjRoot .sync-card .fr-checkbox-group { margin: 0; }
+#fsjRoot .sync-field-row, #fsjRoot .sync-occ-row { display: flex; align-items: center; gap: 0.5rem 1rem; padding: 0.6rem 0.9rem; border-top: 1px solid var(--border-default-grey); }
+#fsjRoot .sync-card > :first-child { border-top: 0; }
+#fsjRoot .sync-field-row > .fr-checkbox-group { flex: 1 1 auto; min-width: 0; }
+#fsjRoot .sync-field-row > .fr-badge { flex: none; }
+#fsjRoot .sync-field-row .fr-checkbox-group > label { display: flex; flex-direction: column; align-items: flex-start; }
+#fsjRoot .sync-occ-row .fr-checkbox-group > label { display: flex; flex-direction: row; align-items: baseline; }
+#fsjRoot .sync-f__name { display: block; font-weight: 700; }
+#fsjRoot .sync-f__diff { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.15rem 0.5rem; margin-top: 0.15rem; font-size: 0.875rem; font-weight: 400; }
+#fsjRoot .sync-old { color: var(--text-mention-grey); text-decoration: line-through; text-decoration-color: rgba(128, 128, 128, 0.6); }
+#fsjRoot .sync-new { color: var(--text-default-grey); font-weight: 600; }
+#fsjRoot .sync-arrow { color: var(--text-mention-grey); }
+#fsjRoot .sync-occ-row { display: grid; grid-template-columns: minmax(11rem, auto) minmax(0, 1fr) minmax(0, 1.2fr); }
+#fsjRoot .sync-occ-row:hover, #fsjRoot .sync-field-row:hover { background: var(--background-default-grey-hover); }
+#fsjRoot .sync-occ__date { font-weight: 700; margin-right: 0.75rem; }
+#fsjRoot .sync-occ__time { font-variant-numeric: tabular-nums; color: var(--text-default-grey); }
+#fsjRoot .sync-occ__apps .badges { margin-top: 0; }
+#fsjRoot .sync-occ__title { color: var(--text-mention-grey); font-size: 0.875rem; text-align: right; overflow-wrap: anywhere; }
+#fsjRoot .sync-upcoming { margin: 0 0 1rem; }
+#fsjRoot .sync-actions { margin: 0; padding-top: 0.9rem; border-top: 1px solid rgba(0, 0, 145, 0.18); }
+@media (max-width: 40rem) { #fsjRoot .sync-occ-row { grid-template-columns: 1fr; gap: 0.2rem; } #fsjRoot .sync-occ__title { text-align: left; } #fsjRoot .sync-field-row { flex-wrap: wrap; } }
 #fsjRoot .sync-panel__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 #fsjRoot .sync-panel__head h3 { margin: 0; }
 #fsjRoot .req-inline-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
@@ -2609,8 +2638,19 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 .ref-drop > span:first-child { font-size: 1.6rem; color: var(--text-action-high-blue-france); }
 .ref-table { width: 100%; table-layout: auto !important; min-width: 0 !important; }
 .ref-table .ref-num { text-align: right; white-space: nowrap; }
+.ref-table thead th { text-align: left; }
+.ref-table thead th.ref-num { text-align: right; }
 .ref-table .ref-rank { width: 1%; white-space: nowrap; }
 .ref-table .ref-act { width: 1%; text-align: right; white-space: nowrap; }
+#panelReferent .ref-table thead th { font-size: 0.75em; white-space: nowrap; vertical-align: bottom; }
+#panelReferent .ref-table th, #panelReferent .ref-table td { vertical-align: middle; }
+#panelReferent .ref-table .ref-num { width: 1%; padding-left: 1.5rem; }
+#panelReferent .ref-table .ref-rank { width: 1%; }
+#panelReferent .ref-table .ref-rank .ref-sub { display: block; margin-top: 0.15rem; }
+#panelReferent .ref-table .ref-act { padding-left: 1rem; }
+#panelReferent #refRanking .ref-table td:nth-child(2) { width: 30%; }
+#panelReferent #refNotes .ref-table td:first-child { width: 40%; }
+#panelReferent .ref-table tbody tr[data-stg] { cursor: pointer; }
 .ref-medal { display: inline-block; min-width: 2.6rem; padding: 0.1rem 0.6rem; border-radius: 999px; font-weight: 700; text-align: center; background: var(--background-contrast-grey); color: var(--text-default-grey); }
 .ref-medal--1 { background: #ffe58a; color: #5c4400; }
 .ref-medal--2 { background: #dfe3ea; color: #2f3640; }
@@ -2647,6 +2687,12 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 .ref-box { margin: 0 0 1rem; padding: 0.8rem 1rem 0.2rem; border: 1px solid var(--border-default-grey); border-radius: 0.5rem; background: var(--background-alt-grey); }
 .ref-box__title { margin: 0 0 0.5rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-mention-grey); }
 .ref-box .fr-select-group, .ref-box .fr-input-group { margin-bottom: 0.8rem; }
+.ref-grid { align-items: end; }
+.ref-box .ref-grid--map { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.ref-box .ref-grid--3 { grid-template-columns: 1.6fr 1fr 1fr; }
+.ref-box .fr-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ref-box__note { margin: 0 0 0.8rem; }
+@media (max-width: 40rem) { .ref-box .ref-grid--map, .ref-box .ref-grid--3 { grid-template-columns: 1fr 1fr; } .ref-box .ref-grid--3 > :first-child { grid-column: 1 / -1; } }
 .ref-box .ref-grid--4 { grid-template-columns: 1.3fr 1.6fr 0.75fr 0.75fr; }
 @media (max-width: 40rem) { .ref-box .ref-grid--4 { grid-template-columns: 1fr 1fr; } .ref-grid--4 .ref-span2 { grid-column: span 2; } }
 .ref-man-count { margin: 0 0 0.4rem; font-size: 0.8rem; color: var(--text-mention-grey); }
@@ -2662,7 +2708,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 .ref-man-field .ref-man-input { width: 5.5rem; }
 .ref-man-max { font-size: 0.85rem; color: var(--text-mention-grey); min-width: 2.2rem; }
 .ref-actions { position: sticky; bottom: 0; margin: 1rem 0 0 !important; padding: 0.75rem 0 0.25rem; background: var(--background-raised-grey); border-top: 1px solid var(--border-default-grey); }
-@media (max-width: 40rem) { #refAddDlg .ref-actions, #refEvalDlg .ref-actions { position: static; flex-direction: row !important; flex-wrap: nowrap; justify-content: flex-end; gap: 0.5rem; } #refAddDlg .ref-actions > li, #refEvalDlg .ref-actions > li { flex: 1 1 0; width: auto; padding: 0; } #refAddDlg .ref-actions .fr-btn, #refEvalDlg .ref-actions .fr-btn { width: 100%; justify-content: center; margin: 0; } .ref-man-list { max-height: none; } }
+@media (max-width: 48rem) { #refAddDlg .ref-actions, #refEvalDlg .ref-actions { position: static; flex-direction: row !important; flex-wrap: nowrap; justify-content: flex-end; gap: 0.5rem; } #refAddDlg .ref-actions > li, #refEvalDlg .ref-actions > li { flex: 1 1 0; width: auto; padding: 0; } #refAddDlg .ref-actions .fr-btn, #refEvalDlg .ref-actions .fr-btn { width: 100%; justify-content: center; margin: 0; } .ref-man-list { max-height: none; } }
 .ref-preview { margin-top: 0.5rem; }
 .ref-preview .ref-bad td { background: var(--statut-pastel-attente); }
 #fsjConfirmModal:not([open]), .fsj-dlg:not([open]) { display: none; }
@@ -3579,20 +3625,22 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       <div class="fr-alert fr-alert--warning fr-alert--sm fr-mb-2w" id="syncModalWarn" hidden>
         <p>Plusieurs activités partagent ce code : toutes les occurrences portant ce code recevraient les valeurs de ce réglage.</p>
       </div>
-      <fieldset class="fr-fieldset" id="syncFieldset" aria-labelledby="syncFieldset-legend">
-        <legend class="fr-fieldset__legend fr-text--regular" id="syncFieldset-legend">Informations à synchroniser</legend>
-        <div id="syncFieldsList"></div>
-      </fieldset>
-      <fieldset class="fr-fieldset fr-mt-2w" id="syncOccFieldset" aria-labelledby="syncOccFieldset-legend">
-        <legend class="fr-fieldset__legend fr-text--regular" id="syncOccFieldset-legend">Occurrences à mettre à jour <span class="fr-hint-text">date, heure et apprenants de chaque occurrence</span></legend>
-        <div class="reglage-cadres-tools"><button class="fr-btn fr-btn--tertiary fr-btn--sm" id="syncOccAll" type="button">Tout cocher</button><button class="fr-btn fr-btn--tertiary fr-btn--sm" id="syncOccNone" type="button">Tout décocher</button></div>
-        <div id="syncOccList" class="sync-occ-list"></div>
-      </fieldset>
-      <div class="fr-checkbox-group fr-checkbox-group--sm fr-mt-2w">
+      <div class="sync-section" id="syncFieldset" role="group" aria-labelledby="syncFieldset-legend">
+        <p class="sync-section__title" id="syncFieldset-legend">Informations à synchroniser</p>
+        <div id="syncFieldsList" class="sync-card"></div>
+      </div>
+      <div class="sync-section" id="syncOccFieldset" role="group" aria-labelledby="syncOccFieldset-legend">
+        <div class="sync-section__head">
+          <p class="sync-section__title" id="syncOccFieldset-legend">Occurrences à mettre à jour <span class="sync-section__hint">date, heure et apprenants de chaque occurrence</span></p>
+          <div class="sync-section__tools"><button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm" id="syncOccAll" type="button">Tout cocher</button><button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm" id="syncOccNone" type="button">Tout décocher</button></div>
+        </div>
+        <div id="syncOccList" class="sync-card sync-occ-list"></div>
+      </div>
+      <div class="fr-checkbox-group fr-checkbox-group--sm sync-upcoming">
         <input type="checkbox" id="syncUpcomingOnly" name="syncUpcomingOnly">
         <label class="fr-label" for="syncUpcomingOnly">Uniquement les occurrences à venir <span class="fr-hint-text">Laisse inchangées les occurrences dont le début est antérieur à aujourd'hui.</span></label>
       </div>
-      <ul class="fr-btns-group fr-btns-group--inline-md fr-mt-2w">
+      <ul class="fr-btns-group fr-btns-group--inline-md sync-actions">
         <li><button class="fr-btn" id="syncApplyBtn" type="button">Mettre à jour les occurrences</button></li>
         <li><button class="fr-btn fr-btn--secondary" id="syncSkipBtn" type="button">Ne pas mettre à jour</button></li>
       </ul>
@@ -4012,10 +4060,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
                   <div class="fr-input-group">
                     <label class="fr-label" for="reglageEditField_numero">Numéro <span class="fr-hint-text">(optionnel)</span></label>
                     <input class="fr-input" type="text" id="reglageEditField_numero" name="reglageEditField_numero">
-                  </div>
-                  <div class="fr-input-group">
-                    <label class="fr-label" for="reglageEditField_duree">Durée <span class="fr-hint-text">(optionnel)</span></label>
-                    <input class="fr-input" type="text" id="reglageEditField_duree" name="reglageEditField_duree">
                   </div>
                 </div>
                 <div class="fr-input-group">
@@ -5248,7 +5292,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.58.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.59.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -6923,20 +6967,29 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   // formant le prénom. Sans mot en majuscules, le 1er mot fait office de
   // nom. Comparaison insensible à la casse et aux accents, en français.
   var nameCollator = new Intl.Collator('fr', { sensitivity: 'base', numeric: true });
+  // Prénoms : première lettre de chaque prénom (y compris composé : « Jean-Pierre », « Marie Anne ») en majuscule, le reste en minuscule.
+  function fmtPrenom(v) {
+    return String(v === null || v === undefined ? '' : v).toLowerCase().replace(/(^|[\s\-’'])(\p{L})/gu, function (m, p, c) { return p + c.toUpperCase(); });
+  }
+  // Nom complet (« GND DUPUIS marie-anne », « DURAND bob ») : les mots entièrement en majuscules (NOM, grade) sont conservés, les autres sont des prénoms.
+  function fmtNomPrenom(v) {
+    return String(v === null || v === undefined ? '' : v).replace(/\S+/g, function (t) { return /\p{Ll}/u.test(t) ? fmtPrenom(t) : t; });
+  }
+  window.fmtPrenom = fmtPrenom; window.fmtNomPrenom = fmtNomPrenom;
   function splitStagiaireName(full) {
     var tokens = String(full || '').trim().split(/\s+/).filter(Boolean);
     var isUpper = function (t) { return /\p{L}/u.test(t) && t === t.toUpperCase(); };
     var nom = tokens.filter(isUpper);
     var prenom = tokens.filter(function (t) { return !isUpper(t); });
     if (!nom.length && tokens.length) { nom = [tokens[0]]; prenom = tokens.slice(1); }
-    return { nom: nom.join(' '), prenom: prenom.join(' ') };
+    return { nom: nom.join(' '), prenom: fmtPrenom(prenom.join(' ')) };
   }
   // Nom / prénom d'un stagiaire : colonnes Nom et Prénom quand elles sont
   // réglées (page Stagiaires), sinon découpage de la colonne Stagiaire.
   function nameParts(row) {
     var nom = settings.col.nom ? textOf(row.nom) : '';
     var prenom = settings.col.prenom ? textOf(row.prenom) : '';
-    if (nom || prenom) return { nom: nom, prenom: prenom };
+    if (nom || prenom) return { nom: nom, prenom: fmtPrenom(prenom) };
     return splitStagiaireName(textOfRef(row.stagiaire));
   }
   // Nom du stagiaire pour les courriels : "DUPONT Jean" -> "Jean DUPONT"
@@ -7309,7 +7362,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function stagiaireDisplayName(row) {
     var nom = settings.col.nom ? textOf(row.nom) : '';
     var prenom = settings.col.prenom ? textOf(row.prenom) : '';
-    return [nom, prenom].filter(Boolean).join(' ') || textOfRef(row.stagiaire) || '(Stagiaire non renseigné)';
+    return [nom, fmtPrenom(prenom)].filter(Boolean).join(' ') || fmtNomPrenom(textOfRef(row.stagiaire)) || '(Stagiaire non renseigné)';
   }
 
   // Avatar rond de la liste Stagiaires : la photo (colonne « Photo ») si elle est
@@ -7911,7 +7964,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         applyChoiceColors(node, tableChoiceOptions(settings.table, settings.col[role]), text);
       }
     } else {
-      var t2 = textOf(v);
+      var t2 = role === 'prenom' ? fmtPrenom(textOf(v)) : textOf(v);
       empty = !t2;
       node = stgTextValue(t2, opts.pre);
     }
@@ -8009,7 +8062,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var node;
     if (opts.phone) node = stgPhoneValue(text);
     else if (opts.mail) node = stgMailValue(text);
-    else node = stgTextValue(text, opts.pre);
+    else node = stgTextValue(key === 'prenom' ? fmtPrenom(text) : text, opts.pre);
     return dSpec(key, label, node, {
       wide: !!opts.wide, empty: !text, pre: !!opts.pre, editable: !!opts.editable,
       buildControl: opts.editable ? function () {
@@ -9744,7 +9797,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       return true;
     });
   }
-  function encNameParts(row) { return { nom: encText(row, 'nom'), prenom: encText(row, 'prenom') }; }
+  function encNameParts(row) { return { nom: encText(row, 'nom'), prenom: fmtPrenom(encText(row, 'prenom')) }; }
   function encDisplayName(row) {
     var p = encNameParts(row);
     return [p.nom, p.prenom].filter(Boolean).join(' ') || '(Nom non renseigné)';
@@ -12609,7 +12662,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       var hits = isSelf ? [] : candFindByName(name);
       var el = document.createElement(hits.length === 1 ? 'button' : 'span');
       el.className = 'fr-tag fr-tag--sm housing-room__tag' + (isSelf ? ' is-self' : '');
-      el.textContent = name + (isSelf ? ' (vous)' : '');
+      el.textContent = fmtNomPrenom(name) + (isSelf ? ' (vous)' : '');
       if (hits.length === 1) {
         el.type = 'button';
         el.title = 'Ouvrir la fiche de ' + name;
@@ -14032,15 +14085,26 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var row = view.row;
     var name = stagiaireDisplayName(row);
     var dlg = document.createElement('div');
-    dlg.className = 'cand-modal-dialog';
+    dlg.className = 'cand-modal-dialog stg-dialog';
     dlg.setAttribute('role', 'dialog');
     dlg.setAttribute('aria-modal', 'true');
     dlg.setAttribute('aria-label', name);
 
-    var header = document.createElement('div');
-    header.className = 'cand-modal-dialog__header';
+    // En-tête : même design que les fiches Stagiaire / Encadrement (photo en rond, nom, sous-titre, étiquettes et badges, boutons ronds).
+    var hero = document.createElement('div');
+    hero.className = 'stg-hero';
+    var portrait = document.createElement('div');
+    portrait.className = 'stg-portrait';
+    var avatar = document.createElement('div');
+    avatar.className = 'stg-avatar';
+    avatar.setAttribute('aria-hidden', 'true');
+    avatar.innerHTML = '<span class="fr-icon-user-fill"></span>';
+    loadPortrait(avatar, row);
+    portrait.appendChild(avatar);
+    hero.appendChild(portrait);
+
     var identity = document.createElement('div');
-    identity.className = 'cand-modal-dialog__identity';
+    identity.className = 'stg-hero__id';
     var title = document.createElement('h3');
     title.className = 'cand-modal-dialog__title';
     title.textContent = name;
@@ -14049,15 +14113,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var affectationText = settings.col.affectation ? textOf(row.affectation) : '';
     if (affectationText) {
       var affectationEl = document.createElement('p');
-      affectationEl.className = 'cand-modal-dialog__affectation';
+      affectationEl.className = 'stg-hero__subtitle';
       affectationEl.textContent = affectationText;
       affectationEl.title = 'Affectation';
       identity.appendChild(affectationEl);
     }
-    // Icônes d'alerte (doublon, mineur) : sous le nom.
-    var flags = document.createElement('div');
-    flags.className = 'stg-flags';
-    identity.appendChild(flags);
 
     // Ligne de contact, sous le titre : e-mail et téléphone séparés par un
     // point médian, chacun cliquable (mailto:/tel:) quand il est
@@ -14074,44 +14134,45 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       contact.innerHTML = contactParts.join(' · ');
       identity.appendChild(contact);
     }
+
+    // Étiquettes et badges d'état.
+    var tagsRow = document.createElement('div');
+    tagsRow.className = 'modal-tags';
+    identity.appendChild(tagsRow);
+    var pon = settings.col.pon ? textOf(row.pon) : '';
+    if (pon) tagsRow.appendChild(buildPlainTag(pon, 'stg-tag--pon', 'Peloton : ' + pon));
+    var dupReasons = duplicateReasons(row);
+    if (dupReasons.length) tagsRow.appendChild(stgBadge('warning', 'Doublon', dupReasons.join(' ')));
+    if (willBeMinor(row.dateNaissance, parseFrDate(settings.dateDebutFormation))) tagsRow.appendChild(stgBadge('warning', 'Mineur au 1er jour', 'Sera mineur au premier jour de la formation'));
     if (compare) {
       var version = document.createElement('p');
       version.className = 'cand-modal-dialog__version' + (isOldest ? ' cand-modal-dialog__version--oldest' : '');
       version.textContent = 'Ligne n° ' + view.recordId + ' (' + (view.kind === 'candidate' ? 'table des candidats' : 'table Documents') + ') · ' + modalRankLabel(view, isOldest);
       identity.appendChild(version);
     }
-    header.appendChild(identity);
+    hero.appendChild(identity);
 
     var actions = document.createElement('div');
     actions.className = 'cand-modal-dialog__header-actions';
-    var dupReasons = duplicateReasons(row);
-    if (dupReasons.length) {
-      var dupFlag = document.createElement('span');
-      dupFlag.className = 'cand-modal-dialog__dup-flag';
-      dupFlag.title = dupReasons.join(' ');
-      dupFlag.innerHTML = '<span class="fr-icon-error-warning-line" aria-hidden="true"></span><span class="fr-sr-only"></span>';
-      dupFlag.lastChild.textContent = dupReasons.join(' ');
-      flags.appendChild(dupFlag);
-    }
-    if (willBeMinor(row.dateNaissance, parseFrDate(settings.dateDebutFormation))) {
-      var minorFlag = document.createElement('span');
-      minorFlag.className = 'fr-badge fr-badge--warning fr-badge--sm cand-modal-dialog__minor-badge';
-      minorFlag.title = 'Sera mineur au premier jour de la formation';
-      minorFlag.textContent = 'Mineur au 1er jour';
-      flags.appendChild(minorFlag);
-    }
+    var ind = document.createElement('span');
+    ind.className = 'cand-save-ind';
+    actions.appendChild(ind);
     var closeBtn = document.createElement('button');
     closeBtn.type = 'button';
     closeBtn.className = 'fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-line cand-modal-dialog__close';
     closeBtn.textContent = 'Fermer';
     closeBtn.addEventListener('click', closeCandidateModal);
     appendCloseWithNav(actions, closeBtn, isOldest);
-    header.appendChild(actions);
-    dlg.appendChild(header);
+    hero.appendChild(actions);
+    var sticky = document.createElement('div');
+    sticky.className = 'stg-sticky stg-sticky--plain';
+    sticky.appendChild(hero);
+    dlg.appendChild(sticky);
 
     var body = document.createElement('div');
     buildCandidateDetails(row).forEach(function (el) { body.appendChild(el); });
     dlg.appendChild(body);
+    window.setTimeout(renderSaveInd, 0);
 
     return dlg;
   }
@@ -15739,12 +15800,12 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var shown = refExpanded ? ranked : ranked.slice(0, 3), html = '';
     if (!ranked.length) html = '<p class="fr-hint-text">' + (st.ranking.length ? 'Aucun stagiaire ne correspond à la recherche.' : 'Aucune note enregistrée : ajoutez des notes ou versez un fichier CSV.') + '</p>';
     else {
-      html = '<div class="req-table-wrap"><table class="req-table ref-table"><caption class="fr-sr-only">Classement' + (filtered ? ' (selon le filtre)' : ' général') + '</caption><thead><tr><th scope="col" class="ref-rank">Rang' + (filtered ? ' <span class="fr-hint-text">(filtre)</span>' : '') + '</th><th scope="col">Stagiaire</th><th scope="col">Peloton</th><th scope="col">Affectation</th><th scope="col" class="ref-num">Moyenne /20</th><th scope="col" class="ref-num">Notes</th></tr></thead><tbody>' +
+      html = '<div class="req-table-wrap"><table class="req-table doc-table ref-table"><caption class="fr-sr-only">Classement' + (filtered ? ' (selon le filtre)' : ' général') + '</caption><thead><tr><th scope="col" class="ref-rank">Rang' + (filtered ? ' <span class="fr-hint-text">(filtre)</span>' : '') + '</th><th scope="col">Stagiaire</th><th scope="col">Peloton</th><th scope="col">Affectation</th><th scope="col" class="ref-num">Moyenne /20</th><th scope="col" class="ref-num">Notes</th></tr></thead><tbody>' +
         shown.map(function (x) {
           var s = x.st, np = nameParts(s.row);
           return '<tr data-stg="' + s.row.id + '"><td class="ref-rank" data-label="Rang"><span class="ref-medal ref-medal--' + Math.min(x.rank, 4) + '">' + escapeHtml(refOrdinal(x.rank, x.tie)) + '</span>' +
             (filtered ? '<br><span class="ref-sub">général : ' + escapeHtml(refOrdinal(s.rank, s.tie)) + '</span>' : '') + '</td>' +
-            '<td data-label="Stagiaire"><strong>' + escapeHtml(np.nom) + '</strong> ' + escapeHtml(np.prenom) + '</td><td data-label="Peloton">' + escapeHtml(textOf(s.row.pon)) + '</td><td data-label="Affectation">' + escapeHtml(textOf(s.row.affectation)) + '</td>' +
+            '<td data-label="Stagiaire"><strong>' + escapeHtml(np.nom) + '</strong> ' + escapeHtml(np.prenom) + '</td><td data-label="Peloton">' + (textOf(s.row.pon) ? '<span class="fr-tag fr-tag--sm">' + escapeHtml(textOf(s.row.pon)) + '</span>' : '') + '</td><td data-label="Affectation">' + escapeHtml(textOf(s.row.affectation)) + '</td>' +
             '<td class="ref-num" data-label="Moyenne /20"><strong>' + refFmt(s.moy) + '</strong></td><td class="ref-num" data-label="Notes">' + s.n + '</td></tr>';
         }).join('') + '</tbody></table></div>';
       if (ranked.length > 3) html += '<button type="button" class="fr-btn fr-btn--tertiary fr-btn--sm fr-mt-1w" id="refToggleBtn">' + (refExpanded ? 'Réduire au podium' : 'Afficher tout le classement (' + ranked.length + ')') + '</button>';
@@ -15755,14 +15816,14 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     // -- notes saisies : une ligne par évaluation (matière)
     var evals = refEvaluations(filtered ? refPasses : refPassesAll);
     if (!evals.length) zoneN.innerHTML = '<p class="fr-hint-text">Aucune note à afficher.</p>';
-    else zoneN.innerHTML = '<div class="req-table-wrap"><table class="req-table ref-table"><caption class="fr-sr-only">Notes saisies par évaluation</caption><thead><tr><th scope="col">Matière évaluée</th><th scope="col" class="ref-num">Barème</th><th scope="col" class="ref-num">Coeff</th><th scope="col" class="ref-num">Moyenne générale /20</th><th scope="col" class="ref-num">Stagiaires évalués</th><th scope="col" class="ref-act"><span class="fr-sr-only">Actions</span></th></tr></thead><tbody>' +
+    else zoneN.innerHTML = '<div class="req-table-wrap"><table class="req-table doc-table ref-table"><caption class="fr-sr-only">Notes saisies par évaluation</caption><thead><tr><th scope="col">Matière évaluée</th><th scope="col" class="ref-num">Barème</th><th scope="col" class="ref-num">Coeff</th><th scope="col" class="ref-num">Moyenne générale /20</th><th scope="col" class="ref-num">Stagiaires évalués</th><th scope="col" class="ref-act"><span class="fr-sr-only">Actions</span></th></tr></thead><tbody>' +
       evals.map(function (e, i) {
         var maxes = Object.keys(e.maxes), coeffs = Object.keys(e.coeffs);
         return '<tr data-eval="' + i + '"><td data-label="Matière évaluée"><strong>' + escapeHtml(e.matiere) + '</strong></td>' +
           '<td class="ref-num" data-label="Barème">' + (maxes.length === 1 ? '/ ' + refFmt(Number(maxes[0]), maxes[0] % 1 ? 2 : 0) : 'variable') + '</td>' +
           '<td class="ref-num" data-label="Coeff">' + (coeffs.length === 1 ? refFmt(Number(coeffs[0]), 1) : 'variable') + '</td>' +
           '<td class="ref-num" data-label="Moyenne générale /20"><strong>' + refFmt(e.moy) + '</strong></td><td class="ref-num" data-label="Stagiaires évalués">' + e.n + '</td>' +
-          '<td class="ref-act" data-label="Actions"><button type="button" class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-edit-line fr-btn--icon-left" data-eval-btn="' + i + '">Détailler / modifier</button></td></tr>';
+          '<td class="ref-act" data-label="Actions"><button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-edit-line fr-btn--icon-left" data-eval-btn="' + i + '">Détailler / modifier</button></td></tr>';
       }).join('') + '</tbody></table></div>';
     Array.prototype.forEach.call(zoneN.querySelectorAll('[data-eval-btn]'), function (b) { b.addEventListener('click', function () { openEvalDialog(evals[Number(b.getAttribute('data-eval-btn'))]); }); });
   }
@@ -16075,14 +16136,14 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var f0 = { max: firstVal(map.max, 20), coeff: firstVal(map.coeff, 1) };
     body.innerHTML = '<div id="refImpStatus" aria-live="polite"></div>' +
       '<p class="fr-hint-text"><strong>' + escapeHtml(fileName) + '</strong> · ' + data.length + ' ligne(s) lue(s). Vérifiez les colonnes reconnues, puis indiquez la note maximale et le coefficient de cette évaluation.</p>' +
-      '<div class="ref-grid ref-grid--3">' +
-      [['nid', 'NID (facultatif)'], ['stagiaire', 'Nom du stagiaire (ou NOM Prénom)'], ['prenom', 'Prénom (si séparé)'], ['note', 'Note'], ['matiere', 'Matière'], ['max', 'Note maximale'], ['coeff', 'Coefficient']].map(function (c) {
+      '<div class="ref-box"><p class="ref-box__title">Colonnes du fichier</p><div class="ref-grid ref-grid--map">' +
+      [['nid', 'NID (facultatif)'], ['stagiaire', 'Stagiaire'], ['prenom', 'Prénom (si séparé)'], ['note', 'Note'], ['matiere', 'Matière'], ['max', 'Note maximale'], ['coeff', 'Coefficient']].map(function (c) {
         return '<div class="fr-select-group"><label class="fr-label" for="refMap_' + c[0] + '">' + c[1] + '</label><select class="fr-select" id="refMap_' + c[0] + '">' + colOptions(map[c[0]]) + '</select></div>';
-      }).join('') + '</div>' +
-      '<div class="ref-grid ref-grid--3 ref-ask"><div class="fr-input-group"><label class="fr-label" for="refImpMat">Matière de cette évaluation <span class="fr-hint-text">si le fichier n’a pas de colonne Matière</span></label><input class="fr-input" id="refImpMat" type="text" list="refMatList2" autocomplete="off"><datalist id="refMatList2"></datalist></div>' +
-      '<div class="fr-input-group"><label class="fr-label" for="refImpMax">Note maximale de cette évaluation <span class="fr-hint-text">notée sur 4, 5, 10, 20…</span></label><input class="fr-input" id="refImpMax" type="text" inputmode="decimal" autocomplete="off"></div>' +
-      '<div class="fr-input-group"><label class="fr-label" for="refImpCoeff">Coefficient à appliquer</label><input class="fr-input" id="refImpCoeff" type="text" inputmode="decimal" autocomplete="off"></div></div>' +
-      '<p class="fr-hint-text">Quand le fichier a une colonne Note maximale ou Coefficient, sa valeur est utilisée ligne par ligne ; les champs ci-dessus servent alors de valeur par défaut.</p>' +
+      }).join('') + '</div></div>' +
+      '<div class="ref-box"><p class="ref-box__title">Cette évaluation</p><div class="ref-grid ref-grid--3 ref-ask"><div class="fr-input-group"><label class="fr-label" for="refImpMat">Matière</label><input class="fr-input" id="refImpMat" type="text" list="refMatList2" autocomplete="off" placeholder="ex. Topographie"><datalist id="refMatList2"></datalist></div>' +
+      '<div class="fr-input-group"><label class="fr-label" for="refImpMax">Note maximale</label><input class="fr-input" id="refImpMax" type="text" inputmode="decimal" autocomplete="off" placeholder="4, 5, 10, 20…"></div>' +
+      '<div class="fr-input-group"><label class="fr-label" for="refImpCoeff">Coefficient</label><input class="fr-input" id="refImpCoeff" type="text" inputmode="decimal" autocomplete="off"></div></div>' +
+      '<p class="fr-hint-text ref-box__note">La matière n’est utilisée que si le fichier n’a pas de colonne Matière. Si le fichier a une colonne Note maximale ou Coefficient, sa valeur est reprise ligne par ligne ; ces champs servent alors de valeur par défaut.</p></div>' +
       '<div id="refImpPreview" class="ref-preview"></div>' +
       '<ul class="fr-btns-group fr-btns-group--inline-md fr-btns-group--right fr-mt-2w ref-actions"><li><button type="button" class="fr-btn fr-btn--secondary" id="refImpCancel">Annuler</button></li><li><button type="button" class="fr-btn" id="refImpGo">Verser les notes</button></li></ul>';
     var $ = function (i) { return body.querySelector('#' + i); };
@@ -18238,7 +18299,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
     var cardsHtml = groups.map(function (g) {
       var occupantsHtml = g.occupants.length
-        ? g.occupants.map(function (name) { return '<span class="fr-badge fr-badge--sm uv-occ" draggable="true" data-name="' + escapeHtml(name) + '" title="Glisser sur une autre chambre pour y affecter cet occupant (et sa fiche)">' + escapeHtml(name) + '</span>'; }).join('')
+        ? g.occupants.map(function (name) { return '<span class="fr-badge fr-badge--sm uv-occ" draggable="true" data-name="' + escapeHtml(name) + '" title="Glisser sur une autre chambre pour y affecter cet occupant (et sa fiche)">' + escapeHtml(window.fmtNomPrenom ? window.fmtNomPrenom(name) : name) + '</span>'; }).join('')
         : '<span class="uv-card__empty">Aucun occupant</span>';
       // Icône de téléchargement (affiche de cette UV seule) : omise pour
       // une UV sans aucun occupant, comme pour l'export groupé (rien à
@@ -19891,7 +19952,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var reglageEditFields = {
     code: document.getElementById('reglageEditField_code'),
     numero: document.getElementById('reglageEditField_numero'),
-    duree: document.getElementById('reglageEditField_duree'),
     intitule: document.getElementById('reglageEditField_intitule'),
     consignes: document.getElementById('reglageEditField_consignes')
   };
@@ -20410,12 +20470,12 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (typeof raw === 'number') {
       if (absDemandeurRef) {
         var label = absDemandeurRef.labels[raw];
-        return label !== undefined ? label : '';
+        return label !== undefined ? fmtNP(label) : '';
       }
       absDemandeurLooksLikeRefId = true;
       return '#' + raw;
     }
-    return textOf(raw);
+    return fmtNP(textOf(raw));
   }
 
   function loadDemandeurRefInfo(cfg) {
@@ -21178,7 +21238,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       var label = document.createElement('label');
       label.className = asTags ? 'fr-tag fr-tag--sm cadre-tag' : 'fr-label';
       label.setAttribute('for', id);
-      label.textContent = entry.label;
+      label.textContent = fmtNP(entry.label);
       group.appendChild(input);
       group.appendChild(label);
       if (asTags) {
@@ -21295,7 +21355,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function fmtCadresStar(text, plain) {
     var names = splitCadreNames(text);
     if (names.length < 2) return textOf(text);
-    return names.map(function (n, i) { return i === 0 ? (plain ? '*' : '★ ') + n : n; }).join(', ');
+    return names.map(function (n, i) { n = fmtNP(n); return i === 0 ? (plain ? '*' : '★ ') + n : n; }).join(', ');
   }
 
   function cadreCheckboxLabel(cb) {
@@ -23165,7 +23225,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
       reglageEditFields.code.value = row ? row.code : '';
       reglageEditFields.numero.value = row ? row.numero : '';
-      reglageEditFields.duree.value = row ? row.duree : '';
       reglageEditFields.intitule.value = row ? row.intitule : '';
       reglageEditFields.consignes.value = row ? row.consignes : '';
       fillReglageTypeField(row);
@@ -23283,10 +23342,10 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var list = syncState.matches.slice().sort(function (a, b) { return (parseGristDateTime(a.Debut) || 0) - (parseGristDateTime(b.Debut) || 0); });
     document.getElementById('syncOccList').innerHTML = list.map(function (r) {
       var d = parseGristDateTime(r.Debut), f = parseGristDateTime(r.Fin), app = normalizeApprenants(r.Apprenants);
-      return '<div class="fr-fieldset__element"><div class="fr-checkbox-group fr-checkbox-group--sm"><input type="checkbox" id="syncOcc_' + r.id + '" data-occ="' + r.id + '"' + (syncState.selected[r.id] ? ' checked' : '') + '>' +
-        '<label class="fr-label" for="syncOcc_' + r.id + '"><strong>' + (d ? escapeHtml(fmtDayTitle(d)) : '—') + '</strong> ' + (d ? escapeHtml(fmtHM(d)) + (f && f > d ? ' – ' + escapeHtml(fmtHM(f)) : '') : '') +
-        ' ' + (app.length ? inlineBadgesHtml(app, 'badges') : '<span class="fr-hint-text">tous les pelotons</span>') +
-        (textOf(r.Intitule) ? ' <span class="fr-hint-text">' + escapeHtml(syncShort(textOf(r.Intitule))) + '</span>' : '') + '</label></div></div>';
+      return '<div class="sync-occ-row"><div class="fr-checkbox-group fr-checkbox-group--sm"><input type="checkbox" id="syncOcc_' + r.id + '" data-occ="' + r.id + '"' + (syncState.selected[r.id] ? ' checked' : '') + '>' +
+        '<label class="fr-label" for="syncOcc_' + r.id + '"><span class="sync-occ__date">' + (d ? escapeHtml(fmtDayTitle(d)) : '—') + '</span><span class="sync-occ__time">' + (d ? escapeHtml(fmtHM(d)) + (f && f > d ? ' – ' + escapeHtml(fmtHM(f)) : '') : '') + '</span></label></div>' +
+        '<span class="sync-occ__apps">' + (app.length ? inlineBadgesHtml(app, 'badges') : '<span class="fr-hint-text">tous les pelotons</span>') + '</span>' +
+        '<span class="sync-occ__title">' + (textOf(r.Intitule) ? escapeHtml(syncShort(textOf(r.Intitule))) : '') + '</span></div>';
     }).join('');
     document.getElementById('syncOccList').querySelectorAll('input[data-occ]').forEach(function (cb) {
       cb.addEventListener('change', function () { syncState.selected[cb.getAttribute('data-occ')] = cb.checked; renderSyncFields(); });
@@ -23307,11 +23366,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       var count = scoped.filter(function (r) { return syncNeedsUpdate(r, field, syncState.newVals); }).length;
       var oldV = syncState.oldVals[field === 'cadres' ? 'cadres' : field];
       var newV = syncState.newVals[field === 'cadres' ? 'cadres' : field];
-      html += '<div class="fr-fieldset__element"><div class="fr-checkbox-group fr-checkbox-group--sm">' +
+      html += '<div class="sync-field-row"><div class="fr-checkbox-group fr-checkbox-group--sm">' +
         '<input type="checkbox" id="syncField_' + field + '" data-field="' + field + '"' + (syncState.checked[field] ? ' checked' : '') + (count ? '' : ' disabled') + '>' +
-        '<label class="fr-label" for="syncField_' + field + '">' + escapeHtml(SYNC_FIELD_LABELS[field]) +
-        ' <span class="fr-hint-text">' + escapeHtml(syncDisplayValue(field, oldV)) + ' → ' + escapeHtml(syncDisplayValue(field, newV)) +
-        ' — ' + count + ' occurrence' + (count > 1 ? 's' : '') + ' à modifier</span></label></div></div>';
+        '<label class="fr-label" for="syncField_' + field + '"><span class="sync-f__name">' + escapeHtml(SYNC_FIELD_LABELS[field]) + '</span>' +
+        '<span class="sync-f__diff"><span class="sync-old">' + escapeHtml(syncDisplayValue(field, oldV)) + '</span><span class="sync-arrow" aria-hidden="true">→</span><span class="sync-new">' + escapeHtml(syncDisplayValue(field, newV)) + '</span></span></label></div>' +
+        '<span class="fr-badge fr-badge--sm ' + (count ? 'fr-badge--info' : 'fr-badge--no-icon') + '">' + count + ' occurrence' + (count > 1 ? 's' : '') + ' à modifier</span></div>';
     });
     syncFieldsList.innerHTML = html;
     syncFieldsList.querySelectorAll('input[data-field]').forEach(function (cb) {
@@ -23432,7 +23491,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var cfg = reglagesConfig;
     var code = reglageEditFields.code.value.trim();
     var numero = reglageEditFields.numero.value.trim();
-    var duree = reglageEditFields.duree.value.trim();
     var intitule = reglageEditFields.intitule.value.trim();
     var consignes = reglageEditFields.consignes.value.trim();
     var cadres = checkedCadreNames(reglageEditCadresList, 'reglageEditCadres');
@@ -23455,7 +23513,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     patch[cfg.col.code] = code;
     if (reglagesHasType) patch[cfg.col.type] = reglageTypeValueForWrite();
     if (cfg.col.numero) patch[cfg.col.numero] = numero;
-    if (cfg.col.duree) patch[cfg.col.duree] = duree;
     patch[cfg.col.intitule] = intitule;
     if (cfg.col.cadresDesignes) patch[cfg.col.cadresDesignes] = encodeListForWrite(cadres, reglagesCadresInfo);
     if (cfg.col.consignes) patch[cfg.col.consignes] = consignes;
@@ -24211,11 +24268,12 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var weekTooltipSeq = 0;
 
   // principal = true : le premier nom est le cadre principal, marqué d'une étoile dans son badge.
+  function fmtNP(v) { return window.fmtNomPrenom ? window.fmtNomPrenom(v) : v; }
   function inlineBadgesHtml(names, cls, principal) {
     if (!names.length) return '';
     return '<span class="' + cls + '">' + names.map(function (n, i) {
       var star = principal && i === 0 ? '<span class="cadre-badge-star" role="img" aria-label="Cadre principal" title="Cadre principal">★</span> ' : '';
-      return '<span class="fr-badge fr-badge--sm' + (star ? ' fr-badge--principal' : '') + '">' + star + escapeHtml(n) + '</span>';
+      return '<span class="fr-badge fr-badge--sm' + (star ? ' fr-badge--principal' : '') + '">' + star + escapeHtml(fmtNP(n)) + '</span>';
     }).join('') + '</span>';
   }
 
@@ -24717,7 +24775,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
           code: r.Code,
           intitule: textOf(r.Intitule),
           lieu: textOf(r.Lieu),
-          encadrement: textOf(r.Encadrement),
+          encadrement: fmtNP(textOf(r.Encadrement)),
           consignes: textOf(r.Consignes),
           apprenants: normalizeApprenants(r.Apprenants),
           type: textOf(r.Type)
