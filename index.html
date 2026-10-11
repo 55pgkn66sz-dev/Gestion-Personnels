@@ -420,6 +420,16 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   }
   .cand-modal-dialog__minor-flag[hidden] { display: none; }
+  .cand-modal-dialog__minor-badge { align-self: center; }
+  /* Mineur au 1er jour de la formation : filigrane jaune sur la ligne (« -18 » à droite) ; la raison s'affiche au survol, à droite. */
+  .cand-row__minor { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .cand-table tr:has(.cand-row__minor) { background-image: linear-gradient(to left, rgba(255, 214, 0, 0.26), rgba(255, 214, 0, 0) 45%); }
+  .cand-table tr:has(.cand-row__minor) td.cand-table__end::before { content: '-18'; position: absolute; right: 3.2rem; top: 50%; transform: translateY(-50%); font-weight: 900; font-size: 1.9rem; letter-spacing: -0.05em; line-height: 1; color: rgba(204, 153, 0, 0.4); pointer-events: none; transition: opacity 0.12s; }
+  .cand-table tr:has(.cand-row__minor):hover td.cand-table__end::before, .cand-table tr:has(.cand-row__minor):focus-visible td.cand-table__end::before { opacity: 0; }
+  .row-reason--minor { color: var(--text-default-warning); }
+  .cand-table tr:has(.cand-row__minor) td.cand-table__end:has(.cand-row__dup)::before, .cand-table td.cand-table__end:has(.cand-row__dup) .row-reason { right: 6.2rem; }
+  .cand-row:has(.cand-row__minor) { background-image: linear-gradient(to left, rgba(255, 214, 0, 0.26), rgba(255, 214, 0, 0) 45%); }
+  .cand-row:has(.cand-row__minor) .cand-row__end::before { content: '-18'; font-weight: 900; font-size: 1.3rem; letter-spacing: -0.05em; line-height: 1; color: rgba(204, 153, 0, 0.45); }
   /* Icône de doublon, en haut à droite de la modale (à gauche du pictogramme "mineur"). */
   .cand-modal-dialog__dup-flag { width: 2.1rem; height: 2.1rem; font-size: 1.05rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); }
   .cand-modal-dialog__dup-flag[hidden] { display: none; }
@@ -472,8 +482,11 @@
   .enc-viewmode .fr-select { margin-top: 0; }
   .enc-group-title { margin: 1.2rem 0 0.5rem; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-mention-grey); }
   .enc-group-title:first-child { margin-top: 0; }
-  #panelStagiaires, #panelEncadrement, .stg-dialog { --bleu-france: #5c5a2b; --text-action-high-blue-france: #5c5a2b; --olive-chip: #e6e2c4; --olive-avatar: #dcd8b4; --teal-chip: #d5f0ee; --teal-chip-text: #006a6f; }
-  [data-fr-theme="dark"] #panelStagiaires, [data-fr-theme="dark"] #panelEncadrement, [data-fr-theme="dark"] .stg-dialog { --bleu-france: #d8d48c; --text-action-high-blue-france: #d8d48c; --olive-chip: #3d3c1f; --olive-avatar: #4a4922; --teal-chip: #12292b; --teal-chip-text: #7fd6d9; }
+  #panelStagiaires, #panelEncadrement { --bleu-france: #5c5a2b; --text-action-high-blue-france: #5c5a2b; --olive-chip: #e6e2c4; --olive-avatar: #dcd8b4; --teal-chip: #d5f0ee; --teal-chip-text: #006a6f; }
+  [data-fr-theme="dark"] #panelStagiaires, [data-fr-theme="dark"] #panelEncadrement { --bleu-france: #d8d48c; --text-action-high-blue-france: #d8d48c; --olive-chip: #3d3c1f; --olive-avatar: #4a4922; --teal-chip: #12292b; --teal-chip-text: #7fd6d9; }
+  /* Fiches Stagiaire / Encadrement : palette bleu France du widget Candidats PMG. */
+  .stg-dialog { --bleu-france: var(--text-action-high-blue-france); --olive-chip: var(--background-contrast-blue-france); --olive-avatar: var(--background-contrast-blue-france); --teal-chip: #d5f0ee; --teal-chip-text: #006a6f; }
+  [data-fr-theme="dark"] .stg-dialog { --teal-chip: #12292b; --teal-chip-text: #7fd6d9; }
   .stg-dialog { max-width: none; }
   .stg-hero { display: flex; align-items: flex-start; gap: 1.1rem; padding-bottom: 1.1rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
   .stg-avatar {
@@ -503,6 +516,61 @@
   .stg-chip--bad::before { background: var(--statut-refusee); }
   .stg-chip--warn { background: var(--background-contrast-warning); color: var(--text-default-warning); border-color: transparent; }
   .stg-chip--warn::before { background: var(--statut-rejet); }
+  /* Bandeau fixe des fiches Stagiaire / Encadrement : en-tête, pastilles d'état et onglets restent visibles au défilement (grands écrans). */
+  .stg-status:empty { display: none; }
+  .stg-sticky .stg-status { align-items: center; margin-bottom: 0.4rem; }
+  /* === Fiches Stagiaire / Encadrement : même design que le widget Candidats PMG === */
+  .stg-dialog .stg-hero { align-items: flex-start; gap: 1rem; padding-bottom: 1rem; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-default-grey); }
+  .stg-dialog .stg-portrait { padding-bottom: 0; }
+  .stg-dialog .stg-avatar { width: 3.25rem; height: 3.25rem; border-radius: 999px; font-size: 1.15rem; box-shadow: none; background: var(--background-contrast-blue-france); color: var(--text-action-high-blue-france); }
+  .stg-dialog .stg-avatar--photo { background-size: cover; background-position: center 20%; color: transparent; }
+  .stg-dialog .stg-hero__id .cand-modal-dialog__title { margin: 0; font-size: 1.45em; font-weight: 700; letter-spacing: -0.01em; color: var(--text-title-grey); }
+  .stg-dialog .stg-hero__subtitle { margin: 0.15rem 0 0; font-size: 0.95rem; font-weight: 500; color: var(--text-mention-grey); }
+  .stg-dialog .modal-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin-top: 0.6rem; }
+  .stg-dialog .modal-tags:empty { display: none; }
+  .stg-dialog .modal-tags .stg-flags { margin: 0; }
+  .stg-dialog .cand-modal-dialog__header-actions { align-items: center; gap: 0.6rem; }
+  #candModalOverlay .stg-dialog .cand-modal-dialog__nav, #candModalOverlay .stg-dialog .cand-modal-dialog__close { width: 2.25rem; height: 2.25rem; margin: 0; border: 0 !important; border-radius: 999px; background: var(--background-alt-grey) !important; color: var(--text-action-high-blue-france) !important; }
+  #candModalOverlay .stg-dialog .cand-modal-dialog__nav:hover:not(:disabled), #candModalOverlay .stg-dialog .cand-modal-dialog__close:hover { background: var(--background-contrast-blue-france) !important; }
+  .stg-dialog .stg-tabs { display: flex; flex-wrap: wrap; gap: 0; margin: 0 0 1.25rem; border-bottom: 1px solid var(--border-default-grey); }
+  .stg-dialog .stg-sticky .stg-tabs { margin-bottom: 0; }
+  .stg-dialog .stg-tab { all: unset; box-sizing: border-box; cursor: pointer; position: relative; padding: 12px 24px; font: inherit; font-weight: 500; color: var(--text-title-grey); border: 1px solid transparent; border-bottom: 0; margin-bottom: -1px; background: transparent; }
+  .stg-dialog .stg-tab:hover { background: var(--background-default-grey-hover); color: var(--text-title-grey); }
+  .stg-dialog .stg-tab[aria-selected="true"] { color: var(--text-action-high-blue-france); border-color: var(--border-default-grey); background: var(--background-raised-grey); }
+  .stg-dialog .stg-tab[aria-selected="true"]::before { content: ""; position: absolute; left: -1px; right: -1px; top: -1px; height: 2px; background: var(--text-action-high-blue-france); }
+  .stg-dialog .stg-tab:focus-visible { outline: 2px solid #0a76f6; outline-offset: 2px; }
+  .stg-dialog .detail-table td { font-weight: 400; color: var(--text-title-grey); }
+  .stg-dialog .detail-table td.is-empty { color: var(--text-disabled-grey); }
+  .stg-dialog .detail-title { color: var(--text-action-high-blue-france); }
+  /* Bouton-icône (design PMG) : transparent, teinte bleue au survol ; son libellé se déplie vers la droite au survol ou au focus. */
+  .stg-dialog .icon-btn { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; min-width: 2rem; height: 2rem; padding: 0 0.3rem; border-radius: 4px; color: var(--text-action-high-blue-france); flex: none; }
+  .stg-dialog .icon-btn > span { --icon-size: 1.25rem; }
+  .stg-dialog .icon-btn:hover, .stg-dialog .icon-btn:focus-visible { background: var(--background-contrast-blue-france); }
+  .stg-dialog .icon-btn.is-set { color: var(--text-default-error); }
+  .stg-dialog .icon-btn.is-set:hover, .stg-dialog .icon-btn.is-set:focus-visible { background: var(--background-contrast-error); }
+  .stg-dialog .icon-btn:focus-visible { outline: 2px solid #0a76f6; outline-offset: 2px; }
+  .stg-dialog .icon-btn[data-lbl]::after { content: attr(data-lbl); display: block; max-width: 0; padding: 0; overflow: hidden; white-space: nowrap; font-size: 0.875rem; font-weight: 500; line-height: 1.2; letter-spacing: 0; text-transform: none; opacity: 0; transition: max-width 0.28s ease, padding 0.28s ease, opacity 0.15s ease; }
+  .stg-dialog .icon-btn[data-lbl]:hover::after, .stg-dialog .icon-btn[data-lbl]:focus-visible::after { max-width: min(30rem, 85vw); padding: 0 0.25rem 0 0.45rem; opacity: 1; }
+  .stg-dialog .detail-actions { display: inline-flex; gap: 0.15rem; margin-left: 0.25rem; }
+  @media (prefers-reduced-motion: reduce) { .stg-dialog .icon-btn[data-lbl]::after { transition: none; } }
+  .cand-save-ind { margin-left: auto; font-size: 0.8rem; font-weight: 600; color: var(--text-mention-grey); }
+  .cand-save-ind:empty { display: none; }
+  .cand-save-ind--saved { color: var(--text-default-success); }
+  .cand-save-ind--saved::before { content: '\2713\00a0'; }
+  .cand-save-ind--error { color: var(--text-default-error); max-width: 28rem; }
+  .cand-save-ind--error::before { content: '\26A0\00a0'; }
+  @media (min-width: 48rem) {
+    .stg-sticky { position: sticky; top: -1.85rem; z-index: 20; margin: -1.85rem -2rem 0; padding: 1.85rem 2rem 0; background: var(--background-raised-grey); border-radius: 1rem 1rem 0 0; }
+    .stg-sticky .stg-hero { margin-bottom: 0.6rem; padding-bottom: 0.8rem; }
+    .stg-sticky .stg-tabs { margin-bottom: 0; }
+  }
+.stg-dialog .stg-tabpanel { padding-top: 1.25rem; }
+  .housing-room { display: flex; flex-direction: column; align-items: flex-start; gap: 0.35rem; }
+  .housing-room > .fr-link { background: none; border: 0; padding: 0; cursor: pointer; font-weight: 600; }
+  .housing-room__occ { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+  .housing-room__tag.is-self { background: var(--background-contrast-grey); color: var(--text-mention-grey); }
+  .enc-perm-alert { margin-top: 0.3rem; }
+  .uv-card.is-flash { outline: 3px solid var(--bleu-france, #000091); outline-offset: 2px; transition: outline-color 0.4s; }
   .stg-chip--neutral { background: var(--background-alt-grey); color: var(--text-default-grey); border-color: transparent; }
 
   .stg-item__value { display: block; font-weight: 600; overflow-wrap: anywhere; }
@@ -2483,6 +2551,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 .dis-tip { position: fixed; z-index: 3000; max-width: 22rem; padding: 0.6rem 0.8rem; border-radius: 0.5rem; border: 1px solid var(--border-default-grey); background: var(--background-raised-grey); color: var(--text-default-grey); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25); font-size: 0.85rem; line-height: 1.4; pointer-events: none; }
 .dis-tip[hidden] { display: none; }
 /* Choix des cadres : affichage rapide par type de cadre, tags avec étoile du cadre principal. */
+  .req-table tr.is-unplanned > td:not(.doc-table__actions):not(.req-code-cell), .req-table td.is-unplanned-cell, .req-card.is-unplanned > p { opacity: .45; }
+  .req-table tr.is-unplanned:hover > td:not(.doc-table__actions):not(.req-code-cell), .req-card.is-unplanned:hover > p { opacity: .8; }
 .cadre-quick { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; margin: 0 0 0.5rem; }
 .cadre-quick__lbl { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-mention-grey); margin-right: 0.3rem; }
 .cadre-quick__tag[aria-pressed="true"] { background: var(--background-action-high-blue-france, #000091); color: #fff; }
@@ -2566,7 +2636,33 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 .ref-mini .ref-num { text-align: right; white-space: nowrap; }
 .ref-mini tbody th { font-weight: 600; }
 @media (max-width: 40rem) { .ref-grid { grid-template-columns: 1fr; } }
+.cadre-badge-star { color: #b8860b; font-size: 0.95em; line-height: 1; margin-right: 0.15rem; }
 .ref-actions .ref-del { margin-right: auto; }
+/* Fenêtre « Ajouter des notes » / détail d'une évaluation */
+.ref-dlg--wide .fr-grid-row > [class*="fr-col"] { flex: 0 0 min(100%, 54rem); max-width: min(100%, 54rem); width: min(100%, 54rem); }
+.ref-drop { flex-direction: column; justify-content: center; text-align: center; gap: 0.35rem; padding: 2rem 1.25rem; }
+.ref-drop > span:first-child { font-size: 2.2rem; }
+.ref-drop__text { display: flex; flex-direction: column; font-size: 1.05rem; }
+.ref-drop__hint { font-size: 0.8rem; color: var(--text-mention-grey); max-width: 34rem; }
+.ref-box { margin: 0 0 1rem; padding: 0.8rem 1rem 0.2rem; border: 1px solid var(--border-default-grey); border-radius: 0.5rem; background: var(--background-alt-grey); }
+.ref-box__title { margin: 0 0 0.5rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-mention-grey); }
+.ref-box .fr-select-group, .ref-box .fr-input-group { margin-bottom: 0.8rem; }
+.ref-box .ref-grid--4 { grid-template-columns: 1.3fr 1.6fr 0.75fr 0.75fr; }
+@media (max-width: 40rem) { .ref-box .ref-grid--4 { grid-template-columns: 1fr 1fr; } .ref-grid--4 .ref-span2 { grid-column: span 2; } }
+.ref-man-count { margin: 0 0 0.4rem; font-size: 0.8rem; color: var(--text-mention-grey); }
+.ref-man-list { max-height: 40vh; overflow: auto; }
+.ref-man-rows { list-style: none; margin: 0; padding: 0; border: 1px solid var(--border-default-grey); border-radius: 0.5rem; }
+.ref-man-rows > li { padding: 0; margin: 0; }
+.ref-man-row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.4rem 0.8rem; border-bottom: 1px solid var(--border-default-grey); }
+.ref-man-rows > li:last-child { border-bottom: 0; }
+.ref-man-row:nth-child(even) { background: var(--background-alt-grey); }
+.ref-man-name { flex: 1 1 auto; min-width: 0; margin: 0; cursor: pointer; }
+.ref-man-pon { margin-left: 0.4rem; padding: 0 0.4rem; border-radius: 999px; font-size: 0.75rem; background: var(--background-contrast-grey); color: var(--text-mention-grey); }
+.ref-man-field { display: inline-flex; align-items: center; gap: 0.4rem; flex: 0 0 auto; }
+.ref-man-field .ref-man-input { width: 5.5rem; }
+.ref-man-max { font-size: 0.85rem; color: var(--text-mention-grey); min-width: 2.2rem; }
+.ref-actions { position: sticky; bottom: 0; margin: 1rem 0 0 !important; padding: 0.75rem 0 0.25rem; background: var(--background-raised-grey); border-top: 1px solid var(--border-default-grey); }
+@media (max-width: 40rem) { #refAddDlg .ref-actions, #refEvalDlg .ref-actions { position: static; flex-direction: row !important; flex-wrap: nowrap; justify-content: flex-end; gap: 0.5rem; } #refAddDlg .ref-actions > li, #refEvalDlg .ref-actions > li { flex: 1 1 0; width: auto; padding: 0; } #refAddDlg .ref-actions .fr-btn, #refEvalDlg .ref-actions .fr-btn { width: 100%; justify-content: center; margin: 0; } .ref-man-list { max-height: none; } }
 .ref-preview { margin-top: 0.5rem; }
 .ref-preview .ref-bad td { background: var(--statut-pastel-attente); }
 #fsjConfirmModal:not([open]), .fsj-dlg:not([open]) { display: none; }
@@ -5152,7 +5248,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.55.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.58.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -5434,6 +5530,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function iconTips() {
     Array.prototype.forEach.call(candModalOverlay.querySelectorAll('button'), function (b) {
       var visible = (b.textContent || '').trim();
+      if (b.hasAttribute('data-lbl')) { b.removeAttribute('title'); return; } // bouton-icône à libellé qui se déplie au survol : pas d'infobulle en plus
       var isIcon = b.classList.contains('cand-modal-dialog__nav') || b.classList.contains('cand-modal-dialog__close') || b.classList.contains('stg-depart-flag') || b.classList.contains('stg-transport__btn') || !visible;
       if (!isIcon) return;
       var tip = b.getAttribute('data-tip') || b.title || visible;
@@ -6301,13 +6398,26 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
   // Suivi des écritures en cours : à la fermeture d'une fiche, la relecture des données attend la fin des enregistrements automatiques.
   var pendingWrites = 0, writeWaiters = [];
+  // Indicateur d'enregistrement des fiches (Stagiaire / Encadrement) : « Enregistrement… », « Enregistré à 14:32 » ou l'erreur (qui reste affichée).
+  var saveState = { kind: '', at: null, msg: '' };
+  function renderSaveInd() {
+    Array.prototype.forEach.call(document.querySelectorAll('.cand-save-ind'), function (el) {
+      var k = saveState.kind;
+      el.className = 'cand-save-ind' + (k ? ' cand-save-ind--' + k : '');
+      el.setAttribute('role', k === 'error' ? 'alert' : 'status');
+      el.textContent = k === 'saving' ? 'Enregistrement…' : k === 'saved' ? 'Enregistré à ' + String(saveState.at.getHours()).padStart(2, '0') + ':' + String(saveState.at.getMinutes()).padStart(2, '0') : k === 'error' ? 'Non enregistré : ' + saveState.msg : '';
+      el.title = k === 'error' ? saveState.msg : '';
+    });
+  }
   (function () {
     var api = grist.docApi, orig = api.applyUserActions;
     api.applyUserActions = function () {
       pendingWrites++;
+      saveState = { kind: 'saving', at: null, msg: '' }; renderSaveInd();
       var p = orig.apply(api, arguments);
       var done = function () { if (--pendingWrites === 0) writeWaiters.splice(0).forEach(function (f) { f(); }); };
-      p.then(done, done);
+      p.then(function () { if (saveState.kind !== 'error') saveState = { kind: pendingWrites > 1 ? 'saving' : 'saved', at: new Date(), msg: '' }; renderSaveInd(); done(); },
+        function (e) { saveState = { kind: 'error', at: null, msg: friendlyErrorMessage(e) }; renderSaveInd(); done(); });
       return p;
     };
   })();
@@ -6973,11 +7083,16 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }
 
     if (willBeMinor(row.dateNaissance, parseFrDate(settings.dateDebutFormation))) {
+      // Mineur : plus d'icône ; la ligne prend un filigrane jaune (« -18 » à droite) et la raison apparaît au survol, à droite (voir CSS).
       var minor = document.createElement('span');
       minor.className = 'cand-row__minor';
-      minor.title = 'Sera mineur au premier jour de la formation';
-      minor.innerHTML = '<span class="age-18" aria-hidden="true">-18</span><span class="fr-sr-only">Sera mineur au premier jour de la formation</span>';
+      minor.textContent = 'Sera mineur au premier jour de la formation';
       end.appendChild(minor);
+      var minorReason = document.createElement('span');
+      minorReason.className = 'row-reason row-reason--minor';
+      minorReason.setAttribute('aria-hidden', 'true');
+      minorReason.textContent = 'Sera mineur au premier jour de la formation';
+      end.appendChild(minorReason);
     }
 
     var chevron = document.createElement('span');
@@ -7275,6 +7390,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function addRowReason(tr, text, absent) {
     var cell = tr.querySelector('td.cand-table__end');
     if (!cell || !text) return;
+    var minorReason = cell.querySelector('.row-reason--minor');
+    if (minorReason) minorReason.remove(); // une seule raison à droite : celle de l'état (parti, hors détachement, absent)
     var el = document.createElement('span');
     el.className = 'row-reason' + (absent ? ' row-reason--absent' : '');
     el.setAttribute('role', 'note');
@@ -7682,13 +7799,24 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     return specs.filter(Boolean).map(function (s) { return dTr(s); });
   }
   // Icône « sortie » (départ du stagiaire) à côté du titre « Stage » de la fiche : ouvre la modale « Gérer le départ ».
+  // Badge d'état (design Candidats PMG : composant DSFR « Badge ») : success | warning | error | info.
+  function stgBadge(kind, text, title) {
+    var b = document.createElement('span');
+    b.className = 'fr-badge fr-badge--sm fr-badge--' + kind;
+    b.textContent = text;
+    if (title) b.title = title;
+    return b;
+  }
   function stgStageWithDepartFlag(section, row) {
     if (!section) return section;
     var h = section.querySelector('.detail-title');
     h.classList.add('detail-title--flag');
     var btn = stgDepartFlag(row);
     btn.classList.add('stg-depart-flag--sm');
-    h.appendChild(btn);
+    var act = document.createElement('span');
+    act.className = 'detail-actions';
+    act.appendChild(btn);
+    h.appendChild(act);
     return section;
   }
   function dGroup(title, specs) {
@@ -7947,7 +8075,10 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       dGroup('Contact d’urgence', [
         dFieldStg(row, 'nomUrgence', 'Nom'), dFieldStg(row, 'prenomUrgence', 'Prénom'), dFieldStg(row, 'telUrgence', 'Tél.', { phone: true })
       ]),
-      dGroup('Hébergement', [dFieldStg(row, 'batiment', 'Bât.', { editable: true }), dFieldStg(row, 'chambre', 'Ch.', { editable: true })]),
+      dGroup('Hébergement', [dFieldStg(row, 'batiment', 'Bât.', { editable: true }), dFieldStg(row, 'chambre', 'Ch.', { editable: true }), (function () {
+        var n = housingNode(textOf(row.batiment), textOf(row.chambre), stagiaireDisplayName(row));
+        return n ? dCustomSpec('Chambre', n, { wide: true }) : null;
+      })()]),
       dGroup('Qualifications', [dFieldStg(row, 'qualifSecourisme', 'Secourisme', { wide: true })]),
       dGroup('Infos pratiques', [dFieldPlate(row), dFieldInfosLibre(row)])
     ].forEach(function (g) { if (g) right.appendChild(g); });
@@ -8144,7 +8275,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }
     var btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'stg-depart-flag' + (rec ? ' is-set' : '');
+    btn.className = 'icon-btn stg-depart-flag' + (rec ? ' is-set' : '');
+    btn.setAttribute('data-lbl', rec ? 'Départ enregistré' + info + ' — gérer' : 'Gérer le départ');
     btn.title = rec ? 'Départ enregistré' + info + ' — cliquer pour gérer' : 'Gérer le départ du stagiaire';
     btn.setAttribute('aria-label', rec ? 'Départ enregistré' + info + ' (gérer)' : 'Gérer le départ du stagiaire');
     btn.innerHTML = '<span class="fr-icon-logout-box-r-line" aria-hidden="true"></span>';
@@ -9099,10 +9231,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     loadPortrait(avatar, row);
     portrait.appendChild(avatar);
     var pon = settings.col.pon ? textOf(row.pon) : '';
-    if (pon) {
-      var ponTag = buildPlainTag(pon, 'stg-tag--pon stg-portrait__tag', 'Peloton : ' + pon);
-      portrait.appendChild(ponTag);
-    }
     hero.appendChild(portrait);
 
     var id = document.createElement('div');
@@ -9111,10 +9239,17 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     title.className = 'cand-modal-dialog__title';
     title.textContent = prenomNom;
     id.appendChild(title);
-    // Icônes d'alerte (doublon, mineur, pas de droit à l'image) : sous le nom.
+    // Sous le nom (design Candidats PMG) : fonction · affectation, puis les étiquettes et badges d'état.
+    var subTxt = [settings.col.fonction ? textOf(row.fonction) : '', settings.col.affectation ? textOf(row.affectation) : ''].filter(Boolean).join(' · ');
+    if (subTxt) { var subEl = document.createElement('p'); subEl.className = 'stg-hero__subtitle'; subEl.textContent = subTxt; id.appendChild(subEl); }
+    var tagsRow = document.createElement('div');
+    tagsRow.className = 'modal-tags';
+    id.appendChild(tagsRow);
+    if (pon) tagsRow.appendChild(buildPlainTag(pon, 'stg-tag--pon', 'Peloton : ' + pon));
+    // Icône de transport : avec les étiquettes.
     var flags = document.createElement('div');
     flags.className = 'stg-flags';
-    id.appendChild(flags);
+    tagsRow.appendChild(flags);
     if (compare) {
       var version = document.createElement('p');
       version.className = 'cand-modal-dialog__version' + (isOldest ? ' cand-modal-dialog__version--oldest' : '');
@@ -9127,35 +9262,12 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var actions = document.createElement('div');
     actions.className = 'cand-modal-dialog__header-actions';
     var dupReasons = duplicateReasons(row, true);
-    if (dupReasons.length) {
-      var dupFlag = document.createElement('span');
-      dupFlag.className = 'cand-modal-dialog__dup-flag';
-      dupFlag.title = dupReasons.join(' ');
-      dupFlag.innerHTML = '<span class="fr-icon-error-warning-line" aria-hidden="true"></span><span class="fr-sr-only"></span>';
-      dupFlag.lastChild.textContent = dupReasons.join(' ');
-      flags.appendChild(dupFlag);
-    }
-    if (willBeMinor(row.dateNaissance, parseFrDate(settings.dateDebutFormation))) {
-      var minorFlag = document.createElement('span');
-      minorFlag.className = 'cand-modal-dialog__minor-flag';
-      minorFlag.title = 'Sera mineur au premier jour de la formation';
-      minorFlag.innerHTML = '<span class="age-18" aria-hidden="true">-18</span><span class="fr-sr-only">Sera mineur au premier jour de la formation</span>';
-      flags.appendChild(minorFlag);
-    }
-    if (settings.col.droitImage && !isYes(row.droitImage)) {
-      var imgFlag = document.createElement('span');
-      imgFlag.className = 'cand-modal-dialog__noimage-flag';
-      imgFlag.title = 'Pas de droit à l’image';
-      // Appareil photo barré (SVG en ligne : le DSFR n'a pas d'icône dédiée). Le
-      // trait est doublé d'un liseré de la couleur du fond pour bien « couper » l'appareil.
-      imgFlag.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">' +
-        '<path fill="currentColor" d="M9 2 7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9z"/>' +
-        '<circle cx="12" cy="12.2" r="4.3" fill="var(--background-contrast-warning)"/><circle cx="12" cy="12.2" r="2.6" fill="currentColor"/>' +
-        '<line x1="3.5" y1="3.5" x2="20.5" y2="20.5" stroke="var(--background-contrast-warning)" stroke-width="4.4" stroke-linecap="round"/>' +
-        '<line x1="3.5" y1="3.5" x2="20.5" y2="20.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' +
-        '<span class="fr-sr-only">Pas de droit à l’image</span>';
-      flags.appendChild(imgFlag);
-    }
+    if (dupReasons.length) tagsRow.appendChild(stgBadge('warning', row.__candRowCount > 1 ? 'Doublon (' + row.__candRowCount + ' lignes)' : 'Doublon', dupReasons.join(' ')));
+    if (willBeMinor(row.dateNaissance, parseFrDate(settings.dateDebutFormation))) tagsRow.appendChild(stgBadge('warning', 'Mineur au 1er jour', 'Sera mineur au premier jour de la formation'));
+    if (settings.col.droitImage && !isYes(row.droitImage)) tagsRow.appendChild(stgBadge('error', 'Pas de droit à l’image'));
+    var leftDay = stgLeftDate(row);
+    if (leftDay) tagsRow.appendChild(stgBadge('error', 'Parti le ' + fmtDateFr(leftDay)));
+    if (settings.col.identiteComplete && isYes(row.identiteComplete)) tagsRow.appendChild(stgBadge('success', 'Identité complète'));
     if (settings.col.modeTransport) flags.appendChild(stgTransportFlag(row)); // mode de transport, à côté des icônes d'alerte
     var closeBtn = document.createElement('button');
     closeBtn.type = 'button';
@@ -9164,23 +9276,12 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     closeBtn.addEventListener('click', closeCandidateModal);
     appendCloseWithNav(actions, closeBtn, isOldest);
     hero.appendChild(actions);
-    dlg.appendChild(hero);
+    var sticky = document.createElement('div');
+    sticky.className = 'stg-sticky';
+    sticky.appendChild(hero);
+    dlg.appendChild(sticky);
 
-    // -- Pastille d'état positive (Identité complète) : le droit à l'image n'a pas de pastille, seule son absence est signalée par une icône --
-    var chips = [];
-    // Pas de pastille « Autorisé » : le droit à l'image n'est signalé que par l'icône appareil photo barré (droit refusé).
-    if (settings.col.identiteComplete && isYes(row.identiteComplete)) chips.push(['ok', 'Identité complète']);
-    if (chips.length) {
-      var statusEl = document.createElement('div');
-      statusEl.className = 'stg-status';
-      chips.forEach(function (c) {
-        var chip = document.createElement('span');
-        chip.className = 'stg-chip stg-chip--' + c[0];
-        chip.textContent = c[1];
-        statusEl.appendChild(chip);
-      });
-      dlg.appendChild(statusEl);
-    }
+    var ind = document.createElement('span'); ind.className = 'cand-save-ind'; actions.insertBefore(ind, actions.firstChild);
 
     // -- Onglets --
     var tablist = document.createElement('div');
@@ -9212,10 +9313,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       panel.appendChild(t.build(row));
       panels[t.id] = panel;
     });
-    dlg.appendChild(tablist);
+    sticky.appendChild(tablist);
     STG_TABS.forEach(function (t) { dlg.appendChild(panels[t.id]); });
     select(STG_TABS.some(function (t) { return t.id === stgActiveTab; }) ? stgActiveTab : 'infos');
     dlg.appendChild(buildDeleteFooter('stagiaire', view.row));
+    window.setTimeout(renderSaveInd, 0);
 
     return dlg;
   }
@@ -9449,8 +9551,10 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         if (kind === 'REPOS') { // un repos s'entend de 7 h 30 au lendemain 7 h 30 (1 jour) ; une demande d'une demi-journée (matin avant 14 h, après-midi après 12 h) compte 0,5
           var f0 = new Date(from), t0 = new Date(to);
           var d0 = new Date(f0.getFullYear(), f0.getMonth(), f0.getDate()), d1 = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate());
-          var cal = Math.max(1, Math.round((d1 - d0) / 86400000) + 1), mins = function (x) { return x.getHours() * 60 + x.getMinutes(); };
-          if (cal === 1 && (mins(f0) !== 0 || mins(t0) !== 0)) {
+          var mins = function (x) { return x.getHours() * 60 + x.getMinutes(); }, sameDay = d1.getTime() === d0.getTime();
+          if (!sameDay && mins(t0) !== 0 && mins(t0) <= 7 * 60 + 30) d1 = new Date(d1.getFullYear(), d1.getMonth(), d1.getDate() - 1); // 7 h 30 → 7 h 30 J+1 = 1 jour
+          var cal = Math.max(1, Math.round((d1 - d0) / 86400000) + 1);
+          if (sameDay && (mins(f0) !== 0 || mins(t0) !== 0)) {
             if (mins(f0) >= 12 * 60 && mins(t0) <= 23 * 60 + 59 && mins(t0) >= mins(f0)) half = 'après-midi';
             else if (mins(t0) <= 14 * 60 && mins(t0) >= mins(f0)) half = 'matin';
           }
@@ -9497,7 +9601,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     res.items.sort(function (x, y) { return x.a.from - y.a.from; });
     return res;
   }
-  function fmtJ(n) { return String(n).replace('.', ','); }
+  function fmtJ(n) { return String(Math.round(n * 10) / 10).replace('.', ','); }
   function encReposNode(row) {
     var r = encReposOf(row), box = document.createElement('span');
     box.className = 'stg-item__value';
@@ -9509,7 +9613,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       return '<li>' + escapeHtml(when) + ' — ' + fmtJ(a.days) + (a.days > 1 ? ' jours' : ' jour') + (it.started ? '' : ' <em>(à venir)</em>') + '</li>';
     });
     var html = '<strong>Repos accordés</strong>' + (lines.length ? '<ul style="margin:0.3rem 0 0;padding-left:1.1rem">' + lines.join('') + '</ul>' : '<br>Aucun repos accordé.');
-    if (!isNaN(rd)) html += '<br>Droits à repos : ' + fmtJ(rd) + ' · pris : ' + fmtJ(r.pris) + ' · restants : ' + fmtJ(Math.max(0, rd - r.pris - r.avenir));
+    if (!isNaN(rd)) { var rdr = Math.round(rd); html += '<br>Droits à repos : ' + fmtJ(rdr) + ' · pris : ' + fmtJ(r.pris) + ' · restants : ' + fmtJ(Math.max(0, rdr - r.pris - r.avenir)); }
     box.tabIndex = 0;
     box.style.cssText = 'cursor:help;border-bottom:1px dotted currentColor';
     box.setAttribute('data-tip-html', html);
@@ -9880,7 +9984,10 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         dFieldEnc(row, 'emailPro', 'Email pro', { mail: true })
       ]),
       dGroup('Hébergement', [
-        dFieldEnc(row, 'batiment', 'Bâtiment', { editable: true }), dFieldEnc(row, 'chambre', 'Chambre', { editable: true })
+        dFieldEnc(row, 'batiment', 'Bâtiment', { editable: true }), dFieldEnc(row, 'chambre', 'Chambre', { editable: true }), (function () {
+          var n = housingNode(encText(row, 'batiment'), encText(row, 'chambre'), encDisplayName(row));
+          return n ? dCustomSpec('Occupants', n, { wide: true }) : null;
+        })()
       ]),
       dGroup('Qualifications', [
         dFieldEnc(row, 'secourisme', 'Qualif. secourisme'), dFieldEnc(row, 'permis', 'Permis détenus')
@@ -9902,6 +10009,59 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var p = encNameParts(row);
     try { return window.FSJ && window.FSJ.cadreCourses ? window.FSJ.cadreCourses(p.nom, p.prenom) : []; } catch (e) { return []; }
   }
+  function encActivityOf(row) {
+    var p = encNameParts(row);
+    try { return window.FSJ && window.FSJ.cadreActivity ? window.FSJ.cadreActivity(p.nom, p.prenom) : null; } catch (e) { return null; }
+  }
+  function encHoursText(h) { return String(Math.round(h * 100) / 100).replace('.', ',') + ' h'; }
+  function encTypeTotalsNode(act) {
+    if (!act || !act.types.length) return stgTextValue('');
+    var box = document.createElement('span');
+    box.className = 'stg-item__value enc-courses';
+    act.types.forEach(function (t) { box.appendChild(buildPlainTag(t.label + ' · ' + encHoursText(t.hours), 'stg-tag--pon', t.label + ' : ' + t.n + ' séance' + (t.n > 1 ? 's' : '') + ', ' + encHoursText(t.hours))); });
+    return box;
+  }
+  function encNextCourseNode(act) {
+    if (!act || !act.next) return stgTextValue('');
+    var n = act.next, box = document.createElement('span');
+    box.className = 'stg-item__value';
+    box.textContent = n.title + ' — ' + n.day + ' ' + n.hm + (n.lieu ? ', ' + n.lieu : '');
+    return box;
+  }
+  // Une permanence va de 7 h 30 au lendemain 7 h 30 ; elle est signalée quand le cadre est en repos (accordé) sur cette période.
+  function encPermReposClash(row, item) {
+    var hit = encReposOf(row).items.filter(function (it) { return it.a.from <= item.to && it.a.to >= item.from; })[0];
+    return hit ? hit.a : null;
+  }
+  function encPermNode(row, act) {
+    var box = document.createElement('span');
+    box.className = 'stg-item__value';
+    if (!act || !act.perms.list.length) { box.textContent = 'Aucune permanence dans la Progression.'; box.className += ' stg-item__value--empty'; return box; }
+    var pm = act.perms;
+    box.textContent = pm.done + (pm.done > 1 ? ' effectuées' : ' effectuée') + ' · ' + pm.upcoming + ' à venir';
+    box.tabIndex = 0;
+    box.style.cssText = 'cursor:help;border-bottom:1px dotted currentColor';
+    box.setAttribute('data-tip-html', '<strong>Permanences</strong><ul style="margin:0.3rem 0 0;padding-left:1.1rem">' + pm.list.map(function (x) {
+      return '<li>' + escapeHtml(x.date) + ' — ' + escapeHtml(x.code) + (x.to < Date.now() ? '' : ' <em>(à venir)</em>') + '</li>';
+    }).join('') + '</ul>');
+    return box;
+  }
+  function encNextPermNode(row, act) {
+    if (!act || !act.perms.next) return stgTextValue('');
+    var n = act.perms.next, clash = encEncodedClash(row, n), box = document.createElement('span');
+    box.className = 'stg-item__value';
+    box.appendChild(document.createTextNode(n.date + ' — ' + n.code + ' (7 h 30 → 7 h 30 le lendemain)'));
+    if (clash) {
+      var warn = document.createElement('span');
+      warn.className = 'stg-chip stg-chip--warn enc-perm-alert';
+      warn.setAttribute('role', 'alert');
+      warn.textContent = 'En repos ce jour-là (' + fmtDateFr(new Date(Date.UTC(new Date(clash.from).getFullYear(), new Date(clash.from).getMonth(), new Date(clash.from).getDate()))) + ' → ' + fmtDateFr(new Date(Date.UTC(new Date(clash.to).getFullYear(), new Date(clash.to).getMonth(), new Date(clash.to).getDate()))) + ')';
+      box.appendChild(document.createElement('br'));
+      box.appendChild(warn);
+    }
+    return box;
+  }
+  function encEncodedClash(row, item) { return encPermReposClash(row, item); }
   function encCoursesNode(row) {
     var courses = encTaughtCourses(row);
     if (!courses.length) return stgTextValue('');
@@ -9936,11 +10096,18 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       enc.cols.groupe ? dCustomSpec('Groupe', encGroupsNode(row), { wide: true, empty: !encValues(row, 'groupe').length }) : null,
       dFieldEnc(row, 'fonction', 'Fonction', { wide: true })
     ]);
+    var act = encActivityOf(row);
     var cours = dGroup('Cours', [
+      dCustomSpec('Heures par type', encTypeTotalsNode(act), { wide: true, empty: !act || !act.types.length }),
+      dCustomSpec('Prochain cours', encNextCourseNode(act), { wide: true, empty: !act || !act.next }),
       dCustomSpec('Cours dispensés', encCoursesNode(row), { wide: true, empty: !encTaughtCourses(row).length }),
       dFieldEnc(row, 'hCours', 'Heures de cours')
     ]);
-    [mission, poste, cours].forEach(function (card) { if (card) wrap.appendChild(card); });
+    var perms = act ? dGroup('Permanences', [
+      dCustomSpec('Effectuées', encPermNode(row, act), { wide: true }),
+      dCustomSpec('Prochaine', encNextPermNode(row, act), { wide: true, empty: !act.perms.next })
+    ]) : null;
+    [mission, poste, cours, perms].forEach(function (card) { if (card) wrap.appendChild(card); });
     if (!wrap.childNodes.length) {
       var empty = document.createElement('p');
       empty.className = 'cand-empty-state';
@@ -9977,7 +10144,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     portrait.appendChild(avatar);
     // Étiquette qui chevauche la photo : le groupe, condensé — sauf pour IP et Secourisme (formateurs), sans étiquette.
     var groupTags = encGroupTags(row).filter(function (g) { return ['IP', 'SECOURISME'].indexOf(normalizeKey(condenseGroup(g))) === -1; });
-    if (groupTags.length) portrait.appendChild(buildPlainTag(groupTags.map(condenseGroup).join(', '), 'stg-tag--pon stg-portrait__tag', 'Groupe : ' + groupTags.join(', ')));
+    var groupTagEl = groupTags.length ? buildPlainTag(groupTags.map(condenseGroup).join(', '), 'stg-tag--pon', 'Groupe : ' + groupTags.join(', ')) : null;
     hero.appendChild(portrait);
 
     var id = document.createElement('div');
@@ -9994,21 +10161,14 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       subtitle.textContent = fonctionText;
       id.appendChild(subtitle);
     }
+    var tagsRow = document.createElement('div');
+    tagsRow.className = 'modal-tags';
+    id.appendChild(tagsRow);
+    if (groupTagEl) tagsRow.appendChild(groupTagEl);
     var flags = document.createElement('div');
     flags.className = 'stg-flags';
     id.appendChild(flags);
-    if (enc.cols.droitImage && !isYes(row.f.droitImage)) {
-      var imgFlag = document.createElement('span');
-      imgFlag.className = 'cand-modal-dialog__noimage-flag';
-      imgFlag.title = 'Pas de droit à l’image';
-      imgFlag.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">' +
-        '<path fill="currentColor" d="M9 2 7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9z"/>' +
-        '<circle cx="12" cy="12.2" r="4.3" fill="var(--background-contrast-warning)"/><circle cx="12" cy="12.2" r="2.6" fill="currentColor"/>' +
-        '<line x1="3.5" y1="3.5" x2="20.5" y2="20.5" stroke="var(--background-contrast-warning)" stroke-width="4.4" stroke-linecap="round"/>' +
-        '<line x1="3.5" y1="3.5" x2="20.5" y2="20.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' +
-        '<span class="fr-sr-only">Pas de droit à l’image</span>';
-      flags.appendChild(imgFlag);
-    }
+    if (enc.cols.droitImage && !isYes(row.f.droitImage)) tagsRow.appendChild(stgBadge('error', 'Pas de droit à l’image'));
     hero.appendChild(id);
 
     var actions = document.createElement('div');
@@ -10020,14 +10180,17 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     closeBtn.addEventListener('click', closeCandidateModal);
     appendCloseWithNav(actions, closeBtn, true);
     hero.appendChild(actions);
-    dlg.appendChild(hero);
+    var sticky = document.createElement('div');
+    sticky.className = 'stg-sticky';
+    sticky.appendChild(hero);
+    dlg.appendChild(sticky);
 
-    if (enc.cols.identiteComplete && isYes(row.f.identiteComplete)) {
-      var statusEl = document.createElement('div');
-      statusEl.className = 'stg-status';
-      statusEl.innerHTML = '<span class="stg-chip stg-chip--ok">Identité complète</span>';
-      dlg.appendChild(statusEl);
-    }
+    if (enc.cols.identiteComplete && isYes(row.f.identiteComplete)) tagsRow.appendChild(stgBadge('success', 'Identité complète'));
+    var detSt = encDetachStatus(row);
+    if (detSt) tagsRow.appendChild(stgBadge('error', encDetachText(detSt)));
+    var absToday = encAbsentToday(row);
+    if (absToday) tagsRow.appendChild(stgBadge('warning', encAbsentText(absToday)));
+    var indEnc = document.createElement('span'); indEnc.className = 'cand-save-ind'; actions.insertBefore(indEnc, actions.firstChild);
 
     var tablist = document.createElement('div');
     tablist.className = 'stg-tabs';
@@ -10057,10 +10220,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       panel.appendChild(t.build(row));
       panels[t.id] = panel;
     });
-    dlg.appendChild(tablist);
+    sticky.appendChild(tablist);
     ENC_TABS.forEach(function (t) { dlg.appendChild(panels[t.id]); });
     select(ENC_TABS.some(function (t) { return t.id === encActiveTab; }) ? encActiveTab : 'infos');
     dlg.appendChild(buildDeleteFooter('encadrement', row));
+    window.setTimeout(renderSaveInd, 0);
     return dlg;
   }
 
@@ -12416,6 +12580,47 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   });
   // Retrouve la fiche (stagiaire ou cadre) d'après un nom écrit « NOM Prénom », « Prénom NOM » ou précédé d'un grade ; renvoie la liste des fiches
   // qui correspondent (une seule = rapprochement fiable).
+  // Hébergement : lien vers la chambre (page Hébergement) et occupants cliquables (ouvrent leur fiche). null si la chambre n'est pas retrouvée.
+  function jumpToFiche(kind, id) {
+    currentModalKind = kind; currentModalRowId = id;
+    cmpState = { keepId: null, confirm: false, busy: false, msg: null };
+    dEditRole = null;
+    renderModalContent();
+    candModalOverlay.scrollTop = 0;
+  }
+  function housingNode(bat, ch, selfName) {
+    var room = window.RES && window.RES.roomOf ? window.RES.roomOf(bat, ch) : null;
+    if (!room) return null;
+    function nk(v) { return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9]+/g, ' ').trim().toUpperCase(); }
+    var self = nk(selfName).split(' ').filter(Boolean);
+    var box = document.createElement('span');
+    box.className = 'stg-item__value housing-room';
+    var link = document.createElement('button');
+    link.type = 'button'; link.className = 'fr-link fr-link--sm fr-icon-arrow-right-line fr-link--icon-right';
+    link.textContent = room.title;
+    link.title = 'Voir cette chambre dans la page Hébergement';
+    link.addEventListener('click', function () { closeCandidateModal(); showPage('res'); window.RES.openRoom(room.uv); });
+    box.appendChild(link);
+    var list = document.createElement('span');
+    list.className = 'housing-room__occ';
+    room.occupants.forEach(function (name) {
+      var t = nk(name).split(' ').filter(Boolean);
+      var isSelf = self.length > 1 && t.length && self.every(function (x) { return t.indexOf(x) !== -1; });
+      var hits = isSelf ? [] : candFindByName(name);
+      var el = document.createElement(hits.length === 1 ? 'button' : 'span');
+      el.className = 'fr-tag fr-tag--sm housing-room__tag' + (isSelf ? ' is-self' : '');
+      el.textContent = name + (isSelf ? ' (vous)' : '');
+      if (hits.length === 1) {
+        el.type = 'button';
+        el.title = 'Ouvrir la fiche de ' + name;
+        el.addEventListener('click', function () { jumpToFiche(hits[0].kind === 'cadre' ? 'encadrement' : 'stagiaire', hits[0].row.id); });
+      }
+      list.appendChild(el);
+    });
+    if (!room.occupants.length) list.textContent = 'Aucun occupant';
+    box.appendChild(list);
+    return box;
+  }
   function candFindByName(name) {
     function norm(v) { return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9]+/g, ' ').trim().toUpperCase(); }
     var occ = norm(name).split(' ').filter(Boolean);
@@ -13677,6 +13882,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     currentModalRowId = id;
     cmpState = { keepId: null, confirm: false, busy: false, msg: null }; // barre de doublon réinitialisée : autre fiche
     dEditRole = null; // édition en cours annulée : autre fiche
+    saveState = { kind: '', at: null, msg: '' };
     renderModalContent();
     candModalOverlay.scrollTop = 0;
   }
@@ -13685,7 +13891,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     btn.type = 'button';
     btn.className = 'fr-btn fr-btn--tertiary fr-btn--sm cand-modal-dialog__nav ' + (step < 0 ? 'fr-icon-arrow-left-s-line' : 'fr-icon-arrow-right-s-line');
     btn.textContent = step < 0 ? 'Précédent' : 'Suivant';
-    btn.title = (step < 0 ? 'Précédent' : 'Suivant') + ' (flèche ' + (step < 0 ? 'gauche' : 'droite') + ')';
+    btn.title = (step < 0 ? 'Précédent' : 'Suivant') + ' (flèche ' + (step < 0 ? 'gauche' : 'droite') + ' ; Alt + flèche pendant une saisie)';
     btn.disabled = modalNeighbor(step) === null;
     btn.addEventListener('click', function () { goToNeighbor(step); });
     return btn;
@@ -13709,6 +13915,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function openCandidateModal(rowId, kind) {
     currentModalKind = kind || 'etuteur';
     currentModalRowId = rowId;
+    saveState = { kind: '', at: null, msg: '' };
+    if (window.RES && window.RES.reloadOccupants) window.RES.reloadOccupants().then(function () { // chambres à jour (Hébergement)
+      var ae = document.activeElement;
+      if (currentModalRowId === rowId && !(ae && candModalOverlay.contains(ae) && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))) renderModalContent();
+    });
     cmpState = { keepId: null, confirm: false, busy: false, msg: null };
     dEditRole = null; // édition en cours annulée : nouvelle fiche
     renderModalContent();
@@ -13884,9 +14095,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }
     if (willBeMinor(row.dateNaissance, parseFrDate(settings.dateDebutFormation))) {
       var minorFlag = document.createElement('span');
-      minorFlag.className = 'cand-modal-dialog__minor-flag';
+      minorFlag.className = 'fr-badge fr-badge--warning fr-badge--sm cand-modal-dialog__minor-badge';
       minorFlag.title = 'Sera mineur au premier jour de la formation';
-      minorFlag.innerHTML = '<span class="age-18" aria-hidden="true">-18</span><span class="fr-sr-only">Sera mineur au premier jour de la formation</span>';
+      minorFlag.textContent = 'Mineur au 1er jour';
       flags.appendChild(minorFlag);
     }
     var closeBtn = document.createElement('button');
@@ -14059,6 +14270,30 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (e.key === 'Escape') { closeCandidateModal(); return; }
     // Flèches : modale précédente / suivante, sauf pendant une saisie.
     var tag = e.target && e.target.tagName;
+    var tabs = candModalStack.querySelector('.stg-tabs');
+    // Alt + 1…9 : onglet de la fiche (dans toutes les fiches affichées, même pendant une saisie).
+    if (e.altKey && !e.ctrlKey && !e.metaKey && /^[1-9]$/.test(e.key)) {
+      var n = Number(e.key) - 1, any = false;
+      Array.prototype.forEach.call(candModalStack.querySelectorAll('.stg-tabs'), function (tl) { if (tl.children[n]) { tl.children[n].click(); any = true; } });
+      if (any) e.preventDefault();
+      return;
+    }
+    // Alt + flèche : fiche précédente / suivante, même pendant une saisie (le champ est d'abord enregistré).
+    if (e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+      e.preventDefault();
+      if (document.activeElement && document.activeElement.blur && candModalOverlay.contains(document.activeElement)) document.activeElement.blur();
+      goToNeighbor(e.key === 'ArrowLeft' ? -1 : 1);
+      return;
+    }
+    // Flèches sur un onglet : onglet voisin (Début / Fin : premier / dernier).
+    if (e.target && e.target.classList && e.target.classList.contains('stg-tab') && ['ArrowLeft', 'ArrowRight', 'Home', 'End'].indexOf(e.key) !== -1) {
+      var list = Array.prototype.slice.call(e.target.parentNode.children), i = list.indexOf(e.target);
+      var j = e.key === 'Home' ? 0 : e.key === 'End' ? list.length - 1 : Math.max(0, Math.min(list.length - 1, i + (e.key === 'ArrowLeft' ? -1 : 1)));
+      e.preventDefault();
+      list[j].click();
+      list[j].focus();
+      return;
+    }
     if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') {
       goToNeighbor(e.key === 'ArrowLeft' ? -1 : 1);
     }
@@ -15635,6 +15870,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function openAddDialog() {
     if (!refWritable()) return;
     var d = refDialog('refAddDlg', 'Ajouter des notes'), body = d.querySelector('[data-body]');
+    d.classList.add('ref-dlg--wide');
     body.innerHTML = '<div class="stg-tabs" role="tablist"><button type="button" class="stg-tab" role="tab" id="refTabFile" aria-selected="true">Fichier CSV</button><button type="button" class="stg-tab" role="tab" id="refTabManual" aria-selected="false">Saisie par peloton</button></div>' +
       '<div id="refPaneFile" role="tabpanel"></div><div id="refPaneManual" role="tabpanel" hidden></div>';
     var tabF = body.querySelector('#refTabFile'), tabM = body.querySelector('#refTabManual'), paneF = body.querySelector('#refPaneFile'), paneM = body.querySelector('#refPaneManual');
@@ -15644,8 +15880,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }
     tabF.addEventListener('click', function () { select('file'); }); tabM.addEventListener('click', function () { select('manual'); });
     function showDrop() {
-      paneF.innerHTML = '<div class="ref-drop" id="refDrop" role="button" tabindex="0" aria-label="Verser un fichier CSV de notes : cliquer ou déposer le fichier"><span class="fr-icon-upload-line" aria-hidden="true"></span>' +
-        '<span><strong>Glissez un fichier .csv de notes ici</strong> ou cliquez pour le choisir. Les colonnes (stagiaire, note, matière, note max, coefficient) sont reconnues automatiquement.</span><input type="file" id="refFile" accept=".csv,.txt,text/csv" hidden></div>';
+      paneF.innerHTML = '<div class="ref-drop" id="refDrop" role="button" tabindex="0" aria-label="Verser un fichier CSV de notes : cliquer ou déposer le fichier"><span class="fr-icon-upload-2-line" aria-hidden="true"></span>' +
+        '<span class="ref-drop__text"><strong>Glissez un fichier .csv de notes ici</strong><span>ou cliquez pour le choisir</span></span><span class="ref-drop__hint">Colonnes reconnues automatiquement : stagiaire (NID ou nom), note, matière, note max, coefficient.</span><input type="file" id="refFile" accept=".csv,.txt,text/csv" hidden></div>';
       var drop = paneF.querySelector('#refDrop'), fi = paneF.querySelector('#refFile');
       function got(f) { refReadFile(f, function (name, rows) { renderImportForm(paneF, name, rows, showDrop); }); }
       fi.addEventListener('change', function () { var f = fi.files && fi.files[0]; fi.value = ''; got(f); });
@@ -15666,24 +15902,25 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var pons = {}; candidates.rows.forEach(function (r) { var p = textOf(r.pon).trim(); if (p && !stgHasLeft(r)) pons[p] = 1; });
     var ponList = Object.keys(pons).sort(function (a, b) { return nameCollator.compare(a, b); });
     var mats = {}; notes.rows.forEach(function (r) { if (r.matiere) mats[r.matiere] = 1; });
-    pane.innerHTML = '<div id="refManStatus" aria-live="polite"></div><div class="ref-grid ref-grid--4">' +
-      '<div class="fr-select-group"><label class="fr-label" for="refManPon">Peloton</label><select class="fr-select" id="refManPon"><option value="">Choisir…</option>' + ponList.map(function (p) { return '<option value="' + escapeHtml(p) + '">' + escapeHtml(p) + '</option>'; }).join('') + '<option value="__all">Tous les pelotons</option></select></div>' +
-      '<div class="fr-input-group"><label class="fr-label" for="refManMat">Matière</label><input class="fr-input" id="refManMat" type="text" list="refManMatList" autocomplete="off"><datalist id="refManMatList">' + Object.keys(mats).map(function (m) { return '<option value="' + escapeHtml(m) + '">'; }).join('') + '</datalist></div>' +
-      '<div class="fr-input-group"><label class="fr-label" for="refManMax">Note maximale <span class="fr-hint-text">sur 4, 5, 10, 20…</span></label><input class="fr-input" id="refManMax" type="text" inputmode="decimal" value="20" autocomplete="off"></div>' +
-      '<div class="fr-input-group"><label class="fr-label" for="refManCoeff">Coefficient</label><input class="fr-input" id="refManCoeff" type="text" inputmode="decimal" value="1" autocomplete="off"></div></div>' +
+    pane.innerHTML = '<div id="refManStatus" aria-live="polite"></div><div class="ref-box"><p class="ref-box__title">Évaluation</p><div class="ref-grid ref-grid--4">' +
+      '<div class="fr-select-group ref-span2"><label class="fr-label" for="refManPon">Peloton</label><select class="fr-select" id="refManPon"><option value="">Choisir…</option>' + ponList.map(function (p) { return '<option value="' + escapeHtml(p) + '">' + escapeHtml(p) + '</option>'; }).join('') + '<option value="__all">Tous les pelotons</option></select></div>' +
+      '<div class="fr-input-group ref-span2"><label class="fr-label" for="refManMat">Matière</label><input class="fr-input" id="refManMat" type="text" list="refManMatList" autocomplete="off" placeholder="ex. Topographie"><datalist id="refManMatList">' + Object.keys(mats).map(function (m) { return '<option value="' + escapeHtml(m) + '">'; }).join('') + '</datalist></div>' +
+      '<div class="fr-input-group"><label class="fr-label" for="refManMax">Note maximale</label><input class="fr-input" id="refManMax" type="text" inputmode="decimal" value="20" autocomplete="off" title="Évaluation notée sur 4, 5, 10, 20…"></div>' +
+      '<div class="fr-input-group"><label class="fr-label" for="refManCoeff">Coefficient</label><input class="fr-input" id="refManCoeff" type="text" inputmode="decimal" value="1" autocomplete="off"></div></div></div>' +
       '<div id="refManList" class="ref-man-list"><p class="fr-hint-text">Choisissez un peloton : un champ de note apparaît pour chacun de ses stagiaires (laissez vide pour ne pas noter).</p></div>' +
-      '<ul class="fr-btns-group fr-btns-group--inline-md fr-btns-group--right fr-mt-2w ref-actions"><li><button type="button" class="fr-btn fr-btn--secondary" id="refManCancel">Annuler</button></li><li><button type="button" class="fr-btn" id="refManSave" disabled>Enregistrer les notes</button></li></ul>';
+      '<ul class="fr-btns-group fr-btns-group--inline-md fr-btns-group--right fr-mt-2w ref-actions"><li><button type="button" class="fr-btn fr-btn--secondary" id="refManCancel">Annuler</button></li><li><button type="button" class="fr-btn" id="refManSave" disabled>Enregistrer</button></li></ul>';
     var $ = function (i) { return pane.querySelector('#' + i); }, members = [];
     function fill() {
       var v = $('refManPon').value;
       members = v ? candidates.rows.filter(function (r) { return !stgHasLeft(r) && (v === '__all' || textOf(r.pon).trim() === v); }).sort(compareCandidatesByName) : [];
       $('refManList').innerHTML = !v ? '<p class="fr-hint-text">Choisissez un peloton : un champ de note apparaît pour chacun de ses stagiaires (laissez vide pour ne pas noter).</p>' :
-        '<div class="req-table-wrap"><table class="req-table ref-table ref-man-table"><thead><tr><th scope="col">Stagiaire</th><th scope="col">Peloton</th><th scope="col" class="ref-num">Note</th></tr></thead><tbody>' +
-        members.map(function (r, i) { var np = nameParts(r); return '<tr><td data-label="Stagiaire"><strong>' + escapeHtml(np.nom) + '</strong> ' + escapeHtml(np.prenom) + '</td><td data-label="Peloton">' + escapeHtml(textOf(r.pon)) + '</td><td class="ref-num" data-label="Note"><input class="fr-input fr-input--sm ref-man-input" data-i="' + i + '" type="text" inputmode="decimal" aria-label="Note de ' + escapeHtml(np.nom + ' ' + np.prenom) + '" autocomplete="off"></td></tr>'; }).join('') + '</tbody></table></div>';
+        '<p class="ref-man-count">' + members.length + ' stagiaire(s) · case vide = pas de note · Entrée : suivant</p><ul class="ref-man-rows">' +
+        members.map(function (r, i) { var np = nameParts(r); return '<li class="ref-man-row"><label for="refManN' + i + '" class="ref-man-name"><strong>' + escapeHtml(np.nom) + '</strong> ' + escapeHtml(np.prenom) + (v === '__all' ? ' <span class="ref-man-pon">' + escapeHtml(textOf(r.pon)) + '</span>' : '') + '</label><span class="ref-man-field"><input class="fr-input fr-input--sm ref-man-input" id="refManN' + i + '" data-i="' + i + '" type="text" inputmode="decimal" autocomplete="off"><span class="ref-man-max" aria-hidden="true">/ ' + escapeHtml(String($('refManMax').value.trim() || '20')) + '</span></span></li>'; }).join('') + '</ul>';
       $('refManSave').disabled = !members.length;
       var first = $('refManList').querySelector('input'); if (first) first.focus();
     }
     $('refManPon').addEventListener('change', fill);
+    $('refManMax').addEventListener('input', function () { var t = '/ ' + ($('refManMax').value.trim() || '20'); Array.prototype.forEach.call(pane.querySelectorAll('.ref-man-max'), function (e) { e.textContent = t; }); });
     $('refManList').addEventListener('keydown', function (e) { // Entrée : stagiaire suivant
       if (e.key !== 'Enter' || !e.target.classList.contains('ref-man-input')) return;
       e.preventDefault(); var all = $('refManList').querySelectorAll('input'), k = Array.prototype.indexOf.call(all, e.target); if (all[k + 1]) all[k + 1].focus();
@@ -15714,6 +15951,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function openEvalDialog(ev) {
     if (!refWritable() || !ev) return;
     var d = refDialog('refEvalDlg', ev.matiere + ' — notes des stagiaires'), body = d.querySelector('[data-body]');
+    d.classList.add('ref-dlg--wide');
     var rows = ev.rows.slice().sort(function (a, b) { return nameCollator.compare(refStgLabel(a.stg), refStgLabel(b.stg)); });
     body.innerHTML = '<div id="refEvStatus" aria-live="polite"></div><p class="fr-hint-text">Moyenne générale de l’évaluation : <strong>' + refFmt(ev.moy) + ' / 20</strong> · ' + ev.n + ' stagiaire(s) évalué(s). Modifiez une note, son barème ou son coefficient, ou cochez « Supprimer ».</p>' +
       '<div class="req-table-wrap"><table class="req-table ref-table ref-ev-table"><thead><tr><th scope="col">Stagiaire</th><th scope="col">Peloton</th><th scope="col" class="ref-num">Note</th><th scope="col" class="ref-num">Sur</th><th scope="col" class="ref-num">Coeff</th><th scope="col" class="ref-num">Supprimer</th></tr></thead><tbody>' +
@@ -19461,7 +19699,34 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     setView: function (v) { setView(v); },
     loadConfigForm: loadReservationsConfigForm,
     saveConfig: saveReservationsConfig,
-    loadDocuments: function () { loadDocuments(); }
+    loadDocuments: function () { loadDocuments(); },
+    // Chambre d'un occupant (fiche stagiaire / cadre) : { uv, title, occupants } d'après « Bât. - Ch. » (UV codée « x-y »), ou null.
+    roomOf: function (bat, ch) {
+      var b = String(bat || '').replace(/\s+/g, ''), c = String(ch || '').replace(/\s+/g, '');
+      if (!c) return null;
+      var want = normalizeKey(b ? b + '-' + c : c), want2 = normalizeKey(b + c); // UV codée « x-y » (« xy » toléré)
+      var g = groupOccupantsByUV((pageData.occupants && pageData.occupants.rows) || []).filter(function (x) { var k = normalizeKey(String(x.uv).replace(/\s+/g, '')); return k === want || k === want2; })[0];
+      return g ? { uv: g.uv, title: formatUvTitle(g.uv), occupants: g.occupants.slice() } : null;
+    },
+    reloadOccupants: function () {
+      var cfg = settings.occupants;
+      if (!isPageConfigComplete('occupants', cfg)) return Promise.resolve();
+      return grist.docApi.fetchTable(cfg.table).then(function (data) { return resolveReferenceColumns('occupants', cfg, data); }).then(function (data) {
+        pageData.occupants = { rows: columnarToRows(data, cfg, PAGE_ROLES.occupants), loaded: true };
+      }).catch(function () { /* données précédentes conservées */ });
+    },
+    // Ouvre la page Hébergement sur la carte de cette chambre (filtres et recherche vidés), mise en évidence un instant.
+    openRoom: function (uv) {
+      setView('occupants');
+      resetAllFilters('occupants');
+      window.setTimeout(function () {
+        var card = Array.prototype.filter.call(document.querySelectorAll('#occZone .uv-card, .uv-card'), function (c) { return normalizeKey(c.getAttribute('data-uv')) === normalizeKey(uv); })[0];
+        if (!card) return;
+        card.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        card.classList.add('is-flash');
+        window.setTimeout(function () { card.classList.remove('is-flash'); }, 2600);
+      }, 150);
+    }
   };
 })();
 
@@ -20092,10 +20357,13 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var a = parseGristDateTime(r.dateDebut), b = parseGristDateTime(r.dateFin) || a;
     if (!a) return null;
     var d0 = new Date(a.getFullYear(), a.getMonth(), a.getDate()), d1 = new Date(b.getFullYear(), b.getMonth(), b.getDate());
-    var cal = Math.max(1, Math.round((d1 - d0) / 86400000) + 1);
     var mins = function (d) { return d.getHours() * 60 + d.getMinutes(); };
+    var sameDay = d1.getTime() === d0.getTime();
+    // Une fin à 7 h 30 au plus, un autre jour, est la fin du repos de la veille (7 h 30 → 7 h 30 J+1 = 1 jour, pas 2).
+    if (!sameDay && mins(b) !== 0 && mins(b) <= 7 * 60 + 30) d1 = new Date(d1.getFullYear(), d1.getMonth(), d1.getDate() - 1);
+    var cal = Math.max(1, Math.round((d1 - d0) / 86400000) + 1);
     var half = null;
-    if (cal === 1 && (mins(a) !== 0 || mins(b) !== 0)) {
+    if (sameDay && (mins(a) !== 0 || mins(b) !== 0)) {
       var ms = mins(a), me = mins(b);
       if (ms >= 12 * 60 && me <= 23 * 60 + 59 && me >= ms) half = 'après-midi';
       else if (me <= 14 * 60 && me >= ms) half = 'matin';
@@ -20325,7 +20593,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var info = absReposInfo(r);
     return info ? info.days : 0;
   }
-  function fmtDays(n) { return String(n).replace('.', ','); }
+  function fmtDays(n) { return String(Math.round(n * 10) / 10).replace('.', ','); }
 
   function reposValideesParDemandeur(cfg) {
     var totals = {};
@@ -22497,9 +22765,13 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var reglagesInline = null; // { id, field: 'cadres' | 'consignes' } ou null
 
   // Heures cumulées d'une activité : durée de toutes les occurrences de la Progression portant son code.
+  // Calculée uniquement pour les cours, les formations au secourisme, l'instruction IP (Cours IP) et les examens.
+  function reglageHasHours(r) {
+    return /COURS|SECOURISME|INSTRUCTION|EXAMEN/.test(normalizeNameKey(r.type || '').replace(/\s+/g, ' '));
+  }
   function reglageCumulHours(r) {
     var code = r.fullCode || r.code, total = 0, n = 0;
-    if (!code) return null;
+    if (!code || !reglageHasHours(r)) return null;
     allRecords.forEach(function (o) {
       if (!occurrenceHasCode(o, code)) return;
       var a = parseGristDateTime(o.Debut), b = parseGristDateTime(o.Fin);
@@ -22507,6 +22779,12 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       if (a && b && b > a) total += (b - a) / 3600000;
     });
     return n ? { hours: total, n: n } : null;
+  }
+  // Activité absente de la Progression (aucune occurrence) : ligne grisée. Sans Progression chargée, on ne grise rien.
+  function reglageUnplanned(r) {
+    var code = r.fullCode || r.code;
+    if (!code || !allRecords || !allRecords.length) return false;
+    return !allRecords.some(function (o) { return occurrenceHasCode(o, code); });
   }
   function reglageHoursText(r) {
     var c = reglageCumulHours(r);
@@ -22708,14 +22986,15 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       });
       clusters.forEach(function (cluster) { cluster.forEach(function (r, ri) {
         var actionsHtml = actionsFor(r);
+        var unplanned = reglageUnplanned(r);
         var codeCell = ri > 0 ? '' :
-          '<td class="req-code-cell"' + (cluster.length > 1 ? ' rowspan="' + cluster.length + '"' : '') + '><strong>' + escapeHtml(r.code) + '</strong>' + (isExcludedCode(r.code) ? '<span title="Non affiché dans la FSJ stagiaires">' + hiddenFsjIconHtml() + '</span>' : '') + '</td>';
-        tableRows += '<tr data-row-id="' + r.id + '"' + (ri === 0 ? ' class="req-cluster-start"' : '') + ' title="Double-clic pour modifier">' +
+          '<td class="req-code-cell' + (cluster.every(reglageUnplanned) ? ' is-unplanned-cell' : '') + '"' + (cluster.length > 1 ? ' rowspan="' + cluster.length + '"' : '') + '><strong>' + escapeHtml(r.code) + '</strong>' + (isExcludedCode(r.code) ? '<span title="Non affiché dans la FSJ stagiaires">' + hiddenFsjIconHtml() + '</span>' : '') + '</td>';
+        tableRows += '<tr data-row-id="' + r.id + '"' + (ri === 0 || unplanned ? ' class="' + (ri === 0 ? 'req-cluster-start' : '') + (unplanned ? (ri === 0 ? ' ' : '') + 'is-unplanned' : '') + '"' : '') + ' title="' + (unplanned ? 'Non prévue dans la Progression — ' : '') + 'Double-clic pour modifier">' +
           codeCell +
           '<td>' + (r.numero ? escapeHtml(r.numero) : '—') + '</td>' +
-          '<td title="Heures cumulées des occurrences de la Progression portant ce code">' + (reglageHoursText(r) ? escapeHtml(reglageHoursText(r)) : '—') + '</td>' +
+          '<td title="Heures cumulées des occurrences de la Progression portant ce code (cours, formations au secourisme, instruction IP et examens uniquement)">' + (reglageHoursText(r) ? escapeHtml(reglageHoursText(r)) : '—') + '</td>' +
           '<td>' + escapeHtml(r.intitule) + '</td>' +
-          '<td' + (isEditingCadres(r) ? ' colspan="2"' : '') + '>' + editableCellHtml(r, 'cadres', r.cadresDesignes.length ? inlineBadgesHtml(r.cadresDesignes, 'badges') : '<span class="cell-empty">—</span>') + '</td>' +
+          '<td' + (isEditingCadres(r) ? ' colspan="2"' : '') + '>' + editableCellHtml(r, 'cadres', r.cadresDesignes.length ? inlineBadgesHtml(r.cadresDesignes, 'badges', r.cadresDesignes.length > 1) : '<span class="cell-empty">—</span>') + '</td>' +
           (isEditingCadres(r) ? '' : '<td>' + editableCellHtml(r, 'consignes', r.consignes ? '<span class="req-cell-text">' + escapeHtml(r.consignes) + '</span>' : '<span class="cell-empty">—</span>') + '</td>') +
           '<td class="doc-table__actions">' +
             '<button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-edit-line" title="Modifier" data-edit-id="' + r.id + '"><span class="fr-sr-only">Modifier</span></button>' +
@@ -22723,12 +23002,12 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
           '</td>' +
         '</tr>';
 
-        cardsHtml += '<div class="req-card" data-row-id="' + r.id + '">' +
+        cardsHtml += '<div class="req-card' + (unplanned ? ' is-unplanned' : '') + '" data-row-id="' + r.id + '"' + (unplanned ? ' title="Non prévue dans la Progression"' : '') + '>' +
           '<p class="req-card__line"><span class="req-card__label">Code :</span> <strong>' + escapeHtml(r.code) + '</strong>' + (isExcludedCode(r.code) ? '<span title="Non affiché dans la FSJ stagiaires">' + hiddenFsjIconHtml() + '</span>' : '') + '</p>' +
           (r.numero ? '<p class="req-card__line"><span class="req-card__label">Numéro :</span> ' + escapeHtml(r.numero) + '</p>' : '') +
           (reglageHoursText(r) ? '<p class="req-card__line"><span class="req-card__label">Durée cumulée :</span> ' + escapeHtml(reglageHoursText(r)) + '</p>' : '') +
           '<p class="req-card__line"><span class="req-card__label">Intitulé :</span> ' + escapeHtml(r.intitule) + '</p>' +
-          (r.cadresDesignes.length ? '<p class="req-card__line"><span class="req-card__label">Cadres désignés :</span> ' + inlineBadgesHtml(r.cadresDesignes, 'badges') + '</p>' : '') +
+          (r.cadresDesignes.length ? '<p class="req-card__line"><span class="req-card__label">Cadres désignés :</span> ' + inlineBadgesHtml(r.cadresDesignes, 'badges', r.cadresDesignes.length > 1) + '</p>' : '') +
           (r.consignes ? '<p class="req-card__line req-card__line--multiline"><span class="req-card__label">Consignes :</span> ' + escapeHtml(r.consignes) + '</p>' : '') +
           '<div class="req-card__actions req-actions" role="group" aria-label="Actions">' + actionsHtml + '</div>' +
         '</div>';
@@ -23931,10 +24210,12 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
   var weekTooltipSeq = 0;
 
-  function inlineBadgesHtml(names, cls) {
+  // principal = true : le premier nom est le cadre principal, marqué d'une étoile dans son badge.
+  function inlineBadgesHtml(names, cls, principal) {
     if (!names.length) return '';
-    return '<span class="' + cls + '">' + names.map(function (n) {
-      return '<span class="fr-badge fr-badge--sm">' + escapeHtml(n) + '</span>';
+    return '<span class="' + cls + '">' + names.map(function (n, i) {
+      var star = principal && i === 0 ? '<span class="cadre-badge-star" role="img" aria-label="Cadre principal" title="Cadre principal">★</span> ' : '';
+      return '<span class="fr-badge fr-badge--sm' + (star ? ' fr-badge--principal' : '') + '">' + star + escapeHtml(n) + '</span>';
     }).join('') + '</span>';
   }
 
@@ -25594,6 +25875,46 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         e.n++; if (a && b && b > a) e.hours += (b - a) / 3600000;
       });
       return Object.keys(by).map(function (k) { return by[k]; }).sort(function (x, y) { return y.hours - x.hours || nameCollator.compare(x.title, y.title); });
+    },
+    // Activité d'un cadre (fiche Encadrement) : heures par type (cours, secourisme, instruction IP, examens), prochain cours à venir et permanences
+    // (effectuées / à venir, avec leur période 7 h 30 → 7 h 30 J+1).
+    cadreActivity: function (nom, prenom) {
+      function tok(v) { return normalizeNameKey(String(v || '').replace(/[^A-Za-zÀ-ÿ0-9]+/g, ' ')).split(' ').filter(Boolean); }
+      var want = tok(nom + ' ' + prenom), now = Date.now();
+      var out = { types: [], next: null, perms: { done: 0, upcoming: 0, list: [], next: null } };
+      if (want.length < 2) return out;
+      var LABELS = { cours: 'Cours', sec: 'Secourisme', ip: 'Instruction IP', exam: 'Examens' }, tot = { cours: { hours: 0, n: 0 }, sec: { hours: 0, n: 0 }, ip: { hours: 0, n: 0 }, exam: { hours: 0, n: 0 } };
+      function kindOf(r) {
+        var k = normalizeNameKey(occTypeOfCode(r.Code) || textOf(r.Type)).replace(/\s+/g, ' ');
+        if (/INSTRUCTION|COURS IP/.test(k)) return 'ip';
+        if (/SECOURISME/.test(k)) return 'sec';
+        if (/EXAMEN/.test(k)) return 'exam';
+        if (/COURS/.test(k)) return 'cours';
+        return '';
+      }
+      allRecords.forEach(function (r) {
+        var mine = splitCadreNames(textOf(r.Encadrement)).some(function (n) { var t = tok(n); return want.every(function (x) { return t.indexOf(x) !== -1; }); });
+        if (!mine) return;
+        var a = parseGristDateTime(r.Debut), b = parseGristDateTime(r.Fin);
+        if (isPermanenceCode(r.Code)) {
+          if (!a) return;
+          var pe = new Date(a.getFullYear(), a.getMonth(), a.getDate() + 1, a.getHours(), a.getMinutes(), 0, -1);
+          var code = normalizeCode(codesOf(r.Code)[0] || r.Occurrence || 'Permanence');
+          var item = { from: a.getTime(), to: pe.getTime(), code: code, date: fmtDayTitle(a) };
+          out.perms.list.push(item);
+          if (item.to < now) out.perms.done++; else out.perms.upcoming++;
+          return;
+        }
+        var kind = kindOf(r);
+        if (kind) { tot[kind].n++; if (a && b && b > a) tot[kind].hours += (b - a) / 3600000; }
+        if (a && a.getTime() > now && (!out.next || a.getTime() < out.next.from)) {
+          out.next = { from: a.getTime(), to: b ? b.getTime() : a.getTime(), title: textOf(r.Intitule) || textOf(r.Occurrence) || textOf(r.Code) || 'Activité', lieu: textOf(r.Lieu), day: fmtDayTitle(a), hm: fmtHM(a) + (b && b > a ? '–' + fmtHM(b) : '') };
+        }
+      });
+      ['cours', 'sec', 'ip', 'exam'].forEach(function (k) { if (tot[k].n) out.types.push({ key: k, label: LABELS[k], hours: tot[k].hours, n: tot[k].n }); });
+      out.perms.list.sort(function (x, y) { return x.from - y.from; });
+      out.perms.next = out.perms.list.filter(function (x) { return x.to >= now; })[0] || null;
+      return out;
     }
   };
 })();
