@@ -600,7 +600,6 @@
   .d-ed { padding: 0.1rem 0; }
   .d-ed .fr-input, .d-ed .fr-select, .d-ed textarea { width: 100%; margin-bottom: 0.5rem; box-sizing: border-box; }
   .d-ed__hint { margin: 0; font-size: 0.75rem; color: var(--text-mention-grey); }
-  .detail-table .stg-plate { margin: 0; }
   @media (max-width: 40rem) {
     .detail-table, .detail-table tbody, .detail-table tr, .detail-table th, .detail-table td { display: block; width: 100% !important; }
     .detail-table th { border-top: 1px solid rgba(0, 0, 0, 0.08); padding-bottom: 0; white-space: normal; }
@@ -693,7 +692,7 @@
   .cand-modal-stack--compare .stg-cols { grid-template-columns: 1fr; }
   @media (max-width: 40rem) { .stg-cols { grid-template-columns: 1fr; } }
 
-  /* Mode de transport : icône + plaque d'immatriculation en tag. */
+  /* Mode de transport : icône. */
   .stg-transport { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
   .stg-transport__icon {
     flex: none; display: inline-flex; align-items: center; justify-content: center;
@@ -703,29 +702,14 @@
   .stg-transport__icon--other { color: var(--text-mention-grey); }
   /* Icône du mode de transport, à droite du titre du champ. */
   .stg-item__head { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; }
-  /* Plaque d'immatriculation : forme d'une plaque française (bandeaux latéraux avec étoiles et « F », lettres épaisses)
-     mais aux couleurs kaki de la fiche. */
   .stg-transport-flag { display: inline-flex; align-items: center; gap: 0.4rem; max-width: 100%; }
   .stg-transport-flag__editor { max-width: 22rem; }
   button.stg-transport__btn { cursor: pointer; border: 0; padding: 0; }
+  .stg-transport-line__ico { font-size: 1.15em; }
+  .stg-plate-link { all: unset; cursor: pointer; font-weight: 600; color: var(--text-action-high-blue-france); text-decoration: underline; text-underline-offset: 0.2em; }
+  .stg-plate-link.is-empty { font-weight: 400; color: var(--text-mention-grey); font-style: italic; }
+  .stg-plate-link:focus-visible { outline: 2px solid #0a76f6; outline-offset: 2px; }
   button.stg-transport__btn:hover { box-shadow: 0 0 0 2px rgba(92, 90, 43, 0.4); }
-  .stg-plate {
-    display: inline-flex; align-items: stretch; height: 2.7rem; border: 2px solid #3f3e1c; border-radius: 0.5rem;
-    background: #fbf9ec; overflow: hidden; box-shadow: 0 2px 5px rgba(63, 62, 28, 0.32), inset 0 0 0 1px #fffdf2;
-  }
-  .stg-plate:focus-within { box-shadow: 0 0 0 3px rgba(92, 90, 43, 0.4), 0 2px 5px rgba(63, 62, 28, 0.32); }
-  .stg-plate__eu, .stg-plate__reg { flex: none; background: var(--bleu-france); color: #fbf9ec; }
-  .stg-plate__eu { position: relative; width: 1.9rem; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 0.2rem; }
-  .stg-plate__stars { position: absolute; top: 0.18rem; left: 50%; transform: translateX(-50%); color: #e6d98a; font-size: 0.72rem; line-height: 1; letter-spacing: -0.05em; }
-  .stg-plate__f { font: 700 0.85rem/1 Arial, Helvetica, sans-serif; }
-  .stg-plate__reg { width: 1.4rem; }
-  .stg-plate__input {
-    box-sizing: border-box; width: 10rem; border: 0; outline: 0; background: #fbf9ec; color: #2f2e14; text-align: center; text-transform: uppercase;
-    font: 800 1.55rem/1 "Arial Narrow", "Helvetica Neue", Arial, sans-serif; letter-spacing: 0.1em; padding: 0 0.5rem;
-  }
-  .stg-plate__input::placeholder { color: #cfcaa6; font-weight: 700; }
-  .stg-plate__text { display: inline-flex; align-items: center; justify-content: center; }
-  .stg-plate__text--empty { color: #cfcaa6; }
   /* Champs éditables de la fiche (peloton, fonction, bâtiment, chambre). */
   .stg-edit { width: 100%; box-sizing: border-box; }
   input.stg-edit, select.stg-edit { min-height: 2.2rem; padding-top: 0.25rem; padding-bottom: 0.25rem; }
@@ -5292,7 +5276,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.59.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.60.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -7974,37 +7958,68 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       commit: opts.editable ? dStgCommit(role, row, textOf(v)) : null
     });
   }
-  // Plaque d'immatriculation (voir formatPlate/stgParksInside) : affichage en lecture dans le style plaque
-  // française, éditeur classique (texte) au clic — la valeur saisie est mise en forme à l'enregistrement.
-  function dPlateReadNode(row) {
-    var wrapEl = document.createElement('span');
-    wrapEl.className = 'stg-plate';
-    var eu = document.createElement('span');
-    eu.className = 'stg-plate__eu';
-    eu.innerHTML = '<span class="stg-plate__stars" aria-hidden="true">★</span><span class="stg-plate__f">F</span>';
-    var txt = document.createElement('span');
-    var plateText = formatPlate(textOf(row.immatriculation));
-    txt.className = 'stg-plate__input stg-plate__text' + (plateText ? '' : ' stg-plate__text--empty');
-    txt.textContent = plateText || 'AB-123-CD';
-    var reg = document.createElement('span');
-    reg.className = 'stg-plate__reg';
-    wrapEl.appendChild(eu);
-    wrapEl.appendChild(txt);
-    wrapEl.appendChild(reg);
-    return wrapEl;
+  // Immatriculation (voir formatPlate/stgParksInside) : texte simple, au format attendu « AB-123-CD » (SIV) ou « 123 AB 45 » (ancien FNI) ; la valeur saisie est mise en forme à l'enregistrement.
+  // Mode de transport : vraie ligne du bloc « Infos pratiques ». Voiture : « 🚗 En voiture · AB-123-CD » (plaque au format AB-123-CD ou 123 AB 45, modifiable d'un clic) ;
+  // train : « 🚊 À récupérer à la gare » ; à pied / déposé : « 🚶‍♀️ Déposé au poste ». Le libellé exact de la réponse est en info-bulle.
+  var TRANSPORT_UI = { voiture: ['🚗', 'En voiture'], train: ['🚊', 'À récupérer à la gare'], pieton: ['🚶‍♀️', 'Déposé au poste'] };
+  function dFieldTransport(row) {
+    if (!settings.col.modeTransport) return null;
+    var mode = textOf(row.modeTransport), kind = transportKind(mode), node;
+    if (!mode) node = stgTextValue('');
+    else {
+      node = document.createElement('span');
+      node.className = 'stg-item__value stg-transport-line';
+      var ico = document.createElement('span');
+      ico.className = 'stg-transport-line__ico';
+      ico.setAttribute('aria-hidden', 'true');
+      node.appendChild(ico);
+      if (kind) {
+        ico.textContent = TRANSPORT_UI[kind][0];
+        node.appendChild(document.createTextNode(' ' + TRANSPORT_UI[kind][1]));
+        node.title = 'Réponse du stagiaire : « ' + mode + ' »';
+        if (kind === 'voiture' && settings.col.immatriculation && stgParksInside(row)) {
+          node.appendChild(document.createTextNode(' · '));
+          var plate = formatPlate(textOf(row.immatriculation));
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'stg-plate-link' + (plate ? '' : ' is-empty');
+          b.textContent = plate || 'immatriculation à saisir';
+          b.title = 'Modifier l’immatriculation — format AB-123-CD (ou 123 AB 45 pour une ancienne plaque)';
+          b.addEventListener('click', function (e) { e.stopPropagation(); dStartEdit('immatriculation'); });
+          node.appendChild(b);
+        }
+      } else {
+        ico.textContent = '❔';
+        node.appendChild(document.createTextNode(' ' + mode + ' '));
+        var bad = document.createElement('span');
+        bad.className = 'fr-badge fr-badge--sm fr-badge--warning';
+        bad.textContent = 'Réponse non reconnue';
+        bad.title = 'Attendu : voiture, train ou à pied (déposé au poste)';
+        node.appendChild(bad);
+      }
+    }
+    return dSpec('modeTransport', 'Mode de transport', node, {
+      wide: true, empty: !mode, editable: true,
+      buildControl: function () { return dBuildControlStg(row, 'modeTransport', { list: true }); },
+      commit: dStgCommit('modeTransport', row, mode)
+    });
   }
+  // La ligne « Immatriculation » n'apparaît que pendant la modification : la plaque est affichée dans la ligne « Mode de transport » et se modifie d'un clic dessus.
   function dFieldPlate(row) {
-    if (!settings.col.immatriculation || !stgParksInside(row)) return null;
+    if (!settings.col.immatriculation || dEditRole !== 'immatriculation') return null;
     var prevRaw = textOf(row.immatriculation);
-    return dSpec('immatriculation', 'Immatriculation', dPlateReadNode(row), {
-      wide: true, empty: false, editable: true,
+    var shown = formatPlate(prevRaw);
+    return dSpec('immatriculation', 'Immatriculation', stgTextValue(shown), {
+      wide: true, empty: !shown, editable: true,
       buildControl: function () {
         var el = document.createElement('input');
         el.type = 'text';
         el.className = 'fr-input';
         el.autocomplete = 'off';
         el.value = prevRaw;
-        el.setAttribute('aria-label', 'Immatriculation');
+        el.placeholder = 'AB-123-CD';
+        el.title = 'Format attendu : AB-123-CD (ou 123 AB 45 pour une ancienne plaque)';
+        el.setAttribute('aria-label', 'Immatriculation (format AB-123-CD)');
         return el;
       },
       commit: dStgCommit('immatriculation', row, prevRaw)
@@ -8133,7 +8148,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         return n ? dCustomSpec('Chambre', n, { wide: true }) : null;
       })()]),
       dGroup('Qualifications', [dFieldStg(row, 'qualifSecourisme', 'Secourisme', { wide: true })]),
-      dGroup('Infos pratiques', [dFieldPlate(row), dFieldInfosLibre(row)])
+      dGroup('Infos pratiques', [dFieldTransport(row), dFieldPlate(row), dFieldInfosLibre(row)])
     ].forEach(function (g) { if (g) right.appendChild(g); });
 
     wrap.appendChild(left);
@@ -9321,7 +9336,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var leftDay = stgLeftDate(row);
     if (leftDay) tagsRow.appendChild(stgBadge('error', 'Parti le ' + fmtDateFr(leftDay)));
     if (settings.col.identiteComplete && isYes(row.identiteComplete)) tagsRow.appendChild(stgBadge('success', 'Identité complète'));
-    if (settings.col.modeTransport) flags.appendChild(stgTransportFlag(row)); // mode de transport, à côté des icônes d'alerte
     var closeBtn = document.createElement('button');
     closeBtn.type = 'button';
     closeBtn.className = 'fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-line cand-modal-dialog__close';
