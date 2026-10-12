@@ -5484,7 +5484,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.69.2</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.69.4</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -10553,7 +10553,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   }
   // Une permanence va de 7 h 30 au lendemain 7 h 30 ; elle est signalée quand le cadre est en repos (accordé) sur cette période.
   function encPermReposClash(row, item) {
-    var hit = encReposOf(row).items.filter(function (it) { return it.a.from <= item.to && it.a.to >= item.from; })[0];
+    var hit = encReposOf(row).items.filter(function (it) { return it.a.from < item.to && it.a.to > item.from; })[0]; // périodes qui se touchent seulement : pas de chevauchement, quelle que soit l'heure
     return hit ? hit.a : null;
   }
   function encPermNode(row, act) {
@@ -23450,8 +23450,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function conflictPeriod(r) {
     return absEffectivePeriod(r);
   }
+  // Deux périodes qui se touchent seulement (l'une finit à 7 h 30, l'autre commence à 7 h 30) ne se chevauchent pas ; une période sans durée (début = fin) compte comme un instant.
   function periodsOverlap(a, b) {
-    return !!(a && b && a.s <= b.e && b.s <= a.e);
+    if (!a || !b) return false;
+    var as = +a.s, ae = +a.e, bs = +b.s, be = +b.e;
+    return as < Math.max(be, bs + 1) && bs < Math.max(ae, as + 1);
   }
 
   function computeRuleConflicts(ctx) {
@@ -23549,7 +23552,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
             mates.forEach(function (a) {
               var t = a.p.s > x.p.s ? a.p.s : x.p.s;
               var here = {};
-              mates.forEach(function (b) { if (b.p.s <= t && b.p.e >= t) here[b.who] = true; });
+              mates.forEach(function (b) { if (b.p.s <= t && b.p.e > t) here[b.who] = true; });
               peak = Math.max(peak, Object.keys(here).length);
             });
             if (peak > rule.max) {
@@ -25975,7 +25978,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var absent = absData.filter(function (r) { return absDecisionState(cfg, r.decision).isValidee; }).map(function (r) {
       var per = absEffectivePeriod(r); // un repos s'étend de la veille 19 h au lendemain 7 h 30
       return { key: militaireSortKey(r.demandeur), from: per ? per.s.getTime() : NaN, to: per ? per.e.getTime() : NaN, motif: r.motif, repos: !!r.motif && normalizeNameKey(r.motif) === normalizeNameKey('Repos') };
-    }).filter(function (a) { return !isNaN(a.from) && !isNaN(a.to) && a.from <= dayEnd && a.to >= dayStart; });
+    }).filter(function (a) { return !isNaN(a.from) && !isNaN(a.to) && a.from <= dayEnd && a.to > dayStart; }); // une absence qui finit à 0 h pile ne concerne pas le jour qui commence
     var out = [];
     occAll.forEach(function (o) {
       splitCadreNames(o.encadrement).forEach(function (name) {
@@ -25983,7 +25986,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         var perm = isPermanenceCode(o.code); // une permanence va de 7 h 30 au lendemain 7 h 30 (un repos qui commence à 19 h relève : voir l'alerte de relève)
         var oStart = o.debut.getTime();
         var oEnd = perm ? new Date(o.debut.getFullYear(), o.debut.getMonth(), o.debut.getDate() + 1, o.debut.getHours(), o.debut.getMinutes(), 0, -1).getTime() : (o.fin || o.debut).getTime();
-        var a = absent.filter(function (x) { return x.key === k && x.from <= oEnd && x.to >= oStart; })[0];
+        var a = absent.filter(function (x) { return x.key === k && x.from < Math.max(oEnd, oStart + 1) && x.to > oStart; })[0]; // une absence qui finit à l'heure où l'occurrence commence (7 h 30) ne la recoupe pas
         if (a) out.push({ name: name, motif: a.motif, occ: o });
       });
     });
@@ -26003,7 +26006,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var rest = absData.filter(function (r) { return absDecisionState(cfg, r.decision).isValidee && /REPOS/.test(normalizeNameKey(r.motif)); }).map(function (r) {
       var a = parseGristDateTime(r.dateDebut), b = parseGristDateTime(r.dateFin);
       return { key: militaireSortKey(r.demandeur), from: a ? a.getTime() : NaN, to: b ? b.getTime() : NaN };
-    }).filter(function (x) { return !isNaN(x.from) && !isNaN(x.to) && x.from <= to && x.to >= from; });
+    }).filter(function (x) { return !isNaN(x.from) && !isNaN(x.to) && x.from <= to && x.to > from; });
     var out = [];
     perms.forEach(function (o) {
       splitCadreNames(o.encadrement).forEach(function (name) {
