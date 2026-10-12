@@ -528,7 +528,7 @@
   .stg-chip--bad::before { background: var(--statut-refusee); }
   .stg-chip--warn { background: var(--background-contrast-warning); color: var(--text-default-warning); border-color: transparent; }
   .stg-chip--warn::before { background: var(--statut-rejet); }
-  /* Bandeau fixe des fiches Stagiaire / Encadrement : en-tête, pastilles d'état et onglets restent visibles au défilement (grands écrans). */
+  /* Fiches Stagiaire / Encadrement : l'en-tête n'est pas verrouillé, toute la fiche défile d'un bloc. */
   .stg-status:empty { display: none; }
   .stg-sticky .stg-status { align-items: center; margin-bottom: 0.4rem; }
   /* === Fiches Stagiaire / Encadrement : même design que le widget Candidats PMG === */
@@ -571,18 +571,7 @@
   .cand-save-ind--saved::before { content: '\2713\00a0'; }
   .cand-save-ind--error { color: var(--text-default-error); max-width: 28rem; }
   .cand-save-ind--error::before { content: '\26A0\00a0'; }
-  @media (min-width: 48rem) {
-    .stg-sticky { position: sticky; top: -3rem; z-index: 20; margin: -1.85rem -2rem 0; padding: 1.85rem 2rem 0; background: var(--background-raised-grey); border-radius: 1rem 1rem 0 0; }
-    .stg-sticky .stg-hero { margin-bottom: 0.6rem; padding-bottom: 0.8rem; }
-    .stg-sticky .stg-tabs { margin-bottom: 0; }
-    /* Bandeau collé en haut (fiche défilée) : version compacte, sans sous-titre ni étiquettes. */
-    .stg-dialog.is-scrolled .stg-sticky { padding-top: 0.5rem; box-shadow: 0 4px 10px -6px rgba(20, 10, 30, 0.35); border-radius: 0; }
-    .stg-dialog.is-scrolled .stg-hero { align-items: center; margin-bottom: 0.2rem; padding-bottom: 0.4rem; }
-    .stg-dialog.is-scrolled .stg-avatar { width: 2.2rem; height: 2.2rem; font-size: 0.85rem; }
-    .stg-dialog.is-scrolled .stg-hero__id .cand-modal-dialog__title { font-size: 1.1em; }
-    .stg-dialog.is-scrolled .stg-hero__subtitle, .stg-dialog.is-scrolled .modal-tags, .stg-dialog.is-scrolled .cand-modal-dialog__contact, .stg-dialog.is-scrolled .cand-modal-dialog__version { display: none; }
-    .stg-dialog.is-scrolled .stg-tab { padding-top: 0.5rem; padding-bottom: 0.5rem; }
-  }
+
 .stg-dialog .stg-tabpanel { padding-top: 1.25rem; }
 /* Comparaison de doublons (fiches côte à côte) : pas de bandeau fixe. */
 .cand-modal-stack--compare .stg-sticky { position: static; margin: 0; padding: 0; background: transparent; border-radius: 0; box-shadow: none; }
@@ -1371,6 +1360,20 @@
 
 
 
+
+
+  /* Rapport (page eTuteur) */
+  .etu-rep__kind { display: inline-flex; margin: 0 0 0.6rem; border: 1px solid var(--border-action-high-blue-france); border-radius: 0.3rem; overflow: hidden; }
+  .etu-rep__btn { padding: 0.35rem 1rem; font: inherit; font-size: 0.875rem; font-weight: 600; cursor: pointer; color: var(--text-action-high-blue-france); background: transparent; border: 0; }
+  .etu-rep__btn + .etu-rep__btn { border-left: 1px solid var(--border-action-high-blue-france); }
+  .etu-rep__btn[aria-pressed="true"] { color: var(--text-inverted-blue-france); background: var(--background-action-high-blue-france); }
+  .etu-rep__final { margin-top: 0.8rem; padding: 0.6rem 0.9rem; font-size: 0.85rem; background: var(--background-contrast-info); border-left: 4px solid var(--border-plain-info); border-radius: 0.2rem; }
+  .etu-rep__final[hidden] { display: none; }
+  .etu-rep__carry { margin-top: 0.6rem; padding: 0.5rem 0.8rem; max-height: 14rem; overflow-y: auto; border: 1px solid var(--border-default-grey); border-radius: 0.3rem; }
+  .etu-rep__carry[hidden] { display: none; }
+  .etu-rep__carry-head { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.3rem; font-size: 0.85rem; }
+  .etu-rep__carry-name { margin: 0.5rem 0 0.1rem; font-weight: 700; font-size: 0.85rem; }
+  #etuReportBody { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.82em; }
 
   /* Mise à jour par .csv : choix des colonnes à mettre à jour */
   .imp-cols { margin: 0.6rem 0; padding: 0.5rem 0.8rem 0.7rem; border: 1px solid var(--border-default-grey); border-radius: 0.3rem; }
@@ -3001,7 +3004,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   .ration-extra-form__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem 0.8rem; }
   .ration-extra-form .fr-input-group, .ration-extra-form .fr-select-group { margin: 0; }
   .bulk-table__actions { white-space: nowrap; text-align: right !important; }
-  .bulk-table td.bulk-table__actions { position: sticky; right: 0; background: var(--background-default-grey); } /* les icônes restent visibles quand la table défile */
+  .bulk-table td.bulk-table__actions { position: sticky; right: 0; background: var(--background-default-grey); box-shadow: inset 0 1px 0 0 var(--border-default-grey); } /* le filet de ligne est redessiné : une cellule collante perd sa bordure (tableau fusionné) */ /* les icônes restent visibles quand la table défile */
   .bulk-table thead th.bulk-table__actions { right: 0; background: var(--background-alt-grey); }
   .bulk-table__actions .fr-btn { padding: 0.25rem 0.4rem; min-height: 0; }
   .bulk-bar__select { width: auto; min-width: 10rem; max-width: 16rem; }
@@ -3250,6 +3253,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
           <option value="duplicates">Doublons</option>
           <option value="noNumCand">Sans n° CAND</option>
           <option value="rsImageMissing">Usage RS et Droit à l'image manquants</option>
+          <option value="paymentMissing">Paiement manquant</option>
         </select>
       </div>
       <button class="fr-btn fr-btn--secondary fr-icon-close-circle-line fr-btn--icon-left tb-icon" id="candResetBtn" type="button" disabled title="Réinitialiser les filtres (recherche et filtres sur les documents)">
@@ -3263,6 +3267,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         <button class="fr-btn fr-btn--secondary fr-icon-upload-line fr-btn--icon-left tb-ghost" id="candNumCandImportBtn" type="button" title="Mettre à jour les N° CAND d'après un fichier .csv contenant les N° CAND et les adresses e-mail">
           Mettre à jour les N° CAND (.csv)
         </button>
+        <button class="fr-btn fr-btn--secondary fr-icon-file-text-line fr-btn--icon-left tb-ghost" id="candReportBtn" type="button" title="Rapport : rédiger un point d'étape ou un rapport final sur l'état des dossiers, à envoyer par courriel">Rapport</button>
         <button class="fr-btn fr-btn--sm fr-icon-mail-line fr-btn--icon-left" id="candMailAllBtn" type="button" title="Envoyer un e-mail aux candidats du filtre actif (en copie cachée)">E-mail aux candidats du filtre</button>
       </div>
     </div>
@@ -3270,6 +3275,39 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
     <div id="candDocStats" class="fr-mb-2w"></div>
     <div id="candZone"></div>
+    <div class="bulk-dialog" id="etuReportDialog" role="dialog" aria-modal="true" aria-labelledby="etuReportTitle" hidden>
+      <div class="bulk-dialog__box">
+        <div class="bulk-dialog__head">
+          <h3 class="fr-h6" id="etuReportTitle">Rapport sur l’état des dossiers</h3>
+          <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line" id="etuReportClose" type="button" title="Fermer">Fermer</button>
+        </div>
+        <div class="etu-rep__kind" role="group" aria-label="Type de rapport">
+          <button type="button" class="etu-rep__btn" id="etuRepEtape" data-kind="etape" aria-pressed="true">Point d’étape</button>
+          <button type="button" class="etu-rep__btn" id="etuRepFinal" data-kind="final" aria-pressed="false">Rapport final</button>
+        </div>
+        <p class="fr-text--sm" id="etuReportInfo"></p>
+        <div class="fr-input-group">
+          <label class="fr-label" for="etuReportTo">Destinataire(s) <span class="fr-hint-text">Adresses séparées par une virgule</span></label>
+          <input class="fr-input" type="text" id="etuReportTo" autocomplete="off">
+        </div>
+        <div class="fr-input-group fr-mt-2w">
+          <label class="fr-label" for="etuReportSubject">Objet</label>
+          <input class="fr-input" type="text" id="etuReportSubject" autocomplete="off">
+        </div>
+        <div class="fr-input-group fr-mt-2w">
+          <label class="fr-label" for="etuReportBody">Corps du message <span class="fr-hint-text">Proposé d’après les dossiers affichés ; modifiable avant l’envoi.</span></label>
+          <textarea class="fr-input" id="etuReportBody" rows="16"></textarea>
+        </div>
+        <div class="etu-rep__final" id="etuReportFinalNote" hidden></div>
+        <div class="etu-rep__carry" id="etuReportCarry" hidden></div>
+        <p class="fr-error-text" id="etuReportError" hidden></p>
+        <div class="bulk-dialog__foot">
+          <button class="fr-btn fr-btn--tertiary fr-btn--sm" id="etuReportRegen" type="button">Régénérer le texte</button>
+          <button class="fr-btn fr-btn--tertiary fr-btn--sm" id="etuReportCancel" type="button">Annuler</button>
+          <button class="fr-btn fr-btn--sm fr-icon-mail-line fr-btn--icon-left" id="etuReportSend" type="button">Ouvrir le message</button>
+        </div>
+      </div>
+    </div>
     <div class="bulk-dialog" id="mailAllDialog" role="dialog" aria-modal="true" aria-labelledby="mailAllTitle" hidden>
       <div class="bulk-dialog__box bulk-dialog__box--md">
         <div class="bulk-dialog__head">
@@ -5498,7 +5536,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.72.2</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.74.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -5710,6 +5748,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var allTableIds = [];
   var searchText = '';
   var candFilters = { affectation: [] }; // eTuteur : filtre rapide cumulable par affectation
+  var candMissing = []; // eTuteur : pièces manquantes cochées (cumulables) ; [] = tout
+  var candStage = []; // eTuteur : stage coché (cumulable) : 'accul' | 'pmg' ; [] = tout
   var docFilter = 'all'; // 'all' | 'complete' | 'rejected' | 'toValidate' | 'missing' | 'eadMailNotSent' | 'numCandMailNotSent' | 'eadNotValidated' | 'duplicates' | 'noNumCand' | 'rsImageMissing' (voir DOC_FILTERS)
 
   // ---- Références DOM ----------------------------------------------------
@@ -7181,6 +7221,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     docFilter = 'all';
     docLegendFilter = null;
     candFilters = { affectation: [] };
+    candMissing = [];
+    candStage = [];
     candDocFilterEl.value = 'all';
     renderCandidates();
   });
@@ -7266,6 +7308,19 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     return ATTACHMENT_ROLES.filter(function (role) { return !!settings.col[role]; })
       .map(function (role) { return docStatus(row, role); });
   }
+  // Montants : nombre lu dans la colonne (nombre Grist ou texte « 1 234,50 € »), 0 si absent.
+  function numAmount(v) {
+    if (typeof v === 'number') return isFinite(v) ? v : 0;
+    var n = parseFloat(String(textOf(v)).replace(/\s|€/g, '').replace(',', '.'));
+    return isFinite(n) ? n : 0;
+  }
+  // Reste dû par le stagiaire : « Dû » moins « Encaissé » (0 s'il n'est rien dû ou si les colonnes sont absentes).
+  function owedAmount(row) {
+    if (!settings.col.du) return 0;
+    var d = numAmount(row.du), e = settings.col.encaisse ? numAmount(row.encaisse) : 0;
+    return d > e + 0.004 ? Math.round((d - e) * 100) / 100 : 0;
+  }
+  function fmtEuro(n) { return (Math.round(n * 100) / 100).toFixed(2).replace('.', ',') + ' €'; }
   var DOC_FILTERS = {
     all: function () { return true; },
     complete: function (st) { return st.length > 0 && st.every(function (x) { return x === 'ok'; }); },
@@ -7282,6 +7337,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     duplicates: function (st, row) { return duplicateReasons(row).length > 0; },
     // Sans n° CAND (colonne N_Cand vide).
     noNumCand: function (st, row) { return !textOf(row.numCand); },
+    // Paiement manquant : montant dû supérieur au montant encaissé.
+    paymentMissing: function (st, row) { return owedAmount(row) > 0; },
     // Reconnaissance de responsabilité (Usage RS) ET Droit à l'image : aucun fichier déposé pour les deux.
     rsImageMissing: function (st, row) {
       var roles = ['usageRS', 'formImage'].filter(function (role) { return !!settings.col[role]; });
@@ -7295,7 +7352,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var DOC_FILTER_LABELS = {
     all: 'Tous les dossiers', complete: 'Dossiers complets', rejected: 'Documents rejetés',
     toValidate: 'Documents à valider', missing: 'Documents manquants', eadMailNotSent: 'Email EAD non envoyé', numCandMailNotSent: 'N° CAND renseigné, email non envoyé', eadNotValidated: 'EAD non validé',
-    duplicates: 'Doublons', noNumCand: 'Sans n° CAND', rsImageMissing: 'Usage RS et Droit à l\'image manquants'
+    duplicates: 'Doublons', noNumCand: 'Sans n° CAND', rsImageMissing: 'Usage RS et Droit à l\'image manquants', paymentMissing: 'Paiement manquant'
   };
   // Filtres actifs de la page eTuteur : une puce par filtre, retirable d'un clic (sous la barre d'outils).
   var DOC_LEGEND_LABELS = { ok: 'Validé', pending: 'À valider', rejected: 'Refusé', missing: 'Manquant' };
@@ -7312,6 +7369,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var chips = [];
     if (docFilter !== 'all') chips.push({ l: DOC_FILTER_LABELS[docFilter], off: function () { docFilter = 'all'; candDocFilterEl.value = 'all'; } });
     if (docLegendFilter) chips.push({ l: 'Pièces : ' + (DOC_LEGEND_LABELS[docLegendFilter.status] || docLegendFilter.status) + (docLegendFilter.role ? ' (' + (ROLE_LABELS[docLegendFilter.role] || docLegendFilter.role) + ')' : ''), off: function () { docLegendFilter = null; } });
+    candMissing.forEach(function (r) { chips.push({ l: 'Pièce manquante : ' + (DOC_TAG_LABELS[r] || r), off: function () { candMissing = candMissing.filter(function (x) { return x !== r; }); } }); });
+    candStage.forEach(function (v) { chips.push({ l: 'Stage ' + (v === 'accul' ? 'Acculturation' : 'PMG'), off: function () { candStage = candStage.filter(function (x) { return x !== v; }); } }); });
     candFilters.affectation.forEach(function (v) { chips.push({ l: 'Affectation ' + v, off: function () { candFilters.affectation = candFilters.affectation.filter(function (x) { return x !== v; }); } }); });
     host.hidden = !chips.length;
     if (!chips.length) return;
@@ -7368,7 +7427,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       });
     }
     // Le bouton n'est actif que si un filtre (recherche ou documents) l'est.
-    candResetBtn.disabled = docFilter === 'all' && !searchText.trim() && !docLegendFilter && !candFilters.affectation.length;
+    candResetBtn.disabled = docFilter === 'all' && !searchText.trim() && !docLegendFilter && !candFilters.affectation.length && !candMissing.length && !candStage.length;
     renderCandActive();
   }
 
@@ -7389,6 +7448,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       if (hay.indexOf(q) === -1) return false;
     }
     if (candFilters.affectation.length && candFilters.affectation.indexOf(textOf(row.affectation)) === -1) return false;
+    if (candMissing.length && !candMissing.some(function (r) { return !!settings.col[r] && docStatus(row, r) === 'missing'; })) return false;
+    if (candStage.length && candStage.indexOf(statsIsAcc(row) ? 'accul' : 'pmg') === -1) return false;
     if (!skipDocFilter && !DOC_FILTERS[docFilter](docStatusesOf(row), row)) return false;
     return true;
   }
@@ -9999,6 +10060,205 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }, function (e) {
       sendBtn.disabled = false;
       showMailAllError('Le message a été préparé, mais le commentaire n’a pas pu être ajouté : ' + friendlyErrorMessage(e));
+    });
+  });
+
+
+  // ---- Rapport sur l'état des dossiers (page eTuteur) : point d'étape ou rapport final, envoyé par courriel ----
+  //
+  // Le texte est proposé d'après les dossiers affichés (filtres actifs compris) : synthèse, puis détail par stagiaire (pièces manquantes,
+  // refusées ou à valider ; reste dû ; informations de « Blocages / Infos »). Les lignes de relance, celles concernant les invités ou la 2FA
+  // sont exclues. En rapport final, ces informations sont aussi reportées dans « Infos » de la fiche de chaque stagiaire.
+  var etuRep = { kind: 'etape', rows: [], skip: {} }; // skip : lignes décochées (clé « id fiche | texte »)
+  var etuReportDialog = document.getElementById('etuReportDialog');
+  function reportInfoLines(row) {
+    return textOf(row.blocagesInfos).split(/\r?\n/).map(function (l) { return l.trim(); }).filter(function (l) {
+      return l && !/RELANCE|INVIT|2FA/.test(normalizeKey(l));
+    });
+  }
+  function reportDocLines(row) {
+    var out = [];
+    ATTACHMENT_ROLES.filter(function (r) { return !!settings.col[r]; }).forEach(function (role) {
+      var st = docStatus(row, role);
+      if (st !== 'ok') out.push(DOC_TAG_LABELS[role] + ' : ' + DOC_STATUS_TEXT[st]);
+    });
+    return out;
+  }
+  function buildEtuReport(kind) {
+    var rows = etuRep.rows, final = kind === 'final', today = todayFr();
+    var roles = ATTACHMENT_ROLES.filter(function (r) { return !!settings.col[r]; });
+    var n = rows.length, complete = 0, rejected = 0, missing = 0, owedN = 0, owedTotal = 0;
+    var blocks = [];
+    rows.forEach(function (row) {
+      var st = docStatusesOf(row), owed = owedAmount(row), infos = reportInfoLines(row), docs = reportDocLines(row);
+      if (roles.length && st.every(function (x) { return x === 'ok'; })) complete++;
+      if (st.indexOf('rejected') !== -1) rejected++;
+      if (st.indexOf('missing') !== -1) missing++;
+      if (owed > 0) { owedN++; owedTotal += owed; }
+      if (!docs.length && !owed && !infos.length) return;
+      var p = nameParts(row), head = '- ' + [p.nom, p.prenom].filter(Boolean).join(' ') + [settings.col.affectation ? textOf(row.affectation) : '', settings.col.pon ? textOf(row.pon) : ''].filter(Boolean).map(function (x, i) { return ''; }).join('');
+      var ctx = [settings.col.affectation ? textOf(row.affectation) : '', settings.col.pon ? textOf(row.pon) : ''].filter(Boolean).join(', ');
+      var lines = [head + (ctx ? ' (' + ctx + ')' : '')];
+      if (docs.length) lines.push('    Pièces : ' + docs.join(' ; '));
+      if (owed > 0) lines.push('    Paiement : reste dû ' + fmtEuro(owed) + ' (dû ' + fmtEuro(numAmount(row.du)) + ', encaissé ' + fmtEuro(numAmount(row.encaisse)) + ')');
+      if (infos.length) lines.push('    Informations : ' + infos.join(' / '));
+      blocks.push({ name: p.nom + ' ' + p.prenom, text: lines.join('\n') });
+    });
+    blocks.sort(function (a, b) { return nameCollator.compare(a.name, b.name); });
+    var pct = function (x) { return n ? ' (' + Math.round(x * 100 / n) + ' %)' : ''; };
+    var syn = ['- Candidats : ' + n];
+    if (roles.length) syn.push('- Dossiers complets : ' + complete + pct(complete), '- Pièces refusées : ' + rejected + ' dossier(s)', '- Pièces manquantes : ' + missing + ' dossier(s)');
+    if (settings.col.du) syn.push('- Paiements : ' + (owedN ? owedN + ' stagiaire(s) restent redevables, pour un total de ' + fmtEuro(owedTotal) : 'aucun reste dû'));
+    var body = 'Bonjour,\n\n' +
+      (final ? 'Veuillez trouver ci-dessous le rapport final sur l’état des dossiers des stagiaires, arrêté au ' + today + '.' : 'Veuillez trouver ci-dessous le point d’étape sur l’état des dossiers des stagiaires, au ' + today + '.') + '\n\n' +
+      'SYNTHÈSE\n' + syn.join('\n') + '\n\n' +
+      (blocks.length ? 'DÉTAIL PAR STAGIAIRE (dossiers à suivre)\n' + blocks.map(function (b) { return b.text; }).join('\n') + '\n\n' : 'Aucun dossier ne présente de point à signaler.\n\n') +
+      'Je reste à votre disposition pour tout complément.\n\n' +
+      'Cordialement,';
+    return { subject: (final ? 'Rapport final' : 'Point d’étape') + ' — état des dossiers des stagiaires au ' + today, body: body };
+  }
+  // Informations à reporter dans la fiche (rapport final) : lignes de Blocages / Infos retenues, absentes de « Infos ».
+  function etuReportCarry() {
+    if (!candidates.hasInfos) return [];
+    var out = [];
+    etuRep.rows.forEach(function (row) {
+      var have = textOf(row.infosLibre).split(/\r?\n/).map(function (l) { return l.trim(); });
+      var add = reportInfoLines(row).filter(function (l) { return have.indexOf(l) === -1; });
+      if (add.length) out.push({ row: row, add: add });
+    });
+    return out;
+  }
+  function carryKey(row, line) { return row.id + '|' + line; }
+  // Lignes retenues après validation par l'utilisateur (cases décochées retirées).
+  function etuReportCarryChosen() {
+    return etuReportCarry().map(function (c) { return { row: c.row, add: c.add.filter(function (l) { return !etuRep.skip[carryKey(c.row, l)]; }) }; }).filter(function (c) { return c.add.length; });
+  }
+  // Liste de validation : chaque ligne qui sera reportée dans « Infos » est cochée par défaut ; on décoche ce qui ne doit pas l'être.
+  function etuReportRenderCarry() {
+    var box = document.getElementById('etuReportCarry'), carry = etuRep.kind === 'final' ? etuReportCarry() : [];
+    box.hidden = !carry.length;
+    box.innerHTML = '';
+    if (!carry.length) return;
+    var total = 0, kept = 0;
+    carry.forEach(function (c) { c.add.forEach(function (l) { total++; if (!etuRep.skip[carryKey(c.row, l)]) kept++; }); });
+    var head = document.createElement('div');
+    head.className = 'etu-rep__carry-head';
+    head.innerHTML = '<strong>Lignes à reporter dans « Infos » des fiches : ' + kept + ' sur ' + total + ' cochée(s)</strong>' +
+      '<span><button type="button" class="fr-btn fr-btn--tertiary fr-btn--sm" data-all="1">Tout cocher</button> <button type="button" class="fr-btn fr-btn--tertiary fr-btn--sm" data-all="0">Tout décocher</button></span>';
+    box.appendChild(head);
+    var n = 0;
+    carry.forEach(function (c) {
+      var g = document.createElement('div'), p = nameParts(c.row);
+      g.className = 'etu-rep__carry-grp';
+      g.innerHTML = '<p class="etu-rep__carry-name">' + escapeHtml([p.nom, p.prenom].filter(Boolean).join(' ')) + '</p>' + c.add.map(function (l) {
+        var id = 'etuCarry' + (n++);
+        return '<div class="fr-checkbox-group fr-checkbox-group--sm"><input type="checkbox" id="' + id + '" data-key="' + escapeHtml(carryKey(c.row, l)) + '"' + (etuRep.skip[carryKey(c.row, l)] ? '' : ' checked') + '><label class="fr-label" for="' + id + '">' + escapeHtml(l) + '</label></div>';
+      }).join('');
+      box.appendChild(g);
+    });
+  }
+  document.getElementById('etuReportCarry').addEventListener('change', function (e) {
+    var k = e.target.getAttribute && e.target.getAttribute('data-key'); if (!k) return;
+    if (e.target.checked) delete etuRep.skip[k]; else etuRep.skip[k] = true;
+    etuReportRenderCarry();
+  });
+  document.getElementById('etuReportCarry').addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-all]'); if (!b) return;
+    var on = b.getAttribute('data-all') === '1';
+    etuReportCarry().forEach(function (c) { c.add.forEach(function (l) { if (on) delete etuRep.skip[carryKey(c.row, l)]; else etuRep.skip[carryKey(c.row, l)] = true; }); });
+    etuReportRenderCarry();
+  });
+  function etuReportFill() {
+    var r = buildEtuReport(etuRep.kind);
+    document.getElementById('etuReportSubject').value = r.subject;
+    document.getElementById('etuReportBody').value = r.body;
+    var final = etuRep.kind === 'final', note = document.getElementById('etuReportFinalNote');
+    note.hidden = !final;
+    if (final) {
+      var carry = etuReportCarry();
+      note.textContent = !candidates.hasInfos
+        ? 'Rapport final : la colonne « Infos » de la table des stagiaires est introuvable, les informations ne pourront pas être reportées dans les fiches.'
+        : carry.length
+          ? 'Rapport final : à l’envoi, les lignes cochées ci-dessous (informations de « Blocages / Infos », hors relances, invités et 2FA) sont reportées dans « Infos » de la fiche. Vérifiez-les avant d’envoyer.'
+          : 'Rapport final : aucune information à reporter dans les fiches (rien de nouveau dans « Blocages / Infos »).';
+    }
+    etuReportRenderCarry();
+    document.getElementById('etuReportInfo').textContent = etuRep.rows.length + ' dossier(s) pris en compte (ceux de l’affichage actuel, filtres compris).';
+    Array.prototype.forEach.call(document.querySelectorAll('.etu-rep__btn'), function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-kind') === etuRep.kind ? 'true' : 'false'); });
+  }
+  function closeEtuReport() { etuReportDialog.hidden = true; }
+  document.getElementById('candReportBtn').addEventListener('click', function () {
+    var seenNid = {};
+    etuRep.rows = candidates.rows.filter(function (r) { return matchesFilters(r, false); }).sort(compareCandidatesByName).filter(function (r) { // une seule ligne par NID (les doublons ne comptent qu'une fois)
+      var k = nidKey(r.nid); if (!k) return true; if (seenNid[k]) return false; seenNid[k] = true; return true;
+    });
+    etuRep.kind = 'etape';
+    etuRep.skip = {};
+    var to = ''; try { to = window.localStorage.getItem('etuReportTo') || ''; } catch (e) { /* stockage indisponible */ }
+    document.getElementById('etuReportTo').value = to;
+    document.getElementById('etuReportError').hidden = true;
+    document.getElementById('etuReportSend').disabled = false;
+    etuReportFill();
+    etuReportDialog.hidden = false;
+    document.getElementById('etuReportTo').focus();
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.etu-rep__btn'), function (b) { b.addEventListener('click', function () { etuRep.kind = b.getAttribute('data-kind'); etuReportFill(); }); });
+  document.getElementById('etuReportRegen').addEventListener('click', etuReportFill);
+  document.getElementById('etuReportCancel').addEventListener('click', closeEtuReport);
+  document.getElementById('etuReportClose').addEventListener('click', closeEtuReport);
+  var etuRepDown = false;
+  etuReportDialog.addEventListener('mousedown', function (e) { etuRepDown = e.target === etuReportDialog; });
+  etuReportDialog.addEventListener('click', function (e) { if (e.target === etuReportDialog && etuRepDown) closeEtuReport(); });
+  etuReportDialog.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); closeEtuReport(); } });
+  function buildPlainEml(to, subject, body) {
+    var lines = ['X-Unsent: 1'];
+    if (to) lines.push('To: ' + to);
+    lines.push('Subject: ' + emlWord(subject), 'MIME-Version: 1.0', 'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: base64', '');
+    lines.push((emlBase64(String(body).replace(/\r?\n/g, '\r\n')).match(/.{1,76}/g) || []).join('\r\n'), '');
+    return lines.join('\r\n');
+  }
+  document.getElementById('etuReportSend').addEventListener('click', function () {
+    var err = document.getElementById('etuReportError'), sendBtn = document.getElementById('etuReportSend');
+    var to = document.getElementById('etuReportTo').value.trim(), subject = document.getElementById('etuReportSubject').value.trim(), body = document.getElementById('etuReportBody').value;
+    function fail(m) { err.textContent = m; err.hidden = false; }
+    err.hidden = true;
+    if (!subject) { fail('Indiquez l’objet du message.'); return; }
+    if (!body.trim()) { fail('Le corps du message est vide.'); return; }
+    if (to && !to.split(/[,;]\s*/).every(function (a) { return /^[^\s@,;]+@[^\s@,;]+$/.test(a); })) { fail('Une adresse de destinataire n’est pas valide.'); return; }
+    var final = etuRep.kind === 'final', carry = final ? etuReportCarryChosen() : [];
+    var msg = 'Préparer le message' + (to ? ' pour ' + to : '') + (carry.length ? ', puis reporter ' + carry.reduce(function (n, c) { return n + c.add.length; }, 0) + ' ligne(s) dans « Infos » de ' + carry.length + ' fiche(s)' : '') + ' ?';
+    var ask = window.fsjConfirm ? window.fsjConfirm(msg, 'Préparer le message') : Promise.resolve(window.confirm(msg)); // confirm() natif ignoré dans l'iframe Grist
+    ask.then(function (ok) {
+      if (!ok) return;
+      try { window.localStorage.setItem('etuReportTo', to); } catch (e) { /* stockage indisponible */ }
+      var url = 'mailto:' + to + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body.replace(/\r?\n/g, '\r\n'));
+      var a = document.createElement('a'), usedEml = false;
+      if (url.length <= 1900) a.href = url;
+      else { // rapport trop long pour un lien : brouillon .eml
+        usedEml = true;
+        var blobUrl = URL.createObjectURL(new Blob([buildPlainEml(to, subject, body)], { type: 'message/rfc822' }));
+        a.href = blobUrl; a.download = (safeFileName(subject) || 'rapport') + '.eml';
+        setTimeout(function () { URL.revokeObjectURL(blobUrl); }, 10000);
+      }
+      a.style.display = 'none'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      var done = function (extra) {
+        closeEtuReport();
+        var m = (usedEml ? 'Rapport trop long pour un lien de messagerie : le brouillon « ' + a.download + ' » a été téléchargé. Ouvrez-le pour l’envoyer.' : '') + (extra ? (usedEml ? '\n\n' : '') + extra : '');
+        if (m) window.alert(m);
+      };
+      if (!carry.length) { done(''); return; }
+      var colId = INFOS_COL;
+      sendBtn.disabled = true;
+      var actions = carry.map(function (c) {
+        var cur = textOf(c.row.infosLibre).replace(/\s+$/, ''), next = (cur ? cur + '\n' : '') + c.add.join('\n'), f = {};
+        f[colId] = next; c.next = next;
+        return ['UpdateRecord', settings.table, c.row.id, f];
+      });
+      grist.docApi.applyUserActions(actions).then(function () {
+        carry.forEach(function (c) { c.row.infosLibre = c.next; });
+        renderCandidates();
+        done('Informations reportées dans « Infos » de ' + carry.length + ' fiche(s).');
+      }, function (e) { sendBtn.disabled = false; fail('Le message a été préparé, mais le report dans les fiches a échoué : ' + friendlyErrorMessage(e)); });
     });
   });
 
@@ -13362,37 +13622,53 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var out = [];
     var hasDocs = ATTACHMENT_ROLES.some(function (r) { return !!settings.col[r]; });
     var base = candidates.rows.filter(function (r) { return matchesFilters(r, true); });
+    // Effectifs d'un critère : candidats qui passent tous les AUTRES filtres (ce qu'un clic afficherait).
+    function poolWithout(kind) {
+      var sf = candFilters.affectation, sm = candMissing, ss = candStage;
+      if (kind === 'aff') candFilters.affectation = []; if (kind === 'missing') candMissing = []; if (kind === 'stage') candStage = [];
+      var pool = candidates.rows.filter(function (r) { return matchesFilters(r, false); });
+      candFilters.affectation = sf; candMissing = sm; candStage = ss;
+      return pool;
+    }
+    function docItem(sec, key, label) {
+      var n = base.filter(function (r) { return DOC_FILTERS[key](docStatusesOf(r), r); }).length;
+      if (!n && docFilter !== key) return; // pas de puce vide : le panneau ne propose que ce qui donne un résultat
+      out.push({ sec: sec, l: label + ' (' + n + ')', keep: true, on: function () { return docFilter === key; },
+        run: function () { docFilter = docFilter === key ? 'all' : key; candDocFilterEl.value = docFilter; renderCandidates(); } });
+    }
+    function listItem(sec, label, n, list, value, set) { // critère cumulable : une puce par valeur
+      if (!n && list().indexOf(value) === -1) return;
+      out.push({ sec: sec, l: label + ' (' + n + ')', keep: true, on: function () { return list().indexOf(value) !== -1; },
+        run: function () { var cur = list(), on = cur.indexOf(value) !== -1; set(on ? cur.filter(function (x) { return x !== value; }) : cur.concat([value])); renderCandidates(); } });
+    }
     if (hasDocs) {
-      [
-        ['État des dossiers', [['complete', 'ok'], ['toValidate', 'info'], ['rejected', 'alert'], ['missing', 'warn']]],
-        ['Relances à faire', [['eadMailNotSent', 'warn'], ['numCandMailNotSent', 'warn'], ['eadNotValidated', 'warn']]],
-        ['Données à contrôler', [['duplicates', 'alert'], ['noNumCand', 'warn'], ['rsImageMissing', 'warn']]]
-      ].forEach(function (g) {
-        g[1].forEach(function (d) {
-          var key = d[0], n = base.filter(function (r) { return DOC_FILTERS[key](docStatusesOf(r), r); }).length;
-          if (!n && docFilter !== key) return; // pas de puce vide : le panneau ne propose que ce qui donne un résultat
-          out.push({ sec: g[0], l: DOC_FILTER_LABELS[key] + ' (' + n + ')', cls: 'sp-tag--' + d[1], keep: true, on: function () { return docFilter === key; },
-            run: function () { docFilter = docFilter === key ? 'all' : key; candDocFilterEl.value = docFilter; renderCandidates(); } });
-        });
+      ['complete', 'toValidate', 'rejected', 'missing'].forEach(function (k) { docItem('État des dossiers', k, DOC_FILTER_LABELS[k]); });
+      var poolM = poolWithout('missing');
+      ATTACHMENT_ROLES.filter(function (r) { return !!settings.col[r]; }).forEach(function (role) {
+        listItem('Relances à faire : par pièce manquante (cumulable)', DOC_TAG_LABELS[role], poolM.filter(function (r) { return docStatus(r, role) === 'missing'; }).length,
+          function () { return candMissing; }, role, function (v) { candMissing = v; });
+      });
+      docItem('EAD', 'noNumCand', 'Sans numéro CAND');
+      docItem('EAD', 'eadMailNotSent', 'Email EAD non envoyé');
+      docItem('Données à contrôler', 'duplicates', 'Doublons');
+    }
+    if (settings.col.affectation) { // pas de filtre par peloton sur la page eTuteur
+      var poolA = poolWithout('aff');
+      var counts = groupedCounts(poolA, function (r) { var v = textOf(r.affectation); return v ? [v] : []; });
+      var names = Object.keys(counts);
+      candFilters.affectation.forEach(function (v) { if (names.indexOf(v) === -1) names.push(v); });
+      names.sort(function (a, b) { return nameCollator.compare(a, b); });
+      names.forEach(function (v) { listItem('Par affectation', v, counts[v] || 0, function () { return candFilters.affectation; }, v, function (x) { candFilters.affectation = x; }); });
+    }
+    if (settings.col.pon) {
+      var poolS = poolWithout('stage');
+      [['accul', 'Acculturation'], ['pmg', 'PMG']].forEach(function (st) {
+        listItem('Par stage', st[1], poolS.filter(function (r) { return (statsIsAcc(r) ? 'accul' : 'pmg') === st[0]; }).length, function () { return candStage; }, st[0], function (x) { candStage = x; });
       });
     }
-    [['affectation', 'Par affectation']].forEach(function (d) { // pas de filtre par peloton sur la page eTuteur
-      if (!settings.col[d[0]]) return;
-      // Effectifs : candidats qui passent tous les autres filtres (recherche, dossiers, autre critère) — ce qu'un clic afficherait.
-      var saved = candFilters[d[0]]; candFilters[d[0]] = [];
-      var pool = candidates.rows.filter(function (r) { return matchesFilters(r, false); });
-      candFilters[d[0]] = saved;
-      var counts = groupedCounts(pool, function (r) { var v = textOf(r[d[0]]); return v ? [v] : []; });
-      var names = Object.keys(counts);
-      candFilters[d[0]].forEach(function (v) { if (names.indexOf(v) === -1) names.push(v); });
-      names.sort(function (a, b) { return nameCollator.compare(a, b); });
-      names.forEach(function (v) {
-        out.push({ sec: d[1], l: v + ' (' + (counts[v] || 0) + ')', keep: true, on: function () { return candFilters[d[0]].indexOf(v) !== -1; },
-          run: function () { var cur = candFilters[d[0]], on = cur.indexOf(v) !== -1; candFilters[d[0]] = on ? cur.filter(function (x) { return x !== v; }) : cur.concat([v]); renderCandidates(); } });
-      });
-    });
+    if (settings.col.du) docItem('Paiement', 'paymentMissing', 'Paiement manquant');
     return out;
-  }, function () { docLegendFilter = null; docFilter = 'all'; candFilters = { affectation: [] }; candDocFilterEl.value = 'all'; searchText = ''; candSearchInput.value = ''; renderCandidates(); });
+  }, function () { docLegendFilter = null; docFilter = 'all'; candFilters = { affectation: [] }; candMissing = []; candStage = []; candDocFilterEl.value = 'all'; searchText = ''; candSearchInput.value = ''; renderCandidates(); });
   // FAQ : mots-clés proposés.
   attachSearchPanel(document.getElementById('faqSearch'), function () {
     return ['départ', 'csv', 'trombinoscope', 'attrition', 'acculturation', 'N° CAND', 'filtre'].map(function (t) {
@@ -15321,18 +15597,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   candModalOverlay.addEventListener('click', function (e) {
     if (e.target === candModalOverlay) closeCandidateModal();
   });
-  // Fiche défilée : le bandeau (collé en haut) passe en version compacte ; hystérésis pour éviter les va-et-vient au seuil.
-  function updateModalScrolled() {
-    if (candModalStack.classList.contains('cand-modal-stack--compare')) return; // comparaison de doublons : pas de bandeau fixe
-    var top = candModalOverlay.getBoundingClientRect().top;
-    Array.prototype.forEach.call(candModalOverlay.querySelectorAll('.stg-dialog'), function (d) {
-      var off = d.getBoundingClientRect().top - top, on = d.classList.contains('is-scrolled'), st = d.querySelector('.stg-sticky');
-      // La hauteur occupée dans la fiche ne change pas (marge compensatrice) : pas de saut du contenu au passage du seuil.
-      if (!on && off < -70) { var h0 = st ? st.offsetHeight : 0; d.classList.add('is-scrolled'); if (st) st.style.marginBottom = Math.max(0, h0 - st.offsetHeight) + 'px'; }
-      else if (on && off > -20) { d.classList.remove('is-scrolled'); if (st) st.style.marginBottom = ''; }
-    });
-  }
-  candModalOverlay.addEventListener('scroll', updateModalScrolled, { passive: true });
   document.addEventListener('keydown', function (e) {
     if (candModalOverlay.hidden) return;
     if (e.key === 'Escape') { closeCandidateModal(); return; }
