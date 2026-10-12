@@ -1370,6 +1370,12 @@
 .cfg-doc-table select { width: 100%; min-width: 11rem; }
 
 
+
+  /* Mise à jour par .csv : question « créer les nouvelles lignes ? » */
+  .imp-new { margin: 0.6rem 0; padding: 0.7rem 0.9rem; background: var(--background-contrast-info); border-left: 4px solid var(--border-plain-info); border-radius: 0.2rem; }
+  .imp-new__q { margin: 0 0 0.4rem; }
+  .imp-new .imp-details { margin-top: 0.4rem; }
+
 /* Ajouter un document : choix entre stocker un fichier et créer un modèle ; pré-rédaction d'un modèle HTML. */
 .doc-choice { max-width: 46rem; }
 .doc-choice__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
@@ -4844,7 +4850,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       </div>
 
       <div data-cfg-tab="res" hidden>
-      <section class="cfg-card" aria-labelledby="res_cfgCardTitle1">
+      <section class="cfg-card" hidden aria-labelledby="res_cfgCardTitle1">
           <div class="cfg-card__head">
             <span class="cfg-card__num" aria-hidden="true">8</span>
             <div>
@@ -4912,7 +4918,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
             </div>
         </section>
 
-      <section class="cfg-card" aria-labelledby="res_cfgCardTitle2">
+      <section class="cfg-card" hidden aria-labelledby="res_cfgCardTitle2">
           <div class="cfg-card__head">
             <span class="cfg-card__num" aria-hidden="true">9</span>
             <div>
@@ -4985,7 +4991,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
             </div>
         </section>
 
-      <section class="cfg-card" aria-labelledby="res_cfgCardTitle3">
+      <section class="cfg-card" hidden aria-labelledby="res_cfgCardTitle3">
           <div class="cfg-card__head">
             <span class="cfg-card__num" aria-hidden="true">10</span>
             <div>
@@ -5028,7 +5034,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
             </div>
         </section>
 
-      <section class="cfg-card" aria-labelledby="res_cfgCardTitle4">
+      <section class="cfg-card" hidden aria-labelledby="res_cfgCardTitle4">
           <div class="cfg-card__head">
             <span class="cfg-card__num" aria-hidden="true">11</span>
             <div>
@@ -5079,7 +5085,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
             </div>
         </section>
 
-      <section class="cfg-card" aria-labelledby="res_cfgCardTitle5">
+      <section class="cfg-card" hidden aria-labelledby="res_cfgCardTitle5">
           <div class="cfg-card__head">
             <span class="cfg-card__num" aria-hidden="true">12</span>
             <div>
@@ -5138,8 +5144,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
             </div>
         </section>
 
-      <details class="cfg-help cfg-sources" id="res_cfgSources">
-      <summary>Sources de données fixes (lecture seule)</summary>
+      <details class="cfg-help cfg-sources" id="res_cfgSources" open>
+      <summary>Tables et colonnes lues par le widget (fixes, retrouvées par leur nom)</summary>
       <div id="res_cfgSourcesBody"></div>
     </details>
 
@@ -5484,7 +5490,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.69.4</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.71.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -11512,11 +11518,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var importErrorEl = document.getElementById('importError');
   var importGoBtn = document.getElementById('importGo');
   var importCancelBtn = document.getElementById('importCancel');
-  var imp = { kind: 'stagiaires', fields: [], headers: [], rows: [], map: [], keyId: '', clearEmpty: false, plan: null, busy: false };
+  var imp = { kind: 'stagiaires', fields: [], headers: [], rows: [], map: [], keyId: '', clearEmpty: false, createNew: false, plan: null, busy: false };
   function closeImportDialog() { if (imp.busy) return; importDialog.hidden = true; }
   function importShowError(msg) { importErrorEl.hidden = !msg; importErrorEl.textContent = msg || ''; }
   function openImportDialog(kind) {
-    imp = { kind: kind, fields: kind === 'encadrement' ? encImportFields() : kind === 'numCand' ? numCandImportFields() : stgImportFields(), headers: [], rows: [], map: [], keyId: '', clearEmpty: false, plan: null, busy: false };
+    imp = { kind: kind, fields: kind === 'encadrement' ? encImportFields() : kind === 'numCand' ? numCandImportFields() : stgImportFields(), headers: [], rows: [], map: [], keyId: '', clearEmpty: false, createNew: false, plan: null, busy: false };
     document.getElementById('importTitle').textContent = kind === 'stagiaires' ? 'Mettre à jour les stagiaires depuis un .csv' : kind === 'numCand' ? 'Mettre à jour les N° CAND depuis un .csv' : 'Mettre à jour l’encadrement depuis un .csv';
     document.getElementById('importIntro').textContent = kind === 'numCand' ?
       'Le fichier doit contenir la colonne « N° CAND » et, pour retrouver chaque stagiaire, son adresse e-mail et/ou ses nom et prénom (titres sur la première ligne). Le stagiaire est cherché d’abord par e-mail, à défaut par nom et prénom ; rien n’est écrit avant votre confirmation.' :
@@ -11577,7 +11583,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   }
   function importAnalyse() {
     var opt = imp.keyOptions.filter(function (o) { return o.id === imp.keyId; })[0];
-    var plan = { opt: opt, matched: 0, unmatched: [], ambiguous: [], invalid: [], changes: [], rowsChanged: {} };
+    var plan = { opt: opt, matched: 0, unmatched: [], ambiguous: [], invalid: [], changes: [], rowsChanged: {}, newRows: [] };
     imp.plan = plan;
     if (!opt) return;
     var index = {}, nameIndex = {};
@@ -11619,7 +11625,22 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       var label = opt.auto ? '' : opt.id === 'nomPrenom' ? ((cells[colOf.nom] || '') + ' ' + (cells[colOf.prenom] || '')).trim() : String(cells[colOf[opt.roles[0]]] || '').trim();
       if (!opt.auto && !csvKeys[0]) return; // ligne sans identifiant : ignorée
       if (!opt.auto) found = index[csvKeys[0]] || [];
-      if (!opt.auto && !found.length) { plan.unmatched.push('ligne ' + (n + 2 + imp.headerRow) + ' : ' + label); return; }
+      if (!opt.auto && !found.length) {
+        plan.unmatched.push('ligne ' + (n + 2 + imp.headerRow) + ' : ' + label);
+        // Nouvelle ligne possible : toutes les colonnes reconnues du fichier (identification comprise) ; les cellules vides sont laissées vides.
+        var vals = [], nidVal = null, hasNomPrenom = !!(colOf.nom !== undefined || colOf.prenom !== undefined);
+        imp.map.forEach(function (f, i) {
+          if (!f || (f.role === 'stagiaire' && hasNomPrenom && !impIsEnc())) return; // nom complet : colonne souvent calculée à partir du nom et du prénom
+          var raw = cells[i] === undefined ? '' : String(cells[i]);
+          if (!raw.trim()) return;
+          var cv = impConvert(f, raw);
+          if (!cv.ok) { plan.invalid.push('ligne ' + (n + 2 + imp.headerRow) + ', « ' + f.label + ' » (nouvelle ligne) : ' + cv.error); return; }
+          vals.push({ f: f, value: cv.value });
+          if (f.role === 'nid') nidVal = cv.value;
+        });
+        plan.newRows.push({ line: n + 2 + imp.headerRow, label: label, values: vals, nid: nidVal });
+        return;
+      }
       if (!opt.auto && found.length > 1) { plan.ambiguous.push('ligne ' + (n + 2 + imp.headerRow) + ' : ' + label + ' (' + found.length + ' fiches)'); return; }
       var row = found[0];
       plan.matched++;
@@ -11674,7 +11695,27 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       (plan.unmatched.length ? ' · <span class="imp-warn">' + plan.unmatched.length + ' ligne(s) sans correspondance</span>' : '') +
       (plan.ambiguous.length ? ' · <span class="imp-warn">' + plan.ambiguous.length + ' ligne(s) ambiguë(s)</span>' : '') +
       (plan.invalid.length ? ' · <span class="imp-warn">' + plan.invalid.length + ' valeur(s) invalide(s)</span>' : '') + '.');
-    [['Sans correspondance (ignorées)', plan.unmatched], ['Ambiguës (plusieurs fiches, ignorées)', plan.ambiguous], ['Valeurs invalides (ignorées)', plan.invalid]].forEach(function (g) {
+    if (plan.newRows.length) {
+      var nn = plan.newRows.length, q = document.createElement('div');
+      q.className = 'imp-new';
+      q.setAttribute('role', 'group');
+      q.setAttribute('aria-labelledby', 'impNewQ');
+      q.innerHTML = '<p class="imp-new__q" id="impNewQ"><strong>' + nn + '</strong> ligne(s) du fichier ne correspondent à aucun ' + (impIsEnc() ? 'membre de l’encadrement' : 'stagiaire') + ' existant. Faut-il les créer ?</p>' +
+        '<div class="fr-radio-group fr-radio-group--sm"><input type="radio" name="impNew" id="impNewNo" value="no"><label class="fr-label" for="impNewNo">Non, les ignorer</label></div>' +
+        '<div class="fr-radio-group fr-radio-group--sm"><input type="radio" name="impNew" id="impNewYes" value="yes"><label class="fr-label" for="impNewYes">Oui, créer ' + nn + ' nouveau(x) ' + impNoun() + '</label></div>';
+      q.querySelector(imp.createNew ? '#impNewYes' : '#impNewNo').checked = true;
+      Array.prototype.forEach.call(q.querySelectorAll('input'), function (r) { r.addEventListener('change', function () { imp.createNew = q.querySelector('#impNewYes').checked; importGoBtn.disabled = !(plan.changes.length || (imp.createNew && nn)); }); });
+      var det = document.createElement('details');
+      det.className = 'imp-details';
+      det.innerHTML = '<summary>Voir les lignes concernées : ' + nn + '</summary>';
+      var ul0 = document.createElement('ul');
+      plan.newRows.slice(0, 30).forEach(function (r) { var li = document.createElement('li'); li.textContent = 'ligne ' + r.line + ' : ' + r.label + ' (' + r.values.length + ' champ(s) renseigné(s))'; ul0.appendChild(li); });
+      if (nn > 30) { var more0 = document.createElement('li'); more0.textContent = '… et ' + (nn - 30) + ' autre(s)'; ul0.appendChild(more0); }
+      det.appendChild(ul0);
+      q.appendChild(det);
+      box.appendChild(q);
+    }
+    [['Sans correspondance (ignorées)', plan.newRows.length ? [] : plan.unmatched], ['Ambiguës (plusieurs fiches, ignorées)', plan.ambiguous], ['Valeurs invalides (ignorées)', plan.invalid]].forEach(function (g) {
       if (!g[1].length) return;
       var det = document.createElement('details');
       det.className = 'imp-details';
@@ -11703,12 +11744,13 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       wrap.appendChild(tbl);
       box.appendChild(wrap);
       if (plan.changes.length > 200) add('Aperçu limité aux 200 premières modifications (toutes seront appliquées).', 'fr-hint-text');
-    } else add('Aucune modification à appliquer : les données du fichier sont déjà à jour.', 'fr-hint-text');
-    importGoBtn.disabled = !plan.changes.length;
+    } else add(plan.newRows.length ? 'Aucune modification sur les lignes existantes.' : 'Aucune modification à appliquer : les données du fichier sont déjà à jour.', 'fr-hint-text');
+    importGoBtn.disabled = !(plan.changes.length || (imp.createNew && plan.newRows.length));
   }
   function importApply() {
     var plan = imp.plan;
-    if (!plan || !plan.changes.length || imp.busy) return;
+    var createN = imp.createNew && plan ? plan.newRows.length : 0;
+    if (!plan || (!plan.changes.length && !createN) || imp.busy) return;
     imp.busy = true;
     importGoBtn.disabled = true;
     importCancelBtn.disabled = true;
@@ -11724,14 +11766,27 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         if (!byTarget[key]) { byTarget[key] = { table: c.f.table, rowId: rowId, fields: {} }; order.push(key); }
         byTarget[key].fields[c.f.colId] = c.value;
       });
-      return grist.docApi.applyUserActions(order.map(function (k) { var t = byTarget[k]; return ['UpdateRecord', t.table, t.rowId, t.fields]; }));
+      var actions = order.map(function (k) { var t = byTarget[k]; return ['UpdateRecord', t.table, t.rowId, t.fields]; });
+      // Nouvelles lignes (si l'utilisateur a choisi de les créer) : une ligne de la table principale (ou de l'encadrement), plus, pour un stagiaire,
+      // une ligne Documents liée par le NID quand des champs de cette table sont renseignés. Tout part dans la même opération Grist.
+      if (createN) plan.newRows.forEach(function (nr) {
+        var main = {}, doc = {};
+        nr.values.forEach(function (v) { (v.f.doc ? doc : main)[v.f.colId] = v.value; });
+        if (impIsEnc()) { actions.push(['AddRecord', enc.tableId, null, main]); return; }
+        actions.push(['AddRecord', settings.table, null, main]);
+        if (Object.keys(doc).length && settings.docsTable && settings.docsLinkCol && nr.nid !== null) {
+          if (doc[settings.docsLinkCol] === undefined) doc[settings.docsLinkCol] = nr.nid;
+          actions.push(['AddRecord', settings.docsTable, null, doc]);
+        }
+      });
+      return grist.docApi.applyUserActions(actions);
     }).then(function () {
       imp.busy = false;
       var n = plan.changes.length, s = Object.keys(plan.rowsChanged).length;
       importBodyEl.innerHTML = '';
       var p = document.createElement('p');
       p.className = 'fr-text--sm';
-      p.innerHTML = '<strong>' + n + '</strong> cellule(s) mise(s) à jour chez <strong>' + s + '</strong> ' + impNoun() + '.';
+      p.innerHTML = (n ? '<strong>' + n + '</strong> cellule(s) mise(s) à jour chez <strong>' + s + '</strong> ' + impNoun() + '.' : '') + (createN ? (n ? '<br>' : '') + '<strong>' + createN + '</strong> ' + impNoun() + ' créé(s).' : '');
       importBodyEl.appendChild(p);
       importGoBtn.hidden = true;
       importCancelBtn.disabled = false;
@@ -17889,14 +17944,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     badge.textContent = configured ? 'Configurée' : 'À compléter';
     badge.className = 'fr-badge fr-badge--sm ' + (configured ? 'fr-badge--success' : 'fr-badge--warning');
   }
-  function computeSectionConfigured(pageKey) {
-    var tableEl = document.getElementById(PAGE_FORM_PREFIX[pageKey] + 'table');
-    if (!tableEl || !tableEl.value) return false;
-    return PAGE_REQUIRED_COLS[pageKey].every(function (role) {
-      var el = document.getElementById(PAGE_FORM_PREFIX[pageKey] + 'col_' + role);
-      return !!(el && el.value);
-    });
-  }
+  function computeSectionConfigured(pageKey) { return isPageConfigComplete(pageKey, settings[pageKey]); } // tables et colonnes fixes : état d'après ce qui a été retrouvé
   // Section "Hébergement" fusionnée dans "Réglages du widget" (voir HTML) :
   // la page "Hébergement" (occupants) et l'onglet "Gérer les
   // infrastructures d'hébergement" (gestionHebergement) partagent la même
@@ -17928,7 +17976,20 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       rows += '<tr><th scope="row">' + escapeHtml(DOC_ROLE_LABELS[role]) + '</th><td><span class="cfg-sources__col">' +
         escapeHtml(docColId[role] || DOCUMENTS_COLS[role][0]) + '</span> ' + badge(docColId[role]) + '</td></tr>';
     });
-    body.innerHTML = '<p class="cfg-sources__note">La table et les colonnes de la page Documents sont fixes (dans le code).</p>' +
+    function pageBlock(pageKey) {
+      var info = hardResState.pages[pageKey];
+      if (!info) return '';
+      var t = '<tr><th scope="row">Table</th><td><span class="cfg-sources__col">' + escapeHtml(info.table) + '</span> ' + (hardResState.loaded ? (info.found ? '<span class="fr-badge fr-badge--sm fr-badge--success">trouvée</span>' : '<span class="fr-badge fr-badge--sm fr-badge--warning">introuvable</span>') : '<span class="fr-badge fr-badge--sm">non vérifiée</span>') + '</td></tr>';
+      Object.keys(info.cols).forEach(function (role) {
+        var c = info.cols[role];
+        t += '<tr><th scope="row">' + escapeHtml(RES_ROLE_LABELS[role] || role) + '</th><td><span class="cfg-sources__col">' + escapeHtml(c.id || c.expected) + '</span> ' +
+          (c.id ? '<span class="fr-badge fr-badge--sm fr-badge--success">trouvée</span>' : (c.optional ? '<span class="fr-badge fr-badge--sm">absente (facultative)</span>' : '<span class="fr-badge fr-badge--sm fr-badge--warning">introuvable</span>')) + '</td></tr>';
+      });
+      return '<h4>' + escapeHtml(RES_PAGE_TITLES[pageKey]) + '</h4><table class="cfg-sources__table"><tbody>' + t + '</tbody></table>';
+    }
+    body.innerHTML = '<p class="cfg-sources__note">Les tables et colonnes des réservations, du parc, de l’hébergement et des documents sont fixes (dans le code) : elles sont retrouvées d’après leur nom Grist.</p>' +
+      (hardResState.error ? '<div class="fr-alert fr-alert--error fr-alert--sm"><p>' + escapeHtml(hardResState.error) + '</p></div>' : '') +
+      ['vehicules', 'materiels', 'gestionVehicules', 'gestionMateriels', 'occupants', 'gestionHebergement'].map(pageBlock).join('') +
       '<h4>Documents</h4><table class="cfg-sources__table"><tbody>' + rows + '</tbody></table>';
   }
   function updateAllConfigSectionStatuses() {
@@ -17972,34 +18033,72 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     settingsStatusZone.innerHTML = '<div class="fr-alert fr-alert--' + type + ' fr-alert--sm"><p>' + escapeHtml(message) + '</p></div>';
   }
 
-  function saveReservationsConfig() {
-    var next = {};
-    ALL_PAGES.forEach(function (pageKey) { next[pageKey] = pageConfigFromForm(pageKey); });
-    return grist.setOption('reservationsConfig', next).then(function () {
-      settings = next;
-      updateAllConfigSectionStatuses();
-      refreshAll();
-    });
+
+  // ---- Tables et colonnes EN DUR (plus de réglage dans la Configuration) -------------------------------------------
+  // Chaque table et chaque colonne est retrouvée par son nom (identifiant ou libellé Grist, sans accents ni ponctuation).
+  var RES_DATES = { dateDebut: ['Date_de_debut', 'Date_debut', 'Date de début'], dateFin: ['Date_de_fin', 'Date_fin', 'Date de fin'] };
+  var RES_HARD = {
+    vehicules: { table: ['Reservations_vehicules'], col: { demandeur: ['Militaire', 'Demandeur'], objet: ['Vehicule', 'Véhicule'], quantite: ['Quantite'], dateDebut: RES_DATES.dateDebut, dateFin: RES_DATES.dateFin,
+      motif: ['Precisions', 'Motif'], decision: ['Decision', 'Décision'], conflit: ['Conflit_', 'Conflit'] } },
+    materiels: { table: ['Reservations_materiels'], col: { demandeur: ['Militaire', 'Demandeur'], objet: ['Materiel_sollicite', 'Matériel sollicité'], materielAccorde: ['Materiel_accorde', 'Matériel accordé'], quantite: ['Quantite'],
+      dateDebut: RES_DATES.dateDebut, dateFin: RES_DATES.dateFin, motif: ['Precisions', 'Motif'], decision: ['Decision', 'Décision'], conflit: ['Conflit_', 'Conflit'] } },
+    gestionVehicules: { table: ['Vehicules'], col: { identifiant: ['Immatriculation'], type: ['Type'], affectation: ['Affectation'], etat: ['Etat', 'État'] } },
+    gestionMateriels: { table: ['Materiels'], col: { identifiant: ['Identification'], materiel: ['Materiel'], type: ['Type'], precisions: ['Precisions'], affectation: ['Affectation'], etat: ['Etat', 'État'] } },
+    occupants: { table: ['Hebergement'], col: { batiment: ['Bat_', 'Bat', 'Batiment'], uv: ['UV'], occupants: ['Occupants'], capacite: ['Capacite'] } },
+    gestionHebergement: { table: ['Hebergement'], col: { batiment: ['Bat_', 'Bat', 'Batiment'], chambre: ['Ch_', 'Ch', 'Chambre'], capacite: ['Capacite'] } }
+  };
+  var RES_PAGE_TITLES = { vehicules: 'Réservations de véhicules', materiels: 'Réservations de matériels', gestionVehicules: 'Parc de véhicules', gestionMateriels: 'Parc de matériel', occupants: 'Hébergement (page)', gestionHebergement: 'Hébergement (infrastructures)' };
+  var RES_ROLE_LABELS = { demandeur: 'Demandeur', objet: 'Véhicule / matériel demandé', quantite: 'Quantité', dateDebut: 'Date de début', dateFin: 'Date de fin', motif: 'Motif', decision: 'Décision', conflit: 'Conflit (case à cocher)',
+    materielAccorde: 'Matériel accordé', identifiant: 'Identifiant', type: 'Type', affectation: 'Affectation', etat: 'Disponibilité', materiel: 'Matériel', precisions: 'Précisions', batiment: 'Bâtiment', uv: 'UV', occupants: 'Occupants', capacite: 'Capacité', chambre: 'Chambre' };
+  var hardResState = { loaded: false, error: '', pages: {} };
+  function hardKey(v) { return String(v || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, '').toUpperCase(); }
+  function resolveHardReservations() {
+    return Promise.all([grist.docApi.listTables(), grist.docApi.fetchTable('_grist_Tables'), grist.docApi.fetchTable('_grist_Tables_column')]).then(function (res) {
+      var tableIds = res[0] || [], tables = res[1], meta = res[2], rowOf = {}, pages = {};
+      for (var i = 0; i < tables.id.length; i++) rowOf[tables.tableId[i]] = tables.id[i];
+      ALL_PAGES.forEach(function (pageKey) {
+        var spec = RES_HARD[pageKey], tableId = '', cfg = settings[pageKey];
+        tableIds.forEach(function (t) { if (!tableId && spec.table.some(function (a) { return hardKey(a) === hardKey(t); })) tableId = t; });
+        cfg.table = tableId;
+        var info = { table: spec.table[0], found: !!tableId, cols: {} };
+        PAGE_ROLES[pageKey].forEach(function (role) {
+          var aliases = spec.col[role] || [], found = '';
+          cfg.col[role] = '';
+          if (tableId && aliases.length) {
+            for (var j = 0; j < meta.id.length && !found; j++) {
+              if (meta.parentId[j] !== rowOf[tableId] || /^gristHelper_|^manualSort$/.test(meta.colId[j])) continue;
+              if (aliases.some(function (a) { return hardKey(a) === hardKey(meta.colId[j]) || hardKey(a) === hardKey(meta.label[j]); })) found = meta.colId[j];
+            }
+            cfg.col[role] = found;
+          }
+          if (aliases.length) info.cols[role] = { expected: aliases[0], id: found, optional: PAGE_OPTIONAL_COLS[pageKey].indexOf(role) !== -1 };
+        });
+        pages[pageKey] = info;
+      });
+      hardResState = { loaded: true, error: '', pages: pages };
+    }).catch(function (e) { hardResState = { loaded: true, error: friendlyErrorMessage(e), pages: {} }; });
   }
+
+  function saveReservationsConfig() { return Promise.resolve(); } // tables et colonnes fixes : rien à enregistrer
   function loadReservationsConfigForm() {
-    fillSettingsForm();
+    updateAllConfigSectionStatuses();
     renderSourcesPanel();
-    ALL_PAGES.forEach(function (pageKey) { paintConfigBadge(pageKey, isPageConfigComplete(pageKey, settings[pageKey])); });
-    refreshTableList();
+    return resolveHardReservations().then(function () { updateAllConfigSectionStatuses(); renderSourcesPanel(); });
   }
 
   // ---- Initialisation du widget Grist ------------------------------------
 
 
-  grist.onOptions(function (options) {
-    var loaded = (options && options.reservationsConfig) ? options.reservationsConfig : null;
+  grist.onOptions(function () {
     settings = {};
-    ALL_PAGES.forEach(function (pageKey) {
-      settings[pageKey] = (loaded && loaded[pageKey]) ? mergeConfig(pageKey, loaded[pageKey]) : defaultConfigFor(pageKey);
-    });
+    ALL_PAGES.forEach(function (pageKey) { settings[pageKey] = defaultConfigFor(pageKey); });
     settingsLoaded = true;
-    fillSettingsForm();
-    refreshAll();
+    resolveHardReservations().then(function () {
+      fillSettingsForm();
+      updateAllConfigSectionStatuses();
+      renderSourcesPanel();
+      refreshAll();
+    });
   });
 
   function mergeConfig(pageKey, loaded) {
