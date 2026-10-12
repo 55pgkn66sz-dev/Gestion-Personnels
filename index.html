@@ -1371,6 +1371,13 @@
 
 
 
+
+  /* Mise à jour par .csv : choix des colonnes à mettre à jour */
+  .imp-cols { margin: 0.6rem 0; padding: 0.5rem 0.8rem 0.7rem; border: 1px solid var(--border-default-grey); border-radius: 0.3rem; }
+  .imp-cols legend { padding: 0 0.3rem; font-size: 0.9rem; }
+  .imp-cols__tools { display: flex; gap: 0.4rem; margin: 0.2rem 0 0.4rem; }
+  .imp-cols__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: 0 0.8rem; }
+
   /* Mise à jour par .csv : question « créer les nouvelles lignes ? » */
   .imp-new { margin: 0.6rem 0; padding: 0.7rem 0.9rem; background: var(--background-contrast-info); border-left: 4px solid var(--border-plain-info); border-radius: 0.2rem; }
   .imp-new__q { margin: 0 0 0.4rem; }
@@ -2994,7 +3001,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   .ration-extra-form__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem 0.8rem; }
   .ration-extra-form .fr-input-group, .ration-extra-form .fr-select-group { margin: 0; }
   .bulk-table__actions { white-space: nowrap; text-align: right !important; }
-  .bulk-table th.bulk-table__actions, .bulk-table td.bulk-table__actions { position: sticky; right: 0; background: var(--background-default-grey); box-shadow: -6px 0 6px -6px rgba(0, 0, 0, 0.25); } /* les icônes restent visibles quand la table défile */
+  .bulk-table td.bulk-table__actions { position: sticky; right: 0; background: var(--background-default-grey); } /* les icônes restent visibles quand la table défile */
+  .bulk-table thead th.bulk-table__actions { right: 0; background: var(--background-alt-grey); }
   .bulk-table__actions .fr-btn { padding: 0.25rem 0.4rem; min-height: 0; }
   .bulk-bar__select { width: auto; min-width: 10rem; max-width: 16rem; }
   .bulk-bar__input { width: 14rem; }
@@ -5490,7 +5498,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.71.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.72.1</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -11420,7 +11428,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         choices: (columnChoicesMap[tableId] || {})[colId] || [], doc: doc, keyOnly: role === 'nid' || role === 'stagiaire' });
     });
     var ncType = String((columnTypesMap[settings.table] || {})[NUM_CAND_COL] || 'Text');
-    out.push({ role: 'numCand', label: ROLE_LABELS.numCand, colId: NUM_CAND_COL, table: settings.table, type: ncType.split(':')[0], fullType: ncType, choices: (columnChoicesMap[settings.table] || {})[NUM_CAND_COL] || [], doc: false, keyOnly: false, alias: ['NUMCAND', 'NCAND', 'NUMEROCAND'] });
+    out.push({ role: 'numCand', label: ROLE_LABELS.numCand, colId: NUM_CAND_COL, table: settings.table, type: ncType.split(':')[0], fullType: ncType, choices: (columnChoicesMap[settings.table] || {})[NUM_CAND_COL] || [], doc: false, keyOnly: false, alias: ['NUMCAND', 'NCAND', 'NUMEROCAND', 'NCANDIDATURE', 'NUMEROCANDIDATURE', 'NUMCANDIDATURE', 'NUMERODECANDIDATURE', 'NDECANDIDATURE', 'NUMEROCANDIDAT', 'NCANDIDAT'] });
     if (candidates.hasInfos) out.push({ role: 'infosLibre', label: 'Infos', colId: INFOS_COL, table: settings.table, type: 'Text', fullType: 'Text', choices: [], doc: false, keyOnly: false });
     return out;
   }
@@ -11446,7 +11454,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function impEmail(t) { return normalizeKey(t).replace(/\s+/g, ''); } // adresse comparée sans tenir compte de la casse ni des espaces
   var IMP_KEY_OPTIONS = [
     { kind: 'stagiaires', id: 'nid', label: 'NID', roles: ['nid'], keys: function (r) { return [nidKey(r.nid)]; } },
-    { kind: 'stagiaires', id: 'numCand', label: 'N° CAND', roles: ['numCand'], keys: function (r) { return [impKey(textOf(r.numCand))]; } },
+    { kind: 'stagiaires', id: 'numCand', label: 'N° CAND (n° de candidature)', roles: ['numCand'], keys: function (r) { return [impKey(textOf(r.numCand))]; } },
     { kind: 'stagiaires', id: 'nigend', label: 'Nigend', roles: ['nigend'], keys: function (r) { return [impKey(textOf(r.nigend))]; } },
     { kind: 'stagiaires', id: 'email', label: 'E-mail', roles: ['email'], norm: impEmail, keys: function (r) { return [impEmail(textOf(r.email))]; } },
     { kind: 'numCand', id: 'auto', label: 'Adresse e-mail, à défaut nom et prénom', roles: [], auto: true },
@@ -11518,11 +11526,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var importErrorEl = document.getElementById('importError');
   var importGoBtn = document.getElementById('importGo');
   var importCancelBtn = document.getElementById('importCancel');
-  var imp = { kind: 'stagiaires', fields: [], headers: [], rows: [], map: [], keyId: '', clearEmpty: false, createNew: false, plan: null, busy: false };
+  var imp = { kind: 'stagiaires', fields: [], headers: [], rows: [], map: [], keyId: '', clearEmpty: false, createNew: false, selected: {}, plan: null, busy: false };
   function closeImportDialog() { if (imp.busy) return; importDialog.hidden = true; }
   function importShowError(msg) { importErrorEl.hidden = !msg; importErrorEl.textContent = msg || ''; }
   function openImportDialog(kind) {
-    imp = { kind: kind, fields: kind === 'encadrement' ? encImportFields() : kind === 'numCand' ? numCandImportFields() : stgImportFields(), headers: [], rows: [], map: [], keyId: '', clearEmpty: false, createNew: false, plan: null, busy: false };
+    imp = { kind: kind, fields: kind === 'encadrement' ? encImportFields() : kind === 'numCand' ? numCandImportFields() : stgImportFields(), headers: [], rows: [], map: [], keyId: '', clearEmpty: false, createNew: false, selected: {}, plan: null, busy: false };
     document.getElementById('importTitle').textContent = kind === 'stagiaires' ? 'Mettre à jour les stagiaires depuis un .csv' : kind === 'numCand' ? 'Mettre à jour les N° CAND depuis un .csv' : 'Mettre à jour l’encadrement depuis un .csv';
     document.getElementById('importIntro').textContent = kind === 'numCand' ?
       'Le fichier doit contenir la colonne « N° CAND » et, pour retrouver chaque stagiaire, son adresse e-mail et/ou ses nom et prénom (titres sur la première ligne). Le stagiaire est cherché d’abord par e-mail, à défaut par nom et prénom ; rien n’est écrit avant votre confirmation.' :
@@ -11600,7 +11608,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var colOf = {}; // champ -> numéro de colonne du fichier
     imp.map.forEach(function (f, i) { if (f) colOf[f.role] = i; });
     var keyRoles = opt.auto ? ['email', 'nom', 'prenom'] : opt.roles;
-    var updatable = imp.map.map(function (f, i) { return f && !f.keyOnly && keyRoles.indexOf(f.role) === -1 ? { f: f, i: i } : null; }).filter(Boolean);
+    var updatable = imp.map.map(function (f, i) { return f && !f.keyOnly && keyRoles.indexOf(f.role) === -1 && imp.selected[f.role] !== false ? { f: f, i: i } : null; }).filter(Boolean); // colonnes décochées : ni mises à jour ni écrites dans les nouvelles lignes
     var found;
     imp.rows.forEach(function (cells, n) {
       var csvKeys, via = '';
@@ -11631,6 +11639,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         var vals = [], nidVal = null, hasNomPrenom = !!(colOf.nom !== undefined || colOf.prenom !== undefined);
         imp.map.forEach(function (f, i) {
           if (!f || (f.role === 'stagiaire' && hasNomPrenom && !impIsEnc())) return; // nom complet : colonne souvent calculée à partir du nom et du prénom
+          if (!f.keyOnly && keyRoles.indexOf(f.role) === -1 && imp.selected[f.role] === false) return;
           var raw = cells[i] === undefined ? '' : String(cells[i]);
           if (!raw.trim()) return;
           var cv = impConvert(f, raw);
@@ -11690,6 +11699,27 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     cb.querySelector('input').checked = imp.clearEmpty;
     cb.querySelector('input').addEventListener('change', function (e) { imp.clearEmpty = e.target.checked; importAnalyse(); importRender(); });
     box.appendChild(cb);
+    if (imp.kind !== 'numCand') {
+      var kr = plan.opt ? (plan.opt.auto ? ['email', 'nom', 'prenom'] : plan.opt.roles) : [];
+      var choosable = imp.map.filter(function (f) { return f && !f.keyOnly && kr.indexOf(f.role) === -1; });
+      if (choosable.length) {
+        var fs = document.createElement('fieldset');
+        fs.className = 'imp-cols';
+        var nOn = choosable.filter(function (f) { return imp.selected[f.role] !== false; }).length;
+        fs.innerHTML = '<legend class="fr-text--bold">Colonnes à mettre à jour <span class="fr-hint-text">(' + nOn + ' sur ' + choosable.length + ')</span></legend>' +
+          '<div class="imp-cols__tools"><button type="button" class="fr-btn fr-btn--tertiary fr-btn--sm" data-all="1">Tout cocher</button> <button type="button" class="fr-btn fr-btn--tertiary fr-btn--sm" data-all="0">Tout décocher</button></div>' +
+          '<div class="imp-cols__grid">' + choosable.map(function (f, i) {
+            return '<div class="fr-checkbox-group fr-checkbox-group--sm"><input type="checkbox" id="impCol' + i + '" data-role="' + escapeHtml(f.role) + '"' + (imp.selected[f.role] !== false ? ' checked' : '') + '><label class="fr-label" for="impCol' + i + '">' + escapeHtml(f.label) + '</label></div>';
+          }).join('') + '</div>';
+        fs.addEventListener('change', function (e) { var r = e.target.getAttribute && e.target.getAttribute('data-role'); if (!r) return; imp.selected[r] = e.target.checked; importAnalyse(); importRender(); });
+        fs.addEventListener('click', function (e) {
+          var b = e.target.closest && e.target.closest('[data-all]'); if (!b) return;
+          choosable.forEach(function (f) { imp.selected[f.role] = b.getAttribute('data-all') === '1'; });
+          importAnalyse(); importRender();
+        });
+        box.appendChild(fs);
+      }
+    }
     var nStg = Object.keys(plan.rowsChanged).length;
     add('<strong>' + plan.matched + '</strong> ' + impNoun() + ' reconnu(s) · <strong>' + plan.changes.length + '</strong> cellule(s) à modifier chez <strong>' + nStg + '</strong> ' + impNoun() +
       (plan.unmatched.length ? ' · <span class="imp-warn">' + plan.unmatched.length + ' ligne(s) sans correspondance</span>' : '') +
