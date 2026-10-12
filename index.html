@@ -1375,6 +1375,8 @@
   #panelCeremonie .cer-add { margin-left: auto; }
   #panelCeremonie .cer-who strong { font-weight: 700; }
   #panelCeremonie .cer-tags { display: inline-flex; gap: 0.3rem; margin-left: 0.4rem; vertical-align: middle; }
+  #panelCeremonie .cer-tag--vip { color: var(--grey-50-1000, #161616); background-color: var(--yellow-moutarde-850-200, #fcc63a); font-weight: 700; } /* or */
+  #panelCeremonie .cer-tag--tenue { color: var(--text-inverted-blue-france, #f5f5fe); background-color: var(--background-action-high-blue-france, #000091); font-weight: 700; } /* bleu */
   #panelCeremonie .cer-sub { display: block; font-size: 0.78rem; color: var(--text-mention-grey); }
   #cerDialog .cer-row { display: grid; gap: 0 0.8rem; align-items: end; }
   #cerDialog .cer-row > * { min-width: 0; margin-bottom: 0.5rem; }
@@ -1687,6 +1689,14 @@
   .appr-item.is-unset .fr-range:after { opacity: 0; }
   .appr-item.is-unset input[type=range]::-webkit-slider-thumb { opacity: 0.55; }
   .appr-item.is-unset input[type=range]::-moz-range-thumb { opacity: 0.55; }
+  /* Niveau proposé d'après les notes (non enregistré) : même bleu qu'une évaluation, mais hachuré, avec cadre en pointillés. */
+  .appr-item.is-suggested { border-style: dashed; border-color: var(--border-action-high-blue-france); }
+  .appr-item.is-suggested .fr-range__output { font-style: italic; color: var(--text-action-high-blue-france); }
+  .appr-item.is-suggested .fr-range[data-fr-js-range]::after { background-color: transparent; background-repeat: repeat; background-size: auto; background-position: 0 0; background-clip: border-box; padding-left: 0; padding-right: 0; box-shadow: none; /* hachures dès le bord gauche, sans embout plein */
+    background-image: repeating-linear-gradient(135deg, var(--background-active-blue-france) 0, var(--background-active-blue-france) 4px, transparent 4px, transparent 13px); }
+  .appr-item__status--info { color: var(--text-action-high-blue-france); }
+  .appr-item__accept { flex: none; padding: 0.1rem 0.6rem !important; min-height: 0 !important; }
+  .appr-item__accept[hidden] { display: none; }
   .appr-item__comment .fr-input-group { margin: 0.6rem 0 0; }
   .appr-item__comment .fr-label { font-size: 0.8rem; }
   /* Export .csv : liste des colonnes à cocher. */
@@ -3249,7 +3259,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
           <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line" id="cerDlgClose" type="button" title="Fermer">Fermer</button>
         </div>
         <div class="fr-select-group" data-cer="stagiaire">
-          <label class="fr-label" for="cerStg">Stagiaire qui invite</label>
+          <label class="fr-label" for="cerStg">Stagiaire qui invite <span class="fr-hint-text">facultatif</span></label>
           <select class="fr-select" id="cerStg"></select>
         </div>
         <p class="fr-hint-text" id="cerQuota"></p>
@@ -3265,7 +3275,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         <div class="fr-input-group" data-cer="email"><label class="fr-label" for="cerEmail">E-mail</label><input class="fr-input" type="email" id="cerEmail" autocomplete="off"></div>
         <div class="cer-row cer-row--3">
           <div class="fr-input-group" data-cer="ddn"><label class="fr-label" for="cerDdn">Date de naissance</label><input class="fr-input" type="date" id="cerDdn"></div>
-          <div class="fr-input-group" data-cer="lieu"><label class="fr-label" for="cerLieu">Lieu de naissance</label><input class="fr-input" type="text" id="cerLieu" autocomplete="off"></div>
+          <div class="fr-input-group" data-cer="lieu"><label class="fr-label" for="cerLieu">Ville de naissance</label><input class="fr-input" type="text" id="cerLieu" autocomplete="off"></div>
           <div class="fr-input-group" data-cer="dpt"><label class="fr-label" for="cerDpt">Département</label><input class="fr-input" type="text" id="cerDpt" autocomplete="off"></div>
         </div>
         <div class="fr-input-group" data-cer="infos"><label class="fr-label" for="cerInfos">Infos</label><textarea class="fr-input" id="cerInfos" rows="3"></textarea></div>
@@ -5621,7 +5631,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.75.6</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.76.4</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -9167,6 +9177,24 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   departDialog.addEventListener('click', function (e) { if (e.target === departDialog && departDownOnBackdrop) closeDepartDialog(); });
   departDialog.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); closeDepartDialog(); } });
 
+  // Proposition de niveau d'après les notes : moyenne (ramenée sur 20, pondérée par les coefficients) des notes du stagiaire dont la matière
+  // correspond à la matière évaluée ; seuils sur 20 : < 10 Insuffisant, < 13 Moyen, < 16 Bien, < 18 Très bien, sinon Exceptionnel.
+  var APPR_FROM_NOTES = [10, 13, 16, 18];
+  function apprSuggestion(row, d) {
+    if (!notes || !notes.loaded) return null;
+    var kd = [d.label, d.col.id].map(refKey).filter(Boolean), sum = 0, w = 0, n = 0;
+    notes.rows.forEach(function (r) {
+      if (r.stg !== row.id || r.note === null) return;
+      var kn = refKey(r.matiere);
+      if (!kn || !kd.some(function (k) { return k === kn || (Math.min(k.length, kn.length) >= 3 && (k.indexOf(kn) !== -1 || kn.indexOf(k) !== -1)); })) return;
+      var max = r.max && r.max > 0 ? r.max : 20, coeff = r.coeff !== null && r.coeff > 0 ? r.coeff : 1;
+      sum += (r.note / max) * 20 * coeff; w += coeff; n++;
+    });
+    if (!n || !w) return null;
+    var mean = sum / w, level = 0;
+    APPR_FROM_NOTES.forEach(function (t) { if (mean >= t) level++; });
+    return { level: level, mean: mean, n: n };
+  }
   // Curseur DSFR (composant « Curseur » : .fr-range) à 5 crans. Le script DSFR n'étant pas chargé, la position de
   // la pastille et le remplissage sont pilotés par la variable CSS --ratio (voir .appr-slider).
   function buildApprItem(row, d, idx, onChange) {
@@ -9177,7 +9205,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       return { level: rec ? apprLevelIndex(rec.vals[d.col.id]) : -1, comment: rec && d.prec ? textOf(rec.vals[d.prec.id]) : '' };
     })();
     var pend = (apprPending[row.id] || {})[d.col.id];
-    var state = { level: pend ? 0 : saved.level, comment: pend ? pend.comment : saved.comment, pending: !!pend };
+    var state = { level: pend ? 0 : saved.level, comment: pend ? pend.comment : saved.comment, pending: !!pend, suggested: -1 };
+    var sug = state.level < 0 && !pend ? apprSuggestion(row, d) : null; // matière notée mais pas encore évaluée : curseur prépositionné
+    if (sug) state.suggested = sug.level;
     var inputId = 'apprRange_' + row.id + '_' + idx;
 
     var group = document.createElement('div');
@@ -9197,8 +9227,14 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     clear.className = 'fr-btn fr-btn--tertiary-no-outline fr-btn--sm appr-item__clear';
     clear.textContent = 'Effacer';
     clear.title = 'Effacer l’évaluation de ' + d.label;
+    var accept = document.createElement('button');
+    accept.type = 'button';
+    accept.className = 'fr-btn fr-btn--tertiary fr-btn--sm appr-item__accept';
+    accept.textContent = 'Valider';
+    accept.title = 'Enregistrer le niveau proposé d’après la moyenne des notes';
     head.appendChild(label);
     head.appendChild(status);
+    head.appendChild(accept);
     head.appendChild(clear);
     group.appendChild(head);
 
@@ -9242,12 +9278,17 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }
     function paint(visual) {
       var v = visual !== undefined ? visual : state.level;
-      var shown = v >= 0 ? v : 2;
+      var prop = v < 0 && state.suggested >= 0; // niveau proposé (non enregistré)
+      var shown = v >= 0 ? v : (prop ? state.suggested : 2);
       input.value = shown;
       range.style.setProperty('--ratio', String(shown / (APPR_LEVELS.length - 1)));
-      output.textContent = v >= 0 ? APPR_LEVELS[v] : 'Non évalué';
+      output.textContent = v >= 0 ? APPR_LEVELS[v] : (prop ? 'Proposé : ' + APPR_LEVELS[state.suggested] : 'Non évalué');
       input.setAttribute('aria-valuetext', output.textContent);
-      item.classList.toggle('is-unset', v < 0);
+      accept.hidden = !prop;
+      if (prop && sug && !status.textContent) setStatus('Moyenne des notes : ' + (Math.round(sug.mean * 10) / 10).toString().replace('.', ',') + ' / 20 (' + sug.n + ' note' + (sug.n > 1 ? 's' : '') + ') — non enregistré', 'info');
+      if (!prop && status.textContent.indexOf('non enregistré') !== -1 && status.className.indexOf('info') !== -1) setStatus('', '');
+      item.classList.toggle('is-suggested', prop);
+      item.classList.toggle('is-unset', v < 0 && !prop);
       item.classList.toggle('is-low', v === 0);
       clear.hidden = v < 0 && !state.pending;
     }
@@ -9321,6 +9362,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       });
     }
     function commit(v) {
+      state.suggested = -1;
       state.level = v;
       if (v === 0 && d.prec && !state.comment.trim()) {
         // « Insuffisant » sans précisions : en attente (non enregistré) jusqu'à la saisie du commentaire.
@@ -9346,7 +9388,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     input.addEventListener('keydown', function (e) {
       if ((e.key === 'Enter' || e.key === ' ') && state.level < 0) { e.preventDefault(); commit(Number(input.value)); }
     });
+    accept.addEventListener('click', function () { if (state.suggested >= 0) commit(state.suggested); });
     clear.addEventListener('click', function () {
+      state.suggested = -1;
       state.level = -1;
       state.comment = '';
       if (apprPending[row.id]) delete apprPending[row.id][d.col.id];
@@ -10353,14 +10397,14 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   // ==== Page « Cérémonie » : invités de la cérémonie de fin de stage ===========================================
   //
   // Source EN DUR : table « Ceremonie » (colonnes retrouvées par leur libellé : Max. invitation, Stagiaire, Grade, Nom, Prénom, Email, Date de
-  // naissance, Lieu de naissance, Dpt naissance, En tenue, VIP, Infos). Une ligne = un invité d'un stagiaire ; « Max. invitation » est une formule
+  // naissance, Ville de naissance, Dpt naissance, En tenue, VIP, Infos). Une ligne = un invité d'un stagiaire ; « Max. invitation » est une formule
   // Grist qui vaut Vrai quand le stagiaire a dépassé son nombre d'invités autorisé. Les invités sont regroupés par stagiaire (« 2 invités »).
   var CER_WANT = {
     max: ['MAXINVITATION', 'MAXINVITATIONS', 'MAXINVIT', 'INVITATIONSMAX'], stagiaire: ['STAGIAIRE'], grade: ['GRADE'], nom: ['NOM'], prenom: ['PRENOM'], email: ['EMAIL', 'COURRIEL', 'MAIL'],
-    ddn: ['DATEDENAISSANCE', 'DDN', 'DATENAISSANCE'], lieu: ['LIEUDENAISSANCE', 'LIEUNAISSANCE'], dpt: ['DPTNAISSANCE', 'DEPARTEMENTNAISSANCE', 'DPTDENAISSANCE'],
+    ddn: ['DATEDENAISSANCE', 'DDN', 'DATENAISSANCE'], lieu: ['VILLEDENAISSANCE', 'VILLENAISSANCE', 'LIEUDENAISSANCE', 'LIEUNAISSANCE'], dpt: ['DPTNAISSANCE', 'DEPARTEMENTNAISSANCE', 'DPTDENAISSANCE'],
     tenue: ['ENTENUE', 'TENUE'], vip: ['VIP'], infos: ['INFOS', 'INFO', 'INFORMATIONS']
   };
-  var CER_LABELS = { stagiaire: 'Stagiaire', max: 'Max. invitation', grade: 'Grade', nom: 'Nom', prenom: 'Prénom', email: 'E-mail', ddn: 'Date de naissance', lieu: 'Lieu de naissance', dpt: 'Dpt naissance', tenue: 'En tenue', vip: 'VIP', infos: 'Infos' };
+  var CER_LABELS = { stagiaire: 'Stagiaire', max: 'Max. invitation', grade: 'Grade', nom: 'Nom', prenom: 'Prénom', email: 'E-mail', ddn: 'Date de naissance', lieu: 'Ville de naissance', dpt: 'Dpt naissance', tenue: 'En tenue', vip: 'VIP', infos: 'Infos' };
   var cer = { loaded: false, error: '', tableId: '', cols: {}, rows: [] };
   var cerSearch = '', cerFlags = { vip: false, tenue: false, over: false, noEmail: false, noDdn: false };
   var panelCeremonie = document.getElementById('panelCeremonie'), cerZone = document.getElementById('cerZone');
@@ -10408,7 +10452,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       var r = candidates.rows.filter(function (x) { return x.id === v; })[0];
       return { key: 'id' + v, id: v, label: r ? [nameParts(r).nom, nameParts(r).prenom].filter(Boolean).join(' ') : '(stagiaire supprimé)' };
     }
-    var t = textOf(v).trim();
+    var t = typeof v === 'number' ? '' : textOf(v).trim(); // 0 / vide : invité sans stagiaire
     return { key: 'tx' + normalizeKey(t), id: null, label: t || '(sans stagiaire)' };
   }
   function cerGroups(rows) {
@@ -10472,7 +10516,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       g.rows.forEach(function (row) {
         var tr = document.createElement('tr');
         var nom = cerText(row, 'nom'), prenom = fmtPrenom(cerText(row, 'prenom')), grade = cerText(row, 'grade');
-        var tags = (cerBool(row, 'vip') ? '<span class="fr-tag fr-tag--sm">VIP</span>' : '') + (cerBool(row, 'tenue') ? '<span class="fr-tag fr-tag--sm">En tenue</span>' : '');
+        var tags = (cerBool(row, 'vip') ? '<span class="fr-tag fr-tag--sm cer-tag cer-tag--vip">VIP</span>' : '') + (cerBool(row, 'tenue') ? '<span class="fr-tag fr-tag--sm cer-tag cer-tag--tenue">En tenue</span>' : '');
         var birth = [cerText(row, 'ddn'), cerText(row, 'lieu') ? cerText(row, 'lieu') + (cerText(row, 'dpt') ? ' (' + cerText(row, 'dpt') + ')' : '') : (cerText(row, 'dpt') ? '(' + cerText(row, 'dpt') + ')' : '')].filter(Boolean).join(' · ');
         tr.innerHTML = '<td class="cer-who">' + (grade ? escapeHtml(grade) + ' ' : '') + '<strong>' + escapeHtml(nom) + '</strong> ' + escapeHtml(prenom) + (tags ? '<span class="cer-tags">' + tags + '</span>' : '') + '</td>' +
           '<td>' + (cerText(row, 'email') ? escapeHtml(cerText(row, 'email')) : '<span class="cer-sub">à renseigner</span>') + '</td>' +
@@ -10497,7 +10541,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     cerEditing = row || null;
     Array.prototype.forEach.call(cerDialog.querySelectorAll('[data-cer]'), function (el) { el.hidden = !cer.cols[el.getAttribute('data-cer')]; });
     var sel = document.getElementById('cerStg');
-    sel.innerHTML = '<option value="">Choisir un stagiaire…</option>' + candidates.rows.filter(function (r) { return !stgHasLeft(r); }).sort(compareCandidatesByName).map(function (r) {
+    sel.innerHTML = '<option value="">Aucun stagiaire</option>' + candidates.rows.filter(function (r) { return !stgHasLeft(r); }).sort(compareCandidatesByName).map(function (r) {
       return '<option value="' + r.id + '">' + escapeHtml([nameParts(r).nom, nameParts(r).prenom].filter(Boolean).join(' ')) + '</option>';
     }).join('');
     var cur = row ? cerStagiaire(row) : { id: stgId || null, label: stgLabel || '' };
@@ -10529,11 +10573,10 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var g = function (id) { return document.getElementById(id); }, fields = {};
     function put(role, val) { var c = cer.cols[role]; if (c && !c.formula) fields[c.id] = val; }
     var stgVal = g('cerStg').value;
-    if (cer.cols.stagiaire && !stgVal) { cerShowError('Choisissez le stagiaire qui invite.'); g('cerStg').focus(); return; }
     if (cer.cols.nom && !g('cerNom').value.trim()) { cerShowError('Le nom de l’invité est obligatoire.'); g('cerNom').focus(); return; }
     if (cer.cols.prenom && !g('cerPrenom').value.trim()) { cerShowError('Le prénom de l’invité est obligatoire.'); g('cerPrenom').focus(); return; }
     var sc = cer.cols.stagiaire;
-    if (sc) put('stagiaire', /^Ref/.test(sc.fullType || '') ? Number(stgVal) : g('cerStg').selectedOptions[0].textContent);
+    if (sc) put('stagiaire', /^Ref/.test(sc.fullType || '') ? (stgVal ? Number(stgVal) : 0) : (stgVal ? g('cerStg').selectedOptions[0].textContent : '')); // facultatif
     put('grade', g('cerGrade').value.trim()); put('nom', g('cerNom').value.trim()); put('prenom', g('cerPrenom').value.trim()); put('email', g('cerEmail').value.trim());
     put('lieu', g('cerLieu').value.trim()); put('dpt', g('cerDpt').value.trim()); put('infos', g('cerInfos').value.trim());
     if (cer.cols.ddn) {
