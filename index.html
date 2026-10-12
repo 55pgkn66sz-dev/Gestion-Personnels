@@ -1362,6 +1362,28 @@
 
 
 
+
+  /* Drapeau français ondulant sur sa hampe, trois bandes tracées (monochrome) : même rendu que les autres icônes de la barre d'outils. */
+  .fr-btn.icon-flag-fr::before { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round'%3E%3Cpath d='M4 3v18' stroke-linecap='round' stroke-width='1.8'/%3E%3Cpath d='M5.5 5c3-2 5.5 2 8.5 0s4.5-1 6 0v9c-1.5-1-3-1-6 0s-5.5 2-8.5 0z'/%3E%3Cpath d='M10.3 4.8v9.2M15.2 4.6v9'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round'%3E%3Cpath d='M4 3v18' stroke-linecap='round' stroke-width='1.8'/%3E%3Cpath d='M5.5 5c3-2 5.5 2 8.5 0s4.5-1 6 0v9c-1.5-1-3-1-6 0s-5.5 2-8.5 0z'/%3E%3Cpath d='M10.3 4.8v9.2M15.2 4.6v9'/%3E%3C/svg%3E"); }
+  /* Page Cérémonie */
+  #panelCeremonie .cer-group th { padding: 0.6rem 0.8rem 0.4rem; background: var(--background-alt-grey); border-top: 1px solid var(--border-default-grey); text-align: left; text-transform: none; letter-spacing: 0; font-size: 0.9rem; color: var(--text-title-grey); }
+  #panelCeremonie .cer-group__in { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+  #panelCeremonie .cer-group__name { all: unset; cursor: pointer; font-weight: 700; color: var(--text-action-high-blue-france); }
+  #panelCeremonie .cer-group__name:hover { text-decoration: underline; }
+  #panelCeremonie .cer-group__name:focus-visible { outline: 2px solid #0a76f6; outline-offset: 2px; }
+  #panelCeremonie .cer-over { color: var(--text-default-error); background: var(--background-contrast-error); font-weight: 700; }
+  #panelCeremonie .cer-add { margin-left: auto; }
+  #panelCeremonie .cer-who strong { font-weight: 700; }
+  #panelCeremonie .cer-tags { display: inline-flex; gap: 0.3rem; margin-left: 0.4rem; vertical-align: middle; }
+  #panelCeremonie .cer-sub { display: block; font-size: 0.78rem; color: var(--text-mention-grey); }
+  #cerDialog .cer-row { display: grid; gap: 0 0.8rem; align-items: end; }
+  #cerDialog .cer-row > * { min-width: 0; margin-bottom: 0.5rem; }
+  #cerDialog .cer-row--grade { grid-template-columns: minmax(0, 1fr) auto auto; }
+  #cerDialog .cer-row--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #cerDialog .cer-row--3 { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.4fr) minmax(0, 0.8fr); }
+  #cerDialog .cer-check { padding-bottom: 0.55rem; white-space: nowrap; }
+  #cerDialog .cer-row .fr-input-group { margin-bottom: 0.5rem; }
+
   /* Rapport (page eTuteur) */
   .etu-rep__kind { display: inline-flex; margin: 0 0 0.6rem; border: 1px solid var(--border-action-high-blue-france); border-radius: 0.3rem; overflow: hidden; }
   .etu-rep__btn { padding: 0.35rem 1rem; font: inherit; font-size: 0.875rem; font-weight: 600; cursor: pointer; color: var(--text-action-high-blue-france); background: transparent; border: 0; }
@@ -3197,6 +3219,66 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
        rapport à la capture d'écran d'origine (identité en tête, documents
        groupés avec leurs actions, informations complémentaires en bas,
        blocages mis en évidence). -->
+  <div id="panelCeremonie" hidden>
+    <div class="bulk-head">
+      <h2 class="fr-h6">Cérémonie de fin de stage : invités</h2>
+      <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-arrow-left-line fr-btn--icon-left" id="cerBackBtn" type="button">Retour aux stagiaires</button>
+    </div>
+    <div class="cand-toolbar">
+      <div class="tb-field tb-search">
+        <span class="tb-lbl" aria-hidden="true">Rechercher un invité</span>
+        <div class="fr-search-bar fr-search-bar--sm" role="search">
+          <label class="fr-label" for="cerSearchInput">Rechercher un invité</label>
+          <input class="fr-input" type="search" id="cerSearchInput" placeholder="Invité, stagiaire, e-mail…">
+          <button class="fr-btn fr-btn--sm" type="button" title="Rechercher" tabindex="-1">Rechercher</button>
+        </div>
+      </div>
+      <button class="fr-btn fr-btn--secondary fr-icon-close-circle-line fr-btn--icon-left tb-icon" id="cerResetBtn" type="button" disabled title="Réinitialiser la recherche et les filtres">Réinitialiser les filtres</button>
+      <p class="cand-count cand-count--push" id="cerCount"></p>
+      <div class="tb-actions">
+        <button class="fr-btn fr-btn--secondary fr-icon-refresh-line fr-btn--icon-left tb-ghost" id="cerReloadBtn" type="button" title="Recharger les invités depuis la table Grist">Actualiser</button>
+        <button class="fr-btn fr-btn--secondary fr-icon-download-line fr-btn--icon-left tb-ghost" id="cerExportBtn" type="button" title="Exporter les invités affichés en .csv">Exporter en .csv</button>
+        <button class="fr-btn fr-icon-add-line fr-btn--icon-left" id="cerAddBtn" type="button">Ajouter un invité</button>
+      </div>
+    </div>
+    <div id="cerZone"></div>
+    <div class="bulk-dialog" id="cerDialog" role="dialog" aria-modal="true" aria-labelledby="cerDlgTitle" hidden>
+      <div class="bulk-dialog__box bulk-dialog__box--md">
+        <div class="bulk-dialog__head">
+          <h3 class="fr-h6" id="cerDlgTitle">Ajouter un invité</h3>
+          <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line" id="cerDlgClose" type="button" title="Fermer">Fermer</button>
+        </div>
+        <div class="fr-select-group" data-cer="stagiaire">
+          <label class="fr-label" for="cerStg">Stagiaire qui invite</label>
+          <select class="fr-select" id="cerStg"></select>
+        </div>
+        <p class="fr-hint-text" id="cerQuota"></p>
+        <div class="cer-row cer-row--grade">
+          <div class="fr-input-group" data-cer="grade"><label class="fr-label" for="cerGrade">Grade</label><input class="fr-input" type="text" id="cerGrade" autocomplete="off"></div>
+          <div class="fr-checkbox-group cer-check" data-cer="tenue"><input type="checkbox" id="cerTenue"><label class="fr-label" for="cerTenue">En tenue</label></div>
+          <div class="fr-checkbox-group cer-check" data-cer="vip"><input type="checkbox" id="cerVip"><label class="fr-label" for="cerVip">VIP</label></div>
+        </div>
+        <div class="cer-row cer-row--2">
+          <div class="fr-input-group" data-cer="nom"><label class="fr-label" for="cerNom">Nom <span class="fr-hint-text">obligatoire</span></label><input class="fr-input" type="text" id="cerNom" autocomplete="off"></div>
+          <div class="fr-input-group" data-cer="prenom"><label class="fr-label" for="cerPrenom">Prénom <span class="fr-hint-text">obligatoire</span></label><input class="fr-input" type="text" id="cerPrenom" autocomplete="off"></div>
+        </div>
+        <div class="fr-input-group" data-cer="email"><label class="fr-label" for="cerEmail">E-mail</label><input class="fr-input" type="email" id="cerEmail" autocomplete="off"></div>
+        <div class="cer-row cer-row--3">
+          <div class="fr-input-group" data-cer="ddn"><label class="fr-label" for="cerDdn">Date de naissance</label><input class="fr-input" type="date" id="cerDdn"></div>
+          <div class="fr-input-group" data-cer="lieu"><label class="fr-label" for="cerLieu">Lieu de naissance</label><input class="fr-input" type="text" id="cerLieu" autocomplete="off"></div>
+          <div class="fr-input-group" data-cer="dpt"><label class="fr-label" for="cerDpt">Département</label><input class="fr-input" type="text" id="cerDpt" autocomplete="off"></div>
+        </div>
+        <div class="fr-input-group" data-cer="infos"><label class="fr-label" for="cerInfos">Infos</label><textarea class="fr-input" id="cerInfos" rows="3"></textarea></div>
+        <p class="fr-error-text" id="cerDlgError" hidden></p>
+        <div class="bulk-dialog__foot">
+          <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-delete-line bulk-dialog__delete" id="cerDlgDelete" type="button" title="Supprimer cet invité" hidden>Supprimer cet invité</button>
+          <button class="fr-btn fr-btn--tertiary fr-btn--sm" id="cerDlgCancel" type="button">Annuler</button>
+          <button class="fr-btn fr-btn--sm" id="cerDlgSave" type="button">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="panelReferent" hidden>
     <div class="bulk-head">
       <h2 class="fr-h6">Référent pédagogique</h2>
@@ -4611,6 +4693,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         <button class="fr-btn fr-btn--secondary fr-icon-award-line fr-btn--icon-left tb-ghost" id="navReferent" type="button" title="Référent pédagogique : notes, moyennes et classement des stagiaires">
           Référent pédagogique
         </button>
+        <button class="fr-btn fr-btn--secondary fr-icon-flag-line icon-flag-fr fr-btn--icon-left tb-ghost" id="navCeremonie" type="button" title="Cérémonie : invités de la cérémonie de fin de stage">
+          Cérémonie
+        </button>
         <button class="fr-btn fr-btn--secondary fr-icon-refresh-line fr-btn--icon-left tb-ghost" id="stgReloadBtn" type="button" title="Recharger les stagiaires depuis la table Grist">
           Actualiser
         </button>
@@ -5536,7 +5621,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.74.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.75.6</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -5941,6 +6026,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     panelSettings.hidden = !settingsOpen;
     panelEtuteur.hidden = settingsOpen || currentPage !== 'etuteur';
     document.getElementById('panelReferent').hidden = settingsOpen || currentPage !== 'referent';
+    document.getElementById('panelCeremonie').hidden = settingsOpen || currentPage !== 'ceremonie';
     document.getElementById('panelWelcome').hidden = settingsOpen || currentPage !== 'welcome';
     panelStagiaires.hidden = settingsOpen || currentPage !== 'stagiaires';
     panelEncadrement.hidden = settingsOpen || currentPage !== 'encadrement';
@@ -5968,7 +6054,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       if (currentPage === pair[1]) pair[0].setAttribute('aria-current', 'page');
       else pair[0].removeAttribute('aria-current');
     });
-    if (['stagiaires', 'etuteur', 'referent', 'encadrement', 'stats'].indexOf(currentPage) !== -1) navStgMenu.setAttribute('aria-current', 'true'); else navStgMenu.removeAttribute('aria-current');
+    if (['stagiaires', 'etuteur', 'referent', 'ceremonie', 'encadrement', 'stats'].indexOf(currentPage) !== -1) navStgMenu.setAttribute('aria-current', 'true'); else navStgMenu.removeAttribute('aria-current');
   }
   var fsjView = 'progression', fsjStarted = false;
   function openFsj(view) {
@@ -6928,10 +7014,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function restoreLastPage() {
     var saved = null;
     try { saved = JSON.parse(sessionStorage.getItem('widgetLastPage') || 'null'); } catch (e) { saved = null; }
-    if (!saved || ['stagiaires', 'etuteur', 'referent', 'encadrement', 'stats', 'faq', 'bulk', 'res', 'fsj'].indexOf(saved.page) === -1) return;
+    if (!saved || ['stagiaires', 'etuteur', 'referent', 'ceremonie', 'encadrement', 'stats', 'faq', 'bulk', 'res', 'fsj'].indexOf(saved.page) === -1) return;
     if (saved.page === 'fsj') { openFsj(['progression', 'generer', 'absences'].indexOf(saved.fsjView) !== -1 ? saved.fsjView : 'progression'); return; }
     showPage(saved.page);
     if (saved.page === 'referent') loadNotes();
+    if (saved.page === 'ceremonie') loadCeremonie();
     if (saved.page === 'stats') renderStats();
     if (saved.page === 'faq') buildFaq();
     if (saved.page === 'res') { // sous-page des ressources (véhicules, matériels, hébergement)
@@ -10260,6 +10347,247 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         done('Informations reportées dans « Infos » de ' + carry.length + ' fiche(s).');
       }, function (e) { sendBtn.disabled = false; fail('Le message a été préparé, mais le report dans les fiches a échoué : ' + friendlyErrorMessage(e)); });
     });
+  });
+
+
+  // ==== Page « Cérémonie » : invités de la cérémonie de fin de stage ===========================================
+  //
+  // Source EN DUR : table « Ceremonie » (colonnes retrouvées par leur libellé : Max. invitation, Stagiaire, Grade, Nom, Prénom, Email, Date de
+  // naissance, Lieu de naissance, Dpt naissance, En tenue, VIP, Infos). Une ligne = un invité d'un stagiaire ; « Max. invitation » est une formule
+  // Grist qui vaut Vrai quand le stagiaire a dépassé son nombre d'invités autorisé. Les invités sont regroupés par stagiaire (« 2 invités »).
+  var CER_WANT = {
+    max: ['MAXINVITATION', 'MAXINVITATIONS', 'MAXINVIT', 'INVITATIONSMAX'], stagiaire: ['STAGIAIRE'], grade: ['GRADE'], nom: ['NOM'], prenom: ['PRENOM'], email: ['EMAIL', 'COURRIEL', 'MAIL'],
+    ddn: ['DATEDENAISSANCE', 'DDN', 'DATENAISSANCE'], lieu: ['LIEUDENAISSANCE', 'LIEUNAISSANCE'], dpt: ['DPTNAISSANCE', 'DEPARTEMENTNAISSANCE', 'DPTDENAISSANCE'],
+    tenue: ['ENTENUE', 'TENUE'], vip: ['VIP'], infos: ['INFOS', 'INFO', 'INFORMATIONS']
+  };
+  var CER_LABELS = { stagiaire: 'Stagiaire', max: 'Max. invitation', grade: 'Grade', nom: 'Nom', prenom: 'Prénom', email: 'E-mail', ddn: 'Date de naissance', lieu: 'Lieu de naissance', dpt: 'Dpt naissance', tenue: 'En tenue', vip: 'VIP', infos: 'Infos' };
+  var cer = { loaded: false, error: '', tableId: '', cols: {}, rows: [] };
+  var cerSearch = '', cerFlags = { vip: false, tenue: false, over: false, noEmail: false, noDdn: false };
+  var panelCeremonie = document.getElementById('panelCeremonie'), cerZone = document.getElementById('cerZone');
+  function cerKey(v) { return String(v === null || v === undefined ? '' : v).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]/g, '').toUpperCase(); }
+  function loadCeremonie() {
+    return Promise.all([grist.docApi.listTables(), grist.docApi.fetchTable('_grist_Tables'), grist.docApi.fetchTable('_grist_Tables_column')]).then(function (res) {
+      var tid = null;
+      (res[0] || []).forEach(function (t) { var k = cerKey(t); if (!tid && (k === 'CEREMONIE' || /CEREMONIE$/.test(k))) tid = t; });
+      if (!tid) throw new Error('Table « Ceremonie » introuvable dans ce document.');
+      var tables = res[1], meta = res[2], rowId = null, colMeta = [];
+      for (var i = 0; i < tables.id.length; i++) if (tables.tableId[i] === tid) rowId = tables.id[i];
+      for (var j = 0; j < meta.id.length; j++) {
+        if (meta.parentId[j] !== rowId || /^gristHelper_|^manualSort$/.test(meta.colId[j])) continue;
+        colMeta.push({ id: meta.colId[j], label: meta.label[j] || meta.colId[j], type: bulkBaseType(meta.type[j]), fullType: meta.type[j], formula: !!meta.isFormula[j] && String(meta.formula ? meta.formula[j] : '').trim() !== '' });
+      }
+      return grist.docApi.fetchTable(tid).then(function (data) {
+        var cols = {};
+        Object.keys(CER_WANT).forEach(function (role) {
+          var hit = colMeta.filter(function (c) { return CER_WANT[role].indexOf(cerKey(c.label)) !== -1 || CER_WANT[role].indexOf(cerKey(c.id)) !== -1; })[0];
+          if (hit) cols[role] = hit;
+        });
+        var rows = (data.id || []).map(function (id, i) {
+          var v = {};
+          Object.keys(cols).forEach(function (role) { v[role] = data[cols[role].id] ? data[cols[role].id][i] : null; });
+          return { id: id, v: v };
+        });
+        var miss = ['stagiaire', 'nom'].filter(function (r) { return !cols[r]; });
+        cer = { loaded: true, error: miss.length ? 'Colonne(s) introuvable(s) dans la table « ' + tid + ' » : ' + miss.map(function (r) { return CER_LABELS[r]; }).join(', ') + '.' : '', tableId: tid, cols: cols, rows: rows };
+      });
+    }).catch(function (e) {
+      cer = { loaded: false, error: friendlyErrorMessage(e), tableId: '', cols: {}, rows: [] };
+    }).then(renderCeremonie);
+  }
+  function cerText(row, role) {
+    var c = cer.cols[role];
+    return c ? formatVariableValue(row.v[role], c.type).trim() : '';
+  }
+  function cerBool(row, role) {
+    var v = row.v[role];
+    return v === true || v === 1 || /^(OUI|O|TRUE|VRAI|1|X|YES)$/.test(normalizeKey(textOf(v)));
+  }
+  function cerStagiaire(row) { // { key, id, label } : la colonne Stagiaire est une référence (identifiant de ligne) ou un texte
+    var v = row.v.stagiaire;
+    if (typeof v === 'number' && v > 0) {
+      var r = candidates.rows.filter(function (x) { return x.id === v; })[0];
+      return { key: 'id' + v, id: v, label: r ? [nameParts(r).nom, nameParts(r).prenom].filter(Boolean).join(' ') : '(stagiaire supprimé)' };
+    }
+    var t = textOf(v).trim();
+    return { key: 'tx' + normalizeKey(t), id: null, label: t || '(sans stagiaire)' };
+  }
+  function cerGroups(rows) {
+    var by = {}, order = [];
+    rows.forEach(function (row) {
+      var s = cerStagiaire(row), g = by[s.key];
+      if (!g) { g = by[s.key] = { key: s.key, id: s.id, label: s.label, rows: [] }; order.push(g); }
+      g.rows.push(row);
+    });
+    order.forEach(function (g) {
+      g.rows.sort(function (a, b) { return nameCollator.compare(cerText(a, 'nom') + ' ' + cerText(a, 'prenom'), cerText(b, 'nom') + ' ' + cerText(b, 'prenom')); });
+    });
+    order.sort(function (a, b) { return nameCollator.compare(a.label, b.label); });
+    return order;
+  }
+  // Quota par stagiaire d'après TOUS ses invités (pas seulement ceux affichés) : dépassé si la formule « Max. invitation » vaut Vrai sur l'une de ses lignes.
+  function cerQuotas() {
+    var q = {};
+    cerGroups(cer.rows).forEach(function (g) { q[g.key] = { n: g.rows.length, over: !!cer.cols.max && g.rows.some(function (r) { return cerBool(r, 'max'); }) }; });
+    return q;
+  }
+  function cerPasses(row, quotas) {
+    if (cerSearch.trim()) {
+      var hay = normalizeKey([cerText(row, 'grade'), cerText(row, 'nom'), cerText(row, 'prenom'), cerText(row, 'email'), cerStagiaire(row).label, cerText(row, 'infos')].join(' '));
+      if (hay.indexOf(normalizeKey(cerSearch)) === -1) return false;
+    }
+    if (cerFlags.vip && !cerBool(row, 'vip')) return false;
+    if (cerFlags.tenue && !cerBool(row, 'tenue')) return false;
+    if (cerFlags.over && !(quotas[cerStagiaire(row).key] || {}).over) return false;
+    if (cerFlags.noEmail && cerText(row, 'email')) return false;
+    if (cerFlags.noDdn && cerText(row, 'ddn')) return false;
+    return true;
+  }
+  function cerVisibleRows() { var q = cerQuotas(); return cer.rows.filter(function (r) { return cerPasses(r, q); }); }
+  function renderCeremonie() {
+    if (!panelCeremonie || panelCeremonie.hidden) return;
+    var count = document.getElementById('cerCount');
+    cerZone.innerHTML = '';
+    document.getElementById('cerResetBtn').disabled = !cerSearch.trim() && !Object.keys(cerFlags).some(function (k) { return cerFlags[k]; });
+    if (cer.error && !cer.loaded) { cerZone.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm"><p>' + escapeHtml(cer.error) + '</p></div>'; count.textContent = ''; return; }
+    if (cer.error) { var al = document.createElement('div'); al.className = 'fr-alert fr-alert--warning fr-alert--sm fr-mb-2w'; al.innerHTML = '<p>' + escapeHtml(cer.error) + '</p>'; cerZone.appendChild(al); }
+    document.getElementById('cerAddBtn').disabled = !cer.loaded || !cer.cols.stagiaire;
+    document.getElementById('cerExportBtn').disabled = !cer.rows.length;
+    var quotas = cerQuotas(), rows = cer.rows.filter(function (r) { return cerPasses(r, quotas); }), groups = cerGroups(rows);
+    count.textContent = rows.length + ' invité(s) affiché(s) sur ' + cer.rows.length + ' · ' + groups.length + ' stagiaire(s)';
+    if (!rows.length) { var p = document.createElement('p'); p.className = 'cand-empty-state'; p.textContent = cer.rows.length ? 'Aucun invité ne correspond à l’affichage actuel.' : 'Aucun invité enregistré : utilisez « Ajouter un invité ».'; cerZone.appendChild(p); return; }
+    var wrap = document.createElement('div'); wrap.className = 'bulk-table-wrap';
+    var table = document.createElement('table'); table.className = 'bulk-table cer-table';
+    table.innerHTML = '<thead><tr><th>Invité</th><th>E-mail</th><th>Naissance</th><th>Infos</th><th class="bulk-table__actions">Actions</th></tr></thead>';
+    var tb = document.createElement('tbody');
+    groups.forEach(function (g) {
+      var q = quotas[g.key] || { n: g.rows.length, over: false };
+      var gh = document.createElement('tr'); gh.className = 'cer-group';
+      var th = document.createElement('th'); th.colSpan = 5;
+      th.innerHTML = '<div class="cer-group__in"><button type="button" class="cer-group__name" title="Ouvrir la fiche du stagiaire">' + escapeHtml(g.label) + '</button>' +
+        '<span class="fr-tag fr-tag--sm' + (q.over ? ' cer-over' : '') + '">' + q.n + ' invité(s)' + (q.over ? ' : maximum dépassé' : '') + '</span>' +
+        '<button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-add-line cer-add" title="Ajouter un invité à ce stagiaire">Ajouter un invité</button></div>';
+      th.querySelector('.cer-group__name').addEventListener('click', function () { if (g.id) openCandidateModal(g.id, 'stagiaire'); });
+      th.querySelector('.cer-add').addEventListener('click', function () { openCerDialog(null, g.id, g.label); });
+      gh.appendChild(th); tb.appendChild(gh);
+      g.rows.forEach(function (row) {
+        var tr = document.createElement('tr');
+        var nom = cerText(row, 'nom'), prenom = fmtPrenom(cerText(row, 'prenom')), grade = cerText(row, 'grade');
+        var tags = (cerBool(row, 'vip') ? '<span class="fr-tag fr-tag--sm">VIP</span>' : '') + (cerBool(row, 'tenue') ? '<span class="fr-tag fr-tag--sm">En tenue</span>' : '');
+        var birth = [cerText(row, 'ddn'), cerText(row, 'lieu') ? cerText(row, 'lieu') + (cerText(row, 'dpt') ? ' (' + cerText(row, 'dpt') + ')' : '') : (cerText(row, 'dpt') ? '(' + cerText(row, 'dpt') + ')' : '')].filter(Boolean).join(' · ');
+        tr.innerHTML = '<td class="cer-who">' + (grade ? escapeHtml(grade) + ' ' : '') + '<strong>' + escapeHtml(nom) + '</strong> ' + escapeHtml(prenom) + (tags ? '<span class="cer-tags">' + tags + '</span>' : '') + '</td>' +
+          '<td>' + (cerText(row, 'email') ? escapeHtml(cerText(row, 'email')) : '<span class="cer-sub">à renseigner</span>') + '</td>' +
+          '<td>' + (birth ? escapeHtml(birth) : '<span class="cer-sub">à renseigner</span>') + '</td>' +
+          '<td>' + escapeHtml(cerText(row, 'infos')) + '</td>' +
+          '<td class="bulk-table__actions"><button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-edit-line" title="Modifier l’invité">Modifier l’invité</button></td>';
+        tr.querySelector('button').addEventListener('click', function () { openCerDialog(row); });
+        tb.appendChild(tr);
+      });
+    });
+    table.appendChild(tb); wrap.appendChild(table); cerZone.appendChild(wrap);
+  }
+  // ---- Fenêtre d'ajout / de modification d'un invité (la suppression se fait ici) ----
+  var cerDialog = document.getElementById('cerDialog'), cerEditing = null;
+  function cerShowError(m) { var e = document.getElementById('cerDlgError'); e.textContent = m || ''; e.hidden = !m; }
+  function cerQuotaHint() {
+    var sel = document.getElementById('cerStg'), hint = document.getElementById('cerQuota');
+    var key = sel.value ? (isNaN(Number(sel.value)) ? 'tx' + normalizeKey(sel.value) : 'id' + sel.value) : '', q = cerQuotas()[key];
+    hint.textContent = q ? 'Invités déjà enregistrés pour ce stagiaire : ' + q.n + (q.over ? ' (maximum d’invitations dépassé)' : '') + '.' : '';
+  }
+  function openCerDialog(row, stgId, stgLabel) {
+    cerEditing = row || null;
+    Array.prototype.forEach.call(cerDialog.querySelectorAll('[data-cer]'), function (el) { el.hidden = !cer.cols[el.getAttribute('data-cer')]; });
+    var sel = document.getElementById('cerStg');
+    sel.innerHTML = '<option value="">Choisir un stagiaire…</option>' + candidates.rows.filter(function (r) { return !stgHasLeft(r); }).sort(compareCandidatesByName).map(function (r) {
+      return '<option value="' + r.id + '">' + escapeHtml([nameParts(r).nom, nameParts(r).prenom].filter(Boolean).join(' ')) + '</option>';
+    }).join('');
+    var cur = row ? cerStagiaire(row) : { id: stgId || null, label: stgLabel || '' };
+    if (cur.id && !sel.querySelector('option[value="' + cur.id + '"]')) sel.insertAdjacentHTML('beforeend', '<option value="' + cur.id + '">' + escapeHtml(cur.label) + '</option>');
+    sel.value = cur.id ? String(cur.id) : '';
+    var g = function (id) { return document.getElementById(id); };
+    ['Grade:grade', 'Nom:nom', 'Prenom:prenom', 'Email:email', 'Lieu:lieu', 'Dpt:dpt', 'Infos:infos'].forEach(function (p) { var x = p.split(':'); g('cer' + x[0]).value = row ? cerText(row, x[1]) : ''; });
+    var d = row && cer.cols.ddn ? dayOfValue(row.v.ddn, cer.cols.ddn.fullType) : null;
+    g('cerDdn').value = d ? d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2) : '';
+    g('cerTenue').checked = row ? cerBool(row, 'tenue') : false;
+    g('cerVip').checked = row ? cerBool(row, 'vip') : false;
+    document.getElementById('cerDlgTitle').textContent = row ? 'Modifier l’invité' : 'Ajouter un invité';
+    document.getElementById('cerDlgDelete').hidden = !row;
+    document.getElementById('cerDlgSave').disabled = false;
+    cerShowError('');
+    cerQuotaHint();
+    cerDialog.hidden = false;
+    (row ? g('cerNom') : (sel.value ? g('cerGrade') : sel)).focus();
+  }
+  function closeCerDialog() { cerDialog.hidden = true; }
+  document.getElementById('cerStg').addEventListener('change', cerQuotaHint);
+  document.getElementById('cerDlgClose').addEventListener('click', closeCerDialog);
+  document.getElementById('cerDlgCancel').addEventListener('click', closeCerDialog);
+  var cerDown = false;
+  cerDialog.addEventListener('mousedown', function (e) { cerDown = e.target === cerDialog; });
+  cerDialog.addEventListener('click', function (e) { if (e.target === cerDialog && cerDown) closeCerDialog(); });
+  cerDialog.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); closeCerDialog(); } });
+  document.getElementById('cerDlgSave').addEventListener('click', function () {
+    var g = function (id) { return document.getElementById(id); }, fields = {};
+    function put(role, val) { var c = cer.cols[role]; if (c && !c.formula) fields[c.id] = val; }
+    var stgVal = g('cerStg').value;
+    if (cer.cols.stagiaire && !stgVal) { cerShowError('Choisissez le stagiaire qui invite.'); g('cerStg').focus(); return; }
+    if (cer.cols.nom && !g('cerNom').value.trim()) { cerShowError('Le nom de l’invité est obligatoire.'); g('cerNom').focus(); return; }
+    if (cer.cols.prenom && !g('cerPrenom').value.trim()) { cerShowError('Le prénom de l’invité est obligatoire.'); g('cerPrenom').focus(); return; }
+    var sc = cer.cols.stagiaire;
+    if (sc) put('stagiaire', /^Ref/.test(sc.fullType || '') ? Number(stgVal) : g('cerStg').selectedOptions[0].textContent);
+    put('grade', g('cerGrade').value.trim()); put('nom', g('cerNom').value.trim()); put('prenom', g('cerPrenom').value.trim()); put('email', g('cerEmail').value.trim());
+    put('lieu', g('cerLieu').value.trim()); put('dpt', g('cerDpt').value.trim()); put('infos', g('cerInfos').value.trim());
+    if (cer.cols.ddn) {
+      var dv = g('cerDdn').value, m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dv);
+      put('ddn', !m ? null : (cer.cols.ddn.type === 'Text' ? m[3] + '/' + m[2] + '/' + m[1] : Date.UTC(+m[1], +m[2] - 1, +m[3]) / 1000));
+    }
+    [['tenue', 'cerTenue'], ['vip', 'cerVip']].forEach(function (p) { var c = cer.cols[p[0]]; if (c) put(p[0], c.type === 'Bool' ? g(p[1]).checked : (g(p[1]).checked ? 'Oui' : '')); });
+    var action = cerEditing ? ['UpdateRecord', cer.tableId, cerEditing.id, fields] : ['AddRecord', cer.tableId, null, fields];
+    var btn = g('cerDlgSave'); btn.disabled = true; cerShowError('');
+    grist.docApi.applyUserActions([action]).then(function () { closeCerDialog(); return loadCeremonie(); }).catch(function (e) { btn.disabled = false; cerShowError('Enregistrement impossible : ' + friendlyErrorMessage(e)); });
+  });
+  document.getElementById('cerDlgDelete').addEventListener('click', function () {
+    if (!cerEditing) return;
+    var row = cerEditing, msg = 'Supprimer définitivement l’invité « ' + [cerText(row, 'nom'), cerText(row, 'prenom')].filter(Boolean).join(' ') + ' » ?';
+    var ask = window.fsjConfirm ? window.fsjConfirm(msg, 'Supprimer') : Promise.resolve(window.confirm(msg));
+    ask.then(function (ok) {
+      if (!ok) return;
+      return grist.docApi.applyUserActions([['RemoveRecord', cer.tableId, row.id]]).then(function () { closeCerDialog(); return loadCeremonie(); })
+        .catch(function (e) { cerShowError('Suppression impossible : ' + friendlyErrorMessage(e)); });
+    });
+  });
+  // ---- Barre d'outils, recherche rapide, export ----
+  document.getElementById('cerAddBtn').addEventListener('click', function () { openCerDialog(null); });
+  document.getElementById('cerReloadBtn').addEventListener('click', loadCeremonie);
+  document.getElementById('cerBackBtn').addEventListener('click', function () { showPage('stagiaires'); });
+  document.getElementById('navCeremonie').addEventListener('click', function () { showPage('ceremonie'); renderCeremonie(); loadCeremonie(); });
+  document.getElementById('cerSearchInput').addEventListener('input', function () { cerSearch = this.value; renderCeremonie(); });
+  document.getElementById('cerResetBtn').addEventListener('click', function () { cerSearch = ''; document.getElementById('cerSearchInput').value = ''; cerFlags = { vip: false, tenue: false, over: false, noEmail: false, noDdn: false }; renderCeremonie(); });
+  attachSearchPanel(document.getElementById('cerSearchInput'), function () {
+    var out = [], quotas = cerQuotas();
+    function item(sec, key, label, test) {
+      var saved = cerFlags[key]; cerFlags[key] = false;
+      var n = cer.rows.filter(function (r) { return cerPasses(r, quotas) && test(r); }).length;
+      cerFlags[key] = saved;
+      if (!n && !cerFlags[key]) return;
+      out.push({ sec: sec, l: label + ' (' + n + ')', keep: true, on: function () { return cerFlags[key]; }, run: function () { cerFlags[key] = !cerFlags[key]; renderCeremonie(); } });
+    }
+    if (cer.cols.vip) item('Invités', 'vip', 'VIP', function (r) { return cerBool(r, 'vip'); });
+    if (cer.cols.tenue) item('Invités', 'tenue', 'En tenue', function (r) { return cerBool(r, 'tenue'); });
+    item('Quota', 'over', 'Maximum d’invitations dépassé', function (r) { return (quotas[cerStagiaire(r).key] || {}).over; });
+    if (cer.cols.email) item('Données à contrôler', 'noEmail', 'Sans e-mail', function (r) { return !cerText(r, 'email'); });
+    if (cer.cols.ddn) item('Données à contrôler', 'noDdn', 'Sans date de naissance', function (r) { return !cerText(r, 'ddn'); });
+    return out;
+  }, function () { document.getElementById('cerResetBtn').click(); });
+  document.getElementById('cerExportBtn').addEventListener('click', function () {
+    var rows = cerVisibleRows(); if (!rows.length) return;
+    var roles = ['stagiaire', 'grade', 'nom', 'prenom', 'email', 'ddn', 'lieu', 'dpt', 'tenue', 'vip', 'infos'].filter(function (r) { return cer.cols[r]; }); // sans « Max. invitation » (formule de contrôle)
+    var lines = [roles.map(function (r) { return csvCell(CER_LABELS[r]); }).join(';')];
+    cerGroups(rows).forEach(function (g) {
+      g.rows.forEach(function (row) {
+        lines.push(roles.map(function (r) { return csvCell(r === 'stagiaire' ? g.label : (r === 'tenue' || r === 'vip') ? (cerBool(row, r) ? 'Oui' : 'Non') : cerText(row, r)); }).join(';'));
+      });
+    });
+    saveBlob(new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' }), 'invites-ceremonie.csv');
   });
 
   // ==== Page « Encadrement » ==================================================
