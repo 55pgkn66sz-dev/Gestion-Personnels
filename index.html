@@ -5484,7 +5484,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.69.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.69.1</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -10070,7 +10070,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
             else if (mins(t0) <= 14 * 60 && mins(t0) >= mins(f0)) half = 'matin';
           }
           days = half ? 0.5 : cal;
-          if (!half) { from = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate(), 7, 30).getTime(); to = new Date(d1.getFullYear(), d1.getMonth(), d1.getDate() + 1, 7, 30).getTime(); }
+          if (half === 'matin') { from = d0.getTime(); to = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate(), 14, 0).getTime(); } // tranche entière : 0 h → 14 h
+          else if (half === 'après-midi') { from = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate(), 12, 0).getTime(); to = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate(), 23, 59).getTime(); } // 12 h → 23 h 59
+          else { from = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate(), 7, 30).getTime(); to = new Date(d1.getFullYear(), d1.getMonth(), d1.getDate() + 1, 7, 30).getTime(); }
         }
         list.push({ ref: refCol && d[refCol] ? d[refCol][i] : 0, name: encAbsNorm(d.Militaire_affiche && d.Militaire_affiche[i]).split(' ').filter(Boolean),
           from: from, to: to, label: kind === 'REPOS' ? 'Repos' : 'Autorisation d’absence', days: days, half: half, rawFrom: rawFrom, rawTo: rawTo });
@@ -12577,7 +12579,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       ['Où se trouvent les occurrences du planning ?', 'Dans une table Grist qui porte les colonnes Début, Fin, Occurrence, Intitulé, Code, Lieu, Encadrement, Consignes, Apprenants et Type. Le widget la repère tout seul ; si elle n’est pas trouvée, ou si plusieurs tables conviennent, choisissez-la dans la Configuration du widget (« Temps et activités — période du stage », champ « Table des occurrences »). Les occurrences sont relues à chaque ouverture de la page et après chaque modification ; le bouton « Actualiser » (absences) recharge aussi les demandes.'],
       ['Où saisir les notes des stagiaires ?', 'Sur la page cachée <strong>Référent pédagogique</strong>, accessible par l’icône « Référent pédagogique » à droite d’eTuteur dans la page Stagiaires. « Ajouter des notes » ouvre une fenêtre à deux onglets : <strong>Fichier CSV</strong> (cliquer ou déposer le fichier ; les colonnes stagiaire, note, matière, note max et coefficient sont reconnues automatiquement, et la note maximale et le coefficient de l’évaluation sont demandés) ou <strong>Saisie par peloton</strong>. Les notes alimentent l’onglet Notation de chaque fiche (moyenne générale, classement général, par sexe et dans le peloton) et le classement de la page, qui tient compte des filtres.'],
       ['Comment désigner un cadre principal ?', 'Dans le choix des cadres d’une activité ou d’une occurrence, cliquez sur l’étoile qui suit le nom d’un cadre désigné : il devient le <strong>cadre principal</strong> (un seul), enregistré et affiché en premier ; il porte une étoile dans l’infobulle de la progression et sur la feuille de service. Les cadres se filtrent par type grâce à l’affichage rapide (Encadrement pelotons, Formateurs IP, Formateurs secourisme, Cadres du soutien).'],
-      ['Comment est compté un repos ?', 'Un repos s’entend de <strong>7 h 30 au lendemain 7 h 30</strong> et compte pour <strong>1 jour</strong>. Une demande saisie sur une seule journée entre 0 h et 14 h (matin) ou entre 12 h et 23 h 59 (après-midi) compte pour <strong>0,5 jour</strong>. Cette période sert à repérer les conflits, les cadres absents (liste Encadrement, feuille de service) et le classement des demandes passées, en cours ou à venir. Une <strong>permanence</strong> va, elle aussi, de <strong>7 h 30 au lendemain 7 h 30</strong> : une absence qui la recoupe est signalée ; le cadre de permanence en repos le lendemain donne lieu à la question de la relève à partir de 19 h.'],
+      ['Comment est compté un repos ?', 'Un repos s’entend de <strong>7 h 30 au lendemain 7 h 30</strong> et compte pour <strong>1 jour</strong>. Une demande saisie sur une seule journée entre 0 h et 14 h (matin) ou entre 12 h et 23 h 59 (après-midi) compte pour <strong>0,5 jour</strong> ; la tranche entière est alors affichée (<strong>0 h → 14 h</strong> le matin, <strong>12 h → 23 h 59</strong> l’après-midi), quelles que soient les heures saisies. Cette période sert à repérer les conflits, les cadres absents (liste Encadrement, feuille de service) et le classement des demandes passées, en cours ou à venir. Une <strong>permanence</strong> va, elle aussi, de <strong>7 h 30 au lendemain 7 h 30</strong> : une absence qui la recoupe est signalée ; le cadre de permanence en repos le lendemain donne lieu à la question de la relève à partir de 19 h.'],
       ['Où règle-t-on la période du stage, le PDF et les permanences ?', 'Dans la Configuration du widget (cinq clics rapides sur l’en-tête), trois rubriques « Temps et activités » : période du stage, exports PDF (dont la limitation de la feuille de service à trois jours) et signataire des autorisations d’absence. Les numéros de téléphone des permanences se règlent dans la page Réglages des activités. Ces réglages sont partagés par tous les utilisateurs.'],
       ['Comment filtrer le planning et les absences ?', 'Dans la barre de recherche de la page : cliquez dedans pour afficher les filtres en un clic (<strong>Par peloton</strong> et <strong>Par cadre</strong> pour la Progression ; <strong>Par décision</strong> et <strong>Par demandeur</strong> pour les absences), ou tapez un texte (code ou intitulé, nom, type, destination). « Réinitialiser les filtres » se trouve en haut du panneau.'],
       ['À quoi sert le bouton « Réglages des activités » ?', 'Le bouton-icône en forme de liste de la page Progression ouvre la liste des codes d’activité (type, numéro, durée, intitulé, cadres désignés, consignes aux stagiaires) qui alimente la création des occurrences.']
@@ -21516,7 +21518,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var ABS_PERIOD_LABELS = { passee: 'Demandes passées', cours: 'Demandes en cours', future: 'Demandes dans le futur' };
   // Période d'une demande par rapport à maintenant ; une fin à minuit pile (colonne de type date) vaut la fin de cette journée.
   // Repos : il s'entend de 7 h 30 au lendemain 7 h 30 et compte pour 1 jour. Une demande saisie sur une seule journée entre 0 h et 14 h (matin) ou
-  // entre 12 h et 23 h 59 (après-midi) compte pour 0,5 jour et garde les heures saisies. Plusieurs jours : 1 jour par jour calendaire.
+  // entre 12 h et 23 h 59 (après-midi) compte pour 0,5 jour ; la tranche entière est affichée (0 h → 14 h, 12 h → 23 h 59). Plusieurs jours : 1 jour par jour calendaire.
   function absReposInfo(r) {
     var a = parseGristDateTime(r.dateDebut), b = parseGristDateTime(r.dateFin) || a;
     if (!a) return null;
@@ -21534,8 +21536,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }
     return {
       half: half, days: half ? 0.5 : cal,
-      s: half ? a : new Date(d0.getFullYear(), d0.getMonth(), d0.getDate(), 7, 30),
-      e: half ? b : new Date(d1.getFullYear(), d1.getMonth(), d1.getDate() + 1, 7, 30)
+      // Demi-journée : la tranche entière est affichée (matin 0 h → 14 h, après-midi 12 h → 23 h 59), quelles que soient les heures saisies.
+      s: half === 'matin' ? d0 : half === 'après-midi' ? new Date(d0.getFullYear(), d0.getMonth(), d0.getDate(), 12, 0) : new Date(d0.getFullYear(), d0.getMonth(), d0.getDate(), 7, 30),
+      e: half === 'matin' ? new Date(d0.getFullYear(), d0.getMonth(), d0.getDate(), 14, 0) : half === 'après-midi' ? new Date(d0.getFullYear(), d0.getMonth(), d0.getDate(), 23, 59) : new Date(d1.getFullYear(), d1.getMonth(), d1.getDate() + 1, 7, 30)
     };
   }
   function absEffectivePeriod(r) {
