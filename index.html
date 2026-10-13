@@ -219,6 +219,28 @@
   .tb-info__list li { display: flex; align-items: center; gap: 0.5rem; margin: 0; padding: 0; }
   .tb-info__swatch { flex: none; width: 1rem; height: 1rem; border-radius: 3px; border: 2px solid; }
   /* Glisser-déposer d'un occupant (page Hébergement) */
+  /* Modale d'édition des occupants d'une chambre (double-clic sur une carte de la page Hébergement) */
+  .uv-card { cursor: default; }
+  .occ-edit { width: min(60rem, 100%) !important; }
+  .occ-edit__filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.6rem 1.2rem; margin: 0 0 0.6rem; }
+  .occ-edit__filters .fr-input-group, .occ-edit__filters .fr-select-group { margin: 0; }
+  .occ-edit__seg { display: inline-flex; }
+  .occ-edit__seg button { margin: 0; border-radius: 0; }
+  .occ-edit__seg button + button { margin-left: -1px; }
+  .occ-edit__seg button[aria-pressed="true"] { background: var(--background-action-high-blue-france); color: #fff; }
+  .occ-edit__hint { margin: 0 0 0.4rem; font-size: 0.8rem; color: var(--text-mention-grey); }
+  .occ-edit__info { margin: 0 0 0.4rem; font-size: 0.875rem; }
+  .occ-edit__info.is-over { color: var(--text-default-error); font-weight: 700; }
+  .occ-edit__sec { margin: 0.9rem 0 0; }
+  .occ-edit__sec h4 { margin: 0 0 0.4rem; font-size: 0.95rem; }
+  .occ-edit__sec h4 small { font-weight: 400; color: var(--text-mention-grey); }
+  .occ-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .occ-tag { margin: 0; padding: 0.2rem 0.75rem; border: 1px solid var(--border-default-blue-france, #000091); border-radius: 999px; background: var(--background-alt-blue-france, #f5f5fe); color: var(--text-action-high-blue-france, #000091); font: inherit; font-size: 0.85rem; cursor: pointer; }
+  .occ-tag:hover { background: var(--background-contrast-blue-france, #e3e3fd); }
+  .occ-tag.is-on { background: var(--background-action-high-blue-france, #000091); color: #fff; }
+  .occ-tag.is-elsewhere:not(.is-on) { border-style: dashed; }
+  .occ-tag:focus-visible { outline: 2px solid var(--bleu-france, #000091); outline-offset: 2px; }
+  .occ-edit__empty { margin: 0; font-size: 0.85rem; color: var(--text-mention-grey); }
   .uv-occ[draggable="true"] { cursor: grab; }
   .uv-occ.is-dragging { opacity: 0.45; }
   .uv-card.is-drop { outline: 3px dashed var(--text-action-high-blue-france); outline-offset: -3px; }
@@ -1396,6 +1418,7 @@
   .etu-rep__carry { margin-top: 0.6rem; padding: 0.5rem 0.8rem; max-height: 14rem; overflow-y: auto; border: 1px solid var(--border-default-grey); border-radius: 0.3rem; }
   .etu-rep__carry[hidden] { display: none; }
   .etu-rep__carry-head { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.3rem; font-size: 0.85rem; }
+  .etu-rep__rec { margin: 0.2rem 0 0.4rem; padding: 0.3rem 0.6rem 0.4rem; background: var(--background-alt-grey); border-radius: 0.3rem; }
   .etu-rep__carry-name { margin: 0.5rem 0 0.1rem; font-weight: 700; font-size: 0.85rem; }
   #etuReportBody { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.82em; }
 
@@ -2812,6 +2835,20 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 .cadre-tags input:focus-visible + .cadre-tag { outline: 2px solid var(--bleu-france, #000091); outline-offset: 2px; }
 .cadre-tags .cadre-tag--vol { background: var(--background-contrast-success, #b8fec9); color: var(--text-default-success, #18753c); border-color: var(--border-plain-success, #18753c); }
 .cadre-tags input:checked + .cadre-tag--vol { background: var(--background-action-high-success, #18753c); color: #fff; }
+/* Progression : récapitulatif des heures de cours par cadre (toute la période du stage, permanences exclues). */
+.cadre-hours { margin: 1.25rem 0 0; background: var(--background-raised-grey); border: 1px solid var(--border-default-grey); border-radius: 0.5rem; padding: 0.75rem 1.25rem; }
+.cadre-hours[open] { padding-bottom: 1rem; }
+.cadre-hours > summary { cursor: pointer; font-weight: 700; color: var(--text-action-high-blue-france); }
+.cadre-hours .cadre-hours__sub { font-weight: 400; font-size: 0.85rem; color: var(--text-mention-grey); margin-left: 0.5rem; }
+.cadre-hours .cadre-hours__scroll { overflow-x: auto; margin-top: 0.75rem; }
+.cadre-hours table { border-collapse: collapse; width: 100%; font-size: 0.875rem; }
+.cadre-hours th, .cadre-hours td { padding: 0.4rem 0.75rem; border-bottom: 1px solid var(--border-default-grey); text-align: right; white-space: nowrap; }
+.cadre-hours th:first-child, .cadre-hours td:first-child { text-align: left; white-space: normal; }
+.cadre-hours thead th { font-weight: 700; background: var(--background-alt-grey); }
+.cadre-hours td.is-total, .cadre-hours th.is-total { font-weight: 700; }
+.cadre-hours tfoot td { font-weight: 700; border-top: 2px solid var(--border-plain-grey, #3a3a3a); border-bottom: 0; }
+.cadre-hours .cadre-hours__zero { color: var(--text-mention-grey); }
+.cadre-hours .cadre-hours__empty { margin: 0.75rem 0 0; font-size: 0.875rem; color: var(--text-mention-grey); }
 /* Permanences : numéros de téléphone (page Réglages des activités). Les champs débordaient de leurs colonnes et se recouvraient. */
 #permCard { background: var(--background-raised-grey); border: 1px solid var(--border-default-grey); border-radius: 0.5rem; padding: 0.75rem 1.25rem; margin: 0 0 1rem; }
 #permCard[open] { padding-bottom: 1.25rem; }
@@ -3387,14 +3424,15 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
           <input class="fr-input" type="text" id="etuReportSubject" autocomplete="off">
         </div>
         <div class="fr-input-group fr-mt-2w">
-          <label class="fr-label" for="etuReportBody">Corps du message <span class="fr-hint-text">Proposé d’après les dossiers affichés ; modifiable avant l’envoi.</span></label>
-          <textarea class="fr-input" id="etuReportBody" rows="16"></textarea>
+          <label class="fr-label" for="etuReportBody">Message <span class="fr-hint-text">Très court, modifiable. Le détail est dans le PDF.</span></label>
+          <textarea class="fr-input" id="etuReportBody" rows="7"></textarea>
         </div>
         <div class="etu-rep__final" id="etuReportFinalNote" hidden></div>
         <div class="etu-rep__carry" id="etuReportCarry" hidden></div>
         <p class="fr-error-text" id="etuReportError" hidden></p>
         <div class="bulk-dialog__foot">
           <button class="fr-btn fr-btn--tertiary fr-btn--sm" id="etuReportRegen" type="button">Régénérer le texte</button>
+          <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-download-line fr-btn--icon-left" id="etuReportPdfBtn" type="button" title="Télécharger seulement le rapport en PDF">PDF seul</button>
           <button class="fr-btn fr-btn--tertiary fr-btn--sm" id="etuReportCancel" type="button">Annuler</button>
           <button class="fr-btn fr-btn--sm fr-icon-mail-line fr-btn--icon-left" id="etuReportSend" type="button">Ouvrir le message</button>
         </div>
@@ -3822,6 +3860,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
     <div id="weekGrid" class="week-timegrid"></div>
 
+    <details class="cadre-hours" open>
+      <summary>Permanences SOP et heures de cours par cadre <span class="cadre-hours__sub"></span></summary>
+      <div class="cadre-hours__body"></div>
+    </details>
+
   </div>
 
   <div id="panelAbsences" hidden>
@@ -3890,6 +3933,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     </div>
 
     <div id="reglagesStatusZone" aria-live="polite"></div>
+
+    <details class="cadre-hours" open>
+      <summary>Permanences SOP et heures de cours par cadre <span class="cadre-hours__sub"></span></summary>
+      <div class="cadre-hours__body"></div>
+    </details>
 
     <details class="cfg-help" id="permCard">
       <summary>Permanences : numéros de téléphone</summary>
@@ -5631,7 +5679,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.76.4</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.84.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -7565,21 +7613,23 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function fmtNomPrenom(v) {
     return String(v === null || v === undefined ? '' : v).replace(/\S+/g, function (t) { return /\p{Ll}/u.test(t) ? fmtPrenom(t) : t; });
   }
-  window.fmtPrenom = fmtPrenom; window.fmtNomPrenom = fmtNomPrenom;
+  // NOM : toujours en majuscules à l'affichage.
+  function fmtNom(v) { return String(v === null || v === undefined ? '' : v).trim().toLocaleUpperCase('fr'); }
+  window.fmtPrenom = fmtPrenom; window.fmtNomPrenom = fmtNomPrenom; window.fmtNom = fmtNom;
   function splitStagiaireName(full) {
     var tokens = String(full || '').trim().split(/\s+/).filter(Boolean);
     var isUpper = function (t) { return /\p{L}/u.test(t) && t === t.toUpperCase(); };
     var nom = tokens.filter(isUpper);
     var prenom = tokens.filter(function (t) { return !isUpper(t); });
     if (!nom.length && tokens.length) { nom = [tokens[0]]; prenom = tokens.slice(1); }
-    return { nom: nom.join(' '), prenom: fmtPrenom(prenom.join(' ')) };
+    return { nom: fmtNom(nom.join(' ')), prenom: fmtPrenom(prenom.join(' ')) };
   }
   // Nom / prénom d'un stagiaire : colonnes Nom et Prénom quand elles sont
   // réglées (page Stagiaires), sinon découpage de la colonne Stagiaire.
   function nameParts(row) {
     var nom = settings.col.nom ? textOf(row.nom) : '';
     var prenom = settings.col.prenom ? textOf(row.prenom) : '';
-    if (nom || prenom) return { nom: nom, prenom: fmtPrenom(prenom) };
+    if (nom || prenom) return { nom: fmtNom(nom), prenom: fmtPrenom(prenom) };
     return splitStagiaireName(textOfRef(row.stagiaire));
   }
   // Nom du stagiaire pour les courriels : "DUPONT Jean" -> "Jean DUPONT"
@@ -7962,7 +8012,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function stagiaireDisplayName(row) {
     var nom = settings.col.nom ? textOf(row.nom) : '';
     var prenom = settings.col.prenom ? textOf(row.prenom) : '';
-    return [nom, fmtPrenom(prenom)].filter(Boolean).join(' ') || fmtNomPrenom(textOfRef(row.stagiaire)) || '(Stagiaire non renseigné)';
+    return [fmtNom(nom), fmtPrenom(prenom)].filter(Boolean).join(' ') || fmtNomPrenom(textOfRef(row.stagiaire)) || '(Stagiaire non renseigné)';
   }
 
   // Avatar rond de la liste Stagiaires : la photo (colonne « Photo ») si elle est
@@ -9892,8 +9942,24 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       foot.innerHTML = '';
       var b = document.createElement('button');
       b.type = 'button'; b.className = 'cand-del-link'; b.textContent = 'Supprimer ' + noun;
-      b.addEventListener('click', confirmStep);
+      b.addEventListener('click', isEnc ? confirmStep : departStep);
       foot.appendChild(b);
+    }
+    // Stagiaire : avant de supprimer, on demande s'il ne s'agit pas plutôt d'un départ de la formation (la ligne et son historique sont alors conservés).
+    function departStep() {
+      foot.innerHTML = '';
+      var q = document.createElement('span');
+      q.textContent = 'S’agit-il plutôt d’un départ de la formation ?';
+      var dep1 = document.createElement('button');
+      dep1.type = 'button'; dep1.className = 'fr-btn fr-btn--sm'; dep1.textContent = 'Oui, gérer le départ';
+      dep1.addEventListener('click', function () { link(); openDepartDialog(row); });
+      var del1 = document.createElement('button');
+      del1.type = 'button'; del1.className = 'cand-del-link'; del1.textContent = 'Non, supprimer la fiche';
+      del1.addEventListener('click', confirmStep);
+      var no1 = document.createElement('button');
+      no1.type = 'button'; no1.className = 'cand-del-link'; no1.textContent = 'Annuler';
+      no1.addEventListener('click', link);
+      foot.appendChild(q); foot.appendChild(dep1); foot.appendChild(del1); foot.appendChild(no1);
     }
     function confirmStep() {
       foot.innerHTML = '';
@@ -10200,18 +10266,19 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   // Le texte est proposé d'après les dossiers affichés (filtres actifs compris) : synthèse, puis détail par stagiaire (pièces manquantes,
   // refusées ou à valider ; reste dû ; informations de « Blocages / Infos »). Les lignes de relance, celles concernant les invités ou la 2FA
   // sont exclues. En rapport final, ces informations sont aussi reportées dans « Infos » de la fiche de chaque stagiaire.
-  var etuRep = { kind: 'etape', rows: [], skip: {} }; // skip : lignes décochées (clé « id fiche | texte »)
+  var etuRep = { kind: 'etape', rows: [], skip: {}, recs: [] }; // skip : lignes décochées (clé « id fiche | texte »)
   var etuReportDialog = document.getElementById('etuReportDialog');
   function reportInfoLines(row) {
     return textOf(row.blocagesInfos).split(/\r?\n/).map(function (l) { return l.trim(); }).filter(function (l) {
-      return l && !/RELANCE|INVIT|2FA/.test(normalizeKey(l));
+      return l && !/RELANCE|INVIT|2FA|IDENTIFIANTS\s*GENDFORM/.test(normalizeKey(l)); // relances, invités, 2FA et envoi des identifiants GendForm : ignorés
     });
   }
-  function reportDocLines(row) {
+  function etuInfoKey(l) { return normalizeKey(String(l).replace(/\d+/g, '#')); } // même phrase, aux chiffres (dates, numéros) près
+  function reportDocLines(row) { // pièces refusées ou à valider (les pièces manquantes sont regroupées par pièce dans le rapport)
     var out = [];
     ATTACHMENT_ROLES.filter(function (r) { return !!settings.col[r]; }).forEach(function (role) {
       var st = docStatus(row, role);
-      if (st !== 'ok') out.push(DOC_TAG_LABELS[role] + ' : ' + DOC_STATUS_TEXT[st]);
+      if (st !== 'ok' && st !== 'missing') out.push(DOC_TAG_LABELS[role] + ' : ' + DOC_STATUS_TEXT[st]);
     });
     return out;
   }
@@ -10220,8 +10287,35 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var roles = ATTACHMENT_ROLES.filter(function (r) { return !!settings.col[r]; });
     var n = rows.length, complete = 0, rejected = 0, missing = 0, owedN = 0, owedTotal = 0;
     var blocks = [];
+    // Lignes de Blocages / Infos récurrentes (même phrase, aux chiffres près, chez au moins deux candidats) : détaillées par ligne ; les autres, par candidat.
+    var pats = {}, patList = [];
+    function who(row) { var q = nameParts(row); return [q.nom, q.prenom].filter(Boolean).join(' '); }
     rows.forEach(function (row) {
-      var st = docStatusesOf(row), owed = owedAmount(row), infos = reportInfoLines(row), docs = reportDocLines(row);
+      var seen = {};
+      reportInfoLines(row).forEach(function (l) {
+        var k = etuInfoKey(l); if (seen[k]) return; seen[k] = true;
+        var g = pats[k] || (pats[k] = { sample: l, raws: {}, items: [] });
+        if (!g.items.length) patList.push(g);
+        g.raws[l] = true; g.items.push({ row: row, line: l });
+      });
+    });
+    // Pièces manquantes : un regroupement par pièce, avec les stagiaires concernés.
+    var missByRole = {};
+    rows.forEach(function (row) { roles.forEach(function (role) { if (docStatus(row, role) === 'missing') (missByRole[role] = missByRole[role] || []).push(row); }); });
+    var missText = roles.filter(function (role) { return missByRole[role]; }).map(function (role) {
+      return '- ' + DOC_TAG_LABELS[role] + ' (' + missByRole[role].length + ') : ' + missByRole[role].slice().sort(function (a, b) { return nameCollator.compare(who(a), who(b)); }).map(who).join(', ');
+    });
+    var recList = patList.filter(function (g) { return g.items.length >= 2; }).sort(function (a, b) { return b.items.length - a.items.length || nameCollator.compare(a.sample, b.sample); });
+    var recurrent = {};
+    recList.forEach(function (g) { recurrent[etuInfoKey(g.sample)] = true; });
+    var recText = recList.map(function (g) {
+      var items = g.items.slice().sort(function (a, b) { return nameCollator.compare(who(a.row), who(b.row)); }), count = items.length + ' candidats';
+      if (Object.keys(g.raws).length <= 1) return '- ' + g.sample + ' : ' + items.map(function (it) { return who(it.row); }).join(', ') + ' (' + count + ')';
+      return '- ' + g.sample.replace(/\d+(?:[\/.\-:]\d+)*/g, '…') + ' (' + count + ')\n' + items.map(function (it) { return '    ' + who(it.row) + ' : ' + it.line; }).join('\n');
+    });
+    rows.forEach(function (row) {
+      var st = docStatusesOf(row), owed = owedAmount(row), docs = reportDocLines(row);
+      var infos = reportInfoLines(row).filter(function (l) { return !recurrent[etuInfoKey(l)]; });
       if (roles.length && st.every(function (x) { return x === 'ok'; })) complete++;
       if (st.indexOf('rejected') !== -1) rejected++;
       if (st.indexOf('missing') !== -1) missing++;
@@ -10240,13 +10334,103 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var syn = ['- Candidats : ' + n];
     if (roles.length) syn.push('- Dossiers complets : ' + complete + pct(complete), '- Pièces refusées : ' + rejected + ' dossier(s)', '- Pièces manquantes : ' + missing + ' dossier(s)');
     if (settings.col.du) syn.push('- Paiements : ' + (owedN ? owedN + ' stagiaire(s) restent redevables, pour un total de ' + fmtEuro(owedTotal) : 'aucun reste dû'));
-    var body = 'Bonjour,\n\n' +
-      (final ? 'Veuillez trouver ci-dessous le rapport final sur l’état des dossiers des stagiaires, arrêté au ' + today + '.' : 'Veuillez trouver ci-dessous le point d’étape sur l’état des dossiers des stagiaires, au ' + today + '.') + '\n\n' +
-      'SYNTHÈSE\n' + syn.join('\n') + '\n\n' +
-      (blocks.length ? 'DÉTAIL PAR STAGIAIRE (dossiers à suivre)\n' + blocks.map(function (b) { return b.text; }).join('\n') + '\n\n' : 'Aucun dossier ne présente de point à signaler.\n\n') +
-      'Je reste à votre disposition pour tout complément.\n\n' +
-      'Cordialement,';
-    return { subject: (final ? 'Rapport final' : 'Point d’étape') + ' — état des dossiers des stagiaires au ' + today, body: body };
+    // Message très court : l'essentiel en quelques lignes ; le détail est dans le PDF joint par l'utilisateur.
+    var kindLabel = final ? 'rapport final' : 'point d’étape';
+    var brief = ['Candidats : ' + n];
+    if (roles.length) brief.push(complete + ' dossier(s) complet(s)', missing + ' avec pièce manquante');
+    if (settings.col.du) brief.push(owedN ? owedN + ' stagiaire(s) redevable(s) pour ' + fmtEuro(owedTotal) : 'aucun reste dû');
+    var body = 'Bonjour,\n\nVeuillez trouver ci-joint le ' + kindLabel + ' sur l’état des dossiers des stagiaires au ' + today + '.\n\n' +
+      'En bref : ' + brief.join(' · ') + '.\n\nCordialement,';
+    return {
+      subject: (final ? 'Rapport final' : 'Point d’étape') + ' — état des dossiers des stagiaires au ' + today,
+      body: body,
+      pdf: { title: (final ? 'Rapport final' : 'Point d’étape') + ' : état des dossiers des stagiaires', today: today, n: n, syn: syn, missText: missText, recText: recText,
+        chart: roles.map(function (role) { // graphique « Suivi des pièces du dossier » de la page eTuteur : validé, à valider, refusé, manquant
+          var c = [0, 0, 0, 0], keys = ['ok', 'pending', 'rejected', 'missing'];
+          rows.forEach(function (r) { c[keys.indexOf(docStatus(r, role))]++; });
+          return { label: DOC_TAG_LABELS[role] || ROLE_LABELS[role], parts: c };
+        }),
+        blocks: blocks.map(function (b) { return b.text; }), detailTitle: 'DÉTAIL PAR STAGIAIRE (' + (recText.length || missText.length ? 'autres points à suivre' : 'dossiers à suivre') + ')',
+        empty: !missText.length && !recText.length && !blocks.length }
+    };
+  }
+  // Rapport détaillé en PDF (jsPDF), téléchargé à l'ouverture du message : synthèse, pièces manquantes, points récurrents, détail par stagiaire.
+  function etuReportPdf(d) {
+    if (!window.jspdf || !window.jspdf.jsPDF) throw new Error('La bibliothèque PDF n’est pas chargée (vérifiez la connexion).');
+    var doc = new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    var M = 18, W = 210 - 2 * M, PH = 297, LH = 4.7, y = M;
+    function ensure(h) { if (y + h > PH - M) { doc.addPage(); y = M; } }
+    function setBody(bold) { doc.setFont('helvetica', bold ? 'bold' : 'normal'); doc.setFontSize(9.5); doc.setTextColor(30, 30, 30); }
+    function heading(t) {
+      ensure(14); y += 3; doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5); doc.setTextColor(0, 0, 145); doc.text(t, M, y);
+      y += 1.8; doc.setDrawColor(0, 0, 145); doc.setLineWidth(0.3); doc.line(M, y, M + W, y); y += 5;
+    }
+    function plain(t, x, bold) {
+      setBody(bold);
+      doc.splitTextToSize(t, W - (x - M)).forEach(function (l) { ensure(LH); doc.text(l, x, y); y += LH; });
+    }
+    function labelled(label, rest, x) { // libellé en gras, puis le texte qui passe à la ligne sous le libellé
+      setBody(true);
+      var lw = doc.getTextWidth(label + ' ');
+      setBody(false);
+      var firstWrap = doc.splitTextToSize(rest, Math.max(20, W - (x - M) - lw)), first = firstWrap[0] || '';
+      ensure(LH);
+      setBody(true); doc.text(label, x, y);
+      setBody(false); doc.text(first, x + lw, y); y += LH;
+      var remaining = rest.substring(first.length).replace(/^\s+/, '');
+      if (remaining) plain(remaining, x + 4, false);
+    }
+    function emit(block) {
+      String(block).split('\n').forEach(function (line) {
+        var m;
+        if ((m = /^- (.+?) : (.*)$/.exec(line))) labelled('- ' + m[1] + ' :', m[2], M);
+        else if (/^- /.test(line)) plain(line, M, true);
+        else if ((m = /^\s+(.+?) : (.*)$/.exec(line))) labelled(m[1] + ' :', m[2], M + 6);
+        else plain(line.trim(), M + 6, false);
+      });
+      y += 0.8;
+    }
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.setTextColor(0, 0, 145);
+    doc.splitTextToSize(d.title, W).forEach(function (l) { doc.text(l, M, y); y += 6.5; });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(90, 90, 90);
+    doc.text('Au ' + d.today + ' · ' + d.n + ' dossier(s) pris en compte', M, y); y += 4;
+    heading('SYNTHÈSE'); d.syn.forEach(emit);
+    if (d.chart && d.chart.length) { // même graphique que la page eTuteur : barres empilées par pièce, dégradé de bleu France
+      heading('SUIVI DES PIÈCES DU DOSSIER');
+      var mix = function (pc) { return [Math.round(255 * (1 - pc)), Math.round(255 * (1 - pc)), Math.round(255 * (1 - pc) + 145 * pc)]; };
+      var cols = [mix(1), mix(0.64), mix(0.36), mix(0.18)], names = ['Validé', 'À valider', 'Refusé', 'Manquant'], bx = M + 38, bw = W - 38 - 12, bh = 6.5;
+      d.chart.forEach(function (row) {
+        ensure(bh + 4);
+        var total = row.parts.reduce(function (a, b) { return a + b; }, 0) || 1, x = bx;
+        setBody(true); doc.text(row.label, M, y + 4.4);
+        row.parts.forEach(function (v, i) {
+          if (!v) return;
+          var w = bw * v / total;
+          doc.setFillColor(cols[i][0], cols[i][1], cols[i][2]); doc.rect(x, y, w, bh, 'F');
+          if (w >= 5) { doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); if (i < 2) doc.setTextColor(255, 255, 255); else doc.setTextColor(0, 0, 145); doc.text(String(v), x + w / 2, y + 4.4, { align: 'center' }); }
+          x += w;
+        });
+        setBody(false); doc.text(String(total), M + W, y + 4.4, { align: 'right' });
+        y += bh + 3.2;
+      });
+      ensure(8); y += 1; var lx = M;
+      names.forEach(function (nm, i) {
+        doc.setFillColor(cols[i][0], cols[i][1], cols[i][2]); doc.rect(lx, y - 2.8, 3.4, 3.4, 'F');
+        setBody(false); doc.setFontSize(8.5); doc.text(nm, lx + 5, y); lx += 5 + doc.getTextWidth(nm) + 7;
+      });
+      y += 7;
+    }
+    if (d.missText.length) { heading('PIÈCES MANQUANTES'); d.missText.forEach(emit); }
+    if (d.recText.length) { heading('POINTS RÉCURRENTS (Blocages / Infos)'); d.recText.forEach(emit); }
+    if (d.blocks.length) { heading(d.detailTitle); d.blocks.forEach(emit); }
+    if (d.empty) { y += 2; plain('Aucun dossier ne présente de point à signaler.', M, false); }
+    var pages = doc.getNumberOfPages();
+    for (var i = 1; i <= pages; i++) {
+      doc.setPage(i); doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(120, 120, 120);
+      doc.text('Division réserves jeunesse — ' + d.title + ' — ' + d.today, M, 291);
+      doc.text('Page ' + i + ' / ' + pages, 210 - M, 291, { align: 'right' });
+    }
+    return { doc: doc, filename: (safeFileName(d.title + ' ' + d.today.replace(/\//g, '-')) || 'rapport') + '.pdf' };
   }
   // Informations à reporter dans la fiche (rapport final) : lignes de Blocages / Infos retenues, absentes de « Infos ».
   function etuReportCarry() {
@@ -10270,13 +10454,37 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     box.hidden = !carry.length;
     box.innerHTML = '';
     if (!carry.length) return;
-    var total = 0, kept = 0;
-    carry.forEach(function (c) { c.add.forEach(function (l) { total++; if (!etuRep.skip[carryKey(c.row, l)]) kept++; }); });
+    var total = 0, kept = 0, pats = {}, patList = [];
+    carry.forEach(function (c) {
+      c.add.forEach(function (l) {
+        total++; if (!etuRep.skip[carryKey(c.row, l)]) kept++;
+        var k = etuInfoKey(l);
+        var g = pats[k] || (pats[k] = { sample: l, keys: [], rows: {}, raws: {} });
+        g.raws[l] = true;
+        if (g.keys.length === 0) patList.push(g);
+        g.keys.push(carryKey(c.row, l)); g.rows[c.row.id] = true;
+      });
+    });
+    etuRep.recs = patList.filter(function (g) { return Object.keys(g.rows).length >= 2; }); // phrases présentes dans au moins deux fiches
     var head = document.createElement('div');
     head.className = 'etu-rep__carry-head';
     head.innerHTML = '<strong>Lignes à reporter dans « Infos » des fiches : ' + kept + ' sur ' + total + ' cochée(s)</strong>' +
       '<span><button type="button" class="fr-btn fr-btn--tertiary fr-btn--sm" data-all="1">Tout cocher</button> <button type="button" class="fr-btn fr-btn--tertiary fr-btn--sm" data-all="0">Tout décocher</button></span>';
     box.appendChild(head);
+    if (etuRep.recs.length) {
+      var rb = document.createElement('div');
+      rb.className = 'etu-rep__rec';
+      etuRep.recs.forEach(function (g) { g.shown = Object.keys(g.raws).length > 1 ? g.sample.replace(/\d+(?:[\/.\-:]\d+)*/g, '…') : g.sample; }); // variantes (dates, numéros) : « Attestation reçue le … »
+      rb.innerHTML = '<p class="etu-rep__carry-name">Phrases récurrentes <span class="fr-hint-text">décochez une phrase pour l’ignorer dans toutes les fiches</span></p>' + etuRep.recs.map(function (g, i) {
+        return '<div class="fr-checkbox-group fr-checkbox-group--sm"><input type="checkbox" id="etuRec' + i + '" data-rec="' + i + '"><label class="fr-label" for="etuRec' + i + '">' + escapeHtml(g.shown) +
+          ' <span class="fr-hint-text">' + Object.keys(g.rows).length + ' fiches</span></label></div>';
+      }).join('');
+      Array.prototype.forEach.call(rb.querySelectorAll('input'), function (inp, i) {
+        var on = etuRep.recs[i].keys.filter(function (k) { return !etuRep.skip[k]; }).length, all = etuRep.recs[i].keys.length;
+        inp.checked = on === all; inp.indeterminate = on > 0 && on < all;
+      });
+      box.appendChild(rb);
+    }
     var n = 0;
     carry.forEach(function (c) {
       var g = document.createElement('div'), p = nameParts(c.row);
@@ -10289,6 +10497,12 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     });
   }
   document.getElementById('etuReportCarry').addEventListener('change', function (e) {
+    var r = e.target.getAttribute && e.target.getAttribute('data-rec');
+    if (r !== null && r !== undefined && etuRep.recs[Number(r)]) { // phrase récurrente : toutes ses occurrences d'un coup
+      etuRep.recs[Number(r)].keys.forEach(function (key) { if (e.target.checked) delete etuRep.skip[key]; else etuRep.skip[key] = true; });
+      etuReportRenderCarry();
+      return;
+    }
     var k = e.target.getAttribute && e.target.getAttribute('data-key'); if (!k) return;
     if (e.target.checked) delete etuRep.skip[k]; else etuRep.skip[k] = true;
     etuReportRenderCarry();
@@ -10314,7 +10528,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
           : 'Rapport final : aucune information à reporter dans les fiches (rien de nouveau dans « Blocages / Infos »).';
     }
     etuReportRenderCarry();
-    document.getElementById('etuReportInfo').textContent = etuRep.rows.length + ' dossier(s) pris en compte (ceux de l’affichage actuel, filtres compris).';
+    document.getElementById('etuReportInfo').textContent = etuRep.rows.length + ' dossier(s) pris en compte (ceux de l’affichage actuel, filtres compris). Le rapport détaillé se télécharge en PDF à l’ouverture du message : glissez-le en pièce jointe.';
     Array.prototype.forEach.call(document.querySelectorAll('.etu-rep__btn'), function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-kind') === etuRep.kind ? 'true' : 'false'); });
   }
   function closeEtuReport() { etuReportDialog.hidden = true; }
@@ -10335,6 +10549,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   });
   Array.prototype.forEach.call(document.querySelectorAll('.etu-rep__btn'), function (b) { b.addEventListener('click', function () { etuRep.kind = b.getAttribute('data-kind'); etuReportFill(); }); });
   document.getElementById('etuReportRegen').addEventListener('click', etuReportFill);
+  document.getElementById('etuReportPdfBtn').addEventListener('click', function () {
+    var err = document.getElementById('etuReportError');
+    try { var r = etuReportPdf(buildEtuReport(etuRep.kind).pdf); saveBlob(r.doc.output('blob'), r.filename); err.hidden = true; }
+    catch (e) { err.textContent = 'PDF impossible : ' + friendlyErrorMessage(e); err.hidden = false; }
+  });
   document.getElementById('etuReportCancel').addEventListener('click', closeEtuReport);
   document.getElementById('etuReportClose').addEventListener('click', closeEtuReport);
   var etuRepDown = false;
@@ -10357,11 +10576,14 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (!body.trim()) { fail('Le corps du message est vide.'); return; }
     if (to && !to.split(/[,;]\s*/).every(function (a) { return /^[^\s@,;]+@[^\s@,;]+$/.test(a); })) { fail('Une adresse de destinataire n’est pas valide.'); return; }
     var final = etuRep.kind === 'final', carry = final ? etuReportCarryChosen() : [];
-    var msg = 'Préparer le message' + (to ? ' pour ' + to : '') + (carry.length ? ', puis reporter ' + carry.reduce(function (n, c) { return n + c.add.length; }, 0) + ' ligne(s) dans « Infos » de ' + carry.length + ' fiche(s)' : '') + ' ?';
+    var msg = 'Télécharger le rapport en PDF et préparer le message' + (to ? ' pour ' + to : '') + (carry.length ? ', puis reporter ' + carry.reduce(function (n, c) { return n + c.add.length; }, 0) + ' ligne(s) dans « Infos » de ' + carry.length + ' fiche(s)' : '') + ' ?';
     var ask = window.fsjConfirm ? window.fsjConfirm(msg, 'Préparer le message') : Promise.resolve(window.confirm(msg)); // confirm() natif ignoré dans l'iframe Grist
     ask.then(function (ok) {
       if (!ok) return;
       try { window.localStorage.setItem('etuReportTo', to); } catch (e) { /* stockage indisponible */ }
+      var pdfInfo;
+      try { pdfInfo = etuReportPdf(buildEtuReport(etuRep.kind).pdf); } catch (e) { fail('PDF impossible : ' + friendlyErrorMessage(e)); return; }
+      saveBlob(pdfInfo.doc.output('blob'), pdfInfo.filename); // le PDF se télécharge à l'ouverture du message : à glisser en pièce jointe
       var url = 'mailto:' + to + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body.replace(/\r?\n/g, '\r\n'));
       var a = document.createElement('a'), usedEml = false;
       if (url.length <= 1900) a.href = url;
@@ -10406,7 +10628,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   };
   var CER_LABELS = { stagiaire: 'Stagiaire', max: 'Max. invitation', grade: 'Grade', nom: 'Nom', prenom: 'Prénom', email: 'E-mail', ddn: 'Date de naissance', lieu: 'Ville de naissance', dpt: 'Dpt naissance', tenue: 'En tenue', vip: 'VIP', infos: 'Infos' };
   var cer = { loaded: false, error: '', tableId: '', cols: {}, rows: [] };
-  var cerSearch = '', cerFlags = { vip: false, tenue: false, over: false, noEmail: false, noDdn: false };
+  var cerSearch = '', cerFlags = { vip: false, tenue: false, over: false, hasGrade: false, noEmail: false, noDdn: false };
   var panelCeremonie = document.getElementById('panelCeremonie'), cerZone = document.getElementById('cerZone');
   function cerKey(v) { return String(v === null || v === undefined ? '' : v).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]/g, '').toUpperCase(); }
   function loadCeremonie() {
@@ -10442,6 +10664,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var c = cer.cols[role];
     return c ? formatVariableValue(row.v[role], c.type).trim() : '';
   }
+  // Invités : NOM en majuscules ; prénoms avec une majuscule initiale pour chacun (y compris composés), le reste en minuscules.
+  function cerNomFmt(v) { return fmtNom(v); }
+  function cerPrenomFmt(v) { return fmtPrenom(String(v || '').trim()); }
   function cerBool(row, role) {
     var v = row.v[role];
     return v === true || v === 1 || /^(OUI|O|TRUE|VRAI|1|X|YES)$/.test(normalizeKey(textOf(v)));
@@ -10482,6 +10707,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (cerFlags.vip && !cerBool(row, 'vip')) return false;
     if (cerFlags.tenue && !cerBool(row, 'tenue')) return false;
     if (cerFlags.over && !(quotas[cerStagiaire(row).key] || {}).over) return false;
+    if (cerFlags.hasGrade && !cerText(row, 'grade')) return false;
     if (cerFlags.noEmail && cerText(row, 'email')) return false;
     if (cerFlags.noDdn && cerText(row, 'ddn')) return false;
     return true;
@@ -10515,7 +10741,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       gh.appendChild(th); tb.appendChild(gh);
       g.rows.forEach(function (row) {
         var tr = document.createElement('tr');
-        var nom = cerText(row, 'nom'), prenom = fmtPrenom(cerText(row, 'prenom')), grade = cerText(row, 'grade');
+        var nom = cerNomFmt(cerText(row, 'nom')), prenom = cerPrenomFmt(cerText(row, 'prenom')), grade = cerText(row, 'grade');
         var tags = (cerBool(row, 'vip') ? '<span class="fr-tag fr-tag--sm cer-tag cer-tag--vip">VIP</span>' : '') + (cerBool(row, 'tenue') ? '<span class="fr-tag fr-tag--sm cer-tag cer-tag--tenue">En tenue</span>' : '');
         var birth = [cerText(row, 'ddn'), cerText(row, 'lieu') ? cerText(row, 'lieu') + (cerText(row, 'dpt') ? ' (' + cerText(row, 'dpt') + ')' : '') : (cerText(row, 'dpt') ? '(' + cerText(row, 'dpt') + ')' : '')].filter(Boolean).join(' · ');
         tr.innerHTML = '<td class="cer-who">' + (grade ? escapeHtml(grade) + ' ' : '') + '<strong>' + escapeHtml(nom) + '</strong> ' + escapeHtml(prenom) + (tags ? '<span class="cer-tags">' + tags + '</span>' : '') + '</td>' +
@@ -10549,6 +10775,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     sel.value = cur.id ? String(cur.id) : '';
     var g = function (id) { return document.getElementById(id); };
     ['Grade:grade', 'Nom:nom', 'Prenom:prenom', 'Email:email', 'Lieu:lieu', 'Dpt:dpt', 'Infos:infos'].forEach(function (p) { var x = p.split(':'); g('cer' + x[0]).value = row ? cerText(row, x[1]) : ''; });
+    g('cerNom').value = cerNomFmt(g('cerNom').value); g('cerPrenom').value = cerPrenomFmt(g('cerPrenom').value);
     var d = row && cer.cols.ddn ? dayOfValue(row.v.ddn, cer.cols.ddn.fullType) : null;
     g('cerDdn').value = d ? d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2) : '';
     g('cerTenue').checked = row ? cerBool(row, 'tenue') : false;
@@ -10563,6 +10790,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   }
   function closeCerDialog() { cerDialog.hidden = true; }
   document.getElementById('cerStg').addEventListener('change', cerQuotaHint);
+  document.getElementById('cerNom').addEventListener('blur', function () { this.value = cerNomFmt(this.value); });
+  document.getElementById('cerPrenom').addEventListener('blur', function () { this.value = cerPrenomFmt(this.value); });
   document.getElementById('cerDlgClose').addEventListener('click', closeCerDialog);
   document.getElementById('cerDlgCancel').addEventListener('click', closeCerDialog);
   var cerDown = false;
@@ -10577,7 +10806,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (cer.cols.prenom && !g('cerPrenom').value.trim()) { cerShowError('Le prénom de l’invité est obligatoire.'); g('cerPrenom').focus(); return; }
     var sc = cer.cols.stagiaire;
     if (sc) put('stagiaire', /^Ref/.test(sc.fullType || '') ? (stgVal ? Number(stgVal) : 0) : (stgVal ? g('cerStg').selectedOptions[0].textContent : '')); // facultatif
-    put('grade', g('cerGrade').value.trim()); put('nom', g('cerNom').value.trim()); put('prenom', g('cerPrenom').value.trim()); put('email', g('cerEmail').value.trim());
+    put('grade', g('cerGrade').value.trim()); put('nom', cerNomFmt(g('cerNom').value)); put('prenom', cerPrenomFmt(g('cerPrenom').value)); put('email', g('cerEmail').value.trim());
     put('lieu', g('cerLieu').value.trim()); put('dpt', g('cerDpt').value.trim()); put('infos', g('cerInfos').value.trim());
     if (cer.cols.ddn) {
       var dv = g('cerDdn').value, m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dv);
@@ -10590,7 +10819,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   });
   document.getElementById('cerDlgDelete').addEventListener('click', function () {
     if (!cerEditing) return;
-    var row = cerEditing, msg = 'Supprimer définitivement l’invité « ' + [cerText(row, 'nom'), cerText(row, 'prenom')].filter(Boolean).join(' ') + ' » ?';
+    var row = cerEditing, msg = 'Supprimer définitivement l’invité « ' + [cerNomFmt(cerText(row, 'nom')), cerPrenomFmt(cerText(row, 'prenom'))].filter(Boolean).join(' ') + ' » ?';
     var ask = window.fsjConfirm ? window.fsjConfirm(msg, 'Supprimer') : Promise.resolve(window.confirm(msg));
     ask.then(function (ok) {
       if (!ok) return;
@@ -10604,7 +10833,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   document.getElementById('cerBackBtn').addEventListener('click', function () { showPage('stagiaires'); });
   document.getElementById('navCeremonie').addEventListener('click', function () { showPage('ceremonie'); renderCeremonie(); loadCeremonie(); });
   document.getElementById('cerSearchInput').addEventListener('input', function () { cerSearch = this.value; renderCeremonie(); });
-  document.getElementById('cerResetBtn').addEventListener('click', function () { cerSearch = ''; document.getElementById('cerSearchInput').value = ''; cerFlags = { vip: false, tenue: false, over: false, noEmail: false, noDdn: false }; renderCeremonie(); });
+  document.getElementById('cerResetBtn').addEventListener('click', function () { cerSearch = ''; document.getElementById('cerSearchInput').value = ''; cerFlags = { vip: false, tenue: false, over: false, hasGrade: false, noEmail: false, noDdn: false }; renderCeremonie(); });
   attachSearchPanel(document.getElementById('cerSearchInput'), function () {
     var out = [], quotas = cerQuotas();
     function item(sec, key, label, test) {
@@ -10617,6 +10846,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (cer.cols.vip) item('Invités', 'vip', 'VIP', function (r) { return cerBool(r, 'vip'); });
     if (cer.cols.tenue) item('Invités', 'tenue', 'En tenue', function (r) { return cerBool(r, 'tenue'); });
     item('Quota', 'over', 'Maximum d’invitations dépassé', function (r) { return (quotas[cerStagiaire(r).key] || {}).over; });
+    if (cer.cols.grade) item('Données à contrôler', 'hasGrade', 'Grade renseigné', function (r) { return !!cerText(r, 'grade'); });
     if (cer.cols.email) item('Données à contrôler', 'noEmail', 'Sans e-mail', function (r) { return !cerText(r, 'email'); });
     if (cer.cols.ddn) item('Données à contrôler', 'noDdn', 'Sans date de naissance', function (r) { return !cerText(r, 'ddn'); });
     return out;
@@ -10627,7 +10857,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var lines = [roles.map(function (r) { return csvCell(CER_LABELS[r]); }).join(';')];
     cerGroups(rows).forEach(function (g) {
       g.rows.forEach(function (row) {
-        lines.push(roles.map(function (r) { return csvCell(r === 'stagiaire' ? g.label : (r === 'tenue' || r === 'vip') ? (cerBool(row, r) ? 'Oui' : 'Non') : cerText(row, r)); }).join(';'));
+        lines.push(roles.map(function (r) { return csvCell(r === 'stagiaire' ? g.label : (r === 'tenue' || r === 'vip') ? (cerBool(row, r) ? 'Oui' : 'Non') : r === 'nom' ? cerNomFmt(cerText(row, 'nom')) : r === 'prenom' ? cerPrenomFmt(cerText(row, 'prenom')) : cerText(row, r)); }).join(';'));
       });
     });
     saveBlob(new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' }), 'invites-ceremonie.csv');
@@ -10912,7 +11142,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       return true;
     });
   }
-  function encNameParts(row) { return { nom: encText(row, 'nom'), prenom: fmtPrenom(encText(row, 'prenom')) }; }
+  function encNameParts(row) { return { nom: fmtNom(encText(row, 'nom')), prenom: fmtPrenom(encText(row, 'prenom')) }; }
   function encDisplayName(row) {
     var p = encNameParts(row);
     return [p.nom, p.prenom].filter(Boolean).join(' ') || '(Nom non renseigné)';
@@ -13285,8 +13515,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       ['Comment traiter une demande de réservation ?', 'Sur la page de réservations, chaque demande est une ligne (ou une carte) avec ses boutons de décision : En attente, Validée, Refusée, Perçu, Réintégré. Pour valider une demande de matériel, il faut d’abord choisir le matériel accordé (une fenêtre le propose). « Nouvelle demande » crée une demande, et le crayon permet de la modifier ou de la supprimer. Un badge « Conflit » signale une demande en conflit si la colonne est réglée.'],
       ['Comment filtrer les demandes ?', 'Cliquez dans la barre de recherche : un panneau propose les filtres en un clic (<strong>Par état</strong>, <strong>Par demandeur</strong>, plusieurs valeurs possibles) et le lien « Réinitialiser les filtres ». Vous pouvez aussi taper un texte pour chercher dans toutes les colonnes. L’icône « Actualiser » recharge les demandes depuis Grist.'],
       ['Que signifient les cadres grisés ou marqués « Absent » ?', 'Comme pour les stagiaires partis, les cadres dont le <strong>détachement n’a pas commencé ou est terminé</strong> (colonnes « Début » et « Fin détachement ») sont masqués de la liste ; le compteur l’indique. Pour les voir, cliquez dans la barre de recherche et choisissez <strong>Afficher les cadres hors détachement</strong> : leur ligne est grisée et la raison s’affiche, au survol, à droite de la ligne (idem pour les stagiaires partis et les cadres absents). Dans le trombinoscope, les photos des cadres ne sont jamais modifiées (estompage et croix sont réservés aux stagiaires partis). Un cadre <strong>absent aujourd’hui</strong> (repos ou autorisation d’absence validés dans « Gestion des absences ») porte un fond jaune dans la liste (raison au survol), et un bandeau dans sa fiche ; sa photo n’est pas modifiée.'],
-      ['Comment supprimer un stagiaire ou un cadre ?', 'En bas à gauche de sa fiche, le lien discret <strong>Supprimer ce stagiaire</strong> (ou <strong>ce cadre</strong>) demande une confirmation puis supprime définitivement sa ligne de la table Grist. Seule cette ligne est supprimée : ses éventuelles lignes liées (documents eTuteur, départs, appréciations) restent dans leurs tables.'],
-      ['Comment changer un occupant de chambre ?', 'Sur la page <strong>Hébergement</strong>, glissez le badge d’un occupant et déposez-le sur la carte de la nouvelle chambre. Sa fiche (Bât. et Ch. du stagiaire ou du cadre) est mise à jour ; si la colonne Occupants est une liste de choix saisie dans Grist, le nom est aussi retiré de l’ancienne chambre et ajouté à la nouvelle. Si la colonne est calculée et qu’aucune fiche ne correspond au nom, rien n’est modifié et un message l’indique. Le glisser-déposer demande une souris (il ne fonctionne pas au doigt).'],
+      ['Comment supprimer un stagiaire ou un cadre ?', 'En bas à gauche de sa fiche, le lien discret <strong>Supprimer ce stagiaire</strong> (ou <strong>ce cadre</strong>) demande une confirmation (pour un stagiaire, il demande d’abord s’il ne s’agit pas plutôt d’un <strong>départ de la formation</strong> et ouvre alors la fenêtre « Gérer le départ ») puis supprime définitivement sa ligne de la table Grist. Seule cette ligne est supprimée : ses éventuelles lignes liées (documents eTuteur, départs, appréciations) restent dans leurs tables.'],
+      ['Comment changer un occupant de chambre ?', 'Sur la page <strong>Hébergement</strong>, glissez le badge d’un occupant et déposez-le sur la carte de la nouvelle chambre. Pour choisir ou modifier tous les occupants d’une chambre, <strong>double-cliquez sur sa carte</strong> : une fenêtre propose tous les cadres et tous les stagiaires sous forme de tags, avec des filtres par sexe et par peloton (stagiaires). Sa fiche (Bât. et Ch. du stagiaire ou du cadre) est mise à jour ; si la colonne Occupants est une liste de choix saisie dans Grist, le nom est aussi retiré de l’ancienne chambre et ajouté à la nouvelle. Si la colonne est calculée et qu’aucune fiche ne correspond au nom, rien n’est modifié et un message l’indique. Le glisser-déposer demande une souris (il ne fonctionne pas au doigt).'],
       ['Comment gérer le parc de véhicules, le matériel et les infrastructures ?', 'Le bouton en forme de liste de la page concernée ouvre le panneau « Gérer… » : liste du parc de véhicules ou de matériel (bouton <strong>Ajouter un véhicule / un matériel</strong>, crayon pour modifier, corbeille pour supprimer, bascule disponible / indisponible), ou des chambres d’hébergement (ajout unitaire ou en lot, modification, suppression). Sur la page Hébergement, la barre de recherche propose aussi l’affichage rapide des <strong>cadres</strong> ou des <strong>stagiaires</strong>.'],
       ['Comment configurer les tables des ressources ?', 'Dans la Configuration du widget (cinq clics rapides sur l’en-tête), rubriques « Véhicules », « Matériels », « Parc véhicules », « Parc matériel » et « Hébergement » : choisissez la table Grist et le rôle de chaque colonne, et adaptez les libellés de décision à ceux de votre table. Un badge indique si chaque rubrique est configurée. Ces réglages s’enregistrent avec le reste de la Configuration.']
     ] },
@@ -13309,7 +13539,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     ] },
     { title: 'Documents', items: [
       ['Où trouver le trombinoscope et que contient-il ?', 'Menu <strong>Gestion des personnels</strong>, ligne « Trombinoscope » : une fenêtre propose les groupes à produire, le téléchargement en PDF ou l’impression. Une page par groupe : les cadres du groupe, puis les stagiaires du peloton correspondant. Une page <strong>Acculturation</strong> regroupe les cadres du groupe « Acculturation » et les stagiaires en acculturation. Les stagiaires partis sont placés à la fin de leur liste, photo estompée et barrée d’une croix rouge.'],
-      ['Pourquoi les photos sont-elles remplacées par des initiales ?', 'Le navigateur peut bloquer la lecture des photos (règles d’accès de Grist, CORS). Le bouton « Tester l’accès aux photos » de la Configuration (Sources de données) indique la cause. Les initiales remplacent alors uniquement les photos illisibles.'],
+      ['Pourquoi les photos sont-elles remplacées par des initiales ?', 'Le navigateur peut bloquer la lecture des photos (règles d’accès de Grist, CORS). Le bouton « Tester l’accès aux photos » de la Configuration (Sources de données) indique la cause. Les initiales remplacent alors uniquement les photos illisibles. Si les photos s’affichent à l’écran mais ne peuvent pas être lues (CORS), choisissez <strong>Imprimer</strong> puis « Enregistrer au format PDF » dans la fenêtre d’impression : le document imprimé inclut les photos ; le widget le propose après un PDF sans photos.'],
       ['À quoi sert l’état rationnaire ?', 'Il liste, par affectation, les repas des cadres et stagiaires. À l’édition, le widget propose de confirmer les repas des cadres en repos, la veille et le lendemain du repos, d’après la table « Gestion des absences ».']
     ] },
     { title: 'En cas de problème', items: [
@@ -13887,6 +14117,22 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     return { found: true, known: true, raw: raw, vl: vl, pl: pl };
   };
   window.CAND_KIND = function (name) { var f = candFindByName(name); return f.length === 1 ? f[0].kind : ''; };
+  // Toutes les personnes (stagiaires non partis, puis cadres) avec leur sexe, peloton et affectation actuelle : modale d'édition des occupants (page Hébergement).
+  window.CAND_PEOPLE = function () {
+    var out = [];
+    candidates.rows.forEach(function (r) {
+      if (stgHasLeft(r)) return;
+      var name = stagiaireDisplayName(r);
+      if (!name || name.charAt(0) === '(') return;
+      out.push({ kind: 'stagiaire', name: name, sex: statsSex(r), pon: settings.col.pon ? textOf(r.pon) : '', bat: settings.col.batiment ? textOf(r.batiment) : '', ch: settings.col.chambre ? textOf(r.chambre) : '' });
+    });
+    if (enc.loaded && enc.cols.nom && enc.cols.prenom) enc.rows.forEach(function (r) {
+      var p = encNameParts(r), name = [fmtNom(p.nom), fmtPrenom(p.prenom)].filter(Boolean).join(' ');
+      if (!name) return;
+      out.push({ kind: 'cadre', name: name, sex: statsEncSex(r), pon: '', bat: enc.cols.batiment ? encText(r, 'batiment') : '', ch: enc.cols.chambre ? encText(r, 'chambre') : '' });
+    });
+    return out;
+  };
   // Affectation de la fiche d'un occupant déplacé dans la page Hébergement : renseigne les colonnes Bât. et Ch. de son stagiaire (ou cadre).
   // Renvoie { found, kind, written } (found = false si aucune fiche, ou plusieurs, ne correspondent).
   window.CAND_HOUSING = function (name, bat, ch) {
@@ -14158,7 +14404,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       var isDeparture = effectiveEnd && sameDayUTC(effectiveEnd, date);
       var affectation = textOf(row.affectation);
       rows.push({
-        nom: textOf(row.nom), prenom: textOf(row.prenom), affectation: affectation, groupe: faGroupLabel(affectation),
+        nom: fmtNom(textOf(row.nom)), prenom: fmtPrenom(textOf(row.prenom)), affectation: affectation, groupe: faGroupLabel(affectation),
         type: 'Stagiaire', pdej: !isArrival, dej: true, diner: !isDeparture, regime: textOf(row.regimeAlimentaire)
       });
     });
@@ -14186,7 +14432,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     (extraRows || []).forEach(function (r) {
       var affectation = textOf(r.affectation);
       rows.push({
-        nom: textOf(r.nom), prenom: textOf(r.prenom), affectation: affectation, groupe: faGroupLabel(affectation),
+        nom: fmtNom(textOf(r.nom)), prenom: fmtPrenom(textOf(r.prenom)), affectation: affectation, groupe: faGroupLabel(affectation),
         type: r.type === 'Cadre' ? 'Cadre' : 'Stagiaire', pdej: !!r.pdej, dej: !!r.dej, diner: !!r.diner, regime: textOf(r.regime)
       });
     });
@@ -14732,6 +14978,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     document.getElementById('bulkGenModeGroup').hidden = !download;
     document.getElementById('bulkGenModeStore').closest('.fr-fieldset__element').hidden = trombi; // pas d'enregistrement dans les pièces
     if (trombi && download && genMode() === 'store') genDialog.querySelector('input[name="bulkGenMode"][value="single"]').checked = true;
+    // Libellés du format : un exemplaire par groupe pour le trombinoscope, par stagiaire pour les autres documents.
+    document.querySelector('label[for="bulkGenModeSingle"]').textContent = trombi ? 'Un seul PDF avec toutes les pages (un exemplaire par groupe)' : 'Un seul PDF avec toutes les pages (un exemplaire par stagiaire)';
+    document.querySelector('label[for="bulkGenModeMulti"]').textContent = trombi ? 'Un PDF par groupe (regroupés dans une archive .zip)' : 'Un PDF par stagiaire (regroupés dans une archive .zip)';
     var mode = download ? genMode() : 'print';
     var nameEl = document.getElementById('bulkGenName');
     var docName = genDocName(genState.row);
@@ -14895,9 +15144,14 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       // Trombinoscope : signale les photos qui n'ont pas pu être intégrées (initiales à leur place) et pourquoi.
       if (photoStats && photoStats.withPhoto && (photoStats.failed || (photoStats.urlOnly && mode !== 'print'))) {
         var n = photoStats.failed + (mode === 'print' ? 0 : photoStats.urlOnly);
-        window.alert(n + ' photo(s) sur ' + photoStats.withPhoto + ' n’ont pas pu être intégrées au ' + (mode === 'print' ? 'document' : 'PDF') + ' ; les initiales les remplacent.\n\nCause : ' +
-          Object.keys(photoStats.reasons).map(function (r) { return r + ' (' + photoStats.reasons[r] + ')'; }).join(' ; ') +
-          '\n\nUtilisez « Tester l’accès aux photos » dans la Configuration (Sources de données) pour diagnostiquer les règles d’accès.');
+        var why = Object.keys(photoStats.reasons).map(function (r) { return r + ' (' + photoStats.reasons[r] + ')'; }).join(' ; ');
+        var msg = n + ' photo(s) sur ' + photoStats.withPhoto + ' n’ont pas pu être intégrées au ' + (mode === 'print' ? 'document' : 'PDF') + ' ; les initiales les remplacent.\n\nCause : ' + why +
+          '\n\nUtilisez « Tester l’accès aux photos » dans la Configuration (Sources de données) pour diagnostiquer les règles d’accès.';
+        if (mode !== 'print' && !photoStats.failed && photoStats.urlOnly) {
+          // Les photos s'affichent mais ne peuvent pas être lues (CORS) : l'impression, elle, les affiche ; « Enregistrer au format PDF » donne alors un PDF avec photos.
+          var ask = window.fsjConfirm ? window.fsjConfirm(msg + '\n\nLes photos s’affichent pourtant à l’écran : l’impression peut les inclure. Ouvrir la fenêtre d’impression pour enregistrer le trombinoscope en PDF avec les photos ?', 'Imprimer / enregistrer en PDF') : Promise.resolve(false);
+          ask.then(function (yes) { if (yes) openGenDialog(TROMBI_ROW, 'print'); });
+        } else window.alert(msg);
       }
     }, function (e) {
       genBusy = false;
@@ -20199,12 +20453,188 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       });
     });
 
+    zone.querySelectorAll('.uv-card').forEach(function (card) {
+      card.title = 'Double-clic : choisir ou modifier les occupants de cette chambre';
+      card.addEventListener('dblclick', function (e) {
+        if (e.target.closest('button')) return;
+        if (window.getSelection) window.getSelection().removeAllRanges();
+        openOccEdit(card.getAttribute('data-uv'));
+      });
+    });
+
     zone.querySelectorAll('button[data-action="download-single"]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var uv = btn.closest('.uv-card').getAttribute('data-uv');
         var g = groups.find(function (grp) { return grp.uv === uv; });
         if (g) generateSingleUvPdf(g);
       });
+    });
+  }
+
+  // ---- Édition des occupants d'une chambre (double-clic sur sa carte) --------------------------------
+  // Tous les stagiaires (hors partis) et tous les cadres sous forme de tags à cocher, avec filtres par sexe, par peloton (stagiaires) et recherche.
+  // À l'enregistrement : la colonne Occupants de l'UV (si c'est une liste de choix saisie) et les colonnes Bât. / Ch. de chaque fiche sont mises à jour,
+  // comme pour un glisser-déposer ; les personnes ajoutées sont retirées de leur ancienne chambre.
+  var occEdit = null;
+  function occTokens(v) { return String(v || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, ' ').trim().toUpperCase().split(' ').filter(Boolean); }
+  function occMatchesPerson(occName, p) {
+    var o = occTokens(occName), t = occTokens(p.name);
+    return t.length >= 2 && o.length <= t.length + 2 && t.every(function (x) { return o.indexOf(x) !== -1; });
+  }
+  function occEditEl(id) { return document.getElementById(id); }
+  function occEditEnsureDialog() {
+    if (occEditEl('occEditDialog')) return;
+    document.body.insertAdjacentHTML('beforeend',
+      '<div class="bulk-dialog" id="occEditDialog" role="dialog" aria-modal="true" aria-labelledby="occEditTitle" hidden>' +
+        '<div class="bulk-dialog__box occ-edit">' +
+          '<div class="bulk-dialog__head"><h3 class="fr-h6" id="occEditTitle">Occupants</h3>' +
+            '<button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line" id="occEditClose" type="button" title="Fermer">Fermer</button></div>' +
+          '<p class="occ-edit__info" id="occEditInfo"></p>' +
+          '<div class="occ-edit__filters">' +
+            '<div class="fr-input-group"><label class="fr-label" for="occEditSearch">Rechercher</label><input class="fr-input" type="search" id="occEditSearch" placeholder="Nom ou prénom…" autocomplete="off"></div>' +
+            '<div><span class="fr-label" id="occEditSexLbl">Sexe</span><div class="occ-edit__seg" role="group" aria-labelledby="occEditSexLbl">' +
+              '<button type="button" class="fr-btn fr-btn--secondary fr-btn--sm" data-sex="">Tous</button>' +
+              '<button type="button" class="fr-btn fr-btn--secondary fr-btn--sm" data-sex="F">Femmes</button>' +
+              '<button type="button" class="fr-btn fr-btn--secondary fr-btn--sm" data-sex="H">Hommes</button></div></div>' +
+            '<div class="fr-select-group"><label class="fr-label" for="occEditPon">Peloton (stagiaires)</label><select class="fr-select" id="occEditPon"></select></div>' +
+          '</div>' +
+          '<p class="occ-edit__hint">Cliquez sur un tag pour l’ajouter ou le retirer. Les tags en pointillés sont déjà affectés à une autre chambre : les choisir les y retire.</p>' +
+          '<div id="occEditBody"></div>' +
+          '<p class="fr-error-text" id="occEditError" hidden></p>' +
+          '<div class="bulk-dialog__foot"><button class="fr-btn fr-btn--tertiary fr-btn--sm" id="occEditCancel" type="button">Annuler</button>' +
+            '<button class="fr-btn fr-btn--sm" id="occEditSave" type="button">Enregistrer</button></div>' +
+        '</div></div>');
+    occEditEl('occEditClose').addEventListener('click', occEditClose);
+    occEditEl('occEditCancel').addEventListener('click', occEditClose);
+    occEditEl('occEditSave').addEventListener('click', occEditSave);
+    occEditEl('occEditSearch').addEventListener('input', function (e) { if (occEdit) { occEdit.q = e.target.value; occEditRender(); } });
+    occEditEl('occEditPon').addEventListener('change', function (e) { if (occEdit) { occEdit.pon = e.target.value; occEditRender(); } });
+    occEditEl('occEditDialog').addEventListener('click', function (e) {
+      var sexBtn = e.target.closest('[data-sex]');
+      if (sexBtn && occEdit) { occEdit.sex = sexBtn.getAttribute('data-sex'); occEditRender(); return; }
+      var tag = e.target.closest('.occ-tag');
+      if (!tag || !occEdit) return;
+      if (tag.hasAttribute('data-extra')) { var i = occEdit.extra.indexOf(tag.getAttribute('data-extra')); if (i !== -1) occEdit.extra.splice(i, 1); }
+      else { var k = tag.getAttribute('data-i'); if (occEdit.sel[k]) delete occEdit.sel[k]; else occEdit.sel[k] = true; }
+      occEditRender();
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && occEdit && !occEditEl('occEditDialog').hidden) occEditClose(); });
+  }
+  function occEditClose() { occEdit = null; occEditEl('occEditDialog').hidden = true; }
+  function openOccEdit(uv) {
+    var g = groupOccupantsByUV(pageData.occupants.rows).filter(function (k) { return normalizeKey(k.uv) === normalizeKey(uv); })[0];
+    if (!g) return;
+    occEditEnsureDialog();
+    var people = window.CAND_PEOPLE ? window.CAND_PEOPLE() : [], parts = String(g.uv).split('-');
+    occEdit = { uv: g.uv, bat: g.batiment || (parts.length === 2 ? parts[0].trim() : ''), ch: parts.length === 2 ? parts[1].trim() : g.uv, capacite: g.capacite,
+      people: people, sel: {}, extra: [], orig: {}, origExtra: [], sex: '', pon: '', q: '', busy: false };
+    g.occupants.forEach(function (n) {
+      var hit = -1;
+      people.forEach(function (p, i) { if (hit < 0 && occMatchesPerson(n, p)) hit = i; });
+      if (hit >= 0) occEdit.sel[hit] = true; else occEdit.extra.push(n);
+    });
+    occEdit.orig = Object.assign({}, occEdit.sel);
+    occEdit.origExtra = occEdit.extra.slice();
+    occEditEl('occEditTitle').textContent = 'Occupants — ' + formatUvTitle(g.uv);
+    occEditEl('occEditSearch').value = '';
+    var pons = [];
+    people.forEach(function (p) { if (p.kind === 'stagiaire' && p.pon && pons.indexOf(p.pon) === -1) pons.push(p.pon); });
+    pons.sort(function (a, b) { return a.localeCompare(b, 'fr', { numeric: true }); });
+    occEditEl('occEditPon').innerHTML = '<option value="">Tous les pelotons</option>' + pons.map(function (v) { return '<option value="' + escapeHtml(v) + '">' + escapeHtml(v) + '</option>'; }).join('');
+    occEditEl('occEditPon').disabled = !pons.length;
+    occEditEl('occEditError').hidden = true;
+    occEditEl('occEditSave').disabled = false; occEditEl('occEditCancel').disabled = false;
+    occEditEl('occEditDialog').hidden = false;
+    occEditRender();
+    occEditEl('occEditSearch').focus();
+  }
+  function occEditRender() {
+    var st = occEdit; if (!st) return;
+    var q = normalizeKey(st.q), body = occEditEl('occEditBody');
+    Array.prototype.forEach.call(occEditEl('occEditDialog').querySelectorAll('[data-sex]'), function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-sex') === st.sex ? 'true' : 'false'); });
+    var count = Object.keys(st.sel).length + st.extra.length, info = occEditEl('occEditInfo');
+    var over = !isNaN(st.capacite) && count > st.capacite;
+    info.className = 'occ-edit__info' + (over ? ' is-over' : '');
+    info.textContent = count + ' occupant' + (count > 1 ? 's' : '') + (isNaN(st.capacite) ? '' : ' pour une capacité de ' + st.capacite) + (over ? ' — capacité dépassée' : '');
+    function tag(p, i) {
+      var on = !!st.sel[i], here = normalizeKey(p.bat) === normalizeKey(st.bat) && normalizeKey(p.ch) === normalizeKey(st.ch);
+      var elsewhere = !on && (p.bat || p.ch) && !here;
+      return '<button type="button" class="occ-tag' + (on ? ' is-on' : '') + (elsewhere ? ' is-elsewhere' : '') + '" data-i="' + i + '" aria-pressed="' + on + '"' +
+        (elsewhere || (!on && here) ? ' title="' + (here ? 'Fiche déjà affectée à cette chambre' : 'Actuellement : ' + escapeHtml((p.bat ? 'Bât. ' + p.bat : '') + (p.bat && p.ch ? ', ' : '') + (p.ch ? 'Ch. ' + p.ch : ''))) + '"' : '') + '>' + escapeHtml(p.name) + '</button>';
+    }
+    function section(kind, title) {
+      var list = [], total = 0;
+      st.people.forEach(function (p, i) {
+        if (p.kind !== kind) return;
+        total++;
+        if (st.sex && p.sex !== st.sex) return;
+        if (kind === 'stagiaire' && st.pon && p.pon !== st.pon) return;
+        if (q && normalizeKey(p.name).indexOf(q) === -1) return;
+        list.push(tag(p, i));
+      });
+      return '<div class="occ-edit__sec"><h4>' + title + ' <small>' + list.length + ' affiché' + (list.length > 1 ? 's' : '') + ' sur ' + total + '</small></h4>' +
+        (list.length ? '<div class="occ-tags">' + list.join('') + '</div>' : '<p class="occ-edit__empty">' + (total ? 'Aucun résultat avec ces filtres.' : 'Aucune fiche chargée.') + '</p>') + '</div>';
+    }
+    var extraHtml = st.extra.length
+      ? '<div class="occ-edit__sec"><h4>Autres occupants <small>sans fiche retrouvée</small></h4><div class="occ-tags">' + st.extra.map(function (n) {
+        return '<button type="button" class="occ-tag is-on" data-extra="' + escapeHtml(n) + '" aria-pressed="true" title="Cliquer pour retirer">' + escapeHtml(window.fmtNomPrenom ? window.fmtNomPrenom(n) : n) + '</button>'; }).join('') + '</div></div>'
+      : '';
+    body.innerHTML = section('cadre', 'Cadres') + section('stagiaire', 'Stagiaires') + extraHtml;
+  }
+  function occEditSave() {
+    var st = occEdit; if (!st || st.busy) return;
+    var cfg = settings.occupants, rows = pageData.occupants.rows, errEl = occEditEl('occEditError');
+    var adds = [], removes = [];
+    st.people.forEach(function (p, i) { if (st.sel[i] && !st.orig[i]) adds.push(p); else if (!st.sel[i] && st.orig[i]) removes.push(p); });
+    var extraRemoved = st.origExtra.filter(function (n) { return st.extra.indexOf(n) === -1; });
+    if (!adds.length && !removes.length && !extraRemoved.length) { occEditClose(); return; }
+    st.busy = true; errEl.hidden = true;
+    occEditEl('occEditSave').disabled = true; occEditEl('occEditCancel').disabled = true;
+    var skipped = 0, bat = st.bat, ch = st.ch;
+    setOccStatus('info', 'Enregistrement des occupants de ' + formatUvTitle(st.uv) + '…');
+    loadGristMeta().then(function (meta) {
+      var cm = meta && meta.columnsByTableAndColId[cfg.table + '.' + cfg.col.occupants];
+      var editable = !!cm && !cm.isFormula && cm.type === 'ChoiceList';
+      if (!editable && extraRemoved.length) throw new Error('La colonne Occupants est calculée : les occupants sans fiche ne peuvent pas être retirés ici.');
+      if (!editable) return null;
+      var lists = {};
+      rows.forEach(function (r) { lists[r.id] = listOf(r.occupants); });
+      var here = rows.filter(function (r) { return normalizeKey(textOf(r.uv)) === normalizeKey(st.uv); });
+      function stripFrom(rowSet, pred) { rowSet.forEach(function (r) { lists[r.id] = lists[r.id].filter(function (n) { return !pred(n); }); }); }
+      removes.forEach(function (p) { stripFrom(here, function (n) { return occMatchesPerson(n, p); }); });
+      extraRemoved.forEach(function (x) { stripFrom(here, function (n) { return n === x; }); });
+      adds.forEach(function (p) {
+        stripFrom(rows, function (n) { return occMatchesPerson(n, p); });
+        if (here[0]) lists[here[0].id].push(p.name);
+      });
+      var actions = [];
+      rows.forEach(function (r) {
+        var before = listOf(r.occupants), after = lists[r.id];
+        if (before.length === after.length && before.every(function (n, i) { return n === after[i]; })) return;
+        var f = {}; f[cfg.col.occupants] = ['L'].concat(after);
+        actions.push(['UpdateRecord', cfg.table, r.id, f]);
+      });
+      return actions.length ? grist.docApi.applyUserActions(actions) : null;
+    }).then(function () {
+      if (!window.CAND_HOUSING) return null;
+      var chain = Promise.resolve();
+      adds.forEach(function (p) { chain = chain.then(function () { return window.CAND_HOUSING(p.name, bat, ch).then(function (r) { if (!r.found || !r.written) skipped++; }); }); });
+      removes.forEach(function (p) {
+        if (!(normalizeKey(p.bat) === normalizeKey(bat) && normalizeKey(p.ch) === normalizeKey(ch))) return;
+        chain = chain.then(function () { return window.CAND_HOUSING(p.name, '', '').then(function (r) { if (!r.found || !r.written) skipped++; }); });
+      });
+      return chain;
+    }).then(function () {
+      occEditClose();
+      loadPageData('occupants');
+      setOccStatus('success', formatUvTitle(st.uv) + ' : ' + adds.length + ' occupant' + (adds.length > 1 ? 's' : '') + ' ajouté' + (adds.length > 1 ? 's' : '') + ', ' + (removes.length + extraRemoved.length) + ' retiré' + (removes.length + extraRemoved.length > 1 ? 's' : '') + '.' +
+        (skipped ? ' ' + skipped + ' fiche' + (skipped > 1 ? 's n’ont' : ' n’a') + ' pas pu être mise' + (skipped > 1 ? 's' : '') + ' à jour (Bât. / Ch. non réglés, fiche introuvable ou homonyme).' : ''));
+    }).catch(function (e) {
+      st.busy = false;
+      occEditEl('occEditSave').disabled = false; occEditEl('occEditCancel').disabled = false;
+      errEl.textContent = 'Enregistrement impossible : ' + friendlyErrorMessage(e); errEl.hidden = false;
+      setOccStatus('', '');
+      loadPageData('occupants');
     });
   }
 
@@ -24624,6 +25054,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
   function renderReglagesPage() {
     var cfg = reglagesConfig;
+    renderCadreHours();
     reglagesStatusZone.innerHTML = '';
 
     if (!isReglagesConfigComplete(cfg)) {
@@ -26398,7 +26829,63 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       '<div class="week-timegrid__labels">' + labelsHtml + '</div>' +
       '<div class="week-timegrid__pelotons">' + pelotonsHtml + '</div>' +
       '<div class="week-timegrid__scroll">' + scrollHtml + '</div>';
+    renderCadreHours();
   }
+
+  // Récapitulatif des heures de cours par cadre (sous la grille de la Progression) : toute la période du stage, permanences exclues.
+  // Chaque séance compte en entier pour chacun des cadres désignés ; les heures se répartissent par type (Cours, Secourisme, Instruction IP, Examens).
+  function chHours(h) { return (Math.round(h * 100) / 100).toLocaleString('fr-FR', { maximumFractionDigits: 2 }) + ' h'; }
+  function chIsCourse(r) {
+    var k = normalizeNameKey(occTypeOfCode(r.Code) || textOf(r.Type)).replace(/\s+/g, ' ');
+    return /INSTRUCTION|COURS IP|SECOURISME|EXAMEN|COURS/.test(k);
+  }
+  function chIsSop(r) { return codesOf(r.Code).some(function (c) { return normalizeCode(c) === 'SOP'; }); }
+  function renderCadreHours() {
+    if (!recordsLoaded) return;
+    var by = {};
+    function entry(n) {
+      var key = normalizeNameKey(n);
+      if (!key) return null;
+      return by[key] || (by[key] = { name: n, sop: 0, h: 0, seen: {} });
+    }
+    allRecords.forEach(function (r) {
+      var sop = chIsSop(r), course = false, h = 0;
+      if (!sop) {
+        if (isPermanenceCode(r.Code) || isExcludedCode(r.Code) || !chIsCourse(r)) return;
+        var a = parseGristDateTime(r.Debut), b = parseGristDateTime(r.Fin);
+        if (!a || !b || !(b > a)) return;
+        course = true; h = (b - a) / 3600000;
+      }
+      var seen = {};
+      splitCadreNames(textOf(r.Encadrement)).forEach(function (n) {
+        var e = entry(n), key = normalizeNameKey(n);
+        if (!e || seen[key]) return;
+        seen[key] = true;
+        if (sop) e.sop++; else if (course) e.h += h;
+      });
+    });
+    var rows = Object.keys(by).map(function (k) { return by[k]; });
+    rows.sort(function (x, y) { return y.h - x.h || y.sop - x.sop || chCollator.compare(x.name, y.name); });
+    var html, sub = '';
+    if (!rows.length) {
+      html = '<p class="cadre-hours__empty">Aucun cours ni permanence SOP avec un cadre désigné pour le moment.</p>';
+    } else {
+      var tSop = 0, tH = 0;
+      html = '<div class="cadre-hours__scroll"><table><thead><tr><th scope="col">Cadre</th><th scope="col">Permanences SOP</th><th scope="col" class="is-total">Heures de cours</th></tr></thead><tbody>';
+      rows.forEach(function (r) {
+        tSop += r.sop; tH += r.h;
+        html += '<tr><td>' + escapeHtml(r.name) + '</td>' + (r.sop ? '<td>' + r.sop + '</td>' : '<td class="cadre-hours__zero">–</td>') +
+          '<td class="is-total">' + (r.h > 0 ? chHours(r.h) : '<span class="cadre-hours__zero">–</span>') + '</td></tr>';
+      });
+      html += '</tbody><tfoot><tr><td>Total</td><td>' + tSop + '</td><td>' + chHours(tH) + '</td></tr></tfoot></table></div>';
+      sub = rows.length + ' cadre' + (rows.length > 1 ? 's' : '') + ' · toute la période du stage';
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('.cadre-hours'), function (box) {
+      box.querySelector('.cadre-hours__body').innerHTML = html;
+      box.querySelector('.cadre-hours__sub').textContent = sub;
+    });
+  }
+  var chCollator = new Intl.Collator('fr', { sensitivity: 'base', numeric: true });
 
   // Versions cochées ; getSelectedMode() sert à la semaine et à la progression : la version stagiaires dès qu'elle est cochée
   // (la plus restrictive), sinon l'encadrement. L'aperçu de la page, lui, montre l'encadrement quand les deux sont cochées.
