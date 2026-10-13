@@ -3393,8 +3393,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         <button class="fr-btn fr-btn--secondary fr-icon-refresh-line fr-btn--icon-left tb-ghost" id="candReloadBtn" type="button" title="Recharger les candidats depuis la table Grist">
           Actualiser
         </button>
-        <button class="fr-btn fr-btn--secondary fr-icon-upload-line fr-btn--icon-left tb-ghost" id="candNumCandImportBtn" type="button" title="Mettre à jour les N° CAND d'après un fichier .csv contenant les N° CAND et les adresses e-mail">
-          Mettre à jour les N° CAND (.csv)
+        <button class="fr-btn fr-btn--secondary fr-icon-upload-line fr-btn--icon-left tb-ghost" id="candNumCandImportBtn" type="button" title="Mettre à jour les N° CAND d'après un fichier (.csv, Excel ou Calc) contenant les N° CAND et les adresses e-mail">
+          Mettre à jour les N° CAND (fichier)
         </button>
         <button class="fr-btn fr-btn--secondary fr-icon-file-text-line fr-btn--icon-left tb-ghost" id="candReportBtn" type="button" title="Rapport : rédiger un point d'étape ou un rapport final sur l'état des dossiers, à envoyer par courriel">Rapport</button>
         <button class="fr-btn fr-btn--sm fr-icon-mail-line fr-btn--icon-left" id="candMailAllBtn" type="button" title="Envoyer un e-mail aux candidats du filtre actif (en copie cachée)">E-mail aux candidats du filtre</button>
@@ -4508,8 +4508,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         <button class="fr-btn fr-btn--secondary fr-icon-download-line fr-btn--icon-left tb-ghost" id="encExportBtn" type="button" disabled title="Exporter la vue active (l'encadrement affiché) en .csv, avec choix des colonnes">
           Exporter en .csv
         </button>
-        <button class="fr-btn fr-btn--secondary fr-icon-upload-line fr-btn--icon-left tb-ghost" id="encImportBtn" type="button" title="Mettre à jour l'encadrement en lot d'après un fichier .csv (colonnes reconnues d'après leurs titres)">
-          Mettre à jour depuis un .csv
+        <button class="fr-btn fr-btn--secondary fr-icon-upload-line fr-btn--icon-left tb-ghost" id="encImportBtn" type="button" title="Mettre à jour l'encadrement en lot d'après un fichier .csv, Excel ou Calc (colonnes reconnues d'après leurs titres)">
+          Mettre à jour depuis un fichier
         </button>
       </div>
     </div>
@@ -4760,8 +4760,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         <button class="fr-btn fr-btn--secondary fr-icon-download-line fr-btn--icon-left tb-ghost" id="stgExportBtn" type="button" disabled title="Exporter la vue active (stagiaires affichés) en .csv, avec choix des colonnes">
           Exporter en .csv
         </button>
-        <button class="fr-btn fr-btn--secondary fr-icon-upload-line fr-btn--icon-left tb-ghost" id="stgImportBtn" type="button" title="Mettre à jour les stagiaires en lot d'après un fichier .csv (colonnes reconnues d'après leurs titres)">
-          Mettre à jour depuis un .csv
+        <button class="fr-btn fr-btn--secondary fr-icon-upload-line fr-btn--icon-left tb-ghost" id="stgImportBtn" type="button" title="Mettre à jour les stagiaires en lot d'après un fichier .csv, Excel ou Calc (colonnes reconnues d'après leurs titres)">
+          Mettre à jour depuis un fichier
         </button>
       </div>
     </div>
@@ -5456,7 +5456,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     <h1 id="parcTitle"></h1>
     <div class="stg-tabs parc-tabs" role="tablist" id="parcTabs" hidden>
       <button type="button" class="stg-tab" role="tab" id="parcTabManual" aria-selected="true">Saisie manuelle</button>
-      <button type="button" class="stg-tab" role="tab" id="parcTabFile" aria-selected="false">Fichier (.csv)</button>
+      <button type="button" class="stg-tab" role="tab" id="parcTabFile" aria-selected="false">Fichier (.csv, Excel, Calc)</button>
     </div>
     <div id="parcPaneFile" role="tabpanel" hidden></div>
     <form id="parcForm">
@@ -5622,14 +5622,14 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 <div class="bulk-dialog" id="importDialog" role="dialog" aria-modal="true" aria-labelledby="importTitle" hidden>
   <div class="bulk-dialog__box">
     <div class="bulk-dialog__head">
-      <h3 class="fr-h6" id="importTitle">Mettre à jour les stagiaires depuis un .csv</h3>
+      <h3 class="fr-h6" id="importTitle">Mettre à jour les stagiaires depuis un fichier</h3>
       <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line" id="importClose" type="button" title="Fermer">Fermer</button>
     </div>
     <p class="fr-text--sm" id="importIntro"></p>
     <div class="drop-zone drop-zone--block" id="importDrop" role="button" tabindex="0" aria-describedby="importDropLbl">
       <span class="fr-icon-upload-line" aria-hidden="true"></span>
-      <span id="importDropLbl">Déposez un fichier <strong>.csv</strong> ici, ou cliquez pour le choisir</span>
-      <input type="file" id="importFile" accept=".csv,.txt,text/csv" hidden>
+      <span id="importDropLbl">Déposez un fichier <strong>.csv</strong>, <strong>Excel</strong> (.xlsx, .xls) ou <strong>Calc</strong> (.ods) ici, ou cliquez pour le choisir</span>
+      <input type="file" id="importFile" accept=".csv,.txt,.xlsx,.xlsm,.xls,.ods,.fods,text/csv" hidden>
     </div>
     <div id="importBody"></div>
     <p class="fr-error-text" id="importError" hidden></p>
@@ -5679,7 +5679,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.84.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.85.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -12392,7 +12392,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function importShowError(msg) { importErrorEl.hidden = !msg; importErrorEl.textContent = msg || ''; }
   function openImportDialog(kind) {
     imp = { kind: kind, fields: kind === 'encadrement' ? encImportFields() : kind === 'numCand' ? numCandImportFields() : stgImportFields(), headers: [], rows: [], map: [], keyId: '', clearEmpty: false, createNew: false, selected: {}, plan: null, busy: false };
-    document.getElementById('importTitle').textContent = kind === 'stagiaires' ? 'Mettre à jour les stagiaires depuis un .csv' : kind === 'numCand' ? 'Mettre à jour les N° CAND depuis un .csv' : 'Mettre à jour l’encadrement depuis un .csv';
+    document.getElementById('importTitle').textContent = kind === 'stagiaires' ? 'Mettre à jour les stagiaires depuis un fichier' : kind === 'numCand' ? 'Mettre à jour les N° CAND depuis un fichier' : 'Mettre à jour l’encadrement depuis un fichier';
     document.getElementById('importIntro').textContent = kind === 'numCand' ?
       'Le fichier doit contenir la colonne « N° CAND » et, pour retrouver chaque stagiaire, son adresse e-mail et/ou ses nom et prénom (titres sur la première ligne). Le stagiaire est cherché d’abord par e-mail, à défaut par nom et prénom ; rien n’est écrit avant votre confirmation.' :
       'La première ligne du fichier contient les titres des colonnes (mêmes libellés que l’export .csv). Chaque ligne met à jour ' + (kind === 'stagiaires' ? 'le stagiaire identifié' : 'le membre de l’encadrement identifié') + ' par la colonne choisie ; rien n’est écrit avant votre confirmation.';
@@ -12406,9 +12406,70 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     importDialog.hidden = false;
     importFileEl.focus();
   }
+  // Tableurs (Excel .xlsx / .xls, Calc .ods) : lus par SheetJS (chargé à la demande) puis convertis en texte .csv (séparateur « ; », dates jj/mm/aaaa),
+  // ce qui permet de réutiliser tels quels les lecteurs .csv des différents imports. Première feuille contenant des données.
+  var SHEET_FILE_RE = /\.(xlsx|xlsm|xlsb|xls|ods|fods)$/i;
+  var SHEETJS_URL = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+  var sheetJsPromise = null;
+  function loadSheetJs() {
+    if (window.XLSX) return Promise.resolve(window.XLSX);
+    if (!sheetJsPromise) {
+      sheetJsPromise = new Promise(function (resolve, reject) {
+        var el = document.createElement('script');
+        el.src = SHEETJS_URL;
+        el.onload = function () { if (window.XLSX) resolve(window.XLSX); else { sheetJsPromise = null; reject(new Error('Le lecteur de tableurs n’a pas pu être initialisé.')); } };
+        el.onerror = function () { sheetJsPromise = null; reject(new Error('Le lecteur de tableurs n’a pas pu être chargé : vérifiez l’accès à cdn.jsdelivr.net.')); };
+        document.head.appendChild(el);
+      });
+    }
+    return sheetJsPromise;
+  }
+  window.isSheetFile = function (file) { return !!file && SHEET_FILE_RE.test(file.name || ''); };
+  window.sheetToCsvText = function (file) {
+    return Promise.all([loadSheetJs(), file.arrayBuffer()]).then(function (r) {
+      var X = r[0], wb;
+      try { wb = X.read(r[1], { type: 'array', cellDates: true, dateNF: 'dd/mm/yyyy' }); } catch (e) { throw new Error('fichier illisible ou protégé par un mot de passe.'); }
+      var names = wb.SheetNames || [], pick = null;
+      names.forEach(function (n) {
+        if (pick) return;
+        var ref = wb.Sheets[n] && wb.Sheets[n]['!ref'];
+        if (!ref) return;
+        var rg = X.utils.decode_range(ref);
+        if (rg.e.r > rg.s.r || rg.e.c > rg.s.c) pick = n;
+      });
+      if (!pick) pick = names[0];
+      if (!pick) throw new Error('le classeur ne contient aucune feuille.');
+      // Conversion maison (plutôt que sheet_to_csv) : les dates sont toujours écrites jj/mm/aaaa, quel que soit le format d'affichage du tableur
+      // (les .ods donnaient « 3/7/05 »), les autres cellules gardent leur texte affiché.
+      var ws = wb.Sheets[pick], rg = X.utils.decode_range(ws['!ref']), lines = [];
+      function two(n) { return (n < 10 ? '0' : '') + n; }
+      function cellText(c) {
+        if (!c) return '';
+        if (c.t === 'd' && c.v instanceof Date && !isNaN(c.v)) {
+          var d = new Date(c.v.getTime() + 30000), out = two(d.getDate()) + '/' + two(d.getMonth() + 1) + '/' + d.getFullYear();
+          return d.getHours() || d.getMinutes() ? out + ' ' + two(d.getHours()) + ':' + two(d.getMinutes()) : out;
+        }
+        if (c.t === 'b') return c.v ? 'VRAI' : 'FAUX';
+        if (c.t === 'e') return '';
+        var t = c.w !== undefined && c.w !== null ? c.w : c.v;
+        return t === undefined || t === null ? '' : String(t);
+      }
+      for (var R = rg.s.r; R <= rg.e.r; R++) {
+        var cells = [], any = false;
+        for (var C = rg.s.c; C <= rg.e.c; C++) {
+          var t = cellText(ws[X.utils.encode_cell({ r: R, c: C })]);
+          if (t.trim() !== '') any = true;
+          cells.push(/[;"\r\n]|^\s|\s$/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t);
+        }
+        if (any) lines.push(cells.join(';'));
+      }
+      return lines.join('\n');
+    });
+  };
   // Décodages possibles du fichier, du plus probable au moins probable : UTF-8 s'il est valide ; sinon Windows-1252 (Excel Windows)
   // ou MacRoman (Excel / Numbers sur Mac, où « é » devient « Ž » si on lit en Windows-1252) selon les octets rencontrés.
   function importReadFile(file) {
+    if (window.isSheetFile(file)) return window.sheetToCsvText(file).then(function (t) { return [t]; });
     return file.arrayBuffer().then(function (buf) {
       try { return [new TextDecoder('utf-8', { fatal: true }).decode(buf)]; } catch (e) { /* pas de l'UTF-8 */ }
       var bytes = new Uint8Array(buf), win = 0, mac = 0;
@@ -12712,7 +12773,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     importShowError('');
     importGoBtn.disabled = true;
     if (!file) return;
-    if (!/\.(csv|txt)$/i.test(file.name) && file.type !== 'text/csv') { importShowError('Ce fichier n’est pas un .csv : « ' + file.name + ' ».'); return; }
+    if (!/\.(csv|txt)$/i.test(file.name) && file.type !== 'text/csv' && !window.isSheetFile(file)) { importShowError('Ce fichier n’est pas un tableau (.csv, Excel ou Calc) : « ' + file.name + ' ».'); return; }
     imp.fileName = file.name;
     importReadFile(file).then(function (texts) {
       // Premier décodage qui permet de reconnaître les titres (un mauvais encodage abîme les accents) ; à défaut, le plus probable.
@@ -13502,12 +13563,12 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       ['Comment enregistrer le départ d’un stagiaire ?', 'Ouvrez sa fiche et cliquez sur l’icône « sortie » à côté du titre <strong>STAGE</strong> : la fenêtre « Gérer le départ d’un stagiaire » s’ouvre. La date de départ est obligatoire ; renseignez aussi le motif, le cadre, les éléments de paquetage restitués, la literie et le passant. L’icône devient rouge quand un départ est enregistré. « Supprimer le départ » (avec confirmation) efface la ligne.'],
       ['Comment noter un stagiaire ?', 'Dans la fiche, onglet <strong>Notation</strong> : un curseur par matière (Insuffisant, Moyen, Bien, Très bien, Exceptionnel). Chaque changement est enregistré aussitôt. Pour « Insuffisant », une zone <em>Précisions</em> obligatoire apparaît : rien n’est enregistré tant qu’elle est vide. Le bouton « Effacer » retire l’évaluation.'],
       ['Comment exporter la liste ?', 'Bouton <strong>Exporter en .csv</strong> : il exporte la vue active (recherche et filtres compris) et vous laisse choisir les colonnes. Le fichier est lisible par Excel (séparateur « ; », dates JJ/MM/AAAA, cases à cocher en Oui/Non).'],
-      ['Comment mettre à jour plusieurs stagiaires depuis un fichier ?', 'Bouton <strong>Mettre à jour depuis un .csv</strong>. Déposez le fichier : les titres de colonnes sont reconnus (mêmes libellés que l’export), puis vous choisissez la colonne qui identifie les stagiaires (NID, N° CAND, Nigend, e-mail, nom + prénom). Un aperçu « actuel → nouveau » s’affiche : rien n’est écrit avant « Appliquer ». Une cellule vide laisse la valeur actuelle, sauf si vous cochez l’option contraire.']
+      ['Comment mettre à jour plusieurs stagiaires depuis un fichier ?', 'Bouton <strong>Mettre à jour depuis un fichier</strong>. Déposez le fichier : les titres de colonnes sont reconnus (mêmes libellés que l’export), puis vous choisissez la colonne qui identifie les stagiaires (NID, N° CAND, Nigend, e-mail, nom + prénom). Un aperçu « actuel → nouveau » s’affiche : rien n’est écrit avant « Appliquer ». Une cellule vide laisse la valeur actuelle, sauf si vous cochez l’option contraire.']
     ] },
     { title: 'eTuteur', items: [
       ['Comment filtrer les listes ?', 'Cliquez dans la barre de recherche (vide) : un panneau propose les filtres en un clic (sur la page Stagiaires : peloton, affectation, fonction et affichage des partis ; sur Encadrement : groupe, fonction et regroupement par groupe). Les choix se cumulent ; « Réinitialiser les filtres » les efface. Sur eTuteur, les filtres rapides isolent les dossiers à traiter : complets, documents rejetés, à valider ou manquants, e-mail EAD non envoyé, « N° CAND renseigné, email non envoyé », EAD non validé, doublons, sans N° CAND, usage RS et droit à l’image manquants. Le nombre de candidats concernés est indiqué à côté de chaque filtre.'],
       ['Que fait un clic sur la légende ou sur une barre du graphique ?', 'Il filtre la liste. <strong>Validé</strong> affiche les candidats dont <em>toutes</em> les pièces sont validées ; <strong>À valider</strong>, <strong>Refusé</strong> et <strong>Manquant</strong> affichent ceux qui ont <em>au moins une</em> pièce dans cet état. Un clic sur un segment d’une barre filtre sur cette pièce précise. Un second clic, ou « Réinitialiser les filtres », lève le filtre.'],
-      ['Comment mettre à jour les N° CAND depuis un fichier ?', 'Bouton <strong>Mettre à jour les N° CAND (.csv)</strong>, puis déposez le fichier. Il doit contenir une colonne N° CAND et, pour retrouver chaque stagiaire, l’adresse e-mail et/ou le nom et le prénom. La recherche se fait d’abord par e-mail, à défaut par nom et prénom ; l’aperçu indique pour chaque ligne par quoi le stagiaire a été retrouvé. Les lignes d’en-tête avant les titres sont acceptées.'],
+      ['Comment mettre à jour les N° CAND depuis un fichier ?', 'Bouton <strong>Mettre à jour les N° CAND (fichier)</strong>, puis déposez le fichier. Il doit contenir une colonne N° CAND et, pour retrouver chaque stagiaire, l’adresse e-mail et/ou le nom et le prénom. La recherche se fait d’abord par e-mail, à défaut par nom et prénom ; l’aperçu indique pour chaque ligne par quoi le stagiaire a été retrouvé. Les lignes d’en-tête avant les titres sont acceptées.'],
       ['Comment sait-on qu’un e-mail a été envoyé ?', 'Lors de l’envoi des identifiants (icône enveloppe de la fiche), le widget ajoute une mention dans la colonne « Blocages / Infos ». Les filtres « Email EAD non envoyé » se basent sur cette mention.']
     ] },
     { title: 'Gestion des ressources', items: [
@@ -13543,7 +13604,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       ['À quoi sert l’état rationnaire ?', 'Il liste, par affectation, les repas des cadres et stagiaires. À l’édition, le widget propose de confirmer les repas des cadres en repos, la veille et le lendemain du repos, d’après la table « Gestion des absences ».']
     ] },
     { title: 'En cas de problème', items: [
-      ['Mon fichier .csv n’est pas reconnu.', 'Vérifiez que les titres de colonnes sont dans la première ligne (ou la deuxième, une ligne de titre général est tolérée) et correspondent aux libellés attendus : l’aperçu liste les colonnes reconnues et ignorées. Les séparateurs « ; », « , » et tabulation sont détectés, ainsi que l’encodage (UTF-8, Windows ou Mac).'],
+      ['Mon fichier (.csv, Excel, Calc) n’est pas reconnu.', 'Vérifiez que les titres de colonnes sont dans la première ligne (ou la deuxième, une ligne de titre général est tolérée) et correspondent aux libellés attendus : l’aperçu liste les colonnes reconnues et ignorées. Pour un fichier .csv, les séparateurs « ; », « , » et tabulation sont détectés, ainsi que l’encodage (UTF-8, Windows ou Mac). Les fichiers Excel (.xlsx, .xls) et Calc (.ods) sont lus sur leur première feuille contenant des données ; les dates sont lues au format jj/mm/aaaa.'],
       ['Une écriture a échoué ou une valeur n’est pas enregistrée.', 'Le message d’erreur reprend la réponse de Grist (colonne à formule, règle d’accès, valeur hors des choix…). La colonne visée doit être une colonne de données modifiable. Pour « Insuffisant » en notation, les précisions sont obligatoires.'],
       ['Les données ne semblent pas à jour.', 'Utilisez le bouton <strong>Actualiser</strong> de la page : il recharge les tables depuis Grist.']
     ] }
@@ -17838,7 +17899,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     tabF.addEventListener('click', function () { select('file'); }); tabM.addEventListener('click', function () { select('manual'); });
     function showDrop() {
       paneF.innerHTML = '<div class="ref-drop" id="refDrop" role="button" tabindex="0" aria-label="Verser un fichier CSV de notes : cliquer ou déposer le fichier"><span class="fr-icon-upload-2-line" aria-hidden="true"></span>' +
-        '<span class="ref-drop__text"><strong>Glissez un fichier .csv de notes ici</strong><span>ou cliquez pour le choisir</span></span><span class="ref-drop__hint">Colonnes reconnues automatiquement : stagiaire (NID ou nom), note, matière, note max, coefficient.</span><input type="file" id="refFile" accept=".csv,.txt,text/csv" hidden></div>';
+        '<span class="ref-drop__text"><strong>Glissez un fichier de notes (.csv, Excel ou Calc) ici</strong><span>ou cliquez pour le choisir</span></span><span class="ref-drop__hint">Colonnes reconnues automatiquement : stagiaire (NID ou nom), note, matière, note max, coefficient.</span><input type="file" id="refFile" accept=".csv,.txt,.xlsx,.xlsm,.xls,.ods,.fods,text/csv" hidden></div>';
       var drop = paneF.querySelector('#refDrop'), fi = paneF.querySelector('#refFile');
       function got(f) { refReadFile(f, function (name, rows) { renderImportForm(paneF, name, rows, showDrop); }); }
       fi.addEventListener('change', function () { var f = fi.files && fi.files[0]; fi.value = ''; got(f); });
@@ -18015,13 +18076,15 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   // Lecture d'un fichier CSV choisi ou déposé : rappelle cb(nomDuFichier, lignes).
   function refReadFile(file, cb) {
     if (!file) return;
-    var reader = new FileReader();
-    reader.onerror = function () { refShow('error', 'Lecture du fichier impossible.'); };
-    reader.onload = function () {
-      var rows = refParseCsv(reader.result);
+    function done(text) {
+      var rows = refParseCsv(text);
       if (rows.length < 2) { refShow('error', 'Le fichier ne contient pas de ligne de notes (une ligne d’en-têtes, puis une ligne par note).'); return; }
       cb(file.name, rows);
-    };
+    }
+    if (window.isSheetFile(file)) { window.sheetToCsvText(file).then(done).catch(function (e) { refShow('error', 'Lecture du fichier impossible : ' + friendlyErrorMessage(e)); }); return; }
+    var reader = new FileReader();
+    reader.onerror = function () { refShow('error', 'Lecture du fichier impossible.'); };
+    reader.onload = function () { done(reader.result); };
     reader.readAsText(file, 'utf-8');
   }
 
@@ -20027,19 +20090,21 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   }
   function parcShowDrop() {
     var pane = document.getElementById('parcPaneFile');
-    pane.innerHTML = '<div class="ref-drop" id="parcDrop" role="button" tabindex="0" aria-label="Verser un fichier CSV : cliquer ou déposer le fichier"><span class="fr-icon-upload-2-line" aria-hidden="true"></span>' +
-      '<span class="ref-drop__text"><strong>Glissez un fichier .csv ici</strong><span>ou cliquez pour le choisir</span></span><span class="ref-drop__hint">Une ligne d’en-têtes, puis une ligne par ' + (parcEdit && parcEdit.pageKey === 'gestionVehicules' ? 'véhicule' : 'matériel') + '. Les colonnes (plaque ou identifiant, type, affectation, disponibilité…) sont reconnues automatiquement.</span>' +
-      '<input type="file" id="parcFile" accept=".csv,.txt,text/csv" hidden></div><p class="fr-hint-text" id="parcFileStatus" aria-live="polite"></p>';
+    pane.innerHTML = '<div class="ref-drop" id="parcDrop" role="button" tabindex="0" aria-label="Verser un fichier .csv, Excel ou Calc : cliquer ou déposer le fichier"><span class="fr-icon-upload-2-line" aria-hidden="true"></span>' +
+      '<span class="ref-drop__text"><strong>Glissez un fichier (.csv, Excel ou Calc) ici</strong><span>ou cliquez pour le choisir</span></span><span class="ref-drop__hint">Une ligne d’en-têtes, puis une ligne par ' + (parcEdit && parcEdit.pageKey === 'gestionVehicules' ? 'véhicule' : 'matériel') + '. Les colonnes (plaque ou identifiant, type, affectation, disponibilité…) sont reconnues automatiquement.</span>' +
+      '<input type="file" id="parcFile" accept=".csv,.txt,.xlsx,.xlsm,.xls,.ods,.fods,text/csv" hidden></div><p class="fr-hint-text" id="parcFileStatus" aria-live="polite"></p>';
     var drop = pane.querySelector('#parcDrop'), fi = pane.querySelector('#parcFile'), st = pane.querySelector('#parcFileStatus');
     function got(f) {
       if (!f) return;
-      var rd = new FileReader();
-      rd.onerror = function () { st.textContent = 'Lecture du fichier impossible.'; };
-      rd.onload = function () {
-        var rows = window.parseCsvText ? window.parseCsvText(rd.result) : [];
+      function done(text) {
+        var rows = window.parseCsvText ? window.parseCsvText(text) : [];
         if (rows.length < 2) { st.textContent = 'Le fichier ne contient pas de ligne à verser (une ligne d’en-têtes, puis une ligne par élément).'; return; }
         parcShowMapping(f.name, rows);
-      };
+      }
+      if (window.isSheetFile && window.isSheetFile(f)) { window.sheetToCsvText(f).then(done).catch(function (e) { st.textContent = 'Lecture du fichier impossible : ' + friendlyErrorMessage(e); }); return; }
+      var rd = new FileReader();
+      rd.onerror = function () { st.textContent = 'Lecture du fichier impossible.'; };
+      rd.onload = function () { done(rd.result); };
       rd.readAsText(f, 'utf-8');
     }
     fi.addEventListener('change', function () { var f = fi.files && fi.files[0]; fi.value = ''; got(f); });
