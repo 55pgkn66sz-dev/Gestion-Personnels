@@ -270,6 +270,13 @@
   .fr-mega-menu .nav-rows li { margin: 0; padding: 0; border-bottom: 1px solid var(--border-default-grey); }
   .fr-mega-menu .nav-row { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.25rem 0.75rem; border: 0; background: none; font: inherit; font-weight: 700; text-align: left; cursor: pointer; color: var(--text-default-grey); }
   .fr-mega-menu .nav-row:hover { background: var(--background-default-grey-hover); }
+  /* Module désactivé dans la Configuration : tuile / onglet grisé, non cliquable, avec un badge. */
+  .mod-badge { flex: none; margin-left: 0.6rem; white-space: nowrap; font-weight: 700; }
+  .fr-mega-menu .nav-row.is-module-off { cursor: not-allowed; color: var(--text-disabled-grey, #929292); }
+  .fr-mega-menu .nav-row.is-module-off:hover { background: none; }
+  .fr-mega-menu .nav-row.is-module-off .mod-badge { margin-right: auto; }
+  .fr-mega-menu .nav-row.is-module-off [class^="fr-icon-"] { color: var(--text-disabled-grey, #929292); }
+  button.is-module-off:disabled { cursor: not-allowed; opacity: 0.65; }
   .fr-mega-menu .nav-row[aria-current="page"] { background: var(--background-contrast-blue-france, #e3e3fd); color: var(--text-action-high-blue-france); box-shadow: inset 2px 0 0 var(--text-action-high-blue-france); }
   .fr-mega-menu .nav-row [class^="fr-icon-"] { flex: none; color: var(--text-action-high-blue-france); }
   .fr-mega-menu .nav-row:focus-visible { outline: 2px solid var(--text-action-high-blue-france); outline-offset: -2px; }
@@ -4932,6 +4939,19 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         </div>
       </section>
 
+      <section class="cfg-card" aria-labelledby="cfgModTitle">
+        <div class="cfg-card__head">
+          <span class="cfg-card__num" aria-hidden="true">5</span>
+          <div>
+            <h3 class="cfg-card__title" id="cfgModTitle">Modules utilisés pour ce stage</h3>
+            <p class="cfg-card__desc">Un module décoché reste visible dans les menus, mais sa tuile n’est plus cliquable et affiche le badge « Non utilisé pour ce stage ». Les données ne sont ni modifiées ni supprimées.</p>
+          </div>
+        </div>
+        <div class="fr-checkbox-group fr-mt-1w"><input type="checkbox" id="cfg_mod_veh"><label class="fr-label" for="cfg_mod_veh">Réservations de véhicules</label></div>
+        <div class="fr-checkbox-group fr-mt-1w"><input type="checkbox" id="cfg_mod_mat"><label class="fr-label" for="cfg_mod_mat">Réservations de matériels</label></div>
+        <div class="fr-checkbox-group fr-mt-1w"><input type="checkbox" id="cfg_mod_abs"><label class="fr-label" for="cfg_mod_abs">Gestion des absences</label></div>
+      </section>
+
       </div>
 
       <div data-cfg-tab="fsj" hidden>
@@ -5679,7 +5699,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.85.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.86.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -5797,7 +5817,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function defaultConfig() {
     var col = {};
     ROLES.forEach(function (role) { col[role] = ''; });
-    return { table: '', docsTable: '', docsLinkCol: '', hideEtuteur: false, dateDebutFormation: '', dateFinFormation: '', attritionRef: '', eadMail: { subject: DEFAULT_EAD_MAIL.subject, body: DEFAULT_EAD_MAIL.body },
+    return { table: '', docsTable: '', docsLinkCol: '', hideEtuteur: false, modules: { veh: true, mat: true, abs: true }, dateDebutFormation: '', dateFinFormation: '', attritionRef: '', eadMail: { subject: DEFAULT_EAD_MAIL.subject, body: DEFAULT_EAD_MAIL.body },
       refusalMail: { subject: DEFAULT_REFUSAL_MAIL.subject, body: DEFAULT_REFUSAL_MAIL.body }, col: col };
   }
   function mergeConfig(loaded) {
@@ -5810,6 +5830,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     cfg.dateFinFormation = (typeof loaded.dateFinFormation === 'string') ? loaded.dateFinFormation : '';
     cfg.attritionRef = (typeof loaded.attritionRef === 'string' || typeof loaded.attritionRef === 'number') ? String(loaded.attritionRef) : '';
     cfg.hideEtuteur = !!loaded.hideEtuteur; // masque l'onglet et la page eTuteur
+    cfg.modules = { veh: !(loaded.modules && loaded.modules.veh === false), mat: !(loaded.modules && loaded.modules.mat === false), abs: !(loaded.modules && loaded.modules.abs === false) }; // modules désactivés pour ce stage
     if (loaded.eadMail && typeof loaded.eadMail.subject === 'string' && typeof loaded.eadMail.body === 'string') {
       cfg.eadMail = { subject: loaded.eadMail.subject, body: loaded.eadMail.body }; // (une ancienne pièce jointe enregistrée est ignorée)
     }
@@ -6076,7 +6097,33 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
   // Affichage des pages : eTuteur, Stagiaires, ou la Configuration (qui prend
   // la place de la page courante).
+  // Modules désactivés dans la Configuration (Réservations de véhicules / de matériels, Gestion des absences) : tuile grisée, non cliquable, avec un badge.
+  window.MODULE_ON = function (k) { return !settings || !settings.modules || settings.modules[k] !== false; };
+  function setModuleOff(btn, off) {
+    if (!btn) return;
+    var badge = btn.querySelector(':scope > .mod-badge');
+    btn.disabled = !!off;
+    btn.classList.toggle('is-module-off', !!off);
+    if (off && !badge) {
+      badge = document.createElement('span');
+      badge.className = 'fr-badge fr-badge--sm fr-badge--no-icon mod-badge';
+      badge.textContent = 'Non utilisé pour ce stage';
+      var arrow = btn.querySelector(':scope > [aria-hidden="true"]');
+      if (arrow) btn.insertBefore(badge, arrow); else btn.appendChild(badge);
+    } else if (!off && badge) badge.remove();
+  }
+  function applyModules() {
+    var on = window.MODULE_ON;
+    setModuleOff(document.getElementById('navVehicules'), !on('veh') && !on('mat'));
+    setModuleOff(document.getElementById('resvTabVeh'), !on('veh'));
+    setModuleOff(document.getElementById('resvTabMat'), !on('mat'));
+    setModuleOff(document.getElementById('navFsjAbsences'), !on('abs'));
+    setModuleOff(document.getElementById('navAbsences'), !on('abs'));
+    if (!on('abs') && fsjView === 'absences') { fsjView = 'progression'; if (window.FSJ) window.FSJ.setView('progression'); }
+    if (window.RES && window.RES.fixView) window.RES.fixView();
+  }
   function applyPageVisibility() {
+    applyModules();
     // Page eTuteur masquée (option de la Configuration) : onglet caché, et on repart sur Stagiaires.
     var hideEtuteur = !!settings.hideEtuteur;
     navEtuteur.style.display = hideEtuteur ? 'none' : '';
@@ -6116,6 +6163,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   }
   var fsjView = 'progression', fsjStarted = false;
   function openFsj(view) {
+    if (view === 'absences' && !window.MODULE_ON('abs')) view = 'progression';
     fsjView = view; fsjStarted = true;
     showPage('fsj');
     if (!window.FSJ) return;
@@ -6601,6 +6649,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       finDateEl.value = settings.dateFinFormation;
       document.getElementById('cand_attritionRef').value = settings.attritionRef || '';
       document.getElementById('cfg_hideEtuteur').checked = !!settings.hideEtuteur;
+      ['veh', 'mat', 'abs'].forEach(function (k) { document.getElementById('cfg_mod_' + k).checked = settings.modules[k] !== false; });
       mailSubjectEl.value = settings.eadMail.subject;
       mailBodyEl.value = settings.eadMail.body;
       refusalSubjectEl.value = settings.refusalMail.subject;
@@ -6669,6 +6718,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     // Colonne de liaison : lue seule (jamais écrite par le widget), pas
     // besoin qu'elle passe isWritableColId comme les colonnes de rôle.
     cfg.hideEtuteur = document.getElementById('cfg_hideEtuteur').checked;
+    cfg.modules = { veh: document.getElementById('cfg_mod_veh').checked, mat: document.getElementById('cfg_mod_mat').checked, abs: document.getElementById('cfg_mod_abs').checked };
     cfg.dateDebutFormation = startDateEl.value.trim();
     cfg.dateFinFormation = finDateEl.value.trim();
     cfg.attritionRef = document.getElementById('cand_attritionRef').value.trim();
@@ -6746,6 +6796,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }
 
     if (cfg.hideEtuteur) chip('', 'Page eTuteur masquée');
+    [['veh', 'Réservations de véhicules'], ['mat', 'Réservations de matériels'], ['abs', 'Gestion des absences']].forEach(function (m) { if (cfg.modules && cfg.modules[m[0]] === false) chip('', 'Module désactivé : ' + m[1]); });
 
     var dateInvalid = !!cfg.dateDebutFormation && !parseFrDate(cfg.dateDebutFormation);
     if (!cfg.dateDebutFormation) chip('', 'Début de formation : non renseigné');
@@ -13715,6 +13766,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var t = String(target || '').replace(/^#?go:/, '');
     var resViews = { 'res-vehicules': 'vehicules', 'res-materiels': 'materiels', 'res-occupants': 'occupants', res: 'vehicules' };
     if (t === 'res-documents') { openDocuments(); return; }
+    if (t === 'absences' && !window.MODULE_ON('abs')) return;
     if (resViews[t]) { showPage('res'); if (window.RES) window.RES.setView(resViews[t]); return; }
     if (['welcome', 'stagiaires', 'etuteur', 'encadrement', 'stats', 'bulk', 'fsj', 'faq'].indexOf(t) === -1) return;
     showPage(t);
@@ -18403,6 +18455,10 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }
   }
   function setView(view) {
+    // Modules désactivés dans la Configuration : on bascule sur l'autre onglet des réservations, à défaut sur l'hébergement.
+    var modOn = window.MODULE_ON || function () { return true; };
+    if (view === 'vehicules' && !modOn('veh')) view = modOn('mat') ? 'materiels' : 'occupants';
+    else if (view === 'materiels' && !modOn('mat')) view = modOn('veh') ? 'vehicules' : 'occupants';
     currentView = view;
     try { sessionStorage.setItem('widgetResView', view); } catch (e) { /* stockage indisponible */ }
     resMode = 'view';
@@ -22135,6 +22191,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   window.RES = {
     setActive: function (a) { resActive = !!a; renderResPanels(); },
     setView: function (v) { setView(v); },
+    fixView: function () { if (currentView === 'vehicules' || currentView === 'materiels') setView(currentView); },
     loadConfigForm: loadReservationsConfigForm,
     saveConfig: saveReservationsConfig,
     loadDocuments: function () { loadDocuments(); },
@@ -26387,6 +26444,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var VIEW_PANEL = { progression: panelProgression, generer: panelGenerer, absences: panelAbsences };
 
   function setView(view) {
+    if (view === 'absences' && window.MODULE_ON && !window.MODULE_ON('abs')) view = 'progression'; // module désactivé dans la Configuration
     currentView = view;
     Object.keys(VIEW_NAV).forEach(function (v) {
       VIEW_NAV[v].setAttribute('aria-selected', v === view ? 'true' : 'false');
