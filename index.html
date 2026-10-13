@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Administration des candidats — eTuteur</title>
+<title>Gestion PMG</title>
 
 <!--
   Widget personnalisé Grist : administration des candidats à un stage,
@@ -179,12 +179,12 @@
   .sp-list li { margin: 0; padding: 0; }
   .sp-list + .sp-title { margin-top: 1rem; }
   .sp-tag { cursor: pointer; }
-  .sp-tag--ok, .sp-tag--info, .sp-tag--warn, .sp-tag--alert { display: inline-flex; align-items: center; gap: 0.4rem; }
-  .sp-tag--ok::before, .sp-tag--info::before, .sp-tag--warn::before, .sp-tag--alert::before { content: ''; width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--sp-c, #8b8b96); flex: none; }
-  .sp-tag--ok { --sp-c: #18753c; }
-  .sp-tag--info { --sp-c: #0063cb; }
-  .sp-tag--warn { --sp-c: #d64d00; }
-  .sp-tag--alert { --sp-c: #ce0500; }
+  
+  
+  
+  
+  
+  
   .sp-list + .sp-title { padding-top: 0.6rem; border-top: 1px solid var(--border-default-grey); }
   /* Filtres actifs (eTuteur) : puces retirables sous la barre d'outils. */
   .cand-active { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; margin: -0.4rem 0 0.8rem; }
@@ -293,29 +293,10 @@
   /* ---- Vue en bandes (page eTuteur) : une ligne compacte par candidat
      (NID + nom), cliquable pour ouvrir la fiche complète dans une modale
      (voir openCandidateModal) plutôt que de tout afficher en carte. ---- */
-  .cand-list {
-    display: flex;
-    flex-direction: column;
-    border: 1px solid var(--border-default-grey);
-    border-radius: 0.5rem;
-    overflow: hidden;
-    background: var(--background-default-grey);
-  }
-  .cand-row {
-    display: flex;
-    align-items: center;
-    gap: 0.9rem;
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: none;
-    border-bottom: 1px solid var(--border-default-grey);
-    background: var(--background-default-grey);
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-  }
-  .cand-list .cand-row:last-child { border-bottom: none; }
-  .cand-row:hover, .cand-row:focus-visible { background: var(--background-default-grey-hover); }
+  
+  
+  
+  
   /* Les tags suivent directement le nom (ni le nom ni les tags ne s'étirent) ;
      seul le bout de ligne (pictogramme "mineur" + chevron) est repoussé à
      droite, par la marge automatique du premier des deux. */
@@ -338,9 +319,9 @@
     flex: none;
   }
   /* Pictogramme « -18 » (mineur au 1er jour de la formation) : pastille ambre cerclée. */
-  .age-18 { font-weight: 800; font-size: 0.66rem; letter-spacing: -0.03em; line-height: 1; }
+  
   .cand-row__minor, .cand-modal-dialog__minor-flag { border: 2px solid #b58900; box-sizing: border-box; }
-  .cand-modal-dialog__minor-flag .age-18 { font-size: 0.78rem; }
+  
   /* Doublon (même NID sur plusieurs lignes) : pastille rouge pastel. */
   .cand-row__dup,
   .cand-modal-dialog__dup-flag {
@@ -469,8 +450,8 @@
   .cand-table tr:has(.cand-row__minor):hover td.cand-table__end::before, .cand-table tr:has(.cand-row__minor):focus-visible td.cand-table__end::before { opacity: 0; }
   .row-reason--minor { color: var(--text-default-warning); }
   .cand-table tr:has(.cand-row__minor) td.cand-table__end:has(.cand-row__dup)::before, .cand-table td.cand-table__end:has(.cand-row__dup) .row-reason { right: 6.2rem; }
-  .cand-row:has(.cand-row__minor) { background-image: linear-gradient(to left, rgba(255, 214, 0, 0.26), rgba(255, 214, 0, 0) 45%); }
-  .cand-row:has(.cand-row__minor) .cand-row__end::before { content: '-18'; font-weight: 900; font-size: 1.3rem; letter-spacing: -0.05em; line-height: 1; color: rgba(204, 153, 0, 0.45); }
+  
+  
   /* Icône de doublon, en haut à droite de la modale (à gauche du pictogramme "mineur"). */
   .cand-modal-dialog__dup-flag { width: 2.1rem; height: 2.1rem; font-size: 1.05rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); }
   .cand-modal-dialog__dup-flag[hidden] { display: none; }
@@ -544,7 +525,7 @@
   .stg-hero__tags:empty { display: none; }
 
   /* Pastilles d'état (autorisé, identité, droit à l'image, secourisme). */
-  .stg-status { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.1rem; }
+  
   .stg-chip {
     display: inline-flex; align-items: center; gap: 0.4rem;
     padding: 0.28rem 0.8rem; border-radius: 999px;
@@ -558,8 +539,8 @@
   .stg-chip--warn { background: var(--background-contrast-warning); color: var(--text-default-warning); border-color: transparent; }
   .stg-chip--warn::before { background: var(--statut-rejet); }
   /* Fiches Stagiaire / Encadrement : l'en-tête n'est pas verrouillé, toute la fiche défile d'un bloc. */
-  .stg-status:empty { display: none; }
-  .stg-sticky .stg-status { align-items: center; margin-bottom: 0.4rem; }
+  
+  
   /* === Fiches Stagiaire / Encadrement : même design que le widget Candidats PMG === */
   .stg-dialog .stg-hero { align-items: flex-start; gap: 1rem; padding-bottom: 1rem; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-default-grey); }
   .stg-dialog .stg-portrait { padding-bottom: 0; }
@@ -647,7 +628,7 @@
   /* Les cartes « courtes » (Contact, Hébergement…) n'ont qu'une colonne d'éléments. */
   .stg-avatar--photo { background-size: cover; background-position: center; background-repeat: no-repeat; color: transparent; cursor: pointer; }
   .stg-item__value--pre { white-space: pre-wrap; font-weight: 500; }
-  .stg-docs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.9rem; }
+  
 
   @media (max-width: 40rem) {
     .stg-hero { flex-wrap: wrap; }
@@ -663,10 +644,7 @@
   }
   .stg-avatar--photo { background-size: cover; background-position: center 20%; background-repeat: no-repeat; cursor: pointer; }
   /* Tag du peloton : à cheval sur le bas de la photo. */
-  .stg-portrait__tag {
-    position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
-    white-space: nowrap; box-shadow: 0 2px 6px rgba(92, 90, 43, 0.35); border: 2px solid var(--background-raised-grey);
-  }
+  
   .cand-modal-dialog__noimage-flag {
     display: inline-flex; align-items: center; justify-content: center; width: 2.1rem; height: 2.1rem;
     border-radius: 999px; background: var(--background-contrast-warning); color: var(--text-default-warning); font-size: 1.05rem; flex: none;
@@ -677,7 +655,7 @@
   /* Icône du mode de transport dans l'en-tête : même pastille que les icônes d'alerte (2,1 rem, ombre légère), en kaki pastel. */
   .stg-flags .stg-transport__icon { width: 2.1rem; height: 2.1rem; background: var(--olive-chip, #e6e2c4); color: var(--bleu-france); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); }
   .stg-flags .stg-transport__icon svg { width: 1.15rem; height: 1.15rem; }
-  .stg-flags .stg-transport__icon--other { color: var(--bleu-france); }
+  
   .stg-flags button.stg-transport__btn:hover { box-shadow: 0 0 0 2px rgba(92, 90, 43, 0.4), 0 1px 3px rgba(0, 0, 0, 0.15); }
   /* Icône « sortie » (départ du stagiaire) : même pastille que les autres icônes ; rouge quand un départ est enregistré. */
   .stg-depart-flag { display: inline-flex; align-items: center; justify-content: center; width: 2.1rem; height: 2.1rem; padding: 0; border: 0; border-radius: 999px; cursor: pointer; flex: none; font-size: 1.05rem;
@@ -732,17 +710,17 @@
   @media (max-width: 40rem) { .stg-cols { grid-template-columns: 1fr; } }
 
   /* Mode de transport : icône. */
-  .stg-transport { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+  
   .stg-transport__icon {
     flex: none; display: inline-flex; align-items: center; justify-content: center;
     width: 2rem; height: 2rem; border-radius: 999px; background: var(--background-raised-grey); color: var(--bleu-france);
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
   }
-  .stg-transport__icon--other { color: var(--text-mention-grey); }
+  
   /* Icône du mode de transport, à droite du titre du champ. */
   .stg-item__head { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; }
-  .stg-transport-flag { display: inline-flex; align-items: center; gap: 0.4rem; max-width: 100%; }
-  .stg-transport-flag__editor { max-width: 22rem; }
+  
+  
   button.stg-transport__btn { cursor: pointer; border: 0; padding: 0; }
   .stg-transport-line__ico { font-size: 1.15em; }
 .req-permis-alert { margin-top: 0.2rem; white-space: normal; }
@@ -757,16 +735,13 @@
   .stg-plate-link:focus-visible { outline: 2px solid #0a76f6; outline-offset: 2px; }
   button.stg-transport__btn:hover { box-shadow: 0 0 0 2px rgba(92, 90, 43, 0.4); }
   /* Champs éditables de la fiche (peloton, fonction, bâtiment, chambre). */
-  .stg-edit { width: 100%; box-sizing: border-box; }
-  input.stg-edit, select.stg-edit { min-height: 2.2rem; padding-top: 0.25rem; padding-bottom: 0.25rem; }
+  
+  
 
   /* Zone de texte libre (colonne Infos). */
-  .stg-freetext__label { margin-top: 0.8rem; }
-  .stg-freetext {
-    display: block; width: 100%; box-sizing: border-box; resize: vertical; min-height: 5rem;
-    padding: 0.5rem 0.6rem; border: 1px solid var(--border-default-grey); border-radius: 0.4rem; background: var(--background-alt-grey); font: inherit;
-  }
-  .stg-freetext:focus { outline: 2px solid var(--bleu-france); outline-offset: 1px; }
+  
+  
+  
 
   /* Pièces complémentaires : zone de dépôt et formulaire de nom. */
   .stg-pieces__notice, .stg-pieces__none { margin: 0 0 0.8rem; font-size: 0.88em; color: var(--text-mention-grey); }
@@ -852,7 +827,7 @@
   .cand-cmp-bar__msg--success { background: var(--uv-pastel-full); color: var(--statut-validee); }
   .cand-cmp-bar__msg--error { background: var(--background-contrast-error); color: var(--text-default-error); }
   /* Champs qui diffèrent entre les deux fiches, fiche Stagiaires (voir cmpApplyHighlight). */
-  .stg-item.is-diff { background: var(--statut-pastel-attente); border-radius: 0.4rem; padding: 0.35rem 0.5rem; margin: -0.35rem -0.5rem; }
+  
   @media (max-width: 40rem) { .cand-cmp-bar { width: 100%; padding: 1rem; } }
   .fr-btn.cand-cmp-bar__danger:not(.fr-btn--tertiary) { background-color: var(--statut-refusee) !important; border-color: var(--statut-refusee) !important; }
   .fr-btn--tertiary.cand-cmp-bar__danger { color: var(--statut-refusee) !important; }
@@ -1296,7 +1271,7 @@
     .cand-toolbar .fr-search-bar { flex-basis: 100%; max-width: none; }
     .cand-count--push { margin-left: 0; flex-basis: 100%; }
     .cand-doc-cols { flex-direction: column; }
-    .cand-row { flex-wrap: wrap; row-gap: 0.4rem; }
+    
     .cand-bande-row { flex-direction: column; }
   }
 
@@ -1329,20 +1304,6 @@
 .cfg-help ul { margin: 0.6rem 0 0.2rem; padding-left: 1.1rem; }
 .cfg-help li { margin-bottom: 0.4rem; }
 
-.cfg-card {
-  background: var(--background-raised-grey); border: 1px solid var(--border-default-grey); border-radius: 0.6rem;
-  padding: 1.25rem 1.4rem 1.4rem; margin-bottom: 1rem;
-  box-shadow: 0 1px 3px rgba(20, 10, 30, 0.05);
-}
-.cfg-card__head { display: flex; align-items: flex-start; gap: 0.85rem; margin-bottom: 1.1rem; }
-.cfg-card__num {
-  flex: none; width: 1.8rem; height: 1.8rem; border-radius: 999px;
-  background: var(--background-action-high-blue-france); color: var(--text-inverted-blue-france); font-weight: 700; font-size: 0.85rem;
-  display: inline-flex; align-items: center; justify-content: center;
-}
-.cfg-card__title { margin: 0; font-size: 1.05rem; font-weight: 700; }
-.cfg-card__desc { margin: 0.2rem 0 0; font-size: 0.85em; color: var(--text-mention-grey); }
-.cfg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1.1rem 1.4rem; align-items: start; }
 .cfg-grid .fr-select-group, .cfg-grid .fr-input-group { margin-bottom: 0; }
 .cfg-req { color: var(--statut-refusee); margin-left: 0.2rem; font-weight: 700; }
   /* Le style DSFR de .fr-error-text impose un display qui écrase l'attribut
@@ -1376,16 +1337,13 @@
 
 /* Documents : un tableau (une ligne par document, deux colonnes de
    réglage) plutôt qu'une grille de sélecteurs sans lien visuel. */
-.cfg-table-wrap { overflow-x: auto; }
-.cfg-doc-table { width: 100%; border-collapse: collapse; }
-.cfg-doc-table th, .cfg-doc-table td { padding: 0.6rem 0.6rem; text-align: left; vertical-align: middle; }
-.cfg-doc-table thead th {
-  font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.02em; font-weight: 700;
-  color: var(--text-mention-grey); border-bottom: 2px solid var(--border-default-grey);
-}
-.cfg-doc-table tbody th { font-size: 0.9em; font-weight: 700; width: 30%; }
-.cfg-doc-table tbody tr + tr > * { border-top: 1px solid var(--border-default-grey); }
-.cfg-doc-table select { width: 100%; min-width: 11rem; }
+
+
+
+
+
+
+
 
 
 
@@ -1486,12 +1444,11 @@
 .cfg-bar__actions { display: flex; gap: 0.75rem; }
 
 @media (max-width: 40rem) {
-  .cfg-card { padding: 1rem; }
-  .cfg-doc-table thead { display: none; }
-  .cfg-doc-table, .cfg-doc-table tbody, .cfg-doc-table tr, .cfg-doc-table th, .cfg-doc-table td { display: block; width: 100% !important; box-sizing: border-box; }
-  .cfg-doc-table tbody tr { padding: 0.6rem 0; border-top: 1px solid var(--border-default-grey); }
-  .cfg-doc-table tbody tr + tr > * { border-top: none; }
-  .cfg-doc-table td::before { content: attr(data-label); display: block; font-size: 0.75em; color: var(--text-mention-grey); margin-bottom: 0.2rem; }
+  
+  
+  
+  
+  
 }
 
   /* Sources de données (lecture seule) : tables et colonnes utilisées, avec leur état. */
@@ -1550,10 +1507,10 @@
   /* Pastilles d'état des sources : seuls les avertissements restent affichés. */
   #panelSettings .cfg-summary .cfg-chip:not(.cfg-chip--warn) { display: none; }
   #panelSettings .cfg-summary:not(:has(.cfg-chip--warn)) { display: none; }
-  #panelSettings .cfg-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr)); gap: 0.6rem; }
-  #panelSettings .cfg-tile__n { white-space: nowrap; font-size: 1.5rem; font-weight: 700; line-height: 1.15; color: var(--text-title-grey); font-variant-numeric: tabular-nums; }
-  #panelSettings .cfg-tile__l, #panelSettings .cfg-link__t { font-weight: 700; font-size: 0.875rem; color: var(--text-title-grey); }
-  #panelSettings .cfg-tile__s, #panelSettings .cfg-link__s { font-size: 0.78rem; color: var(--text-mention-grey); }
+  
+  
+  
+  
   #panelSettings .cfg-find__top { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
   #panelSettings .cfg-find__top .fr-tag { flex: none; white-space: nowrap; }
   #panelSettings .cfg-find__title { font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1579,12 +1536,11 @@
   #panelSettings .cfg-find__opt[aria-selected="true"], #panelSettings .cfg-find__opt:hover { background: var(--background-alt-blue-france); color: var(--text-action-high-blue-france); }
   #panelSettings .cfg-find__where { flex: none; font-size: 0.72rem; color: var(--text-mention-grey); text-align: right; }
   #panelSettings .cfg-find__none { padding: 0.5rem 0.75rem; font-size: 0.85rem; color: var(--text-mention-grey); }
-  #panelSettings .cfg-toc__chip { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.15rem 0.65rem; font: inherit; font-size: 0.75rem; line-height: 1.3; cursor: pointer;
-    color: var(--text-default-grey); background: var(--background-default-grey); border: 1px solid var(--border-default-grey); border-radius: 1rem; }
-  #panelSettings .cfg-toc__chip:hover { border-color: var(--border-action-high-blue-france); color: var(--text-action-high-blue-france); }
-  #panelSettings .cfg-toc__chip[data-state]::before { content: ''; width: 0.45rem; height: 0.45rem; border-radius: 50%; background: var(--text-default-success); }
-  #panelSettings .cfg-toc__chip[data-state="todo"]::before { background: var(--text-default-warning); }
-  #panelSettings .cfg-toc__chip.is-dirty::after { content: '\25CF'; color: var(--text-default-warning); font-size: 0.7em; }
+  
+  
+  
+  
+  
   /* Carte modifiée (non enregistrée) et carte atteinte depuis la recherche ou le sommaire. */
   #panelSettings .cfg-card.is-dirty { border-left: 3px solid var(--text-default-warning); }
   #panelSettings .cfg-card.is-dirty .cfg-card__title::after { content: 'modifiée'; display: inline-block; margin-left: 0.5rem; padding: 0.02rem 0.45rem; font-size: 0.66rem; font-weight: 600; vertical-align: middle;
@@ -1596,30 +1552,30 @@
   #panelSettings .cfg-chip::before { width: 0.4rem; height: 0.4rem; }
   #panelSettings .cfg-help { margin-bottom: 0.5rem; padding: 0.3rem 0.75rem; font-size: 0.8rem; border-radius: 0.35rem; }
   #panelSettings .cfg-help summary { font-weight: 600; }
-  #panelSettings .cfg-card { padding: 0.7rem 1rem 0.8rem; margin-bottom: 0.6rem; border-radius: 0.4rem; box-shadow: none; }
-  #panelSettings .cfg-card__head { gap: 0.6rem; margin-bottom: 0.6rem; align-items: center; cursor: pointer; user-select: none; }
   #panelSettings .cfg-card__head::after { content: ''; flex: none; margin-left: auto; width: 0.5rem; height: 0.5rem; border-right: 2px solid var(--text-mention-grey); border-bottom: 2px solid var(--text-mention-grey); transform: rotate(45deg); transition: transform 0.15s; }
+  /* Cartes de la Configuration : en-tête cliquable (replie / déplie), séparé du contenu par un filet. */
+  #panelSettings .cfg-card { margin-bottom: 0.75rem; padding: 0.9rem 1.25rem 1.1rem; background: var(--background-raised-grey); border: 1px solid var(--border-default-grey); border-radius: 0.5rem; }
+  #panelSettings .cfg-card__head { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.9rem; padding-bottom: 0.7rem; border-bottom: 1px solid var(--border-default-grey); cursor: pointer; user-select: none; }
+  #panelSettings .cfg-card__title { margin: 0; font-size: 1rem; font-weight: 700; }
+  #panelSettings .cfg-card__desc { margin: 0.15rem 0 0; font-size: 0.8125rem; line-height: 1.45; color: var(--text-mention-grey); }
+  #panelSettings .cfg-card.is-collapsed .cfg-card__head { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
+  #panelSettings .cfg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 0.75rem 1.25rem; align-items: start; }
+  #panelSettings .fr-label { font-size: 0.875rem; line-height: 1.3; margin-bottom: 0.2rem; }
+  #panelSettings .fr-hint-text { font-size: 0.78rem; line-height: 1.35; margin-top: 0.05rem; }
+  #panelSettings .fr-input, #panelSettings .fr-select { font-size: 0.875rem; padding: 0.3rem 0.65rem; min-height: 0; height: 2.25rem; margin-top: 0.2rem; }
   #panelSettings .cfg-card.is-collapsed .cfg-card__head::after { transform: rotate(-45deg); }
-  #panelSettings .cfg-card.is-collapsed .cfg-card__head { margin-bottom: 0; }
   #panelSettings .cfg-card.is-collapsed > :not(.cfg-card__head) { display: none; }
   #panelSettings .cfg-card__head:hover .cfg-card__title { color: var(--text-action-high-blue-france); }
   #panelSettings .cfg-card__head:focus-visible { outline: 2px solid #0a76f6; outline-offset: 2px; border-radius: 0.25rem; }
-  #panelSettings .cfg-card__num { width: 1.4rem; height: 1.4rem; font-size: 0.75rem; }
-  #panelSettings .cfg-card__title { font-size: 0.95rem; }
-  #panelSettings .cfg-card__desc { margin: 0.05rem 0 0; font-size: 0.78rem; }
-  #panelSettings .cfg-grid { grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.55rem 1rem; }
-  #panelSettings .fr-label { font-size: 0.8125rem; line-height: 1.25; margin-bottom: 0.15rem; }
-  #panelSettings .fr-hint-text { font-size: 0.72rem; line-height: 1.3; margin-top: 0.05rem; }
-  #panelSettings .fr-input, #panelSettings .fr-select { font-size: 0.8125rem; padding: 0.25rem 0.6rem; min-height: 0; height: 2rem; margin-top: 0.15rem; }
   #panelSettings textarea.fr-input { height: auto; min-height: 5rem; }
   #panelSettings .fr-input-group, #panelSettings .fr-select-group { margin-top: 0; margin-bottom: 0.5rem; }
-  #panelSettings .fr-checkbox-group { margin-top: 0.35rem; }
+  #panelSettings .fr-checkbox-group { margin-top: 0.5rem; }
   #panelSettings .fr-checkbox-group label { font-size: 0.8125rem; padding-bottom: 0; }
   #panelSettings .fr-checkbox-group.fr-mt-3w, #panelSettings .fr-mt-3w { margin-top: 0.6rem !important; }
   #panelSettings .fr-mt-2w { margin-top: 0.5rem !important; }
   #panelSettings .fr-btn--sm { padding: 0.15rem 0.6rem; min-height: 1.75rem; font-size: 0.8125rem; }
-  #panelSettings .cfg-doc-table th, #panelSettings .cfg-doc-table td { padding: 0.3rem 0.5rem; }
-  #panelSettings .cfg-doc-table thead th { font-size: 0.72rem; }
+  
+  
   #panelSettings .cfg-sources__table th, #panelSettings .cfg-sources__table td { padding: 0.2rem 0.4rem; }
   #panelSettings .cfg-hint { margin: 0.5rem 0 0; font-size: 0.78rem; }
   #panelSettings .cfg-vars { margin-top: 0.6rem; padding: 0.5rem 0.75rem; font-size: 0.8rem; }
@@ -1658,13 +1614,9 @@
   .bulk-table tr.is-selected td { background: var(--background-alt-blue-france); }
   .bulk-table tbody tr:hover td { background: var(--background-alt-grey); }
   .bulk-table tr.is-selected:hover td { background: var(--background-contrast-blue-france, #e3e3fd); }
-  .bulk-bar {
-    position: sticky; bottom: 0; z-index: 20; display: flex; align-items: center; flex-wrap: wrap; gap: 0.8rem 1.4rem;
-    margin-top: 1rem; padding: 0.8rem 1rem; background: var(--background-default-grey);
-    border-top: 2px solid var(--bleu-france); box-shadow: 0 -4px 14px rgba(20, 10, 30, 0.1);
-  }
-  .bulk-bar[hidden] { display: none; }
-  .bulk-bar__count { font-weight: 700; }
+  
+  
+  
   .bulk-dialog {
     position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center;
     padding: 1rem; background: rgba(22, 22, 22, 0.55);
@@ -1749,8 +1701,8 @@
   .stat-section__title { font-size: 1.1rem; margin: 0 0 0.2rem; color: var(--st-blue); }
   .stat-section__hint { margin: 0 0 0.7rem; font-size: 0.8125rem; color: var(--st-muted); }
   .stat-syn { margin: 0 0 1.5rem; }
-  .stat-scope { display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem 0.9rem; margin: 0 0 1rem; }
-  .stat-scope__lbl { font-weight: 700; font-size: 0.875rem; }
+  
+  
   .stat-toggle { display: inline-flex; border: 1px solid var(--st-blue); border-radius: 0.25rem; overflow: hidden; }
   .stat-toggle button { white-space: nowrap; padding: 0.3rem 0.8rem; border: 0; background: transparent; color: var(--st-blue); font: inherit; font-size: 0.875rem; cursor: pointer; }
   .stat-toggle button[aria-pressed="true"] { background: var(--st-blue); color: var(--background-default-grey, #fff); font-weight: 700; }
@@ -1810,7 +1762,7 @@
   .stat-leg__sw { display: inline-block; width: 1rem; height: 1rem; margin-right: 0.4rem; border-radius: 3px; }
   .stat-gchart { overflow-x: auto; }
   .stat-gc__bars { display: flex; align-items: flex-end; gap: 0.35rem; height: 7.5rem; padding-top: 0.25rem; border-bottom: 1px solid var(--st-line); }
-  .stat-gc__bars--tall { height: 11rem; }
+  
   .stat-gc { flex: 1 1 0; width: 2.75rem; min-width: 1.4rem; max-width: 4.5rem; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; position: relative; padding-bottom: 1.5rem; }
   .stat-gc__bar { display: block; width: 65%; max-width: 1.9rem; background: color-mix(in srgb, var(--st-blue) 55%, var(--st-bg)); border-radius: 0.6rem 0.6rem 0 0; }
   .stat-gc__stack { display: flex; flex-direction: column-reverse; width: 65%; max-width: 1.9rem; border-radius: 0.6rem 0.6rem 0 0; overflow: hidden; gap: 2px; }
@@ -1848,16 +1800,9 @@
   .drop-zone:focus-visible { outline: 2px solid var(--text-action-high-blue-france, #000091); outline-offset: 2px; }
   /* ---- Page Ressources (réservations de véhicules / matériels, hébergement, documents) : reprise du widget Réservations ---- */
 .fr-alert { margin-bottom: 0; }
-.config-group-title {
-    font-weight: 700;
-    margin: 1.5rem 0 0.75rem;
-    font-size: 0.8em;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: var(--text-mention-grey);
-  }
-.config-group-title:first-child { margin-top: 0; }
-.fr-accordion__btn .fr-badge { margin-left: 0.75rem; vertical-align: middle; }
+
+
+
 .dropdown-menu { position: relative; display: inline-block; }
 .dropdown-menu__list {
     position: absolute;
@@ -1940,8 +1885,8 @@
     gap: 0.75rem;
     justify-content: flex-start;
   }
-.req-count { margin: 0; color: var(--text-mention-grey); font-size: 0.9em; }
-.req-count--push { margin-left: auto; }
+
+
 .req-toolbar .fr-search-bar { flex: 1 1 16rem; max-width: 22rem; margin: 0; }
 .req-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem; }
 .req-actions .fr-btn { white-space: nowrap; }
@@ -1960,7 +1905,7 @@
     mask-image: url("https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.15.3/dist/icons/arrows/arrow-down-line.svg");
     background-color: var(--background-default-grey) !important;
   }
-.fr-table caption { text-align: left; font-weight: 700; }
+
 .uv-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
@@ -1986,16 +1931,7 @@
 .uv-card[data-occupancy="alone"] { background: var(--uv-pastel-alone); }
 .uv-card[data-occupancy="full"] { background: var(--uv-pastel-full); }
 .uv-card[data-occupancy="over"] { background: var(--uv-pastel-over); }
-.uv-legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.3rem 1.5rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    font-size: 0.9em;
-    color: var(--text-mention-grey);
-  }
+
 .uv-legend__item {
     display: inline-flex;
     align-items: center;
@@ -2104,7 +2040,7 @@ table.req-table th { font-size: 0.95em; }
       padding-top: 0.6rem;
       padding-bottom: 0.6rem;
     }
-  .req-count--push { margin-left: 0; flex-basis: 100%; margin-top: 0.15rem; }
+  
   .req-toolbar .fr-search-bar { flex-basis: 100%; max-width: none; }
   .dropdown-menu__list { min-width: 12rem; max-width: calc(100vw - 2.5rem); border-radius: 0.5rem; }
   .fr-table__wrapper { overflow-x: visible; }
@@ -2196,7 +2132,7 @@ table.req-table th { font-size: 0.95em; }
   .newreq-dialog__footer .newreq-delete-btn { margin-right: 0; margin-top: 0.75rem; }
   .uv-grid { grid-template-columns: 1fr; }
 }
-.fr-accordions-group .fr-accordion + .fr-accordion { margin-top: 0.75rem; }
+
 .settings-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -2204,14 +2140,8 @@ table.req-table th { font-size: 0.95em; }
   }
 .settings-grid .fr-select-group,
   .settings-grid .fr-input-group { margin-bottom: 0; }
-.config-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-.config-header h2 { margin: 0; }
+
+
 .gestion-etat-btn {
     display: inline-flex;
     align-items: center;
@@ -2349,8 +2279,7 @@ table.req-table th { font-size: 0.95em; }
 #fsjRoot #fsjFieldset .fr-checkbox-group label {
     white-space: nowrap;
   }
-@media (max-width: 64rem) {
-}
+
 #fsjRoot .fsj-radio-title { display: inline-flex; align-items: center; gap: 0.35rem; white-space: nowrap; }
 #fsjRoot .fsj-radio-title .code-hidden-icon { margin-left: 0; }
 #fsjRoot #fsjFieldset .fr-checkbox-group label .fr-hint-text {
@@ -2542,15 +2471,15 @@ table.req-table th { font-size: 0.95em; }
 #fsjRoot .week-tipbox { position: fixed; z-index: 200; max-width: 24rem; padding: 0.6rem 0.8rem; background: var(--background-raised-grey); color: var(--text-default-grey); border: 1px solid var(--border-default-grey); border-radius: 0.35rem; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); font-size: 0.8125rem; line-height: 1.35; pointer-events: none; }
 #fsjRoot .week-tipbox[hidden] { display: none; }
 #fsjRoot .fr-segmented__element .fr-label .fr-badge { margin-left: 0.4rem; vertical-align: middle; }
-#fsjRoot .fr-accordion__btn .fr-badge { margin-left: 0.5rem; vertical-align: middle; }
-#fsjRoot .fr-accordions-group .fr-accordion + .fr-accordion { margin-top: 0.75rem; }
+
+
 #fsjRoot .req-toolbar {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: 0.75rem;
   }
-#fsjRoot .req-count { margin: 0 0 0 auto; color: var(--text-mention-grey); font-size: 0.9em; }
+
 #fsjRoot .req-table-wrap { overflow-x: auto; border: 1px solid var(--border-default-grey); border-radius: 0.5rem; background: var(--background-raised-grey); }
 #fsjRoot .req-table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
 #fsjRoot .req-table th,
@@ -2721,18 +2650,9 @@ table.req-table th { font-size: 0.95em; }
 #fsjRoot .req-table--fit .col-intitule { width: 22%; }
 #fsjRoot .req-table--fit .col-cadres { width: 20%; }
 #fsjRoot .req-table--fit .req-actions { flex-wrap: nowrap; }
-#fsjRoot .req-delete-cell { text-align: right; vertical-align: middle; }
-#fsjRoot .req-delete-btn {
-    width: 2rem;
-    min-width: 2rem;
-    height: 2rem;
-    min-height: 2rem;
-    padding: 0;
-    border-radius: 50%;
-    color: #929292;
-    opacity: 0.8;
-  }
-#fsjRoot .req-delete-btn:hover { background-color: var(--uv-pastel-over); color: #ce0500; opacity: 1; }
+
+
+
 #fsjRoot .req-table--fit tbody tr.req-cluster-start td { border-top: 2px solid var(--border-default-grey); }
 #fsjRoot .req-code-cell { vertical-align: top; background: var(--background-alt-grey); }
 #fsjRoot .req-group-row th { background: var(--background-contrast-blue-france, #e3e3fd); color: var(--bleu-france); font-size: 0.9em; font-weight: 700; text-align: left; padding: 0.4rem 0.8rem; }
@@ -2832,7 +2752,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 .cadre-star[aria-pressed="true"] { color: #ffd54a; }
 .cadre-star:hover { color: #ffd54a; }
 .cadre-chip:has(.cadre-tag--vol) .cadre-star { background: var(--background-action-high-success, #18753c); }
-.cadre-tags .occ-apprenant, .cadre-tags .cadre-tag[for^="occEditApprenant_"] { margin: 0; }
+ .cadre-tags .cadre-tag[for^="occEditApprenant_"]  { margin: 0; }
 .occ-checkbox-row.cadre-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .cadre-tags .fr-fieldset__element { position: relative; margin: 0; padding: 0; width: auto; flex: 0 0 auto; }
 .cadre-tags input[type="checkbox"] { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
@@ -2843,7 +2763,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 .cadre-tags .cadre-tag--vol { background: var(--background-contrast-success, #b8fec9); color: var(--text-default-success, #18753c); border-color: var(--border-plain-success, #18753c); }
 .cadre-tags input:checked + .cadre-tag--vol { background: var(--background-action-high-success, #18753c); color: #fff; }
 /* Progression : récapitulatif des heures de cours par cadre (toute la période du stage, permanences exclues). */
-.cadre-hours { margin: 1.25rem 0 0; background: var(--background-raised-grey); border: 1px solid var(--border-default-grey); border-radius: 0.5rem; padding: 0.75rem 1.25rem; }
+.cadre-hours { margin: 0 0 1rem; font-size: 0.85rem; background: var(--background-raised-grey); border: 1px solid var(--border-default-grey); border-radius: 0.5rem; padding: 0.75rem 1.25rem; }
+#panelProgression .cadre-hours { margin: 1.25rem 0 0; }
 .cadre-hours[open] { padding-bottom: 1rem; }
 .cadre-hours > summary { cursor: pointer; font-weight: 700; color: var(--text-action-high-blue-france); }
 .cadre-hours .cadre-hours__sub { font-weight: 400; font-size: 0.85rem; color: var(--text-mention-grey); margin-left: 0.5rem; }
@@ -2928,7 +2849,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 .ref-mini tbody th { font-weight: 600; }
 @media (max-width: 40rem) { .ref-grid { grid-template-columns: 1fr; } }
 .cadre-badge-star { color: #b8860b; font-size: 0.95em; line-height: 1; margin-right: 0.15rem; }
-.ref-actions .ref-del { margin-right: auto; }
+
 /* Fenêtre « Ajouter des notes » / détail d'une évaluation */
 .ref-dlg--wide .fr-grid-row > [class*="fr-col"] { flex: 0 0 min(100%, 54rem); max-width: min(100%, 54rem); width: min(100%, 54rem); }
 .ref-drop { flex-direction: column; justify-content: center; text-align: center; gap: 0.35rem; padding: 2rem 1.25rem; }
@@ -3053,7 +2974,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       padding-top: 0.6rem;
       padding-bottom: 0.6rem;
     }
-#fsjRoot .req-count { margin-left: 0; flex-basis: 100%; margin-top: 0.15rem; }
+
 #fsjRoot .req-table-view { display: none; }
 #fsjRoot .req-cards-view { display: grid; }
 #fsjRoot .req-actions .fr-btn {
@@ -3083,12 +3004,12 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   .bulk-table td.bulk-table__actions { position: sticky; right: 0; background: var(--background-default-grey); box-shadow: inset 0 1px 0 0 var(--border-default-grey); } /* le filet de ligne est redessiné : une cellule collante perd sa bordure (tableau fusionné) */ /* les icônes restent visibles quand la table défile */
   .bulk-table thead th.bulk-table__actions { right: 0; background: var(--background-alt-grey); }
   .bulk-table__actions .fr-btn { padding: 0.25rem 0.4rem; min-height: 0; }
-  .bulk-bar__select { width: auto; min-width: 10rem; max-width: 16rem; }
-  .bulk-bar__input { width: 14rem; }
-  .bulk-bar__clear { margin-left: auto; }
-  .bulk-bar__docs { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 0.3rem 1rem; font-size: 0.9em; }
-  .bulk-bar__doc { display: inline-flex; align-items: center; gap: 0.3rem; cursor: pointer; }
-  .bulk-bar__actions { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-left: auto; }
+  
+  
+  
+  
+  
+  
 
   /* Pied de page du widget : crédit, comme dans les widgets précédents. */
   .widget-footer {
@@ -4801,24 +4722,25 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     </div>
 
     <div class="stg-tabs cfg-tabs" role="tablist" aria-label="Rubriques de la configuration">
-      <button class="stg-tab" role="tab" type="button" data-cfg-go="stg" aria-selected="true">Candidats et courriels</button>
-      <button class="stg-tab" role="tab" type="button" data-cfg-go="fsj" aria-selected="false">Temps et activités</button>
-      <button class="stg-tab" role="tab" type="button" data-cfg-go="res" aria-selected="false">Réservations <span class="fr-badge fr-badge--sm fr-badge--warning fr-badge--no-icon" id="cfgResBadge" hidden></span></button>
+      <button class="stg-tab" role="tab" type="button" data-cfg-go="stg" aria-selected="true">Général</button>
       <button class="stg-tab" role="tab" type="button" data-cfg-go="wel" aria-selected="false">Page Bienvenue</button>
+      <button class="stg-tab" role="tab" type="button" data-cfg-go="etu" aria-selected="false">eTuteur et modèles de courriels</button>
+      <button class="stg-tab" role="tab" type="button" data-cfg-go="fsj" aria-selected="false">Temps et activités</button>
+      <button class="stg-tab" role="tab" type="button" data-cfg-go="res" aria-selected="false">Ressources <span class="fr-badge fr-badge--sm fr-badge--warning fr-badge--no-icon" id="cfgResBadge" hidden></span></button>
       <button class="stg-tab" role="tab" type="button" data-cfg-go="faq" aria-selected="false">FAQ</button>
     </div>
 
     <div class="cfg-summary" id="cfgSummary" data-cfg-tab="stg" aria-live="polite"></div>
     <div id="settingsStatusZone" class="fr-mb-2w" aria-live="polite"></div>
 
-    <details class="cfg-help" data-cfg-tab="stg">
+    <details class="cfg-help" data-cfg-tab="etu">
       <summary>Aide au paramétrage</summary>
       <ul>
-        <li><strong>Liaison :</strong> les tables sont rapprochées par le NID (la colonne NID de la table Documents doit contenir la même valeur que celle des candidats). Si un candidat n'a pas encore de ligne Documents, elle est créée à la première saisie ou au premier import.</li>
-        <li><strong>Validation des pièces :</strong> passer un document en « Refusé » ouvre un e-mail pré-rempli vers l'adresse du candidat ; sans colonne E-mail, le refus est enregistré mais aucun message ne s'ouvre.</li>
-        <li><strong>Import de fichiers :</strong> déposer ou remplacer un fichier depuis la fiche nécessite les droits d'écriture sur le document Grist.</li>
-        <li><strong>Pictogramme « mineur » :</strong> calculé en comparant la date de naissance du candidat à la date « Début de formation le » saisie ici ; il reste masqué si l'une des deux manque.</li>
-        <li><strong>Champs modifiables depuis la fiche :</strong> inscription, quantité, encaissé, blocages/infos, photos et validations. Le dû est en lecture seule. Ces réglages sont mémorisés avec le widget.</li>
+        <li><strong>Liaison des tables :</strong> les stagiaires et leurs documents sont rapprochés par le NID. Un stagiaire sans ligne dans la table ETuteur en reçoit une à la première saisie ou au premier import.</li>
+        <li><strong>Refus d’une pièce :</strong> passer une pièce en « Refusé » ouvre un courriel pré-rempli vers le stagiaire. Sans colonne e-mail, le refus est enregistré sans courriel.</li>
+        <li><strong>Dépôt de fichiers :</strong> déposer ou remplacer un fichier depuis une fiche nécessite les droits d’écriture sur le document Grist.</li>
+        <li><strong>Pictogramme « mineur » :</strong> calculé d’après la date de naissance et le premier jour de formation ; masqué si l’une des deux dates manque.</li>
+        <li><strong>Enregistrement :</strong> les réglages sont mémorisés avec le widget et partagés par tous les utilisateurs.</li>
       </ul>
     </details>
 
@@ -4833,12 +4755,52 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <form id="settingsForm" novalidate>
       <div data-cfg-tab="stg">
+      <section class="cfg-card" aria-labelledby="cfgCardTitle3">
+        <div class="cfg-card__head">
+          <div>
+            <h3 class="cfg-card__title" id="cfgCardTitle3">Période de formation</h3>
+            <p class="cfg-card__desc">Premier et dernier jour de la formation, taux d’attrition de référence. Cette période est aussi celle de la Progression (vue et export PDF). Le premier jour sert en outre à repérer les stagiaires mineurs (pictogramme « -18 ») ; le dernier plafonne la date de départ de l’état rationnaire par FA.</p>
+          </div>
+        </div>
+<div class="cfg-grid">
+<div class="fr-input-group" id="cand_dateDebutFormation_group">
+    <label class="fr-label" for="cand_dateDebutFormation">Début de formation
+      <span class="fr-hint-text">Format JJ/MM/AAAA.</span></label>
+    <input class="fr-input" type="text" id="cand_dateDebutFormation" inputmode="numeric" maxlength="10" placeholder="JJ/MM/AAAA" autocomplete="off" aria-describedby="cand_dateDebutFormation_err">
+    <p class="fr-error-text" id="cand_dateDebutFormation_err" hidden>Date invalide : utilisez le format JJ/MM/AAAA (par ex. 15/09/2026).</p>
+  </div>
+<div class="fr-input-group" id="cand_dateFinFormation_group">
+    <label class="fr-label" for="cand_dateFinFormation">Fin de formation
+      <span class="fr-hint-text">Format JJ/MM/AAAA.</span></label>
+    <input class="fr-input" type="text" id="cand_dateFinFormation" inputmode="numeric" maxlength="10" placeholder="JJ/MM/AAAA" autocomplete="off" aria-describedby="cand_dateFinFormation_err">
+    <p class="fr-error-text" id="cand_dateFinFormation_err" hidden>Date invalide : utilisez le format JJ/MM/AAAA (par ex. 15/09/2026).</p>
+  </div>
+<div class="fr-input-group" id="cand_attritionRef_group">
+    <label class="fr-label" for="cand_attritionRef">Attrition de référence (%)
+      <span class="fr-hint-text">Taux habituel d’un stage, repère de la page Statistiques (par ex. 5).</span></label>
+    <input class="fr-input" type="text" id="cand_attritionRef" inputmode="decimal" maxlength="5" placeholder="5" autocomplete="off">
+  </div>
+</div>
+
+      </section>
+
+      <section class="cfg-card" aria-labelledby="cfgModTitle">
+        <div class="cfg-card__head">
+          <div>
+            <h3 class="cfg-card__title" id="cfgModTitle">Modules utilisés pour ce stage</h3>
+            <p class="cfg-card__desc">Un module décoché reste visible dans les menus : sa tuile est grisée, non cliquable, et porte la mention « Non utilisé pour ce stage ». Les données sont conservées.</p>
+          </div>
+        </div>
+        <div class="fr-checkbox-group fr-mt-1w"><input type="checkbox" id="cfg_mod_veh"><label class="fr-label" for="cfg_mod_veh">Réservations de véhicules</label></div>
+        <div class="fr-checkbox-group fr-mt-1w"><input type="checkbox" id="cfg_mod_mat"><label class="fr-label" for="cfg_mod_mat">Réservations de matériels</label></div>
+        <div class="fr-checkbox-group fr-mt-1w"><input type="checkbox" id="cfg_mod_abs"><label class="fr-label" for="cfg_mod_abs">Gestion des absences</label></div>
+      </section>
+
       <section class="cfg-card" aria-labelledby="cfgCardTitle1">
         <div class="cfg-card__head">
-          <span class="cfg-card__num" aria-hidden="true">1</span>
           <div>
-            <h3 class="cfg-card__title" id="cfgCardTitle1">Sources de données et affichage</h3>
-            <p class="cfg-card__desc">Les tables Grist sont fixes ; il ne reste ici que l'affichage des pages.</p>
+            <h3 class="cfg-card__title" id="cfgCardTitle1">Affichage des pages</h3>
+            <p class="cfg-card__desc">Les tables Stagiaires et ETuteur sont fixes ; elles sont rapprochées par le NID.</p>
           </div>
         </div>
 <!-- Tables EN DUR : « Stagiaires » (candidats) et « ETuteur » (documents), retrouvées par leur nom (voir resolveHardTables).
@@ -4847,51 +4809,22 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   <select id="cand_table"></select>
   <select id="cand_docs_table"></select>
 </div>
-<p class="fr-text--sm">Tables utilisées : <strong>Stagiaires</strong> (candidats) et <strong>ETuteur</strong> (documents), rapprochées par le NID. Elles sont fixes (dans le code).</p>
-<div class="fr-checkbox-group fr-mt-3w">
+<div class="fr-checkbox-group">
   <input type="checkbox" id="cfg_hideEtuteur">
   <label class="fr-label" for="cfg_hideEtuteur">Masquer la page eTuteur
-    <span class="fr-hint-text">Le bouton « Dossiers eTuteur » de la page Stagiaires n'est plus affiché ; seule la page Stagiaires reste accessible. Les données restent chargées.</span></label>
+    <span class="fr-hint-text">Retire le bouton « Dossiers eTuteur » de la page Stagiaires. Les données restent chargées.</span></label>
 </div>
 
       </section>
 
-      <section class="cfg-card" aria-labelledby="cfgCardTitle3">
-        <div class="cfg-card__head">
-          <span class="cfg-card__num" aria-hidden="true">2</span>
-          <div>
-            <h3 class="cfg-card__title" id="cfgCardTitle3">Début et fin de formation</h3>
-            <p class="cfg-card__desc">Date du 1er jour (sert à calculer le pictogramme « -18 », mineur) et dernier jour de la formation (plafond de la date de départ dans l'état rationnaire par FA). Les autres colonnes (identité, documents, bande patronymique, suivi) sont fixées dans le code : voir « Sources de données du widget » ci-dessus.</p>
-          </div>
-        </div>
-<div class="cfg-grid">
-<div class="fr-input-group" id="cand_dateDebutFormation_group">
-    <label class="fr-label" for="cand_dateDebutFormation">Début de formation le
-      <span class="fr-hint-text">Saisie manuelle, format JJ/MM/AAAA.</span></label>
-    <input class="fr-input" type="text" id="cand_dateDebutFormation" inputmode="numeric" maxlength="10" placeholder="JJ/MM/AAAA" autocomplete="off" aria-describedby="cand_dateDebutFormation_err">
-    <p class="fr-error-text" id="cand_dateDebutFormation_err" hidden>Date invalide : utilisez le format JJ/MM/AAAA (par ex. 15/09/2026).</p>
-  </div>
-<div class="fr-input-group" id="cand_dateFinFormation_group">
-    <label class="fr-label" for="cand_dateFinFormation">Fin de formation le
-      <span class="fr-hint-text">Saisie manuelle, format JJ/MM/AAAA.</span></label>
-    <input class="fr-input" type="text" id="cand_dateFinFormation" inputmode="numeric" maxlength="10" placeholder="JJ/MM/AAAA" autocomplete="off" aria-describedby="cand_dateFinFormation_err">
-    <p class="fr-error-text" id="cand_dateFinFormation_err" hidden>Date invalide : utilisez le format JJ/MM/AAAA (par ex. 15/09/2026).</p>
-  </div>
-<div class="fr-input-group" id="cand_attritionRef_group">
-    <label class="fr-label" for="cand_attritionRef">Attrition de référence (%)
-      <span class="fr-hint-text">Taux habituel d'un stage, repère de la page Statistiques (par ex. 5).</span></label>
-    <input class="fr-input" type="text" id="cand_attritionRef" inputmode="decimal" maxlength="5" placeholder="5" autocomplete="off">
-  </div>
-</div>
+      </div>
 
-      </section>
-
+      <div data-cfg-tab="etu" hidden>
       <section class="cfg-card" aria-labelledby="cfgCardTitle5">
         <div class="cfg-card__head">
-          <span class="cfg-card__num" aria-hidden="true">3</span>
           <div>
             <h3 class="cfg-card__title" id="cfgCardTitle5">Courriel « EAD - Bloc 1 »</h3>
-            <p class="cfg-card__desc">Message pré-rempli ouvert dans la messagerie quand on clique sur l'icône courriel de la carte « EAD - Bloc 1 ». Il est adressé à l'e-mail du candidat (colonne « Email perso » de la table des candidats). À l'ouverture du courriel, le widget ajoute « Identifiants GendForm envoyés le JJ/MM/AAAA » dans « Blocages / Infos » de la table Documents.</p>
+            <p class="cfg-card__desc">Message pré-rempli, ouvert dans la messagerie depuis l’icône courriel de la carte « EAD - Bloc 1 ». Destinataire : l’adresse e-mail du candidat (colonne « Email perso »). À l’ouverture, la mention « Identifiants GendForm envoyés le JJ/MM/AAAA » est ajoutée dans « Blocages / Infos » de la table ETuteur.</p>
           </div>
         </div>
         <div class="fr-input-group">
@@ -4914,10 +4847,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
       <section class="cfg-card" aria-labelledby="cfgCardTitle6">
         <div class="cfg-card__head">
-          <span class="cfg-card__num" aria-hidden="true">4</span>
           <div>
             <h3 class="cfg-card__title" id="cfgCardTitle6">Courriel de refus d'une pièce</h3>
-            <p class="cfg-card__desc">Message pré-rempli ouvert dans la messagerie quand on refuse une pièce (Attestation RS, Droit à l'image, EAD - Bloc 1). Il est adressé à l'e-mail du candidat pour lui demander de renvoyer la pièce.</p>
+            <p class="cfg-card__desc">Message pré-rempli, ouvert dans la messagerie lorsqu’une pièce est refusée (Attestation RS, Droit à l’image, EAD - Bloc 1). Destinataire : l’adresse e-mail du candidat, à qui l’on demande de renvoyer la pièce.</p>
           </div>
         </div>
         <div class="fr-input-group">
@@ -4939,47 +4871,21 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         </div>
       </section>
 
-      <section class="cfg-card" aria-labelledby="cfgModTitle">
-        <div class="cfg-card__head">
-          <span class="cfg-card__num" aria-hidden="true">5</span>
-          <div>
-            <h3 class="cfg-card__title" id="cfgModTitle">Modules utilisés pour ce stage</h3>
-            <p class="cfg-card__desc">Un module décoché reste visible dans les menus, mais sa tuile n’est plus cliquable et affiche le badge « Non utilisé pour ce stage ». Les données ne sont ni modifiées ni supprimées.</p>
-          </div>
-        </div>
-        <div class="fr-checkbox-group fr-mt-1w"><input type="checkbox" id="cfg_mod_veh"><label class="fr-label" for="cfg_mod_veh">Réservations de véhicules</label></div>
-        <div class="fr-checkbox-group fr-mt-1w"><input type="checkbox" id="cfg_mod_mat"><label class="fr-label" for="cfg_mod_mat">Réservations de matériels</label></div>
-        <div class="fr-checkbox-group fr-mt-1w"><input type="checkbox" id="cfg_mod_abs"><label class="fr-label" for="cfg_mod_abs">Gestion des absences</label></div>
-      </section>
-
       </div>
 
       <div data-cfg-tab="fsj" hidden>
       <section class="cfg-card" aria-labelledby="fsj_cfgCardTitle1">
           <div class="cfg-card__head">
-            <span class="cfg-card__num" aria-hidden="true">5</span>
             <div>
-              <h3 class="cfg-card__title" id="fsj_cfgCardTitle1">Temps et activités — période du stage</h3>
-              <p class="cfg-card__desc">Dates de début et de fin du stage, utilisées par la vue Progression et son export PDF.</p>
+              <h3 class="cfg-card__title" id="fsj_cfgCardTitle1">Table des occurrences</h3>
+              <p class="cfg-card__desc">Source du planning (Progression, Feuille de service journalier). La période affichée et exportée est celle de la formation, réglée dans la rubrique Général.</p>
             </div>
           </div>
           <div class="fr-select-group fr-mb-2w">
-          <label class="fr-label" for="configOccTable">Table des occurrences (progression)
+          <label class="fr-label" for="configOccTable">Table des occurrences
             <span class="fr-hint-text">Table Grist qui contient les occurrences du planning. Si elle n'est pas choisie, le widget cherche la table qui a les colonnes Début, Fin, Occurrence et Intitulé.</span></label>
           <select class="fr-select" id="configOccTable"><option value="">Détection automatique</option></select>
         </div>
-          <div class="cfg-grid">
-            <div class="fr-input-group">
-              <label class="fr-label" for="configStartDate">Date de début<span class="cfg-req" aria-hidden="true">*</span><span class="fr-sr-only"> (obligatoire)</span>
-                <span class="fr-hint-text">Si elle est postérieure à aujourd'hui, la vue Progression s'ouvre sur cette date.</span></label>
-              <input class="fr-input" type="date" id="configStartDate" name="configStartDate">
-            </div>
-            <div class="fr-input-group">
-              <label class="fr-label" for="configEndDate">Date de fin<span class="cfg-req" aria-hidden="true">*</span><span class="fr-sr-only"> (obligatoire)</span>
-                <span class="fr-hint-text">Postérieure ou égale à la date de début.</span></label>
-              <input class="fr-input" type="date" id="configEndDate" name="configEndDate">
-            </div>
-          </div>
         <details class="cfg-help">
         <summary>Sources de données du widget (lecture seule)</summary>
         <p class="cfg-hint">Tables et colonnes fixées dans le widget : les colonnes de votre document Grist doivent porter exactement ces identifiants.</p>
@@ -5017,9 +4923,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
       <section class="cfg-card" aria-labelledby="fsj_cfgCardTitle2">
           <div class="cfg-card__head">
-            <span class="cfg-card__num" aria-hidden="true">6</span>
             <div>
-              <h3 class="cfg-card__title" id="fsj_cfgCardTitle2">Temps et activités — exports PDF</h3>
+              <h3 class="cfg-card__title" id="fsj_cfgCardTitle2">Exports PDF</h3>
               <p class="cfg-card__desc">Règles applicables à la génération des PDF : la Progression et la Feuille de service journalier (FSJ).</p>
             </div>
           </div>
@@ -5041,9 +4946,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
       <section class="cfg-card" aria-labelledby="fsj_cfgCardTitle4">
           <div class="cfg-card__head">
-            <span class="cfg-card__num" aria-hidden="true">7</span>
             <div>
-              <h3 class="cfg-card__title" id="fsj_cfgCardTitle4">Temps et activités — autorisation d'absence</h3>
+              <h3 class="cfg-card__title" id="fsj_cfgCardTitle4">Autorisation d'absence</h3>
               <p class="cfg-card__desc">Informations imprimées sur le PDF « Autorisation d'absence ».</p>
             </div>
           </div>
@@ -5061,7 +4965,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       <div data-cfg-tab="res" hidden>
       <section class="cfg-card" hidden aria-labelledby="res_cfgCardTitle1">
           <div class="cfg-card__head">
-            <span class="cfg-card__num" aria-hidden="true">8</span>
             <div>
               <h3 class="cfg-card__title" id="res_cfgCardTitle1">Véhicules — demandes de réservation <span class="fr-badge fr-badge--sm" id="vehConfigStatus"></span></h3>
               <p class="cfg-card__desc">Table des demandes de réservation de véhicules et rôle de chacune de ses colonnes.</p>
@@ -5129,7 +5032,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
       <section class="cfg-card" hidden aria-labelledby="res_cfgCardTitle2">
           <div class="cfg-card__head">
-            <span class="cfg-card__num" aria-hidden="true">9</span>
             <div>
               <h3 class="cfg-card__title" id="res_cfgCardTitle2">Matériels — demandes de réservation <span class="fr-badge fr-badge--sm" id="matConfigStatus"></span></h3>
               <p class="cfg-card__desc">Table des demandes de réservation de matériels et rôle de chacune de ses colonnes.</p>
@@ -5202,7 +5104,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
       <section class="cfg-card" hidden aria-labelledby="res_cfgCardTitle3">
           <div class="cfg-card__head">
-            <span class="cfg-card__num" aria-hidden="true">10</span>
             <div>
               <h3 class="cfg-card__title" id="res_cfgCardTitle3">Gérer les véhicules — recensement du parc <span class="fr-badge fr-badge--sm" id="gvConfigStatus"></span></h3>
               <p class="cfg-card__desc">Recensement du parc de véhicules : plaque minéralogique, type, affectation et disponibilité.</p>
@@ -5245,7 +5146,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
       <section class="cfg-card" hidden aria-labelledby="res_cfgCardTitle4">
           <div class="cfg-card__head">
-            <span class="cfg-card__num" aria-hidden="true">11</span>
             <div>
               <h3 class="cfg-card__title" id="res_cfgCardTitle4">Gérer le matériel — recensement du parc <span class="fr-badge fr-badge--sm" id="gmConfigStatus"></span></h3>
               <p class="cfg-card__desc">Recensement du matériel : désignation, matériel, type, précisions, affectation et disponibilité.</p>
@@ -5296,7 +5196,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
       <section class="cfg-card" hidden aria-labelledby="res_cfgCardTitle5">
           <div class="cfg-card__head">
-            <span class="cfg-card__num" aria-hidden="true">12</span>
             <div>
               <h3 class="cfg-card__title" id="res_cfgCardTitle5">Hébergement — UV, chambres et occupants <span class="fr-badge fr-badge--sm" id="occConfigStatus"></span></h3>
               <p class="cfg-card__desc">UV, chambres et occupants : sert à la page « Hébergement » et à la gestion des infrastructures.</p>
@@ -5372,7 +5271,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
     <section class="cfg-card" id="welAdminCard" data-cfg-tab="wel" hidden aria-labelledby="welAdminTitle">
       <div class="cfg-card__head">
-        <span class="cfg-card__num" aria-hidden="true">★</span>
         <div>
           <h3 class="cfg-card__title" id="welAdminTitle">Page Bienvenue</h3>
           <p class="cfg-card__desc">Introduction, articles (en Markdown), dates de publication et compteurs de la page d’accueil. Enregistrement indépendant du reste de la configuration.</p>
@@ -5391,7 +5289,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
     <section class="cfg-card" id="faqAdminCard" data-cfg-tab="faq" hidden aria-labelledby="faqAdminTitle">
       <div class="cfg-card__head">
-        <span class="cfg-card__num" aria-hidden="true">★</span>
         <div>
           <h3 class="cfg-card__title" id="faqAdminTitle">FAQ</h3>
           <p class="cfg-card__desc">Rubriques et questions de la page FAQ. Les réponses s’écrivent en Markdown (ou en HTML court) ; lien vers une page : <code>[texte](#go:stagiaires)</code>. Enregistrement indépendant du reste de la configuration.</p>
@@ -5699,7 +5596,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.86.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.89.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -6098,6 +5995,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   // Affichage des pages : eTuteur, Stagiaires, ou la Configuration (qui prend
   // la place de la page courante).
   // Modules désactivés dans la Configuration (Réservations de véhicules / de matériels, Gestion des absences) : tuile grisée, non cliquable, avec un badge.
+  // Période de la formation (dates locales) : la Progression en dépend (vue et export PDF).
+  window.FORMATION_PERIOD = function () {
+    function local(d) { return d ? new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) : null; }
+    return { start: local(parseFrDate(settings.dateDebutFormation)), end: local(parseFrDate(settings.dateFinFormation)) };
+  };
   window.MODULE_ON = function (k) { return !settings || !settings.modules || settings.modules[k] !== false; };
   function setModuleOff(btn, off) {
     if (!btn) return;
@@ -6245,9 +6147,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (window.cfgRefreshNav) window.cfgRefreshNav();
   }
   Array.prototype.forEach.call(panelSettings.querySelectorAll('[data-cfg-go]'), function (b) { b.addEventListener('click', function () { showCfgTab(b.getAttribute('data-cfg-go')); }); });
-  ['stg', 'fsj', 'res'].forEach(function (g) {
-    Array.prototype.forEach.call(panelSettings.querySelectorAll('div[data-cfg-tab="' + g + '"] > .cfg-card .cfg-card__num'), function (n, i) { n.textContent = String(i + 1); });
-  });
   var cfgResGroup = panelSettings.querySelector('div[data-cfg-tab="res"]'), cfgResBadge = document.getElementById('cfgResBadge');
   function updateCfgResBadge() {
     var n = cfgResGroup.querySelectorAll('.cfg-card__title .fr-badge--warning').length;
@@ -6321,15 +6220,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     });
 
     // ---- Recherche d'un réglage (toutes rubriques), sommaire de la rubrique, marqueur « modifiée » ----
-    var RUBRIQUES = { stg: 'Candidats et courriels', fsj: 'Temps et activités', res: 'Réservations', wel: 'Page Bienvenue', faq: 'FAQ' };
+    var RUBRIQUES = { stg: 'Général', wel: 'Page Bienvenue', etu: 'eTuteur et modèles de courriels', fsj: 'Temps et activités', res: 'Ressources', faq: 'FAQ' };
     var findInput = document.getElementById('cfgFindInput'), findList = document.getElementById('cfgFindList');
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     function allCards() { return Array.prototype.slice.call(panel.querySelectorAll('.cfg-card')).filter(function (c) { return !c.hidden && titleOf(c); }); }
     function tabOf(card) { var g = card.closest('[data-cfg-tab]'); return g ? g.getAttribute('data-cfg-tab') : 'stg'; }
-    function stateOf(card) {
-      var t = card.querySelector('.cfg-card__title');
-      return !t ? '' : t.querySelector('.fr-badge--warning') ? 'todo' : t.querySelector('.fr-badge') ? 'ok' : '';
-    }
     // Va à la carte : change de rubrique, la déplie, l'amène à l'écran et la met brièvement en évidence.
     function reveal(card, target) {
       showCfgTab(tabOf(card));
@@ -6355,7 +6250,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       function all(text) { var n = norm(text); return words.every(function (w) { return n.indexOf(w) !== -1; }); }
       allCards().forEach(function (c) {
         var title = titleOf(c), descEl = c.querySelector('.cfg-card__desc'), desc = descEl ? descEl.textContent : '';
-        var where = title.replace(/^Temps et activités\s*[—-]\s*/, '') + ' · ' + RUBRIQUES[tabOf(c)];
+        var where = title + ' · ' + RUBRIQUES[tabOf(c)];
         if (all(title)) out.push({ rank: 0, text: title, where: RUBRIQUES[tabOf(c)], card: c, target: null, snip: desc.slice(0, 90) });
         else if (all(desc)) out.push({ rank: 1, text: title, where: RUBRIQUES[tabOf(c)], card: c, target: null, snip: desc.slice(0, 90) });
         var seen = {}, n = 0;
@@ -6363,7 +6258,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
           var t = l.textContent.replace(/\s+/g, ' ').trim();
           if (!t || t.length > 90 || seen[t] || n >= 4 || !all(t)) return;
           seen[t] = 1; n++;
-          out.push({ rank: 2, text: t, where: RUBRIQUES[tabOf(c)], card: c, target: l, snip: 'Carte « ' + title.replace(/^Temps et activités\s*[—-]\s*/, '') + ' »' });
+          out.push({ rank: 2, text: t, where: RUBRIQUES[tabOf(c)], card: c, target: l, snip: 'Carte « ' + title + ' »' });
         });
       });
       out.sort(function (a, b) { return a.rank - b.rank; });
@@ -6430,7 +6325,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
     // ---- Mise en page « back office » : rubriques à gauche (par groupes), titre et description, vue d'ensemble ----
     var CFG_TABS = [
-      ['stg', 'Candidats et courriels'], ['fsj', 'Temps et activités'], ['res', 'Réservations'], ['wel', 'Page Bienvenue'], ['faq', 'FAQ']
+      ['stg', 'Général'], ['wel', 'Page Bienvenue'], ['etu', 'eTuteur et modèles de courriels'], ['fsj', 'Temps et activités'], ['res', 'Ressources'], ['faq', 'FAQ']
     ];
     var cfgEl = panel.querySelector('.cfg'), cfgHeader = cfgEl.querySelector('.cfg-header'), oldTabs = cfgEl.querySelector('.cfg-tabs'), findBox = document.getElementById('cfgFind');
     var nav = document.createElement('nav'); nav.className = 'cfg-nav'; nav.setAttribute('role', 'tablist'); nav.setAttribute('aria-orientation', 'vertical'); nav.setAttribute('aria-label', 'Rubriques de la configuration');
@@ -7049,7 +6944,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var next = configFromForm();
     var errors = validateConfig(next).concat(window.FSJ ? window.FSJ.validateConfig() : []);
     if (errors.length) {
-      showCfgTab(errors.some(function (e) { return /^Temps et activités/.test(e); }) ? 'fsj' : (cfgTab === 'wel' || cfgTab === 'faq' ? 'stg' : cfgTab));
+      var onlyMail = errors.every(function (e) { return /^Courriel/.test(e); });
+      showCfgTab(errors.some(function (e) { return /^Temps et activités/.test(e); }) ? 'fsj' : (onlyMail ? 'etu' : (errors.some(function (e) { return /^Période de formation/.test(e); }) || ['wel', 'faq', 'etu'].indexOf(cfgTab) !== -1 ? 'stg' : cfgTab)));
       showSettingsStatus('error', errors);
       return;
     }
@@ -8347,40 +8243,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (m) return m[1] + ' ' + m[2] + ' ' + m[3];
     return String(raw || '').trim();
   }
-  // Icône du mode de transport (voiture, train, piéton) dans une pastille ronde ; pictogramme neutre si la
-  // réponse n'est aucun des trois. Le libellé exact de la réponse est en info-bulle.
-  function stgTransportIcon(mode, asButton) {
-    var kind = transportKind(mode);
-    var ico = document.createElement(asButton ? 'button' : 'span');
-    if (asButton) ico.type = 'button';
-    ico.className = 'stg-transport__icon' + (kind ? '' : ' stg-transport__icon--other') + (asButton ? ' stg-transport__btn' : '');
-    var hint = mode ? (kind ? mode : 'Mode de transport non reconnu (attendu : Voiture, Train ou Piéton) : « ' + mode + ' »') : 'Choisir le mode de transport';
-    ico.title = hint + (asButton ? ' — cliquer pour modifier' : '');
-    ico.innerHTML = kind ? TRANSPORT_SVG[kind] : '<span class="fr-icon-map-pin-2-line" aria-hidden="true"></span>';
-    ico.setAttribute(asButton ? 'aria-label' : 'aria-label', 'Mode de transport : ' + (mode || 'non renseigné') + (asButton ? ' (modifier)' : ''));
-    return ico;
-  }
-  // « Mode de transport » : icône dans l'en-tête de la fiche, à côté des icônes d'alerte, sous le nom. Un clic sur
-  // l'icône ouvre la liste des réponses (ou une zone de texte) pour modifier le mode de transport.
-  function stgTransportFlag(row) {
-    var mode = textOf(row.modeTransport);
-    var host = document.createElement('span');
-    host.className = 'stg-transport-flag';
-    var btn = stgTransportIcon(mode, true);
-    host.appendChild(btn);
-    btn.addEventListener('click', function () {
-      var control = stgEditControl(row, 'modeTransport', 'Mode de transport', { list: true });
-      control.classList.add('stg-transport-flag__editor');
-      btn.hidden = true;
-      host.appendChild(control);
-      control.focus();
-      // Sortie sans modification : l'icône revient (une modification déclenche l'enregistrement puis la reconstruction de la fiche).
-      control.addEventListener('blur', function () {
-        setTimeout(function () { if (control.parentNode && control.value === mode) { control.remove(); btn.hidden = false; } }, 150);
-      });
-    });
-    return host;
-  }
   // Le stagiaire se stationne-t-il dans l'enceinte ? d'après sa réponse (« … je me stationne dans l'enceinte »,
   // « parking du camp »…). La plaque n'est proposée que pour un trajet en voiture avec stationnement dans
   // l'enceinte, ou si une immatriculation est déjà enregistrée.
@@ -8393,56 +8255,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (/HORS|EXTERIEUR|DEHORS/.test(k)) return !!(settings.col.immatriculation && textOf(row.immatriculation).trim());
     if (/STATIONN|PARKING|ENCEINTE|DANS LE CAMP|DANS LA CASERNE|\bGAR(?:E|ER)\b/.test(k)) return true;
     return !!(settings.col.immatriculation && textOf(row.immatriculation).trim());
-  }
-  // Contrôle d'édition d'un champ de la fiche : liste déroulante si la colonne est de type Choix (valeurs de la
-  // colonne) — ou, avec opts.list, liste des valeurs déjà présentes —, sinon zone de texte ; enregistré à la sortie
-  // du champ ou au changement de valeur (voir saveFieldEdit).
-  function stgEditControl(row, role, label, opts) {
-    var colId = settings.col[role];
-    opts = opts || {};
-    var current = textOf(row[role]);
-    var tableId = (DOC_TABLE_ROLES.indexOf(role) !== -1 && role !== 'ead') ? settings.docsTable : settings.table; // les colonnes ETuteur sont dans la table Documents
-    var type = String((columnTypesMap[tableId] || {})[colId] || '').split(':')[0];
-    var choices = (type === 'Choice') ? ((columnChoicesMap[tableId] || {})[colId] || []) : [];
-    // opts.list : liste à choisir même si la colonne n'est pas de type Choix — valeurs déjà présentes dans la colonne.
-    if (!choices.length && opts.list) {
-      var seen = {};
-      candidates.rows.forEach(function (r) { var v = textOf(r[role]).trim(); if (v) seen[v] = true; });
-      choices = Object.keys(seen).sort(function (a, b) { return nameCollator.compare(a, b); });
-    }
-    var busy = false;
-    var el;
-    function save() {
-      if (busy || el.value === current) return;
-      busy = true; // évite un double enregistrement quand la fiche est reconstruite
-      setTimeout(function () { busy = false; }, 2000);
-      saveFieldEdit(role, row, el, 'text', current);
-    }
-    if (choices.length) {
-      el = document.createElement('select');
-      el.className = 'fr-select stg-edit';
-      var values = [''].concat(choices);
-      if (current && values.indexOf(current) === -1) values.push(current);
-      values.forEach(function (v) {
-        var o = document.createElement('option');
-        o.value = v;
-        o.textContent = v || '—';
-        el.appendChild(o);
-      });
-      el.value = current;
-      el.addEventListener('change', save);
-    } else {
-      el = document.createElement('input');
-      el.type = 'text';
-      el.className = 'fr-input stg-edit';
-      el.autocomplete = 'off';
-      el.value = current;
-      el.addEventListener('blur', save);
-      el.addEventListener('keydown', function (e) { if (e.key === 'Enter') el.blur(); if (e.key === 'Escape') { el.value = current; el.blur(); } });
-    }
-    el.id = 'stgEdit_' + role + '_' + row.id;
-    el.setAttribute('aria-label', label);
-    return el;
   }
   // ---- Fiche « tableau » (libellé / valeur), avec édition au clic ---------------
   // Même design et même comportement que le widget « Candidats PMG » (widget SERVIR) : un tableau à deux
@@ -11446,13 +11258,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     wrap.appendChild(right);
     return wrap;
   }
-  // Cours pour lesquels le cadre est volontaire (colonne « Renseignements_cadres_Cours ») : un tag par cours
-  // (choix multiples, ou texte avec un cours par ligne / séparés par « ; »).
-  function encCourses(row) {
-    var v = row.f.renseignements;
-    var list = (Array.isArray(v) && v[0] === 'L') ? v.slice(1) : String(encText(row, 'renseignements')).split(/\r?\n|;/);
-    return list.map(function (x) { return String(x === null || x === undefined ? '' : x).trim(); }).filter(Boolean);
-  }
   // Cours dispensés : activités de la Progression pour lesquelles le cadre est désigné (remplace la liste des cours pour lesquels il est volontaire).
   function encTaughtCourses(row) {
     var p = encNameParts(row);
@@ -13629,16 +13434,17 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       ['Que signifient les cadres grisés ou marqués « Absent » ?', 'Comme pour les stagiaires partis, les cadres dont le <strong>détachement n’a pas commencé ou est terminé</strong> (colonnes « Début » et « Fin détachement ») sont masqués de la liste ; le compteur l’indique. Pour les voir, cliquez dans la barre de recherche et choisissez <strong>Afficher les cadres hors détachement</strong> : leur ligne est grisée et la raison s’affiche, au survol, à droite de la ligne (idem pour les stagiaires partis et les cadres absents). Dans le trombinoscope, les photos des cadres ne sont jamais modifiées (estompage et croix sont réservés aux stagiaires partis). Un cadre <strong>absent aujourd’hui</strong> (repos ou autorisation d’absence validés dans « Gestion des absences ») porte un fond jaune dans la liste (raison au survol), et un bandeau dans sa fiche ; sa photo n’est pas modifiée.'],
       ['Comment supprimer un stagiaire ou un cadre ?', 'En bas à gauche de sa fiche, le lien discret <strong>Supprimer ce stagiaire</strong> (ou <strong>ce cadre</strong>) demande une confirmation (pour un stagiaire, il demande d’abord s’il ne s’agit pas plutôt d’un <strong>départ de la formation</strong> et ouvre alors la fenêtre « Gérer le départ ») puis supprime définitivement sa ligne de la table Grist. Seule cette ligne est supprimée : ses éventuelles lignes liées (documents eTuteur, départs, appréciations) restent dans leurs tables.'],
       ['Comment changer un occupant de chambre ?', 'Sur la page <strong>Hébergement</strong>, glissez le badge d’un occupant et déposez-le sur la carte de la nouvelle chambre. Pour choisir ou modifier tous les occupants d’une chambre, <strong>double-cliquez sur sa carte</strong> : une fenêtre propose tous les cadres et tous les stagiaires sous forme de tags, avec des filtres par sexe et par peloton (stagiaires). Sa fiche (Bât. et Ch. du stagiaire ou du cadre) est mise à jour ; si la colonne Occupants est une liste de choix saisie dans Grist, le nom est aussi retiré de l’ancienne chambre et ajouté à la nouvelle. Si la colonne est calculée et qu’aucune fiche ne correspond au nom, rien n’est modifié et un message l’indique. Le glisser-déposer demande une souris (il ne fonctionne pas au doigt).'],
+      ['Comment désactiver un module non utilisé pour le stage ?', 'Dans la Configuration (cinq clics rapides sur l’en-tête), rubrique <strong>Général</strong>, carte « Modules utilisés pour ce stage » : décochez les réservations de véhicules, les réservations de matériels ou la gestion des absences. La tuile correspondante reste visible dans le menu, grisée et non cliquable, avec la mention « Non utilisé pour ce stage ». Les données ne sont pas touchées : il suffit de recocher le module pour le retrouver.'],
       ['Comment gérer le parc de véhicules, le matériel et les infrastructures ?', 'Le bouton en forme de liste de la page concernée ouvre le panneau « Gérer… » : liste du parc de véhicules ou de matériel (bouton <strong>Ajouter un véhicule / un matériel</strong>, crayon pour modifier, corbeille pour supprimer, bascule disponible / indisponible), ou des chambres d’hébergement (ajout unitaire ou en lot, modification, suppression). Sur la page Hébergement, la barre de recherche propose aussi l’affichage rapide des <strong>cadres</strong> ou des <strong>stagiaires</strong>.'],
       ['Comment configurer les tables des ressources ?', 'Dans la Configuration du widget (cinq clics rapides sur l’en-tête), rubriques « Véhicules », « Matériels », « Parc véhicules », « Parc matériel » et « Hébergement » : choisissez la table Grist et le rôle de chaque colonne, et adaptez les libellés de décision à ceux de votre table. Un badge indique si chaque rubrique est configurée. Ces réglages s’enregistrent avec le reste de la Configuration.']
     ] },
     { title: 'Gestion des temps et des activités', items: [
       ['Que trouve-t-on dans ce menu ?', 'Trois entrées : <strong>Progression</strong> (planning de la semaine par peloton, ajout et modification des occurrences, progression en PDF, réglages des activités), <strong>Feuille de service journalier</strong> (génération du document d’un jour, versions stagiaires et/ou encadrement à cocher, un fichier par version cochée ; bouton-icône « Permanences du jour » pour affecter, changer ou retirer les cadres de permanence ; navigation jour précédent / suivant, Aujourd’hui / Demain ; la génération ouvre la fenêtre des permanences tant que la SOP n’est pas désignée (obligatoire), avertissements si un cadre absent est affecté, ou si le cadre de permanence est en repos le lendemain : une liste propose alors le cadre qui récupère la permanence à partir de 19 h, repris dans la feuille) et <strong>Gestion des absences</strong> (demandes, décisions, règles de conflit).'],
-      ['Où se trouvent les occurrences du planning ?', 'Dans une table Grist qui porte les colonnes Début, Fin, Occurrence, Intitulé, Code, Lieu, Encadrement, Consignes, Apprenants et Type. Le widget la repère tout seul ; si elle n’est pas trouvée, ou si plusieurs tables conviennent, choisissez-la dans la Configuration du widget (« Temps et activités — période du stage », champ « Table des occurrences »). Les occurrences sont relues à chaque ouverture de la page et après chaque modification ; le bouton « Actualiser » (absences) recharge aussi les demandes.'],
+      ['Où se trouvent les occurrences du planning ?', 'Dans une table Grist qui porte les colonnes Début, Fin, Occurrence, Intitulé, Code, Lieu, Encadrement, Consignes, Apprenants et Type. Le widget la repère tout seul ; si elle n’est pas trouvée, ou si plusieurs tables conviennent, choisissez-la dans la Configuration du widget (« Période du stage », champ « Table des occurrences »). Les occurrences sont relues à chaque ouverture de la page et après chaque modification ; le bouton « Actualiser » (absences) recharge aussi les demandes.'],
       ['Où saisir les notes des stagiaires ?', 'Sur la page cachée <strong>Référent pédagogique</strong>, accessible par l’icône « Référent pédagogique » à droite d’eTuteur dans la page Stagiaires. « Ajouter des notes » ouvre une fenêtre à deux onglets : <strong>Fichier CSV</strong> (cliquer ou déposer le fichier ; les colonnes stagiaire, note, matière, note max et coefficient sont reconnues automatiquement, et la note maximale et le coefficient de l’évaluation sont demandés) ou <strong>Saisie par peloton</strong>. Les notes alimentent l’onglet Notation de chaque fiche (moyenne générale, classement général, par sexe et dans le peloton) et le classement de la page, qui tient compte des filtres.'],
       ['Comment désigner un cadre principal ?', 'Dans le choix des cadres d’une activité ou d’une occurrence, cliquez sur l’étoile qui suit le nom d’un cadre désigné : il devient le <strong>cadre principal</strong> (un seul), enregistré et affiché en premier ; il porte une étoile dans l’infobulle de la progression et sur la feuille de service. Les cadres se filtrent par type grâce à l’affichage rapide (Encadrement pelotons, Formateurs IP, Formateurs secourisme, Cadres du soutien).'],
       ['Comment est compté un repos ?', 'Un repos s’entend de <strong>7 h 30 au lendemain 7 h 30</strong> et compte pour <strong>1 jour</strong>. Une demande saisie sur une seule journée entre 7 h 30 et 14 h (matin) ou entre 12 h et 18 h 30 (après-midi) compte pour <strong>0,5 jour</strong> ; la tranche entière est alors affichée (<strong>7 h 30 → 14 h</strong> le matin, <strong>12 h → 18 h 30</strong> l’après-midi), quelles que soient les heures saisies. Cette période sert à repérer les conflits, les cadres absents (liste Encadrement, feuille de service) et le classement des demandes passées, en cours ou à venir. Une <strong>permanence</strong> va, elle aussi, de <strong>7 h 30 au lendemain 7 h 30</strong> : une absence qui la recoupe est signalée ; le cadre de permanence en repos le lendemain donne lieu à la question de la relève à partir de 19 h.'],
-      ['Où règle-t-on la période du stage, le PDF et les permanences ?', 'Dans la Configuration du widget (cinq clics rapides sur l’en-tête), trois rubriques « Temps et activités » : période du stage, exports PDF (dont la limitation de la feuille de service à trois jours) et signataire des autorisations d’absence. Les numéros de téléphone des permanences se règlent dans la page Réglages des activités. Ces réglages sont partagés par tous les utilisateurs.'],
+      ['Où règle-t-on la période de la Progression, le PDF et les permanences ?', 'La période de la Progression (vue et export PDF) est celle de la formation : elle se règle dans la Configuration (cinq clics rapides sur l’en-tête), rubrique « Général », carte « Période de formation ». La rubrique « Temps et activités » règle la table des occurrences, les exports PDF (dont la limitation de la feuille de service à trois jours) et le signataire des autorisations d’absence. Les numéros de téléphone des permanences se règlent dans la page Réglages des activités. Ces réglages sont partagés par tous les utilisateurs.'],
       ['Comment filtrer le planning et les absences ?', 'Dans la barre de recherche de la page : cliquez dedans pour afficher les filtres en un clic (<strong>Par peloton</strong> et <strong>Par cadre</strong> pour la Progression ; <strong>Par décision</strong> et <strong>Par demandeur</strong> pour les absences), ou tapez un texte (code ou intitulé, nom, type, destination). « Réinitialiser les filtres » se trouve en haut du panneau.'],
       ['À quoi sert le bouton « Réglages des activités » ?', 'Le bouton-icône en forme de liste de la page Progression ouvre la liste des codes d’activité (type, numéro, durée, intitulé, cadres désignés, consignes aux stagiaires) qui alimente la création des occurrences.']
     ] },
@@ -17889,52 +17695,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     return f;
   }
 
-  // Saisie / modification d'une note
-  function openNoteDialog(noteId) {
-    if (!refWritable()) return;
-    var cur = noteId ? notes.rows.filter(function (r) { return r.id === noteId; })[0] : null;
-    var d = refDialog('refNoteDlg', cur ? 'Modifier la note' : 'Ajouter une note'), body = d.querySelector('[data-body]');
-    var stagiaires = candidates.rows.filter(function (r) { return !stgHasLeft(r) || (cur && cur.stg === r.id); }).sort(compareCandidatesByName);
-    var matieres = {}; notes.rows.forEach(function (r) { if (r.matiere) matieres[r.matiere] = true; });
-    body.innerHTML = '<div id="refNoteStatus" aria-live="polite"></div>' +
-      '<div class="fr-select-group"><label class="fr-label" for="refNoteStg">Stagiaire</label><select class="fr-select" id="refNoteStg"><option value="">Choisir un stagiaire…</option>' +
-      stagiaires.map(function (r) { var np = nameParts(r); return '<option value="' + r.id + '">' + escapeHtml([np.nom, np.prenom].filter(Boolean).join(' ')) + (textOf(r.pon) ? ' (' + escapeHtml(textOf(r.pon)) + ')' : '') + '</option>'; }).join('') + '</select></div>' +
-      '<div class="fr-input-group"><label class="fr-label" for="refNoteMat">Matière</label><input class="fr-input" id="refNoteMat" type="text" list="refMatList" autocomplete="off"><datalist id="refMatList">' + Object.keys(matieres).map(function (m) { return '<option value="' + escapeHtml(m) + '">'; }).join('') + '</datalist></div>' +
-      '<div class="ref-grid"><div class="fr-input-group"><label class="fr-label" for="refNoteVal">Note</label><input class="fr-input" id="refNoteVal" type="text" inputmode="decimal" autocomplete="off"></div>' +
-      '<div class="fr-input-group"><label class="fr-label" for="refNoteMax">Note maximale <span class="fr-hint-text">la note est sur…</span></label><input class="fr-input" id="refNoteMax" type="text" inputmode="decimal" autocomplete="off"></div>' +
-      '<div class="fr-input-group"><label class="fr-label" for="refNoteCoeff">Coefficient</label><input class="fr-input" id="refNoteCoeff" type="text" inputmode="decimal" autocomplete="off"></div></div>' +
-      '<ul class="fr-btns-group fr-btns-group--inline-md fr-btns-group--right fr-mt-2w ref-actions">' + (cur ? '<li class="ref-del"><button type="button" class="fr-btn fr-btn--tertiary" id="refNoteDel">Supprimer</button></li>' : '') +
-      '<li><button type="button" class="fr-btn fr-btn--secondary" id="refNoteCancel">Annuler</button></li><li><button type="button" class="fr-btn" id="refNoteSave">Enregistrer</button></li></ul>';
-    var $ = function (i) { return body.querySelector('#' + i); };
-    $('refNoteStg').value = cur && cur.stg ? String(cur.stg) : '';
-    $('refNoteMat').value = cur ? cur.matiere : '';
-    $('refNoteVal').value = cur && cur.note !== null ? String(cur.note).replace('.', ',') : '';
-    $('refNoteMax').value = cur && cur.max !== null ? String(cur.max).replace('.', ',') : '20';
-    $('refNoteCoeff').value = cur && cur.coeff !== null ? String(cur.coeff).replace('.', ',') : '1';
-    $('refNoteCancel').addEventListener('click', function () { refCloseDialog(d); });
-    function err(m) { var z = $('refNoteStatus'); z.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w"><p></p></div>'; z.querySelector('p').textContent = m; }
-    $('refNoteSave').addEventListener('click', function () {
-      var stg = Number($('refNoteStg').value), note = refNum($('refNoteVal').value), max = refNum($('refNoteMax').value), coeff = refNum($('refNoteCoeff').value);
-      if (!stg) return err('Choisissez un stagiaire.');
-      if (note === null) return err('Saisissez la note.');
-      if (max === null || max <= 0) return err('La note maximale doit être un nombre positif (5, 10, 20…).');
-      if (note < 0 || note > max) return err('La note doit être comprise entre 0 et ' + refFmt(max, max % 1 ? 2 : 0) + '.');
-      if (coeff === null || coeff <= 0) return err('Le coefficient doit être un nombre positif.');
-      var fields = refFields({ stg: stg, note: note, matiere: $('refNoteMat').value.trim(), max: max, coeff: coeff });
-      var btn = $('refNoteSave'); btn.disabled = true;
-      var action = cur ? ['UpdateRecord', notes.tableId, cur.id, fields] : ['AddRecord', notes.tableId, null, fields];
-      grist.docApi.applyUserActions([action]).then(function () { refCloseDialog(d); refShow('success', cur ? 'Note modifiée.' : 'Note ajoutée.'); return loadNotes(); })
-        .catch(function (e) { btn.disabled = false; err('Enregistrement impossible : ' + friendlyErrorMessage(e)); });
-    });
-    var del = $('refNoteDel');
-    if (del) del.addEventListener('click', function () {
-      if (!del._sure) { del._sure = true; del.textContent = 'Confirmer la suppression'; return; }
-      del.disabled = true;
-      grist.docApi.applyUserActions([['RemoveRecord', notes.tableId, cur.id]]).then(function () { refCloseDialog(d); refShow('success', 'Note supprimée.'); return loadNotes(); })
-        .catch(function (e) { del.disabled = false; err('Suppression impossible : ' + friendlyErrorMessage(e)); });
-    });
-    refOpenDialog(d);
-  }
 
   // Ajout de notes (deux onglets) : versement d'un fichier CSV (cliquer / déposer) ou saisie pour tout un peloton.
   function openAddDialog() {
@@ -19468,7 +19228,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var cfg = settings[pageKey];
     if (!isWritableColId(cfg.col.decision)) {
       window.alert('Le champ « Décision » de cette page pointe vers une colonne technique de Grist (gristHelper_Display), qui ne peut pas être modifiée. ' +
-        'Ouvrez la Configuration (cinq clics rapides sur l’en-tête), onglet « Réservations », choisissez la vraie colonne Décision, puis enregistrez.');
+        'Ouvrez la Configuration (cinq clics rapides sur l’en-tête), onglet « Ressources », choisissez la vraie colonne Décision, puis enregistrez.');
       return;
     }
     var action = ['UpdateRecord', cfg.table, rowId, (function () { var o = {}; o[cfg.col.decision] = newValue; return o; })()];
@@ -19490,7 +19250,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var cfg = settings[pageKey];
     if (!isWritableColId(cfg.col.etat)) {
       window.alert('Le champ « Disponibilité » de cette page pointe vers une colonne technique de Grist (gristHelper_Display), qui ne peut pas être modifiée. ' +
-        'Ouvrez la Configuration (cinq clics rapides sur l’en-tête), onglet « Réservations », choisissez la vraie colonne Disponibilité, puis enregistrez.');
+        'Ouvrez la Configuration (cinq clics rapides sur l’en-tête), onglet « Ressources », choisissez la vraie colonne Disponibilité, puis enregistrez.');
       return;
     }
     var action = ['UpdateRecord', cfg.table, rowId, (function () { var o = {}; o[cfg.col.etat] = newValue; return o; })()];
@@ -19536,7 +19296,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (!isPageConfigComplete(pageKey, cfg)) {
       countEl.textContent = '';
       zone.innerHTML = '<div class="fr-alert fr-alert--warning fr-alert--sm">' +
-        '<p>Aucune table n’est configurée pour cette page. Ouvrez la Configuration (cinq clics rapides sur l’en-tête), onglet « Réservations », pour associer une table Grist et ses colonnes.</p>' +
+        '<p>Aucune table n’est configurée pour cette page. Ouvrez la Configuration (cinq clics rapides sur l’en-tête), onglet « Ressources », pour associer une table Grist et ses colonnes.</p>' +
         '</div>';
       return;
     }
@@ -19909,7 +19669,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (!isPageConfigComplete(pageKey, cfg)) {
       countEl.textContent = '';
       zone.innerHTML = '<div class="fr-alert fr-alert--warning fr-alert--sm">' +
-        '<p>Aucune table n’est configurée pour cette page. Associez une table Grist et ses colonnes dans la Configuration (cinq clics rapides sur l’en-tête), onglet « Réservations ».</p>' +
+        '<p>Aucune table n’est configurée pour cette page. Associez une table Grist et ses colonnes dans la Configuration (cinq clics rapides sur l’en-tête), onglet « Ressources ».</p>' +
         '</div>';
       return;
     }
@@ -20251,7 +20011,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (!isPageConfigComplete(pageKey, cfg)) {
       countEl.textContent = '';
       zone.innerHTML = '<div class="fr-alert fr-alert--warning fr-alert--sm">' +
-        '<p>Aucune table n’est configurée pour cette page. Associez une table Grist et ses colonnes dans la Configuration (cinq clics rapides sur l’en-tête), onglet « Réservations ».</p>' +
+        '<p>Aucune table n’est configurée pour cette page. Associez une table Grist et ses colonnes dans la Configuration (cinq clics rapides sur l’en-tête), onglet « Ressources ».</p>' +
         '</div>';
       return;
     }
@@ -20496,7 +20256,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (!isPageConfigComplete(pageKey, cfg)) {
       countEl.textContent = '';
       zone.innerHTML = '<div class="fr-alert fr-alert--warning fr-alert--sm">' +
-        '<p>Aucune table n’est configurée pour cette page. Ouvrez la Configuration (cinq clics rapides sur l’en-tête), onglet « Réservations », pour associer une table Grist et ses colonnes.</p>' +
+        '<p>Aucune table n’est configurée pour cette page. Ouvrez la Configuration (cinq clics rapides sur l’en-tête), onglet « Ressources », pour associer une table Grist et ses colonnes.</p>' +
         '</div>';
       return;
     }
@@ -20829,7 +20589,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function generateOccupantsPdf(pageKey) {
     var cfg = settings[pageKey];
     if (!isPageConfigComplete(pageKey, cfg)) {
-      window.alert('Configurez d’abord la table de cette page (Configuration, onglet « Réservations ») avant d’imprimer les affiches.');
+      window.alert('Configurez d’abord la table de cette page (Configuration, onglet « Ressources ») avant d’imprimer les affiches.');
       return;
     }
     // Les UV sans aucun occupant n'ont pas d'affiche à produire (rien à y
@@ -21367,7 +21127,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function openNewRequestModal(pageKey) {
     var cfg = settings[pageKey];
     if (!isPageConfigComplete(pageKey, cfg)) {
-      window.alert('Configurez d’abord la table de cette page (Configuration, onglet « Réservations ») avant de créer une demande.');
+      window.alert('Configurez d’abord la table de cette page (Configuration, onglet « Ressources ») avant de créer une demande.');
       return;
     }
     currentNewRequestPage = pageKey;
@@ -21394,7 +21154,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function openEditRequestModal(pageKey, rowId) {
     var cfg = settings[pageKey];
     if (!isPageConfigComplete(pageKey, cfg)) {
-      window.alert('Configurez d’abord la table de cette page (Configuration, onglet « Réservations ») avant de modifier une demande.');
+      window.alert('Configurez d’abord la table de cette page (Configuration, onglet « Ressources ») avant de modifier une demande.');
       return;
     }
     currentNewRequestPage = pageKey;
@@ -21616,7 +21376,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (!isEdit && !badField && cfg.col.decision && !isWritableColId(cfg.col.decision)) badField = 'Décision';
     if (badField) {
       window.alert('Le champ « ' + badField + ' » de cette page pointe vers une colonne technique de Grist (gristHelper_Display), qui ne peut pas être modifiée. ' +
-        'Ouvrez la Configuration (cinq clics rapides sur l’en-tête), onglet « Réservations », choisissez la vraie colonne pour ce champ, puis enregistrez.');
+        'Ouvrez la Configuration (cinq clics rapides sur l’en-tête), onglet « Ressources », choisissez la vraie colonne pour ce champ, puis enregistrez.');
       return;
     }
 
@@ -21698,7 +21458,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function openNewInfraModal() {
     var cfg = settings.gestionHebergement;
     if (!isPageConfigComplete('gestionHebergement', cfg)) {
-      window.alert('Configurez d’abord la table de cette page (Configuration, onglet « Réservations », rubrique « Hébergement ») avant d’ajouter une infrastructure.');
+      window.alert('Configurez d’abord la table de cette page (Configuration, onglet « Ressources », rubrique « Hébergement ») avant d’ajouter une infrastructure.');
       return;
     }
     currentInfraEditRowId = null;
@@ -21722,7 +21482,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function openEditInfraModal(rowId) {
     var cfg = settings.gestionHebergement;
     if (!isPageConfigComplete('gestionHebergement', cfg)) {
-      window.alert('Configurez d’abord la table de cette page (Configuration, onglet « Réservations », rubrique « Hébergement ») avant de modifier une infrastructure.');
+      window.alert('Configurez d’abord la table de cette page (Configuration, onglet « Ressources », rubrique « Hébergement ») avant de modifier une infrastructure.');
       return;
     }
     currentInfraEditRowId = rowId;
@@ -21763,7 +21523,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     });
     if (badField) {
       window.alert('Le champ « ' + badField + ' » de cette page pointe vers une colonne technique de Grist (gristHelper_Display), qui ne peut pas être modifiée. ' +
-        'Ouvrez la Configuration (cinq clics rapides sur l’en-tête), onglet « Réservations », choisissez la vraie colonne pour ce champ, puis enregistrez.');
+        'Ouvrez la Configuration (cinq clics rapides sur l’en-tête), onglet « Ressources », choisissez la vraie colonne pour ce champ, puis enregistrez.');
       return;
     }
 
@@ -21823,7 +21583,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function openNewInfraBulkModal() {
     var cfg = settings.gestionHebergement;
     if (!isPageConfigComplete('gestionHebergement', cfg)) {
-      window.alert('Configurez d’abord la table de cette page (Configuration, onglet « Réservations », rubrique « Hébergement ») avant d’ajouter des infrastructures.');
+      window.alert('Configurez d’abord la table de cette page (Configuration, onglet « Ressources », rubrique « Hébergement ») avant d’ajouter des infrastructures.');
       return;
     }
     newInfraBulkStatus.textContent = '';
@@ -21853,7 +21613,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var capaciteEl = newInfraBulkForm.querySelector('[data-role="capacite"]');
     if (!isWritableColId(cfg.col.batiment) || !isWritableColId(cfg.col.chambre) || !isWritableColId(cfg.col.capacite)) {
       window.alert('Un des champs de cette page pointe vers une colonne technique de Grist (gristHelper_Display), qui ne peut pas être modifiée. ' +
-        'Ouvrez la Configuration (cinq clics rapides sur l’en-tête), onglet « Réservations », choisissez la vraie colonne, puis enregistrez.');
+        'Ouvrez la Configuration (cinq clics rapides sur l’en-tête), onglet « Ressources », choisissez la vraie colonne, puis enregistrez.');
       return;
     }
 
@@ -21973,12 +21733,12 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
     if (!isWritableColId(cfg.col[fillRole])) {
       window.alert('Le champ « ' + currentAssignMaterielFieldLabel + ' » de cette page pointe vers une colonne technique de Grist (gristHelper_Display), qui ne peut pas être modifiée. ' +
-        'Ouvrez la Configuration (cinq clics rapides sur l’en-tête), onglet « Réservations », choisissez la vraie colonne pour ce champ, puis enregistrez.');
+        'Ouvrez la Configuration (cinq clics rapides sur l’en-tête), onglet « Ressources », choisissez la vraie colonne pour ce champ, puis enregistrez.');
       return;
     }
     if (!isWritableColId(cfg.col.decision)) {
       window.alert('Le champ « Décision » de cette page pointe vers une colonne technique de Grist (gristHelper_Display), qui ne peut pas être modifiée. ' +
-        'Ouvrez la Configuration (cinq clics rapides sur l’en-tête), onglet « Réservations », choisissez la vraie colonne Décision, puis enregistrez.');
+        'Ouvrez la Configuration (cinq clics rapides sur l’en-tête), onglet « Ressources », choisissez la vraie colonne Décision, puis enregistrez.');
       return;
     }
 
@@ -22302,8 +22062,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var progressionSettingsBtn = document.getElementById('progressionSettingsBtn');
   var progressionPdfTooltip = document.getElementById('progressionPdfTooltip');
 
-  var configStartDate = document.getElementById('configStartDate');
-  var configEndDate = document.getElementById('configEndDate');
   var configPdfEnabled = document.getElementById('configPdfEnabled');
 
   var configFsjLimit3Days = document.getElementById('configFsjLimit3Days');
@@ -22740,7 +22498,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     return cfg;
   }
 
-  // Configuration : table des occurrences, période du stage, exports PDF et signataire sont dans la Configuration (backoffice) du widget et
+  // Configuration : table des occurrences, exports PDF et signataire sont dans la Configuration (backoffice) du widget et
   // s'enregistrent avec elle (voir window.FSJ plus bas) ; les numéros des permanences sont dans la page Réglages des activités.
   function fillOccTableSelect() {
     var sel = document.getElementById('configOccTable');
@@ -22749,31 +22507,41 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       sel.value = occTableOption || '';
     }).catch(function () { /* liste indisponible : la détection automatique reste proposée */ });
   }
+  // Période de la Progression (vue et export PDF) : celle de la formation (Configuration, rubrique Général), lue dans les champs du formulaire
+  // à l'enregistrement et dans les réglages du widget au chargement.
+  function formationDateOf(text) {
+    var m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(text || '').trim());
+    if (!m) return null;
+    var d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+    return d.getFullYear() === Number(m[3]) && d.getMonth() === Number(m[2]) - 1 && d.getDate() === Number(m[1]) ? d : null;
+  }
+  function formFormationPeriod() {
+    return { start: formationDateOf(document.getElementById('cand_dateDebutFormation').value), end: formationDateOf(document.getElementById('cand_dateFinFormation').value) };
+  }
+  function applyFormationPeriod(period) {
+    PROGRESSION_PDF_START = period && period.start || null;
+    PROGRESSION_PDF_END = period && period.end || null;
+  }
   function loadConfigForm() {
-    configStartDate.value = toInputDateValue(PROGRESSION_PDF_START);
-    configEndDate.value = toInputDateValue(PROGRESSION_PDF_END);
     configPdfEnabled.checked = progressionPdfEnabled;
     configFsjLimit3Days.checked = fsjLimit3Days;
     fillOccTableSelect();
     fillAbsencesSettingsForm();
   }
   function configFormErrors() {
-    var start = parseYmd(configStartDate.value), end = parseYmd(configEndDate.value);
-    if (!start || !end) return ['Temps et activités : renseignez les deux dates du stage.'];
-    if (end < start) return ['Temps et activités : la date de fin du stage doit être postérieure ou égale à la date de début.'];
+    var period = formFormationPeriod();
+    if (period.start && period.end && period.end < period.start) return ['Période de formation : la fin doit être postérieure ou égale au début.'];
     return [];
   }
   function saveConfigForm() {
     if (configFormErrors().length) return Promise.reject(new Error(configFormErrors()[0]));
-    var start = parseYmd(configStartDate.value);
-    var end = parseYmd(configEndDate.value);
+    var period = formFormationPeriod();
     var enabled = configPdfEnabled.checked;
     var newOccTable = document.getElementById('configOccTable').value;
     var fsjLimit = configFsjLimit3Days.checked;
     var newAbsCfg = absencesConfigFromForm();
 
-    PROGRESSION_PDF_START = start;
-    PROGRESSION_PDF_END = end;
+    applyFormationPeriod(period);
     progressionPdfEnabled = enabled;
     applyProgressionPdfEnabledState();
     fsjLimit3Days = fsjLimit;
@@ -22787,8 +22555,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (!panelProgression.hidden) renderWeekView();
 
     return Promise.all([
-      grist.setOption('progressionPdfStart', toInputDateValue(start)),
-      grist.setOption('progressionPdfEnd', toInputDateValue(end)),
       grist.setOption('progressionPdfEnabled', enabled),
       grist.setOption('fsjLimit3Days', fsjLimit),
       grist.setOption('fsjOccTable', newOccTable),
@@ -22816,10 +22582,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var opts = options || {};
     var newOcc = opts.fsjOccTable || '';
     if (newOcc !== occTableOption || !recordsLoaded) { occTableOption = newOcc; occTableId = ''; reloadOccurrences(); }
-    var s = parseYmd(opts.progressionPdfStart);
-    if (s) PROGRESSION_PDF_START = s;
-    var en = parseYmd(opts.progressionPdfEnd);
-    if (en) PROGRESSION_PDF_END = en;
+    applyFormationPeriod(window.FORMATION_PERIOD ? window.FORMATION_PERIOD() : null);
     progressionPdfEnabled = (opts.progressionPdfEnabled !== false);
     applyProgressionPdfEnabledState();
 
@@ -23705,7 +23468,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   // Par défaut on affiche le type adapté à l'activité (Cours IP : Formateurs IP ; Formations au secourisme : Formateurs secourisme ; sinon : Encadrement
   // pelotons) ; les autres types s'affichent par un « affichage rapide » (cumulable). Les cadres déjà désignés restent toujours visibles.
   var CADRE_CATS = [['formation', 'Encadrement pelotons'], ['ip', 'Formateurs IP'], ['sec', 'Formateurs secourisme'], ['soutien', 'Cadres du soutien']];
-  function isIpType(type) { return normalizeNameKey(type).replace(/\s+/g, ' ').indexOf('COURS IP') !== -1; }
   function defaultCadreCats(type) {
     var k = normalizeNameKey(type).replace(/\s+/g, ' ');
     if (k.indexOf('COURS IP') !== -1) return ['ip'];
@@ -28064,8 +27826,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }
   }
 
-  var PROGRESSION_PDF_START = new Date(2026, 9, 17);  // 17/10/2026
-  var PROGRESSION_PDF_END = new Date(2026, 10, 1);    // 01/11/2026
+  var PROGRESSION_PDF_START = null, PROGRESSION_PDF_END = null; // période de la formation (voir applyFormationPeriod)
 
   function eachDayBetween(start, end) {
     var days = [];
@@ -28095,6 +27856,10 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       return null;
     }
 
+    if (!PROGRESSION_PDF_START || !PROGRESSION_PDF_END) {
+      showStatus('warning', 'Renseignez d’abord la période de formation (Configuration, rubrique Général) : elle délimite la Progression exportée.');
+      return null;
+    }
     var mode = getSelectedMode();
     var searchText = progressionSearchQuery.trim();
     var dates = eachDayBetween(PROGRESSION_PDF_START, PROGRESSION_PDF_END);
