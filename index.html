@@ -1354,19 +1354,14 @@
   .fr-btn.icon-flag-fr::before { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round'%3E%3Cpath d='M4 3v18' stroke-linecap='round' stroke-width='1.8'/%3E%3Cpath d='M5.5 5c3-2 5.5 2 8.5 0s4.5-1 6 0v9c-1.5-1-3-1-6 0s-5.5 2-8.5 0z'/%3E%3Cpath d='M10.3 4.8v9.2M15.2 4.6v9'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round'%3E%3Cpath d='M4 3v18' stroke-linecap='round' stroke-width='1.8'/%3E%3Cpath d='M5.5 5c3-2 5.5 2 8.5 0s4.5-1 6 0v9c-1.5-1-3-1-6 0s-5.5 2-8.5 0z'/%3E%3Cpath d='M10.3 4.8v9.2M15.2 4.6v9'/%3E%3C/svg%3E"); }
   .fr-btn.icon-qr::before { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round'%3E%3Crect x='3' y='3' width='7' height='7' rx='1'/%3E%3Crect x='14' y='3' width='7' height='7' rx='1'/%3E%3Crect x='3' y='14' width='7' height='7' rx='1'/%3E%3Cpath d='M5.5 5.5h2v2h-2zM16.5 5.5h2v2h-2zM5.5 16.5h2v2h-2z'/%3E%3Cpath d='M14 14h3v3M21 14v1M14 20v1h3M20 18v3h1M17.5 20.5h.01'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round'%3E%3Crect x='3' y='3' width='7' height='7' rx='1'/%3E%3Crect x='14' y='3' width='7' height='7' rx='1'/%3E%3Crect x='3' y='14' width='7' height='7' rx='1'/%3E%3Cpath d='M5.5 5.5h2v2h-2zM16.5 5.5h2v2h-2zM5.5 16.5h2v2h-2z'/%3E%3Cpath d='M14 14h3v3M21 14v1M14 20v1h3M20 18v3h1M17.5 20.5h.01'/%3E%3C/svg%3E"); }
   #panelIncorporation .inc-th { display: inline-flex; align-items: center; gap: 0.25rem; }
-  #panelIncorporation .inc-qr-btn { margin: 0; padding: 0.2rem; min-height: 0; }
+  #panelIncorporation .inc-qr-btn { margin: 0; padding: 0.2rem; min-height: 0; font-size: 0; } /* le libellé reste lu par les lecteurs d'écran mais n'est plus rogné à côté de l'icône */
   #panelIncorporation .inc-qr-btn.is-unset { opacity: 0.55; }
   #incQrDialog .inc-qrbox { display: flex; align-items: center; justify-content: center; min-height: 15rem; margin: 0.5rem 0 0.8rem; }
   #incQrDialog .inc-qrbox svg { width: 15rem; height: 15rem; background: #fff; border: 1px solid var(--border-default-grey); border-radius: 0.5rem; padding: 0.5rem; box-sizing: content-box; }
   #incQrDialog .inc-qrbox p { margin: 0; max-width: 22rem; text-align: center; font-size: 0.875rem; color: var(--text-mention-grey); }
   #incQrDialog .inc-link { margin: 0 0 0.6rem; }
-  #incQrDialog .inc-link__btn { all: unset; display: block; box-sizing: border-box; width: 100%; padding: 0.4rem 0.6rem; border: 1px dashed var(--border-default-grey); border-radius: 0.35rem; cursor: text; font-size: 0.875rem; word-break: break-all; color: var(--text-action-high-blue-france); }
-  #incQrDialog .inc-link__btn:hover { background: var(--background-default-grey-hover); }
-  #incQrDialog .inc-link__btn:focus-visible { outline: 2px solid #0a76f6; outline-offset: 2px; }
-  #incQrDialog .inc-link__btn.is-empty { color: var(--text-mention-grey); font-style: italic; }
-  #incQrDialog .inc-link__edit { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
-  #incQrDialog .inc-link__edit .fr-input { flex: 1 1 14rem; min-width: 0; }
-  #incQrDialog .inc-link__btn[hidden], #incQrDialog .inc-link__edit[hidden] { display: none; }
+  #incQrDialog .inc-link__text { margin: 0; padding: 0.4rem 0.6rem; border: 1px solid var(--border-default-grey); border-radius: 0.35rem; background: var(--background-alt-grey); font-size: 0.875rem; word-break: break-all; user-select: all; }
+  #incQrDialog .inc-link__text.is-empty { font-style: italic; color: var(--text-mention-grey); user-select: auto; }
   #incQrDialog .inc-qrfoot { flex-wrap: wrap; justify-content: flex-start; }
   /* Icône « écran et bonnet » (eTuteur : enseignement à distance), monochrome comme les autres pictogrammes. */
   .fr-btn.icon-elearning::before { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Crect x='3' y='4' width='18' height='12.5' rx='1.5'/%3E%3Cpath d='M8.5 20.5h7M12 16.5v4'/%3E%3Cpath d='M7.3 9.6L12 7.4l4.7 2.2L12 11.8z'/%3E%3Cpath d='M9.3 11v2.1c0 .8 1.2 1.4 2.7 1.4s2.7-.6 2.7-1.4V11'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Crect x='3' y='4' width='18' height='12.5' rx='1.5'/%3E%3Cpath d='M8.5 20.5h7M12 16.5v4'/%3E%3Cpath d='M7.3 9.6L12 7.4l4.7 2.2L12 11.8z'/%3E%3Cpath d='M9.3 11v2.1c0 .8 1.2 1.4 2.7 1.4s2.7-.6 2.7-1.4V11'/%3E%3C/svg%3E"); }
@@ -1392,8 +1387,14 @@
   #panelIncorporation .inc-name:focus-visible { outline: 2px solid #0a76f6; outline-offset: 2px; }
   #panelIncorporation .inc-table th, #panelIncorporation .inc-table td { white-space: nowrap; }
   #panelIncorporation .inc-cell { display: inline-flex; align-items: center; gap: 0.35rem; margin: 0; padding: 0.2rem 0.7rem; border-radius: 999px; font: inherit; font-size: 0.8125rem; cursor: pointer; border: 1px solid transparent; }
-  #panelIncorporation .inc-cell.is-done { background: var(--background-contrast-success); color: var(--text-default-success); font-weight: 600; }
-  #panelIncorporation .inc-cell.is-todo { background: transparent; border: 1px dashed var(--border-plain-grey, #929292); color: var(--text-mention-grey); }
+  #panelIncorporation .inc-cell.is-check { padding: 0.1rem 0.5rem; background: transparent; color: var(--text-default-success); }
+  #panelIncorporation .inc-cell.is-check [class^="fr-icon-"]::before { --icon-size: 1.5rem; width: 1.5rem; height: 1.5rem; }
+  #panelIncorporation .inc-cell.is-check:hover { background: var(--background-contrast-success); }
+  /* Étape à valider : cercle vide (coche non cochée) ; au survol, aperçu de la coche. */
+  #panelIncorporation .inc-cell.is-todo { padding: 0.1rem 0.5rem; background: transparent; color: var(--text-mention-grey); }
+  #panelIncorporation .inc-ring { display: inline-block; box-sizing: border-box; width: 1.5rem; height: 1.5rem; border: 2px solid var(--border-plain-grey, #929292); border-radius: 50%; background-repeat: no-repeat; background-position: center; background-size: 70%; }
+  #panelIncorporation .inc-cell.is-todo:not([disabled]):hover .inc-ring, #panelIncorporation .inc-cell.is-todo:not([disabled]):focus-visible .inc-ring { border-color: var(--background-action-high-success, #18753c); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2318753c' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5.5 12.5l4.5 4.5 8.5-9.5'/%3E%3C/svg%3E"); }
+  #panelIncorporation .inc-cell.is-todo[disabled] .inc-ring { border-style: dashed; }
   #panelIncorporation .inc-cell:hover { filter: brightness(0.96); }
   #panelIncorporation .inc-cell:focus-visible { outline: 2px solid #0a76f6; outline-offset: 2px; }
   #panelIncorporation .inc-cell[disabled] { cursor: not-allowed; opacity: 0.55; }
@@ -1409,6 +1410,12 @@
   #panelCeremonie .cer-add { margin-left: auto; }
   #panelCeremonie .cer-who strong { font-weight: 700; }
   #panelCeremonie .cer-tags { display: inline-flex; gap: 0.3rem; margin-left: 0.4rem; vertical-align: middle; }
+  /* Ligne validée (présence d'un invité, parcours d'incorporation complet) : teinte verte et liseré à gauche ; coche en filigrane dans la cellule .vmark quand il y en a une (invités). */
+  .bulk-table tr.row-validated > td { background-color: color-mix(in srgb, var(--background-action-high-success, #18753c) 13%, transparent); }
+  .bulk-table tr.row-validated > td:first-child { box-shadow: inset 4px 0 0 var(--background-action-high-success, #18753c); }
+  .bulk-table tr.row-validated > td.vmark { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2318753c' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 12.5l5 5 10-11'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 2.2rem; }
+  #panelIncorporation tr.row-validated .inc-bar > span { background: var(--background-action-high-success, #18753c); }
+  #panelCeremonie .cer-tag--min12 { color: var(--blue-cumulus-sun-368-moon-922, #3558a2); background-color: var(--blue-cumulus-950-100, #e6eefe); font-weight: 700; } /* bleu clair */
   #panelCeremonie .cer-tag--vip { color: var(--grey-50-1000, #161616); background-color: var(--yellow-moutarde-850-200, #fcc63a); font-weight: 700; } /* or */
   #panelCeremonie .cer-tag--tenue { color: var(--text-inverted-blue-france, #f5f5fe); background-color: var(--background-action-high-blue-france, #000091); font-weight: 700; } /* bleu */
   #panelCeremonie .cer-sub { display: block; font-size: 0.78rem; color: var(--text-mention-grey); }
@@ -3241,6 +3248,25 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
        rapport à la capture d'écran d'origine (identité en tête, documents
        groupés avec leurs actions, informations complémentaires en bas,
        blocages mis en évidence). -->
+    <div class="bulk-dialog" id="incQrDialog" role="dialog" aria-modal="true" aria-labelledby="incQrTitle" hidden>
+      <div class="bulk-dialog__box bulk-dialog__box--md">
+        <div class="bulk-dialog__head">
+          <h3 class="fr-h6" id="incQrTitle">Formulaire</h3>
+          <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line" id="incQrClose" type="button" title="Fermer">Fermer</button>
+        </div>
+        <p class="fr-text--sm" id="incQrIntro"></p>
+        <div class="inc-qrbox" id="incQrBox" aria-live="polite"></div>
+        <div class="inc-link">
+          <p class="inc-link__text" id="incQrLink"></p>
+        </div>
+        <div class="bulk-dialog__foot inc-qrfoot">
+          <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-clipboard-line fr-btn--icon-left" id="incQrCopy" type="button">Copier le lien</button>
+          <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-mail-line fr-btn--icon-left" id="incQrMail" type="button">Envoyer par e-mail</button>
+          <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-chat-3-line fr-btn--icon-left" id="incQrSms" type="button">Envoyer par SMS</button>
+        </div>
+      </div>
+    </div>
+
   <div id="panelIncorporation" hidden>
     <div class="bulk-head">
       <h2 class="fr-h6">Parcours d’incorporation</h2>
@@ -3266,31 +3292,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     <div id="incStatus" aria-live="polite"></div>
     <div class="inc-tiles" id="incTiles"></div>
     <div id="incZone"></div>
-    <div class="bulk-dialog" id="incQrDialog" role="dialog" aria-modal="true" aria-labelledby="incQrTitle" hidden>
-      <div class="bulk-dialog__box bulk-dialog__box--md">
-        <div class="bulk-dialog__head">
-          <h3 class="fr-h6" id="incQrTitle">Formulaire</h3>
-          <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line" id="incQrClose" type="button" title="Fermer">Fermer</button>
-        </div>
-        <p class="fr-text--sm" id="incQrIntro"></p>
-        <div class="inc-qrbox" id="incQrBox" aria-live="polite"></div>
-        <div class="inc-link">
-          <button type="button" class="inc-link__btn" id="incQrLink" title="Cliquer pour modifier le lien"></button>
-          <div class="inc-link__edit" id="incQrEdit" hidden>
-            <label class="fr-label fr-sr-only" for="incQrInput">Adresse du formulaire</label>
-            <input class="fr-input" type="url" id="incQrInput" placeholder="https://docs.getgrist.com/forms/…" autocomplete="off">
-            <button class="fr-btn fr-btn--sm" id="incQrSave" type="button">Enregistrer</button>
-            <button class="fr-btn fr-btn--tertiary fr-btn--sm" id="incQrCancel" type="button">Annuler</button>
-          </div>
-        </div>
-        <p class="fr-error-text" id="incQrError" hidden></p>
-        <div class="bulk-dialog__foot inc-qrfoot">
-          <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-clipboard-line fr-btn--icon-left" id="incQrCopy" type="button">Copier le lien</button>
-          <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-mail-line fr-btn--icon-left" id="incQrMail" type="button">Envoyer par e-mail</button>
-          <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-chat-3-line fr-btn--icon-left" id="incQrSms" type="button">Envoyer par SMS</button>
-        </div>
-      </div>
-    </div>
     <div class="bulk-dialog" id="incDialog" role="dialog" aria-modal="true" aria-labelledby="incDlgTitle" hidden>
       <div class="bulk-dialog__box bulk-dialog__box--md">
         <div class="bulk-dialog__head">
@@ -3330,6 +3331,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       <button class="fr-btn fr-btn--secondary fr-icon-close-circle-line fr-btn--icon-left tb-icon" id="cerResetBtn" type="button" disabled title="Réinitialiser la recherche et les filtres">Réinitialiser les filtres</button>
       <p class="cand-count cand-count--push" id="cerCount"></p>
       <div class="tb-actions">
+        <button class="fr-btn fr-btn--secondary fr-icon-flag-line icon-qr fr-btn--icon-left tb-ghost" id="cerQrBtn" type="button" title="QR code et lien du formulaire de présence des invités">QR code Présence</button>
         <button class="fr-btn fr-btn--secondary fr-icon-refresh-line fr-btn--icon-left tb-ghost" id="cerReloadBtn" type="button" title="Recharger les invités depuis la table Grist">Actualiser</button>
         <button class="fr-btn fr-btn--secondary fr-icon-download-line fr-btn--icon-left tb-ghost" id="cerExportBtn" type="button" title="Exporter les invités affichés en .csv">Exporter en .csv</button>
         <button class="fr-btn fr-icon-add-line fr-btn--icon-left" id="cerAddBtn" type="button">Ajouter un invité</button>
@@ -4944,6 +4946,19 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
       </section>
 
+      <section class="cfg-card" aria-labelledby="cfgFormsTitle">
+        <div class="cfg-card__head">
+          <div>
+            <h3 class="cfg-card__title" id="cfgFormsTitle">Formulaires externes (QR codes)</h3>
+            <p class="cfg-card__desc">Adresses des formulaires Grist externes. Chacune alimente le QR code et le lien affichés sur la page Incorporation (une adresse par étape) et sur la page Cérémonie ; ces pages affichent le lien sans pouvoir le modifier.</p>
+          </div>
+        </div>
+        <div class="fr-input-group"><label class="fr-label" for="cfg_form_poste">Incorporation : Présence</label><input class="fr-input" type="url" id="cfg_form_poste" placeholder="https://docs.getgrist.com/forms/…" autocomplete="off"></div>
+        <div class="fr-input-group"><label class="fr-label" for="cfg_form_habillement">Incorporation : Habillement</label><input class="fr-input" type="url" id="cfg_form_habillement" placeholder="https://docs.getgrist.com/forms/…" autocomplete="off"></div>
+        <div class="fr-input-group"><label class="fr-label" for="cfg_form_contrat">Incorporation : Contrat signé</label><input class="fr-input" type="url" id="cfg_form_contrat" placeholder="https://docs.getgrist.com/forms/…" autocomplete="off"></div>
+        <div class="fr-input-group"><label class="fr-label" for="cfg_form_ceremonie">Cérémonie : présence des invités</label><input class="fr-input" type="url" id="cfg_form_ceremonie" placeholder="https://docs.getgrist.com/forms/…" autocomplete="off"></div>
+      </section>
+
       </div>
 
       <div data-cfg-tab="etu" hidden>
@@ -5723,7 +5738,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.93.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.99.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -5841,7 +5856,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function defaultConfig() {
     var col = {};
     ROLES.forEach(function (role) { col[role] = ''; });
-    return { table: '', docsTable: '', docsLinkCol: '', hideEtuteur: false, hideIncorporation: false, modules: { veh: true, mat: true, abs: true }, dateDebutFormation: '', dateFinFormation: '', attritionRef: '', eadMail: { subject: DEFAULT_EAD_MAIL.subject, body: DEFAULT_EAD_MAIL.body },
+    return { table: '', docsTable: '', docsLinkCol: '', hideEtuteur: false, hideIncorporation: false, forms: { poste: '', habillement: '', contrat: '', ceremonie: '' }, modules: { veh: true, mat: true, abs: true }, dateDebutFormation: '', dateFinFormation: '', attritionRef: '', eadMail: { subject: DEFAULT_EAD_MAIL.subject, body: DEFAULT_EAD_MAIL.body },
       refusalMail: { subject: DEFAULT_REFUSAL_MAIL.subject, body: DEFAULT_REFUSAL_MAIL.body }, col: col };
   }
   function mergeConfig(loaded) {
@@ -5855,6 +5870,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     cfg.attritionRef = (typeof loaded.attritionRef === 'string' || typeof loaded.attritionRef === 'number') ? String(loaded.attritionRef) : '';
     cfg.hideEtuteur = !!loaded.hideEtuteur; // masque l'onglet et la page eTuteur
     cfg.hideIncorporation = !!loaded.hideIncorporation; // masque le bouton et la page Incorporation
+    ['poste', 'habillement', 'contrat', 'ceremonie'].forEach(function (k) { cfg.forms[k] = loaded.forms && typeof loaded.forms[k] === 'string' ? loaded.forms[k].trim() : ''; }); // formulaires externes (QR codes)
+    cfg.formsSet = !!(loaded.forms && typeof loaded.forms === 'object'); // vrai dès que la Configuration a enregistré les liens (l'ancien réglage ne sert plus)
     cfg.modules = { veh: !(loaded.modules && loaded.modules.veh === false), mat: !(loaded.modules && loaded.modules.mat === false), abs: !(loaded.modules && loaded.modules.abs === false) }; // modules désactivés pour ce stage
     if (loaded.eadMail && typeof loaded.eadMail.subject === 'string' && typeof loaded.eadMail.body === 'string') {
       cfg.eadMail = { subject: loaded.eadMail.subject, body: loaded.eadMail.body }; // (une ancienne pièce jointe enregistrée est ignorée)
@@ -6529,6 +6546,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var columnTypesPromise = null;
   var columnLabels = {}; // { tableId: { colId: libellé } }, lus avec les types
   var columnTypesMap = {}; // { tableId: { colId: type } }, idem
+  var columnFormulaMap = {}; // { tableId: { colId: true } } pour les colonnes à formule (calculées : jamais écrites par le widget), idem
   var columnChoicesMap = {}; // { tableId: { colId: [choix…] } } pour les colonnes Choix, idem
   var columnChoiceOptionsMap = {}; // { tableId: { colId: { valeur: { fillColor, textColor, fontBold } } } } : couleurs des choix, idem
   var suggestionsApplied = false; // une colonne a été présélectionnée d'après son libellé
@@ -6545,11 +6563,13 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         var labels = {};
         var choicesMap = {};
         var choiceOptionsMap = {};
+        var formulaMap = {};
         for (var j = 0; j < cols.id.length; j++) {
           var tableName = tableNameById[cols.parentId[j]];
           if (!tableName) continue;
           (map[tableName] = map[tableName] || {})[cols.colId[j]] = cols.type[j];
           (labels[tableName] = labels[tableName] || {})[cols.colId[j]] = cols.label ? cols.label[j] : '';
+          if (cols.isFormula && cols.isFormula[j] && String(cols.formula ? cols.formula[j] : '').trim() !== '') (formulaMap[tableName] = formulaMap[tableName] || {})[cols.colId[j]] = true; // formule vide = colonne de données
           if (/^Choice/.test(cols.type[j]) && cols.widgetOptions) {
             try {
               var wo = JSON.parse(cols.widgetOptions[j] || '{}');
@@ -6560,6 +6580,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         }
         columnLabels = labels;
         columnTypesMap = map;
+        columnFormulaMap = formulaMap;
         columnChoicesMap = choicesMap;
         columnChoiceOptionsMap = choiceOptionsMap;
         return map;
@@ -6677,6 +6698,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       document.getElementById('cand_attritionRef').value = settings.attritionRef || '';
       document.getElementById('cfg_hideEtuteur').checked = !!settings.hideEtuteur;
       document.getElementById('cfg_hideIncorporation').checked = !!settings.hideIncorporation;
+      ['poste', 'habillement', 'contrat', 'ceremonie'].forEach(function (k) { document.getElementById('cfg_form_' + k).value = incFormUrl(k); }); // reprend aussi les liens enregistrés avant que la Configuration les porte
       ['veh', 'mat', 'abs'].forEach(function (k) { document.getElementById('cfg_mod_' + k).checked = settings.modules[k] !== false; });
       mailSubjectEl.value = settings.eadMail.subject;
       mailBodyEl.value = settings.eadMail.body;
@@ -6747,6 +6769,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     // besoin qu'elle passe isWritableColId comme les colonnes de rôle.
     cfg.hideEtuteur = document.getElementById('cfg_hideEtuteur').checked;
     cfg.hideIncorporation = document.getElementById('cfg_hideIncorporation').checked;
+    ['poste', 'habillement', 'contrat', 'ceremonie'].forEach(function (k) { cfg.forms[k] = document.getElementById('cfg_form_' + k).value.trim(); });
+    cfg.formsSet = true;
     cfg.modules = { veh: document.getElementById('cfg_mod_veh').checked, mat: document.getElementById('cfg_mod_mat').checked, abs: document.getElementById('cfg_mod_abs').checked };
     cfg.dateDebutFormation = startDateEl.value.trim();
     cfg.dateFinFormation = finDateEl.value.trim();
@@ -6773,6 +6797,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (cfg.dateFinFormation && !parseFrDate(cfg.dateFinFormation)) {
       errors.push('« Fin de formation le » doit être une date valide au format JJ/MM/AAAA (par ex. 15/09/2026).');
     }
+    [['poste', 'Incorporation : Présence'], ['habillement', 'Incorporation : Habillement'], ['contrat', 'Incorporation : Contrat signé'], ['ceremonie', 'Cérémonie : présence']].forEach(function (f) {
+      if (cfg.forms[f[0]] && !/^https?:\/\/[^\s]+$/i.test(cfg.forms[f[0]])) errors.push('Formulaires externes : l’adresse « ' + f[1] + ' » doit être une adresse web complète, commençant par https://');
+    });
     // Variables des courriels : seules celles de la liste du courriel concerné existent.
     [['Courriel EAD', cfg.eadMail, MAIL_VARIABLES], ['Courriel de refus', cfg.refusalMail, REFUSAL_MAIL_VARIABLES]].forEach(function (def) {
       var used = (def[1].subject + '\n' + def[1].body).match(/\{\{[^{}]*\}\}/g) || [];
@@ -7158,7 +7185,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (saved.page === 'fsj') { openFsj(['progression', 'generer', 'absences'].indexOf(saved.fsjView) !== -1 ? saved.fsjView : 'progression'); return; }
     showPage(saved.page);
     if (saved.page === 'referent') loadNotes();
-    if (saved.page === 'ceremonie') loadCeremonie();
+    if (saved.page === 'ceremonie') { loadCeremonie(); loadCeremoniePoste(); }
     if (saved.page === 'incorporation') loadIncorporation();
     if (saved.page === 'stats') renderStats();
     if (saved.page === 'faq') buildFaq();
@@ -10639,7 +10666,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   };
   var CER_LABELS = { stagiaire: 'Stagiaire', max: 'Max. invitation', grade: 'Grade', nom: 'Nom', prenom: 'Prénom', email: 'E-mail', ddn: 'Date de naissance', lieu: 'Ville de naissance', dpt: 'Dpt naissance', tenue: 'En tenue', vip: 'VIP', infos: 'Infos' };
   var cer = { loaded: false, error: '', tableId: '', cols: {}, rows: [] };
-  var cerSearch = '', cerFlags = { vip: false, tenue: false, over: false, hasGrade: false, noEmail: false, noDdn: false };
+  var cerSearch = '', cerFlags = { vip: false, tenue: false, over: false, hasGrade: false, noEmail: false, noDdn: false, min12: false, present: false, absent: false };
   var panelCeremonie = document.getElementById('panelCeremonie'), cerZone = document.getElementById('cerZone');
   function cerKey(v) { return String(v === null || v === undefined ? '' : v).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]/g, '').toUpperCase(); }
   function loadCeremonie() {
@@ -10671,6 +10698,47 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       cer = { loaded: false, error: friendlyErrorMessage(e), tableId: '', cols: {}, rows: [] };
     }).then(renderCeremonie);
   }
+  // Présence des invités : table « Ceremonie_Poste » (une ligne par invité présent, colonne de référence vers la table Ceremonie et colonne de date
+  // « Arrivé le ») alimentée par le formulaire externe Grist (QR code de la page). Une ligne dont la date est renseignée = invité présent : elle
+  // est teintée de vert en filigrane. La table est relue toutes les 15 secondes tant que la page est ouverte.
+  var cerPoste = { loaded: false, error: '', tableId: '', byInvite: {}, sig: '' };
+  var CERP_DATE = ['ARRIVELE', 'PRESENTLE', 'PRESENTELE', 'PRESENCELE', 'PRESENCE', 'ARRIVEE', 'ARRIVE', 'PRESENT'];
+  function loadCeremoniePoste() {
+    return Promise.all([grist.docApi.listTables(), grist.docApi.fetchTable('_grist_Tables'), grist.docApi.fetchTable('_grist_Tables_column')]).then(function (res) {
+      var tid = null;
+      (res[0] || []).forEach(function (t) { if (!tid && /CEREMONIEPOSTE$/.test(cerKey(t))) tid = t; });
+      if (!tid) throw new Error('Table « Ceremonie_Poste » introuvable dans ce document.');
+      var tables = res[1], meta = res[2], rowId = null, colMeta = [];
+      for (var i = 0; i < tables.id.length; i++) if (tables.tableId[i] === tid) rowId = tables.id[i];
+      for (var j = 0; j < meta.id.length; j++) {
+        if (meta.parentId[j] !== rowId || /^gristHelper_|^manualSort$/.test(meta.colId[j])) continue;
+        colMeta.push({ id: meta.colId[j], label: meta.label[j] || meta.colId[j], type: bulkBaseType(meta.type[j]), fullType: meta.type[j] });
+      }
+      var refCol = colMeta.filter(function (c) { return c.type === 'Ref' && cerKey(String(c.fullType).split(':')[1]) === 'CEREMONIE'; })[0]
+        || colMeta.filter(function (c) { return c.type === 'Ref' && ['INVITE', 'INVITES', 'INVITEE'].indexOf(cerKey(c.label)) !== -1; })[0];
+      var dateCol = colMeta.filter(function (c) { return CERP_DATE.indexOf(cerKey(c.label)) !== -1 || CERP_DATE.indexOf(cerKey(c.id)) !== -1; })[0]
+        || colMeta.filter(function (c) { return c.type === 'Date' || c.type === 'DateTime'; })[0];
+      if (!refCol) throw new Error('Table « ' + tid + ' » : colonne « Invité » (référence vers la table Ceremonie) introuvable.');
+      if (!dateCol) throw new Error('Table « ' + tid + ' » : colonne de date (« Arrivé le ») introuvable.');
+      return grist.docApi.fetchTable(tid).then(function (data) {
+        var by = {};
+        (data.id || []).forEach(function (id, n) {
+          var inv = Number(data[refCol.id] ? data[refCol.id][n] : 0), dv = data[dateCol.id] ? data[dateCol.id][n] : null;
+          if (inv > 0 && dv !== null && dv !== '' && dv !== 0) by[inv] = true;
+        });
+        return { loaded: true, error: '', tableId: tid, byInvite: by };
+      });
+    }).catch(function (e) {
+      return { loaded: false, error: friendlyErrorMessage(e), tableId: '', byInvite: {} };
+    }).then(function (next) {
+      next.sig = next.error + '|' + Object.keys(next.byInvite).sort().join(',');
+      var changed = next.sig !== cerPoste.sig;
+      cerPoste = next;
+      if (changed) renderCeremonie();
+    });
+  }
+  function cerIsPresent(row) { return !!(cerPoste.loaded && cerPoste.byInvite[row.id]); }
+  setInterval(function () { if (currentPage === 'ceremonie' && !document.hidden && !settingsOpen) loadCeremoniePoste(); }, 15000);
   function cerText(row, role) {
     var c = cer.cols[role];
     return c ? formatVariableValue(row.v[role], c.type).trim() : '';
@@ -10710,6 +10778,15 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     cerGroups(cer.rows).forEach(function (g) { q[g.key] = { n: g.rows.length, over: !!cer.cols.max && g.rows.some(function (r) { return cerBool(r, 'max'); }) }; });
     return q;
   }
+  // Invité de moins de douze ans : d'après sa date de naissance, à la date de fin de formation (jour de la cérémonie) si elle est renseignée, sinon à ce jour.
+  function cerUnder12(row) {
+    var c = cer.cols.ddn; if (!c) return false;
+    var b = dayOfValue(row.v.ddn, c.fullType); if (!b) return false;
+    var ref = parseFrDate(settings.dateFinFormation);
+    if (!ref) { var t = new Date(); ref = new Date(Date.UTC(t.getFullYear(), t.getMonth(), t.getDate())); }
+    var age = ageOn(b, ref);
+    return age >= 0 && age < 12;
+  }
   function cerPasses(row, quotas) {
     if (cerSearch.trim()) {
       var hay = normalizeKey([cerText(row, 'grade'), cerText(row, 'nom'), cerText(row, 'prenom'), cerText(row, 'email'), cerStagiaire(row).label, cerText(row, 'infos')].join(' '));
@@ -10721,6 +10798,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (cerFlags.hasGrade && !cerText(row, 'grade')) return false;
     if (cerFlags.noEmail && cerText(row, 'email')) return false;
     if (cerFlags.noDdn && cerText(row, 'ddn')) return false;
+    if (cerFlags.min12 && !cerUnder12(row)) return false;
+    if (cerFlags.present && !cerIsPresent(row)) return false;
+    if (cerFlags.absent && cerIsPresent(row)) return false;
     return true;
   }
   function cerVisibleRows() { var q = cerQuotas(); return cer.rows.filter(function (r) { return cerPasses(r, q); }); }
@@ -10734,7 +10814,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     document.getElementById('cerAddBtn').disabled = !cer.loaded || !cer.cols.stagiaire;
     document.getElementById('cerExportBtn').disabled = !cer.rows.length;
     var quotas = cerQuotas(), rows = cer.rows.filter(function (r) { return cerPasses(r, quotas); }), groups = cerGroups(rows);
-    count.textContent = rows.length + ' invité(s) affiché(s) sur ' + cer.rows.length + ' · ' + groups.length + ' stagiaire(s)';
+    count.textContent = rows.length + ' invité(s) affiché(s) sur ' + cer.rows.length + ' · ' + groups.length + ' stagiaire(s)' + (cerPoste.loaded ? ' · ' + cer.rows.filter(cerIsPresent).length + ' présent(s)' : '');
+    if (cerPoste.error && !cerPoste.loaded) { var pal = document.createElement('div'); pal.className = 'fr-alert fr-alert--warning fr-alert--sm fr-mb-2w'; pal.innerHTML = '<p>Présence : ' + escapeHtml(cerPoste.error) + '</p>'; cerZone.appendChild(pal); }
     if (!rows.length) { var p = document.createElement('p'); p.className = 'cand-empty-state'; p.textContent = cer.rows.length ? 'Aucun invité ne correspond à l’affichage actuel.' : 'Aucun invité enregistré : utilisez « Ajouter un invité ».'; cerZone.appendChild(p); return; }
     var wrap = document.createElement('div'); wrap.className = 'bulk-table-wrap';
     var table = document.createElement('table'); table.className = 'bulk-table cer-table';
@@ -10752,13 +10833,14 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       gh.appendChild(th); tb.appendChild(gh);
       g.rows.forEach(function (row) {
         var tr = document.createElement('tr');
+        if (cerIsPresent(row)) { tr.className = 'row-validated'; tr.title = 'Présence validée'; }
         var nom = cerNomFmt(cerText(row, 'nom')), prenom = cerPrenomFmt(cerText(row, 'prenom')), grade = cerText(row, 'grade');
-        var tags = (cerBool(row, 'vip') ? '<span class="fr-tag fr-tag--sm cer-tag cer-tag--vip">VIP</span>' : '') + (cerBool(row, 'tenue') ? '<span class="fr-tag fr-tag--sm cer-tag cer-tag--tenue">En tenue</span>' : '');
+        var tags = (cerBool(row, 'vip') ? '<span class="fr-tag fr-tag--sm cer-tag cer-tag--vip">VIP</span>' : '') + (cerBool(row, 'tenue') ? '<span class="fr-tag fr-tag--sm cer-tag cer-tag--tenue">En tenue</span>' : '') + (cerUnder12(row) ? '<span class="fr-tag fr-tag--sm cer-tag cer-tag--min12" title="Invité de moins de douze ans">-12 ans</span>' : '');
         var birth = [cerText(row, 'ddn'), cerText(row, 'lieu') ? cerText(row, 'lieu') + (cerText(row, 'dpt') ? ' (' + cerText(row, 'dpt') + ')' : '') : (cerText(row, 'dpt') ? '(' + cerText(row, 'dpt') + ')' : '')].filter(Boolean).join(' · ');
-        tr.innerHTML = '<td class="cer-who">' + (grade ? escapeHtml(grade) + ' ' : '') + '<strong>' + escapeHtml(nom) + '</strong> ' + escapeHtml(prenom) + (tags ? '<span class="cer-tags">' + tags + '</span>' : '') + '</td>' +
+        tr.innerHTML = '<td class="cer-who">' + (grade ? escapeHtml(grade) + ' ' : '') + '<strong>' + escapeHtml(nom) + '</strong> ' + escapeHtml(prenom) + (tags ? '<span class="cer-tags">' + tags + '</span>' : '') + (cerIsPresent(row) ? '<span class="fr-sr-only"> — présence validée</span>' : '') + '</td>' +
           '<td>' + (cerText(row, 'email') ? escapeHtml(cerText(row, 'email')) : '<span class="cer-sub">à renseigner</span>') + '</td>' +
           '<td>' + (birth ? escapeHtml(birth) : '<span class="cer-sub">à renseigner</span>') + '</td>' +
-          '<td>' + escapeHtml(cerText(row, 'infos')) + '</td>' +
+          '<td' + (cerIsPresent(row) ? ' class="vmark"' : '') + '>' + escapeHtml(cerText(row, 'infos')) + '</td>' +
           '<td class="bulk-table__actions"><button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-edit-line" title="Modifier l’invité">Modifier l’invité</button></td>';
         tr.querySelector('button').addEventListener('click', function () { openCerDialog(row); });
         tb.appendChild(tr);
@@ -10840,11 +10922,12 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   });
   // ---- Barre d'outils, recherche rapide, export ----
   document.getElementById('cerAddBtn').addEventListener('click', function () { openCerDialog(null); });
-  document.getElementById('cerReloadBtn').addEventListener('click', loadCeremonie);
+  document.getElementById('cerReloadBtn').addEventListener('click', function () { loadCeremonie(); loadCeremoniePoste(); });
+  document.getElementById('cerQrBtn').addEventListener('click', function () { openIncQr('ceremonie'); });
   document.getElementById('cerBackBtn').addEventListener('click', function () { showPage('stagiaires'); });
-  document.getElementById('navCeremonie').addEventListener('click', function () { showPage('ceremonie'); renderCeremonie(); loadCeremonie(); });
+  document.getElementById('navCeremonie').addEventListener('click', function () { showPage('ceremonie'); renderCeremonie(); loadCeremonie(); loadCeremoniePoste(); });
   document.getElementById('cerSearchInput').addEventListener('input', function () { cerSearch = this.value; renderCeremonie(); });
-  document.getElementById('cerResetBtn').addEventListener('click', function () { cerSearch = ''; document.getElementById('cerSearchInput').value = ''; cerFlags = { vip: false, tenue: false, over: false, hasGrade: false, noEmail: false, noDdn: false }; renderCeremonie(); });
+  document.getElementById('cerResetBtn').addEventListener('click', function () { cerSearch = ''; document.getElementById('cerSearchInput').value = ''; cerFlags = { vip: false, tenue: false, over: false, hasGrade: false, noEmail: false, noDdn: false, min12: false, present: false, absent: false }; renderCeremonie(); });
   attachSearchPanel(document.getElementById('cerSearchInput'), function () {
     var out = [], quotas = cerQuotas();
     function item(sec, key, label, test) {
@@ -10856,6 +10939,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }
     if (cer.cols.vip) item('Invités', 'vip', 'VIP', function (r) { return cerBool(r, 'vip'); });
     if (cer.cols.tenue) item('Invités', 'tenue', 'En tenue', function (r) { return cerBool(r, 'tenue'); });
+    if (cer.cols.ddn) item('Invités', 'min12', '-12 ans', cerUnder12);
+    if (cerPoste.loaded) { item('Présence', 'present', 'Présents', cerIsPresent); item('Présence', 'absent', 'Pas encore présents', function (r) { return !cerIsPresent(r); }); }
     item('Quota', 'over', 'Maximum d’invitations dépassé', function (r) { return (quotas[cerStagiaire(r).key] || {}).over; });
     if (cer.cols.grade) item('Données à contrôler', 'hasGrade', 'Grade renseigné', function (r) { return !!cerText(r, 'grade'); });
     if (cer.cols.email) item('Données à contrôler', 'noEmail', 'Sans e-mail', function (r) { return !cerText(r, 'email'); });
@@ -10890,7 +10975,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var panelIncorporation = document.getElementById('panelIncorporation');
   function incNameKey(v) { return String(v || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, ' ').trim().toUpperCase().split(' ').filter(Boolean).sort().join(' '); }
   function incStatus(type, msg) { var z = document.getElementById('incStatus'); z.innerHTML = msg ? '<div class="fr-alert fr-alert--' + type + ' fr-alert--sm fr-mb-2w"><p>' + escapeHtml(msg) + '</p></div>' : ''; }
-  function loadIncorporation() {
+  function loadIncorporation(silent) { // silent : relecture automatique, sans réafficher si rien n'a changé
     return Promise.all([grist.docApi.listTables(), grist.docApi.fetchTable('_grist_Tables'), grist.docApi.fetchTable('_grist_Tables_column')]).then(function (res) {
       var tables = res[1], meta = res[2], byName = {};
       candidates.rows.forEach(function (r) { var k = incNameKey(stagiaireDisplayName(r)); if (k) byName[k] = byName[k] === undefined ? r.id : -1; });
@@ -10920,10 +11005,13 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       }));
     }).then(function (list) {
       var steps = {}; list.forEach(function (e) { steps[e[0]] = e[1]; });
-      inc = { loaded: true, steps: steps };
+      var sig = list.map(function (e) { return e[0] + ':' + JSON.stringify(e[1].byStg || {}) + (e[1].error || ''); }).join('|');
+      var same = silent === true && inc.loaded && inc.sig === sig;
+      inc = { loaded: true, steps: steps, sig: sig };
+      return same ? 'same' : null;
     }).catch(function (e) {
       inc = { loaded: false, steps: {}, error: friendlyErrorMessage(e) };
-    }).then(renderIncorporation);
+    }).then(function (r) { if (r !== 'same') renderIncorporation(); });
   }
   function incActive() { return INC_STEPS.filter(function (st) { var x = inc.steps[st.key]; return x && x.tableId && x.stgCol && x.dateCol; }); }
   function incValue(row, key) { var x = inc.steps[key], r = x && x.byStg ? x.byStg[row.id] : null; return r && r.value ? r.value : null; }
@@ -11003,7 +11091,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     Array.prototype.forEach.call(table.querySelectorAll('[data-qr]'), function (b) { b.addEventListener('click', function () { openIncQr(b.getAttribute('data-qr')); }); });
     var tb = document.createElement('tbody');
     rows.forEach(function (row) {
-      var tr = document.createElement('tr'), p = incProgress(row), pon = settings.col.pon ? textOf(row.pon) : '';
+      var tr = document.createElement('tr'), p = incProgress(row), pon = settings.col.pon ? textOf(row.pon) : '', full = p.total > 0 && p.done === p.total;
+      if (full) { tr.className = 'row-validated'; tr.title = 'Parcours d’incorporation complet'; }
       var td = document.createElement('td');
       td.innerHTML = '<button type="button" class="inc-name" title="Ouvrir la fiche">' + escapeHtml(stagiaireDisplayName(row)) + '</button>' + (pon ? ' <span class="fr-tag fr-tag--sm stg-tag--pon">' + escapeHtml(pon) + '</span>' : '');
       td.querySelector('.inc-name').addEventListener('click', function () { openCandidateModal(row.id, 'stagiaire'); });
@@ -11011,14 +11100,21 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       INC_STEPS.forEach(function (st) {
         var c = document.createElement('td'), x = inc.steps[st.key], ok = !!(x && x.stgCol && x.dateCol), b = document.createElement('button');
         b.type = 'button';
-        if (!ok) { b.className = 'inc-cell is-todo'; b.disabled = true; b.textContent = '—'; b.title = (x && x.error) || 'Table indisponible'; }
-        else if (incIsDone(row, st.key)) { b.className = 'inc-cell is-done'; b.innerHTML = '<span class="fr-icon-checkbox-circle-fill fr-icon--sm" aria-hidden="true"></span>' + escapeHtml(incFmt(row, st.key)); b.title = st.label + ' : modifier ou retirer la validation'; }
-        else { b.className = 'inc-cell is-todo'; b.textContent = 'À valider'; b.title = 'Valider l’étape « ' + st.label + ' »'; }
-        if (ok) b.addEventListener('click', function () { openIncDialog(row, st.key); });
+        if (!ok) { b.className = 'inc-cell is-todo'; b.disabled = true; b.innerHTML = '<span class="inc-ring" aria-hidden="true"></span><span class="fr-sr-only">Étape indisponible</span>'; b.title = (x && x.error) || 'Table indisponible'; }
+        else if (incIsDone(row, st.key)) { // une coche seule ; la date (et l'heure) n'apparaît qu'au survol
+          b.className = 'inc-cell is-check';
+          b.innerHTML = '<span class="fr-icon-checkbox-circle-fill" aria-hidden="true"></span><span class="fr-sr-only">' + escapeHtml('Étape « ' + st.label + ' » validée le ' + incFmt(row, st.key)) + '</span>';
+          b.title = 'Étape « ' + st.label + ' » validée le ' + incFmt(row, st.key) + ' : cliquer pour modifier ou retirer la validation';
+        }
+        else { b.className = 'inc-cell is-todo'; b.innerHTML = '<span class="inc-ring" aria-hidden="true"></span><span class="fr-sr-only">À valider</span>'; b.title = st.key === 'poste' ? 'Valider la présence (ou « Ne s’est pas présenté »)' : 'Valider l’étape « ' + st.label + ' » maintenant'; }
+        if (ok) b.addEventListener('click', function () {
+          // Présence : formulaire (date, ou « Ne s'est pas présenté ») ; étape faite : formulaire (corriger / retirer) ; autre étape à valider : validation immédiate.
+          if (st.key === 'poste' || incIsDone(row, st.key)) openIncDialog(row, st.key); else incQuickValidate(row, st.key);
+        });
         c.appendChild(b); tr.appendChild(c);
       });
       var pc = document.createElement('td');
-      pc.innerHTML = '<div class="inc-prog"><span class="inc-bar"><span style="width:' + (p.total ? Math.round(100 * p.done / p.total) : 0) + '%"></span></span><b>' + p.done + '/' + p.total + '</b></div>';
+      pc.innerHTML = '<div class="inc-prog"><span class="inc-bar"><span style="width:' + (p.total ? Math.round(100 * p.done / p.total) : 0) + '%"></span></span><b>' + p.done + '/' + p.total + '</b></div>' + (full ? '<span class="fr-sr-only">Parcours complet</span>' : '');
       tr.appendChild(pc);
       tb.appendChild(tr);
     });
@@ -11071,6 +11167,24 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       incDlgError('Enregistrement impossible : ' + friendlyErrorMessage(e));
     });
   }
+  // Validation immédiate d'une étape (clic sur le cercle) : la coche s'affiche aussitôt, la ligne est écrite dans la table, puis les données sont relues.
+  var incQuickBusy = false;
+  function incQuickValidate(row, key) {
+    var x = inc.steps[key];
+    if (incQuickBusy || !x || !x.dateCol || !x.stgCol || x.dateCol.formula) return;
+    var now = new Date(), value = x.dateCol.type === 'DateTime' ? Math.floor(now.getTime() / 1000) : Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 1000;
+    var fields = {}, rec = x.byStg[row.id], action;
+    fields[x.dateCol.id] = value;
+    if (rec) action = ['UpdateRecord', x.tableId, rec.rowId, fields];
+    else { fields[x.stgCol.id] = x.stgCol.type === 'Ref' ? row.id : stagiaireDisplayName(row); action = ['AddRecord', x.tableId, null, fields]; }
+    incQuickBusy = true;
+    x.byStg[row.id] = { rowId: rec ? rec.rowId : 0, value: value }; // affichage immédiat
+    renderIncorporation();
+    grist.docApi.applyUserActions([action]).then(function () { incQuickBusy = false; return loadIncorporation(); }).catch(function (e) {
+      incQuickBusy = false;
+      return loadIncorporation().then(function () { incStatus('error', 'Validation impossible : ' + friendlyErrorMessage(e)); }); // rétablit l'état réel puis signale l'échec
+    });
+  }
   incDlgEl('incDlgSave').addEventListener('click', function () { incDlgWrite(false); });
   incDlgEl('incDlgRemove').addEventListener('click', function () { incDlgWrite(true); });
   incDlgEl('incDlgAbsent').addEventListener('click', function () {
@@ -11093,11 +11207,13 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   incDlgEl('incDlgCancel').addEventListener('click', incDlgClose);
   incDlgEl('incDialog').addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); incDlgClose(); } if (e.key === 'Enter' && e.target === incDlgEl('incDlgDate')) { e.preventDefault(); incDlgWrite(false); } });
   // ---- QR code et lien du formulaire externe Grist d'une étape ----
-  // Le lien (réglage partagé « incorporationForms », enregistré avec le widget) se modifie d'un clic sur l'adresse. Le QR code est dessiné
+  // Les liens se règlent dans la Configuration (rubrique Général, « Formulaires externes ») ; la fenêtre les affiche sans les modifier. Le QR code est dessiné
   // en SVG par la bibliothèque qrcode-generator (chargée à la demande) ; l'envoi ouvre la messagerie ou l'application SMS avec un message prêt.
   var incForms = {}, incQrKey = null, qrLibPromise = null;
   var QR_LIB_URL = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';
-  function incFormUrl(key) { return String((incForms && incForms[key]) || '').trim(); }
+  function incFormUrl(key) { // Configuration ; à défaut (jamais enregistrée), l'ancien réglage « incorporationForms »
+    return String(settings.formsSet ? ((settings.forms || {})[key] || '') : ((settings.forms && settings.forms[key]) || (incForms && incForms[key]) || '')).trim();
+  }
   function loadQrLib() {
     if (window.qrcode) return Promise.resolve(window.qrcode);
     if (!qrLibPromise) qrLibPromise = new Promise(function (resolve, reject) {
@@ -11116,52 +11232,39 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + size + '" role="img" aria-label="QR code du formulaire" shape-rendering="crispEdges"><rect width="' + size + '" height="' + size + '" fill="#fff"/><path d="' + d + '" fill="#000"/></svg>';
   }
   function incQrEl(id) { return document.getElementById(id); }
-  function incQrErr(msg) { var e = incQrEl('incQrError'); e.textContent = msg || ''; e.hidden = !msg; }
   function validFormUrl(u) { return /^https?:\/\/[^\s]+$/i.test(u); }
   function incQrRender() {
     var key = incQrKey, url = incFormUrl(key), box = incQrEl('incQrBox'), link = incQrEl('incQrLink'), ok = validFormUrl(url);
-    link.textContent = url || 'Aucun lien : cliquez ici pour saisir l’adresse du formulaire Grist';
+    link.textContent = url || 'Aucun lien enregistré : à renseigner dans la Configuration (rubrique Général, carte « Formulaires externes »).';
     link.classList.toggle('is-empty', !url);
     ['incQrCopy', 'incQrMail', 'incQrSms'].forEach(function (id) { incQrEl(id).disabled = !ok; });
-    if (!ok) { box.innerHTML = '<p>' + (url ? 'Ce lien n’est pas une adresse web valide (https://…).' : 'Renseignez le lien du formulaire Grist externe pour afficher son QR code.') + '</p>'; return; }
+    if (!ok) { box.innerHTML = '<p>' + (url ? 'Ce lien n’est pas une adresse web valide (https://…) : corrigez-le dans la Configuration.' : 'Renseignez le lien du formulaire Grist externe dans la Configuration pour afficher son QR code.') + '</p>'; return; }
     box.innerHTML = '<p>Génération du QR code…</p>';
     loadQrLib().then(function (qrcode) { if (incQrKey === key && incFormUrl(key) === url) box.innerHTML = qrSvgOf(qrcode, url); })
       .catch(function (e) { if (incQrKey === key) box.innerHTML = '<p>' + escapeHtml(e.message) + '</p>'; });
   }
-  function incQrEdit(on) {
-    incQrEl('incQrEdit').hidden = !on; incQrEl('incQrLink').hidden = on; incQrErr('');
-    if (on) { var i = incQrEl('incQrInput'); i.value = incFormUrl(incQrKey); i.focus(); i.select(); }
+  function incQrInfo(key) {
+    if (key === 'ceremonie') return { title: 'Formulaire : Présence des invités', intro: 'Formulaire pour enregistrer la présence des invités à la cérémonie.', subject: 'Cérémonie : formulaire « Présence »', label: 'Présence' };
+    var st = INC_STEPS.filter(function (x) { return x.key === key; })[0];
+    return { title: 'Formulaire : ' + st.label, intro: st.intro, subject: 'Incorporation : formulaire « ' + st.label + ' »', label: st.label };
   }
   function openIncQr(key) {
-    var st = INC_STEPS.filter(function (x) { return x.key === key; })[0];
+    var info = incQrInfo(key);
     incQrKey = key;
-    incQrEl('incQrTitle').textContent = 'Formulaire : ' + st.label;
-    incQrEl('incQrIntro').textContent = st.intro + ' Accessible en scannant le QR code ou depuis le lien.';
-    incQrEdit(false); incQrRender();
+    incQrEl('incQrTitle').textContent = info.title;
+    incQrEl('incQrIntro').textContent = info.intro + ' Accessible en scannant le QR code ou depuis le lien.';
+    incQrRender();
     incQrEl('incQrDialog').hidden = false;
-    incQrEl('incQrLink').focus();
+    incQrEl('incQrClose').focus();
   }
   function incQrClose() { incQrKey = null; incQrEl('incQrDialog').hidden = true; }
-  function incQrSave() {
-    var v = incQrEl('incQrInput').value.trim();
-    if (v && !validFormUrl(v)) { incQrErr('Saisissez une adresse web complète, commençant par https://'); return; }
-    var next = Object.assign({}, incForms); if (v) next[incQrKey] = v; else delete next[incQrKey];
-    incQrEl('incQrSave').disabled = true;
-    Promise.resolve(grist.setOption('incorporationForms', next)).then(function () {
-      incForms = next; incQrEl('incQrSave').disabled = false; incQrEdit(false); incQrRender(); renderIncorporation();
-    }).catch(function (e) { incQrEl('incQrSave').disabled = false; incQrErr('Enregistrement impossible : ' + friendlyErrorMessage(e)); });
-  }
   function incQrMessage() {
-    var st = INC_STEPS.filter(function (x) { return x.key === incQrKey; })[0];
-    return { subject: 'Incorporation : formulaire « ' + st.label + ' »', body: 'Bonjour,\n\nMerci de renseigner le formulaire « ' + st.label + ' » : ' + incFormUrl(incQrKey) + '\n\nCordialement.' };
+    var info = incQrInfo(incQrKey);
+    return { subject: info.subject, body: 'Bonjour,\n\nMerci de renseigner le formulaire « ' + info.label + ' » : ' + incFormUrl(incQrKey) + '\n\nCordialement.' };
   }
   function incOpenLink(url) {
     var a = document.createElement('a'); a.href = url; a.style.display = 'none'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
   }
-  incQrEl('incQrLink').addEventListener('click', function () { incQrEdit(true); });
-  incQrEl('incQrSave').addEventListener('click', incQrSave);
-  incQrEl('incQrCancel').addEventListener('click', function () { incQrEdit(false); });
-  incQrEl('incQrInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); incQrSave(); } if (e.key === 'Escape') { e.stopPropagation(); incQrEdit(false); incQrEl('incQrLink').focus(); } });
   incQrEl('incQrClose').addEventListener('click', incQrClose);
   incQrEl('incQrDialog').addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); incQrClose(); } });
   incQrEl('incQrMail').addEventListener('click', function () { var m = incQrMessage(); openMailto('', m.subject, m.body); });
@@ -11176,10 +11279,14 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function () { done(true); }, fallback); else fallback();
   });
+  // Relecture automatique toutes les 15 secondes tant que la page est ouverte (validations faites ailleurs, par exemple depuis le formulaire externe).
+  setInterval(function () {
+    if (currentPage === 'incorporation' && !document.hidden && !settingsOpen && !incQuickBusy && !incDlg && incQrEl('incQrDialog').hidden && document.getElementById('departDialog').hidden) loadIncorporation(true);
+  }, 15000);
   // ---- Barre d'outils, recherche rapide, export ----
   document.getElementById('navIncorporation').addEventListener('click', function () { showPage('incorporation'); renderIncorporation(); loadIncorporation(); });
   document.getElementById('incBackBtn').addEventListener('click', function () { showPage('stagiaires'); });
-  document.getElementById('incReloadBtn').addEventListener('click', loadIncorporation);
+  document.getElementById('incReloadBtn').addEventListener('click', function () { loadIncorporation(); });
   document.getElementById('incSortBtn').addEventListener('click', function () { incSortByProgress = !incSortByProgress; renderIncorporation(); });
   document.getElementById('incSearchInput').addEventListener('input', function () { incSearch = this.value; renderIncorporation(); });
   document.getElementById('incResetBtn').addEventListener('click', function () {
@@ -12630,6 +12737,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       var full = String((columnTypesMap[tableId] || {})[colId] || '');
       var type = full.split(':')[0];
       if (['Attachments', 'Ref', 'RefList'].indexOf(type) !== -1) return;
+      if ((columnFormulaMap[tableId] || {})[colId] && role !== 'nid' && role !== 'stagiaire') return; // colonne calculée (ex. « Autorisé ») : Grist refuse d'y écrire
       out.push({ role: role, label: ROLE_LABELS[role] || role, colId: colId, table: tableId, type: type || 'Text', fullType: full,
         choices: (columnChoicesMap[tableId] || {})[colId] || [], doc: doc, keyOnly: role === 'nid' || role === 'stagiaire' });
     });
@@ -13913,7 +14021,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     { title: 'eTuteur', items: [
       ['Comment filtrer les listes ?', 'Cliquez dans la barre de recherche (vide) : un panneau propose les filtres en un clic (sur la page Stagiaires : peloton, affectation, fonction et affichage des partis ; sur Encadrement : groupe, fonction et regroupement par groupe). Les choix se cumulent ; « Réinitialiser les filtres » les efface. Sur eTuteur, les filtres rapides isolent les dossiers à traiter : complets, documents rejetés, à valider ou manquants, e-mail EAD non envoyé, « N° CAND renseigné, email non envoyé », EAD non validé, doublons, sans N° CAND, usage RS et droit à l’image manquants. Le nombre de candidats concernés est indiqué à côté de chaque filtre.'],
       ['Que fait un clic sur la légende ou sur une barre du graphique ?', 'Il filtre la liste. <strong>Validé</strong> affiche les candidats dont <em>toutes</em> les pièces sont validées ; <strong>À valider</strong>, <strong>Refusé</strong> et <strong>Manquant</strong> affichent ceux qui ont <em>au moins une</em> pièce dans cet état. Un clic sur un segment d’une barre filtre sur cette pièce précise. Un second clic, ou « Réinitialiser les filtres », lève le filtre.'],
-      ['Comment suivre le parcours d’incorporation ?', 'Sur la page Stagiaires, le bouton <strong>Incorporation</strong> ouvre le parcours : une ligne par stagiaire (hors partis) et trois étapes, <strong>Présence</strong>, <strong>Habillement</strong> et <strong>Contrat signé</strong>, lues dans les tables Incorporation_Poste, Incorporation_Habillement et Incorporation_Trombi. Un clic sur l’étape d’un stagiaire ouvre le formulaire de validation (date proposée : maintenant) ; il permet aussi de corriger la date ou de retirer la validation. Dans l’en-tête de chaque étape, le bouton QR code ouvre le formulaire Grist externe correspondant : QR code, lien (modifiable d’un clic sur l’adresse, réglage partagé par tous les utilisateurs) et envoi par e-mail ou par SMS. Les compteurs du haut affichent, d’un clic, les stagiaires pour qui une étape reste à valider ; la recherche propose aussi les filtres par avancement et par peloton, et l’export .csv reprend la vue affichée.'],
+      ['Comment suivre le parcours d’incorporation ?', 'Sur la page Stagiaires, le bouton <strong>Incorporation</strong> ouvre le parcours : une ligne par stagiaire (hors partis) et trois étapes, <strong>Présence</strong>, <strong>Habillement</strong> et <strong>Contrat signé</strong>, lues dans les tables Incorporation_Poste, Incorporation_Habillement et Incorporation_Trombi. Un clic sur l’étape d’un stagiaire ouvre le formulaire de validation (date proposée : maintenant) ; il permet aussi de corriger la date ou de retirer la validation. Dans l’en-tête de chaque étape, le bouton QR code ouvre le formulaire Grist externe correspondant : QR code, lien (non modifiable ici : il se règle dans la Configuration, rubrique Général, carte « Formulaires externes ») et envoi par e-mail ou par SMS. Les compteurs du haut affichent, d’un clic, les stagiaires pour qui une étape reste à valider ; la recherche propose aussi les filtres par avancement et par peloton, et l’export .csv reprend la vue affichée.'],
+      ['Comment suivre la présence des invités à la cérémonie ?', 'Sur la page Cérémonie, le bouton <strong>QR code Présence</strong> affiche le QR code et le lien du formulaire Grist externe de présence (lien réglé dans la Configuration, rubrique Général ; envoi par e-mail ou SMS). Chaque présence validée est enregistrée dans la table Ceremonie_Poste : la ligne de l’invité se teinte alors de vert, avec une coche en filigrane. La page se met à jour toute seule toutes les 15 secondes ; la recherche propose aussi les filtres « Présents » et « Pas encore présents ».'],
       ['Comment mettre à jour les N° CAND depuis un fichier ?', 'Bouton <strong>Mettre à jour les N° CAND (fichier)</strong>, puis déposez le fichier. Il doit contenir une colonne N° CAND et, pour retrouver chaque stagiaire, l’adresse e-mail et/ou le nom et le prénom. La recherche se fait d’abord par e-mail, à défaut par nom et prénom ; l’aperçu indique pour chaque ligne par quoi le stagiaire a été retrouvé. Les lignes d’en-tête avant les titres sont acceptées.'],
       ['Comment sait-on qu’un e-mail a été envoyé ?', 'Lors de l’envoi des identifiants (icône enveloppe de la fiche), le widget ajoute une mention dans la colonne « Blocages / Infos ». Les filtres « Email EAD non envoyé » se basent sur cette mention.']
     ] },
