@@ -1352,6 +1352,28 @@
 
   /* Drapeau français ondulant sur sa hampe, trois bandes tracées (monochrome) : même rendu que les autres icônes de la barre d'outils. */
   .fr-btn.icon-flag-fr::before { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round'%3E%3Cpath d='M4 3v18' stroke-linecap='round' stroke-width='1.8'/%3E%3Cpath d='M5.5 5c3-2 5.5 2 8.5 0s4.5-1 6 0v9c-1.5-1-3-1-6 0s-5.5 2-8.5 0z'/%3E%3Cpath d='M10.3 4.8v9.2M15.2 4.6v9'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round'%3E%3Cpath d='M4 3v18' stroke-linecap='round' stroke-width='1.8'/%3E%3Cpath d='M5.5 5c3-2 5.5 2 8.5 0s4.5-1 6 0v9c-1.5-1-3-1-6 0s-5.5 2-8.5 0z'/%3E%3Cpath d='M10.3 4.8v9.2M15.2 4.6v9'/%3E%3C/svg%3E"); }
+  .fr-btn.icon-qr::before { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round'%3E%3Crect x='3' y='3' width='7' height='7' rx='1'/%3E%3Crect x='14' y='3' width='7' height='7' rx='1'/%3E%3Crect x='3' y='14' width='7' height='7' rx='1'/%3E%3Cpath d='M5.5 5.5h2v2h-2zM16.5 5.5h2v2h-2zM5.5 16.5h2v2h-2z'/%3E%3Cpath d='M14 14h3v3M21 14v1M14 20v1h3M20 18v3h1M17.5 20.5h.01'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round'%3E%3Crect x='3' y='3' width='7' height='7' rx='1'/%3E%3Crect x='14' y='3' width='7' height='7' rx='1'/%3E%3Crect x='3' y='14' width='7' height='7' rx='1'/%3E%3Cpath d='M5.5 5.5h2v2h-2zM16.5 5.5h2v2h-2zM5.5 16.5h2v2h-2z'/%3E%3Cpath d='M14 14h3v3M21 14v1M14 20v1h3M20 18v3h1M17.5 20.5h.01'/%3E%3C/svg%3E"); }
+  #panelIncorporation .inc-th { display: inline-flex; align-items: center; gap: 0.25rem; }
+  #panelIncorporation .inc-qr-btn { margin: 0; padding: 0.2rem; min-height: 0; }
+  #panelIncorporation .inc-qr-btn.is-unset { opacity: 0.55; }
+  #incQrDialog .inc-qrbox { display: flex; align-items: center; justify-content: center; min-height: 15rem; margin: 0.5rem 0 0.8rem; }
+  #incQrDialog .inc-qrbox svg { width: 15rem; height: 15rem; background: #fff; border: 1px solid var(--border-default-grey); border-radius: 0.5rem; padding: 0.5rem; box-sizing: content-box; }
+  #incQrDialog .inc-qrbox p { margin: 0; max-width: 22rem; text-align: center; font-size: 0.875rem; color: var(--text-mention-grey); }
+  #incQrDialog .inc-link { margin: 0 0 0.6rem; }
+  #incQrDialog .inc-link__btn { all: unset; display: block; box-sizing: border-box; width: 100%; padding: 0.4rem 0.6rem; border: 1px dashed var(--border-default-grey); border-radius: 0.35rem; cursor: text; font-size: 0.875rem; word-break: break-all; color: var(--text-action-high-blue-france); }
+  #incQrDialog .inc-link__btn:hover { background: var(--background-default-grey-hover); }
+  #incQrDialog .inc-link__btn:focus-visible { outline: 2px solid #0a76f6; outline-offset: 2px; }
+  #incQrDialog .inc-link__btn.is-empty { color: var(--text-mention-grey); font-style: italic; }
+  #incQrDialog .inc-link__edit { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+  #incQrDialog .inc-link__edit .fr-input { flex: 1 1 14rem; min-width: 0; }
+  #incQrDialog .inc-link__btn[hidden], #incQrDialog .inc-link__edit[hidden] { display: none; }
+  #incQrDialog .inc-qrfoot { flex-wrap: wrap; justify-content: flex-start; }
+  /* Icône « écran et bonnet » (eTuteur : enseignement à distance), monochrome comme les autres pictogrammes. */
+  .fr-btn.icon-elearning::before { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Crect x='3' y='4' width='18' height='12.5' rx='1.5'/%3E%3Cpath d='M8.5 20.5h7M12 16.5v4'/%3E%3Cpath d='M7.3 9.6L12 7.4l4.7 2.2L12 11.8z'/%3E%3Cpath d='M9.3 11v2.1c0 .8 1.2 1.4 2.7 1.4s2.7-.6 2.7-1.4V11'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Crect x='3' y='4' width='18' height='12.5' rx='1.5'/%3E%3Cpath d='M8.5 20.5h7M12 16.5v4'/%3E%3Cpath d='M7.3 9.6L12 7.4l4.7 2.2L12 11.8z'/%3E%3Cpath d='M9.3 11v2.1c0 .8 1.2 1.4 2.7 1.4s2.7-.6 2.7-1.4V11'/%3E%3C/svg%3E"); }
+  /* Icône « podium » (Référent pédagogique : classement), monochrome comme les autres pictogrammes. */
+  .fr-btn.icon-podium::before { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M2.5 21h19'/%3E%3Crect x='3.5' y='11' width='5' height='10'/%3E%3Crect x='9.5' y='4.5' width='5' height='16.5'/%3E%3Crect x='15.5' y='14' width='5' height='7'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M2.5 21h19'/%3E%3Crect x='3.5' y='11' width='5' height='10'/%3E%3Crect x='9.5' y='4.5' width='5' height='16.5'/%3E%3Crect x='15.5' y='14' width='5' height='7'/%3E%3C/svg%3E"); }
+  /* Icône « contrat signé » (parcours d'incorporation), monochrome comme les autres pictogrammes. */
+  .fr-btn.icon-signed::before { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M6 3h8l4 4v14H6z'/%3E%3Cpath d='M14 3v4h4'/%3E%3Cpath d='M8.6 15.2c1-2.2 1.7-3.4 2.4-3.4.9 0-.1 3.2.8 3.2.7 0 1.1-1.6 1.7-1.6.5 0 .4 1.1.9 1.1.6 0 1-.6 1.6-1.6'/%3E%3Cpath d='M8.6 18.6h6.8'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M6 3h8l4 4v14H6z'/%3E%3Cpath d='M14 3v4h4'/%3E%3Cpath d='M8.6 15.2c1-2.2 1.7-3.4 2.4-3.4.9 0-.1 3.2.8 3.2.7 0 1.1-1.6 1.7-1.6.5 0 .4 1.1.9 1.1.6 0 1-.6 1.6-1.6'/%3E%3Cpath d='M8.6 18.6h6.8'/%3E%3C/svg%3E"); }
   /* Page Cérémonie */
   /* Parcours d'incorporation */
   #panelIncorporation .inc-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 0.6rem; margin: 0 0 1rem; }
@@ -3244,6 +3266,31 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     <div id="incStatus" aria-live="polite"></div>
     <div class="inc-tiles" id="incTiles"></div>
     <div id="incZone"></div>
+    <div class="bulk-dialog" id="incQrDialog" role="dialog" aria-modal="true" aria-labelledby="incQrTitle" hidden>
+      <div class="bulk-dialog__box bulk-dialog__box--md">
+        <div class="bulk-dialog__head">
+          <h3 class="fr-h6" id="incQrTitle">Formulaire</h3>
+          <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line" id="incQrClose" type="button" title="Fermer">Fermer</button>
+        </div>
+        <p class="fr-text--sm" id="incQrIntro"></p>
+        <div class="inc-qrbox" id="incQrBox" aria-live="polite"></div>
+        <div class="inc-link">
+          <button type="button" class="inc-link__btn" id="incQrLink" title="Cliquer pour modifier le lien"></button>
+          <div class="inc-link__edit" id="incQrEdit" hidden>
+            <label class="fr-label fr-sr-only" for="incQrInput">Adresse du formulaire</label>
+            <input class="fr-input" type="url" id="incQrInput" placeholder="https://docs.getgrist.com/forms/…" autocomplete="off">
+            <button class="fr-btn fr-btn--sm" id="incQrSave" type="button">Enregistrer</button>
+            <button class="fr-btn fr-btn--tertiary fr-btn--sm" id="incQrCancel" type="button">Annuler</button>
+          </div>
+        </div>
+        <p class="fr-error-text" id="incQrError" hidden></p>
+        <div class="bulk-dialog__foot inc-qrfoot">
+          <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-clipboard-line fr-btn--icon-left" id="incQrCopy" type="button">Copier le lien</button>
+          <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-mail-line fr-btn--icon-left" id="incQrMail" type="button">Envoyer par e-mail</button>
+          <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-chat-3-line fr-btn--icon-left" id="incQrSms" type="button">Envoyer par SMS</button>
+        </div>
+      </div>
+    </div>
     <div class="bulk-dialog" id="incDialog" role="dialog" aria-modal="true" aria-labelledby="incDlgTitle" hidden>
       <div class="bulk-dialog__box bulk-dialog__box--md">
         <div class="bulk-dialog__head">
@@ -3258,6 +3305,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         <p class="fr-error-text" id="incDlgError" hidden></p>
         <div class="bulk-dialog__foot">
           <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm bulk-dialog__delete" id="incDlgRemove" type="button" hidden>Retirer la validation</button>
+          <button class="fr-btn fr-btn--secondary fr-btn--sm" id="incDlgAbsent" type="button" hidden title="Ouvre la gestion des départs, motif « Ne s’est pas présenté »">Ne s’est pas présenté</button>
           <button class="fr-btn fr-btn--tertiary fr-btn--sm" id="incDlgCancel" type="button">Annuler</button>
           <button class="fr-btn fr-btn--sm" id="incDlgSave" type="button">Valider l’étape</button>
         </div>
@@ -4744,13 +4792,13 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         <button class="fr-btn fr-btn--secondary fr-icon-eye-line fr-btn--icon-left tb-ghost" id="stgLeftBtn" type="button" aria-pressed="false" title="Affiche aussi les stagiaires pour lesquels une date de départ est renseignée (lignes grisées)">
           Afficher les stagiaires partis
         </button>
-        <button class="fr-btn fr-btn--secondary fr-icon-teacher-line fr-btn--icon-left tb-ghost" id="navEtuteur" type="button" title="Ouvrir le suivi des dossiers eTuteur (pièces des candidats)">
+        <button class="fr-btn fr-btn--secondary fr-icon-teacher-line icon-elearning fr-btn--icon-left tb-ghost" id="navEtuteur" type="button" title="Ouvrir le suivi des dossiers eTuteur (pièces des candidats)">
           eTuteur
         </button>
-        <button class="fr-btn fr-btn--secondary fr-icon-award-line fr-btn--icon-left tb-ghost" id="navReferent" type="button" title="Référent pédagogique : notes, moyennes et classement des stagiaires">
+        <button class="fr-btn fr-btn--secondary fr-icon-award-line icon-podium fr-btn--icon-left tb-ghost" id="navReferent" type="button" title="Référent pédagogique : notes, moyennes et classement des stagiaires">
           Référent pédagogique
         </button>
-        <button class="fr-btn fr-btn--secondary fr-icon-user-add-line fr-btn--icon-left tb-ghost" id="navIncorporation" type="button" title="Parcours d’incorporation : suivi de l’arrivée, de l’habillement et du contrat de chaque stagiaire">
+        <button class="fr-btn fr-btn--secondary fr-icon-user-add-line icon-signed fr-btn--icon-left tb-ghost" id="navIncorporation" type="button" title="Parcours d’incorporation : suivi de l’arrivée, de l’habillement et du contrat de chaque stagiaire">
           Incorporation
         </button>
         <button class="fr-btn fr-btn--secondary fr-icon-flag-line icon-flag-fr fr-btn--icon-left tb-ghost" id="navCeremonie" type="button" title="Cérémonie : invités de la cérémonie de fin de stage">
@@ -5675,7 +5723,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.90.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.93.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -7136,6 +7184,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (!lastPageRestored) { lastPageRestored = true; restoreLastPage(); }
     settings = mergeConfig(options && options.candidatsStageConfig);
     welOpts = (options && options.welcome) || null;
+    incForms = (options && options.incorporationForms) || {};
+    renderIncorporation();
     faqOpts = (options && options.faq) || null;
     if (currentPage === 'faq') buildFaq();
     renderWelcome();
@@ -8945,7 +8995,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }).then(function () {
       if (currentModalRowId !== null && currentModalKind === 'stagiaire' && !dEditRole && candModalOverlay.hidden === false) renderModalContent();
       renderStats();
-      if (candidates.loaded) renderStagiaires(); // les stagiaires partis (date dans « Gestion des départs ») sont grisés / masqués
+      if (candidates.loaded) { renderStagiaires(); renderIncorporation(); } // les stagiaires partis (date dans « Gestion des départs ») sont grisés / masqués
       renderSourcesPanel();
     });
   }
@@ -8979,9 +9029,12 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var departState = { row: null, getters: [], busy: false, confirmDelete: false };
   function closeDepartDialog() { if (departState.busy) return; departDialog.hidden = true; }
   function departShowError(msg) { departErrorEl.hidden = !msg; departErrorEl.textContent = msg || ''; }
-  function departFieldControl(c, rec, idx) {
+  function departFieldControl(c, rec, idx, preset) {
     var id = 'departF_' + idx, v = rec ? rec.vals[c.id] : null;
     var key = bulkKey(c.label), wrap = document.createElement('div');
+    if (!rec && preset && preset[key]) { // valeur proposée (ex. motif « Ne s'est pas présenté » depuis le parcours d'incorporation) : celle des choix de la colonne si elle existe
+      v = (c.choices || []).filter(function (ch) { return normalizeKey(ch) === normalizeKey(preset[key]); })[0] || preset[key];
+    }
     var label = document.createElement('label');
     label.className = 'fr-label';
     label.setAttribute('for', id);
@@ -9088,7 +9141,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     wrap.appendChild(control);
     return { el: wrap, bool: false, get: get, control: control, isDate: key === 'DATE DE DEPART' };
   }
-  function openDepartDialog(row) {
+  function openDepartDialog(row, preset) {
     departState = { row: row, getters: [], busy: false, confirmDelete: false };
     departIntroEl.textContent = stagiaireDisplayName(row);
     departBodyEl.innerHTML = '';
@@ -9108,12 +9161,18 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       form.className = 'depart-form';
       var checks = document.createElement('div');
       checks.className = 'depart-checks';
+      var hide = !rec && preset && preset.hide ? preset.hide : [];
       dep.fields.forEach(function (c, i) {
-        var f = departFieldControl(c, rec, i);
+        var key = bulkKey(c.label), f;
+        if (hide.indexOf(key) !== -1) { // champ masqué : valeur imposée (date de départ de la formule) ou valeur vide (éléments réintégrés)
+          var hv = key === 'DATE DE DEPART' ? preset.date : (c.type === 'Bool' ? false : (c.type === 'ChoiceList' ? ['L'] : null));
+          f = { el: null, isDate: key === 'DATE DE DEPART', get: function () { return hv; } };
+        } else f = departFieldControl(c, rec, i, preset);
         f.col = c;
         departState.getters.push(f);
-        (f.bool ? checks : form).appendChild(f.el);
+        if (f.el) (f.bool ? checks : form).appendChild(f.el);
       });
+      if (preset && preset.note && hide.length) { var nt = document.createElement('p'); nt.className = 'fr-hint-text depart-form__wide'; nt.textContent = preset.note; departBodyEl.appendChild(nt); }
       departBodyEl.appendChild(form);
       if (checks.children.length) departBodyEl.appendChild(checks);
       departSaveBtn.disabled = false;
@@ -10822,9 +10881,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   // les autres colonnes de cette table sont ignorées). Une étape est franchie quand sa date est renseignée ; un formulaire (clic sur
   // l'étape d'un stagiaire) la valide, la modifie ou la retire. La ligne de la table est créée à la première validation.
   var INC_STEPS = [
-    { key: 'poste', label: 'Arrivée au poste', field: 'Arrivé le', table: 'INCORPORATIONPOSTE', tableName: 'Incorporation_Poste', date: ['ARRIVELE', 'ARRIVEE', 'ARRIVE'] },
-    { key: 'habillement', label: 'Habillement', field: 'Habillé le', table: 'INCORPORATIONHABILLEMENT', tableName: 'Incorporation_Habillement', date: ['HABILLELE', 'HABILLE', 'HABILLEMENT'] },
-    { key: 'contrat', label: 'Contrat signé', field: 'Contrat signé le', table: 'INCORPORATIONTROMBI', tableName: 'Incorporation_Trombi', date: ['CONTRATSIGNELE', 'CONTRATSIGNE', 'CONTRAT'] }
+    { key: 'poste', label: 'Présence', intro: 'Formulaire pour enregistrer l’arrivée du stagiaire.', field: 'Arrivé le', table: 'INCORPORATIONPOSTE', tableName: 'Incorporation_Poste', date: ['ARRIVELE', 'ARRIVEE', 'ARRIVE'] },
+    { key: 'habillement', label: 'Habillement', intro: 'Formulaire pour enregistrer l’habillement du stagiaire.', field: 'Habillé le', table: 'INCORPORATIONHABILLEMENT', tableName: 'Incorporation_Habillement', date: ['HABILLELE', 'HABILLE', 'HABILLEMENT'] },
+    { key: 'contrat', label: 'Contrat signé', intro: 'Formulaire pour enregistrer la signature du contrat et alimenter le trombinoscope.', field: 'Contrat signé le', table: 'INCORPORATIONTROMBI', tableName: 'Incorporation_Trombi', date: ['CONTRATSIGNELE', 'CONTRATSIGNE', 'CONTRAT'] }
   ];
   var inc = { loaded: false, steps: {} }; // steps[clé] = { tableId, stgCol, dateCol, byStg: { idStagiaire: { rowId, value } }, error }
   var incSearch = '', incSortByProgress = true, incFlags = { complete: false, incomplete: false, todo: {}, pon: [] };
@@ -10937,7 +10996,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }
     var wrap = document.createElement('div'); wrap.className = 'bulk-table-wrap';
     var table = document.createElement('table'); table.className = 'bulk-table inc-table';
-    table.innerHTML = '<thead><tr><th>Stagiaire</th>' + INC_STEPS.map(function (st) { return '<th>' + escapeHtml(st.label) + '</th>'; }).join('') + '<th>Avancement</th></tr></thead>';
+    table.innerHTML = '<thead><tr><th>Stagiaire</th>' + INC_STEPS.map(function (st) {
+      var set = !!incFormUrl(st.key);
+      return '<th><span class="inc-th">' + escapeHtml(st.label) + '<button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-flag-line icon-qr inc-qr-btn' + (set ? '' : ' is-unset') + '" data-qr="' + st.key + '" title="QR code et lien du formulaire « ' + escapeHtml(st.label) + ' »' + (set ? '' : ' (lien à renseigner)') + '">QR code du formulaire</button></span></th>';
+    }).join('') + '<th>Avancement</th></tr></thead>';
+    Array.prototype.forEach.call(table.querySelectorAll('[data-qr]'), function (b) { b.addEventListener('click', function () { openIncQr(b.getAttribute('data-qr')); }); });
     var tb = document.createElement('tbody');
     rows.forEach(function (row) {
       var tr = document.createElement('tr'), p = incProgress(row), pon = settings.col.pon ? textOf(row.pon) : '';
@@ -10980,6 +11043,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     input.value = isDT ? d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + 'T' + pad2(d.getHours()) + ':' + pad2(d.getMinutes())
       : (typeof cur === 'number' ? d.toISOString().slice(0, 10) : now.getFullYear() + '-' + pad2(now.getMonth() + 1) + '-' + pad2(now.getDate()));
     incDlgEl('incDlgRemove').hidden = !incIsDone(row, key);
+    incDlgEl('incDlgAbsent').hidden = !(key === 'poste' && !incIsDone(row, key)); // présence non validée : le stagiaire peut ne pas s'être présenté
     incDlgEl('incDlgSave').textContent = incIsDone(row, key) ? 'Enregistrer' : 'Valider l’étape';
     incDlgEl('incDlgSave').disabled = !!x.dateCol.formula; incDlgEl('incDlgCancel').disabled = false; incDlgEl('incDlgRemove').disabled = false;
     incDlgError(x.dateCol.formula ? 'La colonne « ' + st.field + ' » est calculée : elle ne peut pas être modifiée ici.' : '');
@@ -11009,9 +11073,109 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   }
   incDlgEl('incDlgSave').addEventListener('click', function () { incDlgWrite(false); });
   incDlgEl('incDlgRemove').addEventListener('click', function () { incDlgWrite(true); });
+  incDlgEl('incDlgAbsent').addEventListener('click', function () {
+    if (!incDlg || incDlg.busy) return;
+    var row = incDlg.row;
+    incDlgClose();
+    // Stagiaire jamais arrivé : pas de paquetage, de literie ni de passant à réintégrer, et la date de départ est le premier jour de la formation (champs masqués).
+    var start = parseFrDate(settings.dateDebutFormation), preset = { 'MOTIF DE DEPART': DEP_MOTIFS[0] };
+    if (start) {
+      preset.hide = ['PAQUETAGE 1', 'PAQUETAGE 2', 'LITERIE', 'PASSANT COMPAGNIE', 'DATE DE DEPART'];
+      preset.date = start.getTime() / 1000;
+      preset.note = 'Le stagiaire ne s’est pas présenté : aucun élément à réintégrer, et la date de départ retenue est celle du début de la formation (' + fmtDateFr(start) + ').';
+    } else {
+      preset.hide = ['PAQUETAGE 1', 'PAQUETAGE 2', 'LITERIE', 'PASSANT COMPAGNIE'];
+      preset.note = 'Le stagiaire ne s’est pas présenté : aucun élément à réintégrer. Renseignez la date de début de formation dans la Configuration pour qu’elle serve de date de départ.';
+    }
+    openDepartDialog(row, preset);
+  });
   incDlgEl('incDlgClose').addEventListener('click', incDlgClose);
   incDlgEl('incDlgCancel').addEventListener('click', incDlgClose);
   incDlgEl('incDialog').addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); incDlgClose(); } if (e.key === 'Enter' && e.target === incDlgEl('incDlgDate')) { e.preventDefault(); incDlgWrite(false); } });
+  // ---- QR code et lien du formulaire externe Grist d'une étape ----
+  // Le lien (réglage partagé « incorporationForms », enregistré avec le widget) se modifie d'un clic sur l'adresse. Le QR code est dessiné
+  // en SVG par la bibliothèque qrcode-generator (chargée à la demande) ; l'envoi ouvre la messagerie ou l'application SMS avec un message prêt.
+  var incForms = {}, incQrKey = null, qrLibPromise = null;
+  var QR_LIB_URL = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';
+  function incFormUrl(key) { return String((incForms && incForms[key]) || '').trim(); }
+  function loadQrLib() {
+    if (window.qrcode) return Promise.resolve(window.qrcode);
+    if (!qrLibPromise) qrLibPromise = new Promise(function (resolve, reject) {
+      var el = document.createElement('script');
+      el.src = QR_LIB_URL;
+      el.onload = function () { if (window.qrcode) resolve(window.qrcode); else { qrLibPromise = null; reject(new Error('Le générateur de QR code n’a pas pu être initialisé.')); } };
+      el.onerror = function () { qrLibPromise = null; reject(new Error('Le générateur de QR code n’a pas pu être chargé : vérifiez l’accès à cdn.jsdelivr.net.')); };
+      document.head.appendChild(el);
+    });
+    return qrLibPromise;
+  }
+  function qrSvgOf(qrcode, text) {
+    var qr = qrcode(0, 'M'); qr.addData(text); qr.make();
+    var n = qr.getModuleCount(), quiet = 2, size = n + quiet * 2, d = '';
+    for (var r = 0; r < n; r++) for (var c = 0; c < n; c++) if (qr.isDark(r, c)) d += 'M' + (c + quiet) + ' ' + (r + quiet) + 'h1v1h-1z';
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + size + '" role="img" aria-label="QR code du formulaire" shape-rendering="crispEdges"><rect width="' + size + '" height="' + size + '" fill="#fff"/><path d="' + d + '" fill="#000"/></svg>';
+  }
+  function incQrEl(id) { return document.getElementById(id); }
+  function incQrErr(msg) { var e = incQrEl('incQrError'); e.textContent = msg || ''; e.hidden = !msg; }
+  function validFormUrl(u) { return /^https?:\/\/[^\s]+$/i.test(u); }
+  function incQrRender() {
+    var key = incQrKey, url = incFormUrl(key), box = incQrEl('incQrBox'), link = incQrEl('incQrLink'), ok = validFormUrl(url);
+    link.textContent = url || 'Aucun lien : cliquez ici pour saisir l’adresse du formulaire Grist';
+    link.classList.toggle('is-empty', !url);
+    ['incQrCopy', 'incQrMail', 'incQrSms'].forEach(function (id) { incQrEl(id).disabled = !ok; });
+    if (!ok) { box.innerHTML = '<p>' + (url ? 'Ce lien n’est pas une adresse web valide (https://…).' : 'Renseignez le lien du formulaire Grist externe pour afficher son QR code.') + '</p>'; return; }
+    box.innerHTML = '<p>Génération du QR code…</p>';
+    loadQrLib().then(function (qrcode) { if (incQrKey === key && incFormUrl(key) === url) box.innerHTML = qrSvgOf(qrcode, url); })
+      .catch(function (e) { if (incQrKey === key) box.innerHTML = '<p>' + escapeHtml(e.message) + '</p>'; });
+  }
+  function incQrEdit(on) {
+    incQrEl('incQrEdit').hidden = !on; incQrEl('incQrLink').hidden = on; incQrErr('');
+    if (on) { var i = incQrEl('incQrInput'); i.value = incFormUrl(incQrKey); i.focus(); i.select(); }
+  }
+  function openIncQr(key) {
+    var st = INC_STEPS.filter(function (x) { return x.key === key; })[0];
+    incQrKey = key;
+    incQrEl('incQrTitle').textContent = 'Formulaire : ' + st.label;
+    incQrEl('incQrIntro').textContent = st.intro + ' Accessible en scannant le QR code ou depuis le lien.';
+    incQrEdit(false); incQrRender();
+    incQrEl('incQrDialog').hidden = false;
+    incQrEl('incQrLink').focus();
+  }
+  function incQrClose() { incQrKey = null; incQrEl('incQrDialog').hidden = true; }
+  function incQrSave() {
+    var v = incQrEl('incQrInput').value.trim();
+    if (v && !validFormUrl(v)) { incQrErr('Saisissez une adresse web complète, commençant par https://'); return; }
+    var next = Object.assign({}, incForms); if (v) next[incQrKey] = v; else delete next[incQrKey];
+    incQrEl('incQrSave').disabled = true;
+    Promise.resolve(grist.setOption('incorporationForms', next)).then(function () {
+      incForms = next; incQrEl('incQrSave').disabled = false; incQrEdit(false); incQrRender(); renderIncorporation();
+    }).catch(function (e) { incQrEl('incQrSave').disabled = false; incQrErr('Enregistrement impossible : ' + friendlyErrorMessage(e)); });
+  }
+  function incQrMessage() {
+    var st = INC_STEPS.filter(function (x) { return x.key === incQrKey; })[0];
+    return { subject: 'Incorporation : formulaire « ' + st.label + ' »', body: 'Bonjour,\n\nMerci de renseigner le formulaire « ' + st.label + ' » : ' + incFormUrl(incQrKey) + '\n\nCordialement.' };
+  }
+  function incOpenLink(url) {
+    var a = document.createElement('a'); a.href = url; a.style.display = 'none'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
+  incQrEl('incQrLink').addEventListener('click', function () { incQrEdit(true); });
+  incQrEl('incQrSave').addEventListener('click', incQrSave);
+  incQrEl('incQrCancel').addEventListener('click', function () { incQrEdit(false); });
+  incQrEl('incQrInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); incQrSave(); } if (e.key === 'Escape') { e.stopPropagation(); incQrEdit(false); incQrEl('incQrLink').focus(); } });
+  incQrEl('incQrClose').addEventListener('click', incQrClose);
+  incQrEl('incQrDialog').addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); incQrClose(); } });
+  incQrEl('incQrMail').addEventListener('click', function () { var m = incQrMessage(); openMailto('', m.subject, m.body); });
+  incQrEl('incQrSms').addEventListener('click', function () { incOpenLink('sms:?&body=' + encodeURIComponent(incQrMessage().body)); });
+  incQrEl('incQrCopy').addEventListener('click', function () {
+    var url = incFormUrl(incQrKey), btn = incQrEl('incQrCopy');
+    function done(ok) { var t = btn.textContent; btn.textContent = ok ? 'Lien copié' : 'Copie impossible'; setTimeout(function () { btn.textContent = t; }, 1600); }
+    function fallback() {
+      var ta = document.createElement('textarea'); ta.value = url; ta.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(ta); ta.select();
+      var ok = false; try { ok = document.execCommand('copy'); } catch (e) { /* non disponible */ }
+      document.body.removeChild(ta); done(ok);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function () { done(true); }, fallback); else fallback();
+  });
   // ---- Barre d'outils, recherche rapide, export ----
   document.getElementById('navIncorporation').addEventListener('click', function () { showPage('incorporation'); renderIncorporation(); loadIncorporation(); });
   document.getElementById('incBackBtn').addEventListener('click', function () { showPage('stagiaires'); });
@@ -13749,7 +13913,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     { title: 'eTuteur', items: [
       ['Comment filtrer les listes ?', 'Cliquez dans la barre de recherche (vide) : un panneau propose les filtres en un clic (sur la page Stagiaires : peloton, affectation, fonction et affichage des partis ; sur Encadrement : groupe, fonction et regroupement par groupe). Les choix se cumulent ; « Réinitialiser les filtres » les efface. Sur eTuteur, les filtres rapides isolent les dossiers à traiter : complets, documents rejetés, à valider ou manquants, e-mail EAD non envoyé, « N° CAND renseigné, email non envoyé », EAD non validé, doublons, sans N° CAND, usage RS et droit à l’image manquants. Le nombre de candidats concernés est indiqué à côté de chaque filtre.'],
       ['Que fait un clic sur la légende ou sur une barre du graphique ?', 'Il filtre la liste. <strong>Validé</strong> affiche les candidats dont <em>toutes</em> les pièces sont validées ; <strong>À valider</strong>, <strong>Refusé</strong> et <strong>Manquant</strong> affichent ceux qui ont <em>au moins une</em> pièce dans cet état. Un clic sur un segment d’une barre filtre sur cette pièce précise. Un second clic, ou « Réinitialiser les filtres », lève le filtre.'],
-      ['Comment suivre le parcours d’incorporation ?', 'Sur la page Stagiaires, le bouton <strong>Incorporation</strong> ouvre le parcours : une ligne par stagiaire (hors partis) et trois étapes, <strong>Arrivée au poste</strong>, <strong>Habillement</strong> et <strong>Contrat signé</strong>, lues dans les tables Incorporation_Poste, Incorporation_Habillement et Incorporation_Trombi. Un clic sur l’étape d’un stagiaire ouvre le formulaire de validation (date proposée : maintenant) ; il permet aussi de corriger la date ou de retirer la validation. Les compteurs du haut affichent, d’un clic, les stagiaires pour qui une étape reste à valider ; la recherche propose aussi les filtres par avancement et par peloton, et l’export .csv reprend la vue affichée.'],
+      ['Comment suivre le parcours d’incorporation ?', 'Sur la page Stagiaires, le bouton <strong>Incorporation</strong> ouvre le parcours : une ligne par stagiaire (hors partis) et trois étapes, <strong>Présence</strong>, <strong>Habillement</strong> et <strong>Contrat signé</strong>, lues dans les tables Incorporation_Poste, Incorporation_Habillement et Incorporation_Trombi. Un clic sur l’étape d’un stagiaire ouvre le formulaire de validation (date proposée : maintenant) ; il permet aussi de corriger la date ou de retirer la validation. Dans l’en-tête de chaque étape, le bouton QR code ouvre le formulaire Grist externe correspondant : QR code, lien (modifiable d’un clic sur l’adresse, réglage partagé par tous les utilisateurs) et envoi par e-mail ou par SMS. Les compteurs du haut affichent, d’un clic, les stagiaires pour qui une étape reste à valider ; la recherche propose aussi les filtres par avancement et par peloton, et l’export .csv reprend la vue affichée.'],
       ['Comment mettre à jour les N° CAND depuis un fichier ?', 'Bouton <strong>Mettre à jour les N° CAND (fichier)</strong>, puis déposez le fichier. Il doit contenir une colonne N° CAND et, pour retrouver chaque stagiaire, l’adresse e-mail et/ou le nom et le prénom. La recherche se fait d’abord par e-mail, à défaut par nom et prénom ; l’aperçu indique pour chaque ligne par quoi le stagiaire a été retrouvé. Les lignes d’en-tête avant les titres sont acceptées.'],
       ['Comment sait-on qu’un e-mail a été envoyé ?', 'Lors de l’envoi des identifiants (icône enveloppe de la fiche), le widget ajoute une mention dans la colonne « Blocages / Infos ». Les filtres « Email EAD non envoyé » se basent sur cette mention.']
     ] },
