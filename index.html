@@ -1353,6 +1353,31 @@
   /* Drapeau français ondulant sur sa hampe, trois bandes tracées (monochrome) : même rendu que les autres icônes de la barre d'outils. */
   .fr-btn.icon-flag-fr::before { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round'%3E%3Cpath d='M4 3v18' stroke-linecap='round' stroke-width='1.8'/%3E%3Cpath d='M5.5 5c3-2 5.5 2 8.5 0s4.5-1 6 0v9c-1.5-1-3-1-6 0s-5.5 2-8.5 0z'/%3E%3Cpath d='M10.3 4.8v9.2M15.2 4.6v9'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round'%3E%3Cpath d='M4 3v18' stroke-linecap='round' stroke-width='1.8'/%3E%3Cpath d='M5.5 5c3-2 5.5 2 8.5 0s4.5-1 6 0v9c-1.5-1-3-1-6 0s-5.5 2-8.5 0z'/%3E%3Cpath d='M10.3 4.8v9.2M15.2 4.6v9'/%3E%3C/svg%3E"); }
   /* Page Cérémonie */
+  /* Parcours d'incorporation */
+  #panelIncorporation .inc-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 0.6rem; margin: 0 0 1rem; }
+  #panelIncorporation .inc-tile { all: unset; box-sizing: border-box; display: flex; flex-direction: column; gap: 0.3rem; padding: 0.7rem 0.9rem; cursor: pointer; border: 1px solid var(--border-default-grey); border-radius: 0.5rem; background: var(--background-raised-grey); }
+  #panelIncorporation .inc-tile:hover { background: var(--background-default-grey-hover); }
+  #panelIncorporation .inc-tile:focus-visible { outline: 2px solid #0a76f6; outline-offset: 2px; }
+  #panelIncorporation .inc-tile[aria-pressed="true"] { border-color: var(--border-action-high-blue-france); background: var(--background-alt-blue-france); box-shadow: inset 0 0 0 1px var(--border-action-high-blue-france); }
+  #panelIncorporation .inc-tile[disabled] { cursor: default; opacity: 0.6; }
+  #panelIncorporation .inc-tile__l { font-size: 0.875rem; font-weight: 700; color: var(--text-title-grey); }
+  #panelIncorporation .inc-tile__n { font-size: 1.5rem; font-weight: 700; line-height: 1.15; font-variant-numeric: tabular-nums; color: var(--text-title-grey); }
+  #panelIncorporation .inc-tile__n small { font-size: 0.8rem; font-weight: 400; color: var(--text-mention-grey); }
+  #panelIncorporation .inc-bar { height: 0.4rem; border-radius: 999px; background: var(--background-contrast-grey, #eee); overflow: hidden; }
+  #panelIncorporation .inc-bar > span { display: block; height: 100%; background: var(--background-action-high-blue-france); }
+  #panelIncorporation .inc-name { all: unset; cursor: pointer; font-weight: 700; color: var(--text-action-high-blue-france); }
+  #panelIncorporation .inc-name:hover { text-decoration: underline; }
+  #panelIncorporation .inc-name:focus-visible { outline: 2px solid #0a76f6; outline-offset: 2px; }
+  #panelIncorporation .inc-table th, #panelIncorporation .inc-table td { white-space: nowrap; }
+  #panelIncorporation .inc-cell { display: inline-flex; align-items: center; gap: 0.35rem; margin: 0; padding: 0.2rem 0.7rem; border-radius: 999px; font: inherit; font-size: 0.8125rem; cursor: pointer; border: 1px solid transparent; }
+  #panelIncorporation .inc-cell.is-done { background: var(--background-contrast-success); color: var(--text-default-success); font-weight: 600; }
+  #panelIncorporation .inc-cell.is-todo { background: transparent; border: 1px dashed var(--border-plain-grey, #929292); color: var(--text-mention-grey); }
+  #panelIncorporation .inc-cell:hover { filter: brightness(0.96); }
+  #panelIncorporation .inc-cell:focus-visible { outline: 2px solid #0a76f6; outline-offset: 2px; }
+  #panelIncorporation .inc-cell[disabled] { cursor: not-allowed; opacity: 0.55; }
+  #panelIncorporation .inc-prog { display: flex; align-items: center; gap: 0.6rem; min-width: 9rem; }
+  #panelIncorporation .inc-prog .inc-bar { flex: 1; }
+  #panelIncorporation .inc-prog b { font-variant-numeric: tabular-nums; font-size: 0.8125rem; }
   #panelCeremonie .cer-group th { padding: 0.6rem 0.8rem 0.4rem; background: var(--background-alt-grey); border-top: 1px solid var(--border-default-grey); text-align: left; text-transform: none; letter-spacing: 0; font-size: 0.9rem; color: var(--text-title-grey); }
   #panelCeremonie .cer-group__in { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
   #panelCeremonie .cer-group__name { all: unset; cursor: pointer; font-weight: 700; color: var(--text-action-high-blue-france); }
@@ -3194,6 +3219,52 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
        rapport à la capture d'écran d'origine (identité en tête, documents
        groupés avec leurs actions, informations complémentaires en bas,
        blocages mis en évidence). -->
+  <div id="panelIncorporation" hidden>
+    <div class="bulk-head">
+      <h2 class="fr-h6">Parcours d’incorporation</h2>
+      <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-arrow-left-line fr-btn--icon-left" id="incBackBtn" type="button">Retour aux stagiaires</button>
+    </div>
+    <div class="cand-toolbar">
+      <div class="tb-field tb-search">
+        <span class="tb-lbl" aria-hidden="true">Rechercher un stagiaire</span>
+        <div class="fr-search-bar fr-search-bar--sm" role="search">
+          <label class="fr-label" for="incSearchInput">Rechercher un stagiaire</label>
+          <input class="fr-input" type="search" id="incSearchInput" placeholder="Nom, prénom, peloton…">
+          <button class="fr-btn fr-btn--sm" type="button" title="Rechercher" tabindex="-1">Rechercher</button>
+        </div>
+      </div>
+      <button class="fr-btn fr-btn--secondary fr-icon-close-circle-line fr-btn--icon-left tb-icon" id="incResetBtn" type="button" disabled title="Réinitialiser la recherche et les filtres">Réinitialiser les filtres</button>
+      <p class="cand-count cand-count--push" id="incCount"></p>
+      <div class="tb-actions">
+        <button class="fr-btn fr-btn--secondary fr-icon-sort-desc fr-btn--icon-left tb-ghost" id="incSortBtn" type="button" title="Changer l’ordre d’affichage">Trier par avancement</button>
+        <button class="fr-btn fr-btn--secondary fr-icon-refresh-line fr-btn--icon-left tb-ghost" id="incReloadBtn" type="button" title="Recharger le parcours depuis les tables Grist">Actualiser</button>
+        <button class="fr-btn fr-btn--secondary fr-icon-download-line fr-btn--icon-left tb-ghost" id="incExportBtn" type="button" disabled title="Exporter les stagiaires affichés en .csv">Exporter en .csv</button>
+      </div>
+    </div>
+    <div id="incStatus" aria-live="polite"></div>
+    <div class="inc-tiles" id="incTiles"></div>
+    <div id="incZone"></div>
+    <div class="bulk-dialog" id="incDialog" role="dialog" aria-modal="true" aria-labelledby="incDlgTitle" hidden>
+      <div class="bulk-dialog__box bulk-dialog__box--md">
+        <div class="bulk-dialog__head">
+          <h3 class="fr-h6" id="incDlgTitle">Valider l’étape</h3>
+          <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line" id="incDlgClose" type="button" title="Fermer">Fermer</button>
+        </div>
+        <p class="fr-text--sm" id="incDlgWho"><strong></strong></p>
+        <div class="fr-input-group">
+          <label class="fr-label" for="incDlgDate"><span id="incDlgLabel">Date</span></label>
+          <input class="fr-input" type="date" id="incDlgDate">
+        </div>
+        <p class="fr-error-text" id="incDlgError" hidden></p>
+        <div class="bulk-dialog__foot">
+          <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm bulk-dialog__delete" id="incDlgRemove" type="button" hidden>Retirer la validation</button>
+          <button class="fr-btn fr-btn--tertiary fr-btn--sm" id="incDlgCancel" type="button">Annuler</button>
+          <button class="fr-btn fr-btn--sm" id="incDlgSave" type="button">Valider l’étape</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="panelCeremonie" hidden>
     <div class="bulk-head">
       <h2 class="fr-h6">Cérémonie de fin de stage : invités</h2>
@@ -4679,6 +4750,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         <button class="fr-btn fr-btn--secondary fr-icon-award-line fr-btn--icon-left tb-ghost" id="navReferent" type="button" title="Référent pédagogique : notes, moyennes et classement des stagiaires">
           Référent pédagogique
         </button>
+        <button class="fr-btn fr-btn--secondary fr-icon-user-add-line fr-btn--icon-left tb-ghost" id="navIncorporation" type="button" title="Parcours d’incorporation : suivi de l’arrivée, de l’habillement et du contrat de chaque stagiaire">
+          Incorporation
+        </button>
         <button class="fr-btn fr-btn--secondary fr-icon-flag-line icon-flag-fr fr-btn--icon-left tb-ghost" id="navCeremonie" type="button" title="Cérémonie : invités de la cérémonie de fin de stage">
           Cérémonie
         </button>
@@ -4813,6 +4887,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   <input type="checkbox" id="cfg_hideEtuteur">
   <label class="fr-label" for="cfg_hideEtuteur">Masquer la page eTuteur
     <span class="fr-hint-text">Retire le bouton « Dossiers eTuteur » de la page Stagiaires. Les données restent chargées.</span></label>
+</div>
+<div class="fr-checkbox-group">
+  <input type="checkbox" id="cfg_hideIncorporation">
+  <label class="fr-label" for="cfg_hideIncorporation">Masquer la page Incorporation
+    <span class="fr-hint-text">Retire le bouton « Incorporation » de la page Stagiaires. Les données des tables d’incorporation ne sont pas modifiées.</span></label>
 </div>
 
       </section>
@@ -5596,7 +5675,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.89.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.90.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -5714,7 +5793,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function defaultConfig() {
     var col = {};
     ROLES.forEach(function (role) { col[role] = ''; });
-    return { table: '', docsTable: '', docsLinkCol: '', hideEtuteur: false, modules: { veh: true, mat: true, abs: true }, dateDebutFormation: '', dateFinFormation: '', attritionRef: '', eadMail: { subject: DEFAULT_EAD_MAIL.subject, body: DEFAULT_EAD_MAIL.body },
+    return { table: '', docsTable: '', docsLinkCol: '', hideEtuteur: false, hideIncorporation: false, modules: { veh: true, mat: true, abs: true }, dateDebutFormation: '', dateFinFormation: '', attritionRef: '', eadMail: { subject: DEFAULT_EAD_MAIL.subject, body: DEFAULT_EAD_MAIL.body },
       refusalMail: { subject: DEFAULT_REFUSAL_MAIL.subject, body: DEFAULT_REFUSAL_MAIL.body }, col: col };
   }
   function mergeConfig(loaded) {
@@ -5727,6 +5806,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     cfg.dateFinFormation = (typeof loaded.dateFinFormation === 'string') ? loaded.dateFinFormation : '';
     cfg.attritionRef = (typeof loaded.attritionRef === 'string' || typeof loaded.attritionRef === 'number') ? String(loaded.attritionRef) : '';
     cfg.hideEtuteur = !!loaded.hideEtuteur; // masque l'onglet et la page eTuteur
+    cfg.hideIncorporation = !!loaded.hideIncorporation; // masque le bouton et la page Incorporation
     cfg.modules = { veh: !(loaded.modules && loaded.modules.veh === false), mat: !(loaded.modules && loaded.modules.mat === false), abs: !(loaded.modules && loaded.modules.abs === false) }; // modules désactivés pour ce stage
     if (loaded.eadMail && typeof loaded.eadMail.subject === 'string' && typeof loaded.eadMail.body === 'string') {
       cfg.eadMail = { subject: loaded.eadMail.subject, body: loaded.eadMail.body }; // (une ancienne pièce jointe enregistrée est ignorée)
@@ -6030,10 +6110,14 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var hideEtuteur = !!settings.hideEtuteur;
     navEtuteur.style.display = hideEtuteur ? 'none' : '';
     if (hideEtuteur && currentPage === 'etuteur') currentPage = 'stagiaires';
+    var hideInc = !!settings.hideIncorporation;
+    document.getElementById('navIncorporation').style.display = hideInc ? 'none' : '';
+    if (hideInc && currentPage === 'incorporation') currentPage = 'stagiaires';
     panelSettings.hidden = !settingsOpen;
     panelEtuteur.hidden = settingsOpen || currentPage !== 'etuteur';
     document.getElementById('panelReferent').hidden = settingsOpen || currentPage !== 'referent';
     document.getElementById('panelCeremonie').hidden = settingsOpen || currentPage !== 'ceremonie';
+    document.getElementById('panelIncorporation').hidden = settingsOpen || currentPage !== 'incorporation';
     document.getElementById('panelWelcome').hidden = settingsOpen || currentPage !== 'welcome';
     panelStagiaires.hidden = settingsOpen || currentPage !== 'stagiaires';
     panelEncadrement.hidden = settingsOpen || currentPage !== 'encadrement';
@@ -6061,7 +6145,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       if (currentPage === pair[1]) pair[0].setAttribute('aria-current', 'page');
       else pair[0].removeAttribute('aria-current');
     });
-    if (['stagiaires', 'etuteur', 'referent', 'ceremonie', 'encadrement', 'stats'].indexOf(currentPage) !== -1) navStgMenu.setAttribute('aria-current', 'true'); else navStgMenu.removeAttribute('aria-current');
+    if (['stagiaires', 'etuteur', 'referent', 'ceremonie', 'incorporation', 'encadrement', 'stats'].indexOf(currentPage) !== -1) navStgMenu.setAttribute('aria-current', 'true'); else navStgMenu.removeAttribute('aria-current');
   }
   var fsjView = 'progression', fsjStarted = false;
   function openFsj(view) {
@@ -6544,6 +6628,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       finDateEl.value = settings.dateFinFormation;
       document.getElementById('cand_attritionRef').value = settings.attritionRef || '';
       document.getElementById('cfg_hideEtuteur').checked = !!settings.hideEtuteur;
+      document.getElementById('cfg_hideIncorporation').checked = !!settings.hideIncorporation;
       ['veh', 'mat', 'abs'].forEach(function (k) { document.getElementById('cfg_mod_' + k).checked = settings.modules[k] !== false; });
       mailSubjectEl.value = settings.eadMail.subject;
       mailBodyEl.value = settings.eadMail.body;
@@ -6613,6 +6698,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     // Colonne de liaison : lue seule (jamais écrite par le widget), pas
     // besoin qu'elle passe isWritableColId comme les colonnes de rôle.
     cfg.hideEtuteur = document.getElementById('cfg_hideEtuteur').checked;
+    cfg.hideIncorporation = document.getElementById('cfg_hideIncorporation').checked;
     cfg.modules = { veh: document.getElementById('cfg_mod_veh').checked, mat: document.getElementById('cfg_mod_mat').checked, abs: document.getElementById('cfg_mod_abs').checked };
     cfg.dateDebutFormation = startDateEl.value.trim();
     cfg.dateFinFormation = finDateEl.value.trim();
@@ -6691,6 +6777,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }
 
     if (cfg.hideEtuteur) chip('', 'Page eTuteur masquée');
+    if (cfg.hideIncorporation) chip('', 'Page Incorporation masquée');
     [['veh', 'Réservations de véhicules'], ['mat', 'Réservations de matériels'], ['abs', 'Gestion des absences']].forEach(function (m) { if (cfg.modules && cfg.modules[m[0]] === false) chip('', 'Module désactivé : ' + m[1]); });
 
     var dateInvalid = !!cfg.dateDebutFormation && !parseFrDate(cfg.dateDebutFormation);
@@ -7019,11 +7106,12 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function restoreLastPage() {
     var saved = null;
     try { saved = JSON.parse(sessionStorage.getItem('widgetLastPage') || 'null'); } catch (e) { saved = null; }
-    if (!saved || ['stagiaires', 'etuteur', 'referent', 'ceremonie', 'encadrement', 'stats', 'faq', 'bulk', 'res', 'fsj'].indexOf(saved.page) === -1) return;
+    if (!saved || ['stagiaires', 'etuteur', 'referent', 'ceremonie', 'incorporation', 'encadrement', 'stats', 'faq', 'bulk', 'res', 'fsj'].indexOf(saved.page) === -1) return;
     if (saved.page === 'fsj') { openFsj(['progression', 'generer', 'absences'].indexOf(saved.fsjView) !== -1 ? saved.fsjView : 'progression'); return; }
     showPage(saved.page);
     if (saved.page === 'referent') loadNotes();
     if (saved.page === 'ceremonie') loadCeremonie();
+    if (saved.page === 'incorporation') loadIncorporation();
     if (saved.page === 'stats') renderStats();
     if (saved.page === 'faq') buildFaq();
     if (saved.page === 'res') { // sous-page des ressources (véhicules, matériels, hébergement)
@@ -7063,6 +7151,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
   // Rend les deux pages (eTuteur et Stagiaires) depuis les mêmes données.
   function renderAll() {
+    renderIncorporation();
     renderReferent();
     renderCandidates();
     renderStagiaires();
@@ -10726,6 +10815,242 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     saveBlob(new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' }), 'invites-ceremonie.csv');
   });
 
+  // ==== Page « Parcours d'incorporation » =====================================================================
+  //
+  // Sources EN DUR : trois tables, une ligne par stagiaire (colonne « Stagiaire » = référence vers la table des stagiaires) :
+  // « Incorporation_Poste » (Arrivé le), « Incorporation_Habillement » (Habillé le) et « Incorporation_Trombi » (Contrat signé le ;
+  // les autres colonnes de cette table sont ignorées). Une étape est franchie quand sa date est renseignée ; un formulaire (clic sur
+  // l'étape d'un stagiaire) la valide, la modifie ou la retire. La ligne de la table est créée à la première validation.
+  var INC_STEPS = [
+    { key: 'poste', label: 'Arrivée au poste', field: 'Arrivé le', table: 'INCORPORATIONPOSTE', tableName: 'Incorporation_Poste', date: ['ARRIVELE', 'ARRIVEE', 'ARRIVE'] },
+    { key: 'habillement', label: 'Habillement', field: 'Habillé le', table: 'INCORPORATIONHABILLEMENT', tableName: 'Incorporation_Habillement', date: ['HABILLELE', 'HABILLE', 'HABILLEMENT'] },
+    { key: 'contrat', label: 'Contrat signé', field: 'Contrat signé le', table: 'INCORPORATIONTROMBI', tableName: 'Incorporation_Trombi', date: ['CONTRATSIGNELE', 'CONTRATSIGNE', 'CONTRAT'] }
+  ];
+  var inc = { loaded: false, steps: {} }; // steps[clé] = { tableId, stgCol, dateCol, byStg: { idStagiaire: { rowId, value } }, error }
+  var incSearch = '', incSortByProgress = true, incFlags = { complete: false, incomplete: false, todo: {}, pon: [] };
+  var panelIncorporation = document.getElementById('panelIncorporation');
+  function incNameKey(v) { return String(v || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, ' ').trim().toUpperCase().split(' ').filter(Boolean).sort().join(' '); }
+  function incStatus(type, msg) { var z = document.getElementById('incStatus'); z.innerHTML = msg ? '<div class="fr-alert fr-alert--' + type + ' fr-alert--sm fr-mb-2w"><p>' + escapeHtml(msg) + '</p></div>' : ''; }
+  function loadIncorporation() {
+    return Promise.all([grist.docApi.listTables(), grist.docApi.fetchTable('_grist_Tables'), grist.docApi.fetchTable('_grist_Tables_column')]).then(function (res) {
+      var tables = res[1], meta = res[2], byName = {};
+      candidates.rows.forEach(function (r) { var k = incNameKey(stagiaireDisplayName(r)); if (k) byName[k] = byName[k] === undefined ? r.id : -1; });
+      return Promise.all(INC_STEPS.map(function (st) {
+        var tid = null;
+        (res[0] || []).forEach(function (t) { var k = cerKey(t); if (!tid && k.slice(-st.table.length) === st.table) tid = t; });
+        if (!tid) return Promise.resolve([st.key, { error: 'Table « ' + st.tableName + ' » introuvable dans ce document.' }]);
+        var rowId = null, colMeta = [];
+        for (var i = 0; i < tables.id.length; i++) if (tables.tableId[i] === tid) rowId = tables.id[i];
+        for (var j = 0; j < meta.id.length; j++) {
+          if (meta.parentId[j] !== rowId || /^gristHelper_|^manualSort$/.test(meta.colId[j])) continue;
+          colMeta.push({ id: meta.colId[j], label: meta.label[j] || meta.colId[j], type: bulkBaseType(meta.type[j]), fullType: meta.type[j], formula: !!meta.isFormula[j] && String(meta.formula ? meta.formula[j] : '').trim() !== '' });
+        }
+        function find(keys) { return colMeta.filter(function (c) { return keys.indexOf(cerKey(c.label)) !== -1 || keys.indexOf(cerKey(c.id)) !== -1; })[0]; }
+        var stgCol = find(['STAGIAIRE']), dateCol = find(st.date);
+        if (!stgCol || !dateCol) return Promise.resolve([st.key, { tableId: tid, error: 'Colonne « ' + (!stgCol ? 'Stagiaire' : st.field) + ' » introuvable dans la table « ' + tid + ' ».' }]);
+        return grist.docApi.fetchTable(tid).then(function (data) {
+          var byStg = {};
+          (data.id || []).forEach(function (id, n) {
+            var sv = data[stgCol.id] ? data[stgCol.id][n] : null, dv = data[dateCol.id] ? data[dateCol.id][n] : null;
+            var sid = stgCol.type === 'Ref' && Number(sv) ? Number(sv) : (byName[incNameKey(textOf(sv))] || 0);
+            if (sid <= 0) return;
+            if (!byStg[sid] || (dv && !byStg[sid].value)) byStg[sid] = { rowId: id, value: dv };
+          });
+          return [st.key, { tableId: tid, stgCol: stgCol, dateCol: dateCol, byStg: byStg, error: dateCol.formula ? 'La colonne « ' + st.field + ' » est calculée : elle ne peut pas être modifiée ici.' : '' }];
+        });
+      }));
+    }).then(function (list) {
+      var steps = {}; list.forEach(function (e) { steps[e[0]] = e[1]; });
+      inc = { loaded: true, steps: steps };
+    }).catch(function (e) {
+      inc = { loaded: false, steps: {}, error: friendlyErrorMessage(e) };
+    }).then(renderIncorporation);
+  }
+  function incActive() { return INC_STEPS.filter(function (st) { var x = inc.steps[st.key]; return x && x.tableId && x.stgCol && x.dateCol; }); }
+  function incValue(row, key) { var x = inc.steps[key], r = x && x.byStg ? x.byStg[row.id] : null; return r && r.value ? r.value : null; }
+  function incIsDone(row, key) { var v = incValue(row, key); return v !== null && v !== '' && v !== 0; }
+  function incProgress(row) { var act = incActive(); return { done: act.filter(function (st) { return incIsDone(row, st.key); }).length, total: act.length }; }
+  function incFmt(row, key) {
+    var v = incValue(row, key), x = inc.steps[key]; if (!v) return '';
+    if (typeof v !== 'number') return textOf(v);
+    if (x.dateCol.type === 'DateTime') return new Date(v * 1000).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', '');
+    var d = new Date(v * 1000);
+    return ('0' + d.getUTCDate()).slice(-2) + '/' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '/' + d.getUTCFullYear();
+  }
+  function incBase() { return candidates.rows.filter(function (r) { return !stgHasLeft(r); }); }
+  function incPasses(row, skipKey) {
+    if (incSearch.trim()) {
+      var q = normalizeKey(incSearch), hay = normalizeKey(stagiaireDisplayName(row) + ' ' + (settings.col.pon ? textOf(row.pon) : ''));
+      if (hay.indexOf(q) === -1) return false;
+    }
+    if (incFlags.pon.length && incFlags.pon.indexOf(settings.col.pon ? textOf(row.pon) : '') === -1) return false;
+    var p = incProgress(row), complete = p.total > 0 && p.done === p.total;
+    if (skipKey !== 'complete' && incFlags.complete && !complete) return false;
+    if (skipKey !== 'incomplete' && incFlags.incomplete && complete) return false;
+    var todoKeys = Object.keys(incFlags.todo).filter(function (k) { return incFlags.todo[k]; });
+    if (todoKeys.length && !todoKeys.every(function (k) { return k === skipKey || !incIsDone(row, k); })) return false;
+    return true;
+  }
+  function incVisible() {
+    var rows = incBase().filter(function (r) { return incPasses(r); });
+    rows.sort(function (a, b) {
+      if (incSortByProgress) { var pa = incProgress(a), pb = incProgress(b), fa = pa.total ? pa.done / pa.total : 0, fb = pb.total ? pb.done / pb.total : 0; if (fa !== fb) return fa - fb; }
+      return compareCandidatesByName(a, b);
+    });
+    return rows;
+  }
+  function renderIncorporation() {
+    if (!panelIncorporation || panelIncorporation.hidden) return;
+    var zone = document.getElementById('incZone'), tiles = document.getElementById('incTiles'), count = document.getElementById('incCount');
+    var anyFlag = incFlags.complete || incFlags.incomplete || incFlags.pon.length || Object.keys(incFlags.todo).some(function (k) { return incFlags.todo[k]; });
+    document.getElementById('incResetBtn').disabled = !incSearch.trim() && !anyFlag;
+    document.getElementById('incSortBtn').textContent = incSortByProgress ? 'Trier par nom' : 'Trier par avancement';
+    zone.innerHTML = ''; tiles.innerHTML = '';
+    if (!inc.loaded) {
+      incStatus(inc.error ? 'error' : 'info', inc.error ? 'Chargement impossible : ' + inc.error : 'Chargement du parcours…');
+      count.textContent = ''; document.getElementById('incExportBtn').disabled = true; return;
+    }
+    var problems = INC_STEPS.map(function (st) { return inc.steps[st.key] && inc.steps[st.key].error; }).filter(Boolean);
+    incStatus(problems.length ? 'warning' : '', problems.join(' '));
+    var base = incBase(), act = incActive(), rows = incVisible();
+    count.textContent = rows.length + ' stagiaire(s) affiché(s) sur ' + base.length;
+    document.getElementById('incExportBtn').disabled = !rows.length;
+    // Vue d'ensemble : un compteur par étape (un clic affiche les stagiaires pour qui elle reste à valider) et les parcours complets.
+    var completeN = base.filter(function (r) { var p = incProgress(r); return p.total > 0 && p.done === p.total; }).length;
+    function tile(label, n, total, pressed, key, disabled) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'inc-tile'; b.setAttribute('aria-pressed', pressed ? 'true' : 'false'); b.disabled = !!disabled;
+      b.innerHTML = '<span class="inc-tile__l">' + escapeHtml(label) + '</span><span class="inc-tile__n">' + n + ' <small>/ ' + total + '</small></span><span class="inc-bar"><span style="width:' + (total ? Math.round(100 * n / total) : 0) + '%"></span></span>';
+      b.addEventListener('click', function () {
+        if (key === 'complete') incFlags.complete = !incFlags.complete;
+        else incFlags.todo[key] = !incFlags.todo[key];
+        renderIncorporation();
+      });
+      tiles.appendChild(b);
+    }
+    INC_STEPS.forEach(function (st) {
+      var ok = !!(inc.steps[st.key] && inc.steps[st.key].dateCol && inc.steps[st.key].stgCol);
+      tile(st.label, ok ? base.filter(function (r) { return incIsDone(r, st.key); }).length : 0, base.length, !!incFlags.todo[st.key], st.key, !ok);
+    });
+    tile('Parcours complets', completeN, base.length, incFlags.complete, 'complete', !act.length);
+    if (!rows.length) {
+      var e = document.createElement('p'); e.className = 'cand-empty-state'; e.textContent = base.length ? 'Aucun stagiaire ne correspond à l’affichage actuel.' : 'Aucun stagiaire.'; zone.appendChild(e); return;
+    }
+    var wrap = document.createElement('div'); wrap.className = 'bulk-table-wrap';
+    var table = document.createElement('table'); table.className = 'bulk-table inc-table';
+    table.innerHTML = '<thead><tr><th>Stagiaire</th>' + INC_STEPS.map(function (st) { return '<th>' + escapeHtml(st.label) + '</th>'; }).join('') + '<th>Avancement</th></tr></thead>';
+    var tb = document.createElement('tbody');
+    rows.forEach(function (row) {
+      var tr = document.createElement('tr'), p = incProgress(row), pon = settings.col.pon ? textOf(row.pon) : '';
+      var td = document.createElement('td');
+      td.innerHTML = '<button type="button" class="inc-name" title="Ouvrir la fiche">' + escapeHtml(stagiaireDisplayName(row)) + '</button>' + (pon ? ' <span class="fr-tag fr-tag--sm stg-tag--pon">' + escapeHtml(pon) + '</span>' : '');
+      td.querySelector('.inc-name').addEventListener('click', function () { openCandidateModal(row.id, 'stagiaire'); });
+      tr.appendChild(td);
+      INC_STEPS.forEach(function (st) {
+        var c = document.createElement('td'), x = inc.steps[st.key], ok = !!(x && x.stgCol && x.dateCol), b = document.createElement('button');
+        b.type = 'button';
+        if (!ok) { b.className = 'inc-cell is-todo'; b.disabled = true; b.textContent = '—'; b.title = (x && x.error) || 'Table indisponible'; }
+        else if (incIsDone(row, st.key)) { b.className = 'inc-cell is-done'; b.innerHTML = '<span class="fr-icon-checkbox-circle-fill fr-icon--sm" aria-hidden="true"></span>' + escapeHtml(incFmt(row, st.key)); b.title = st.label + ' : modifier ou retirer la validation'; }
+        else { b.className = 'inc-cell is-todo'; b.textContent = 'À valider'; b.title = 'Valider l’étape « ' + st.label + ' »'; }
+        if (ok) b.addEventListener('click', function () { openIncDialog(row, st.key); });
+        c.appendChild(b); tr.appendChild(c);
+      });
+      var pc = document.createElement('td');
+      pc.innerHTML = '<div class="inc-prog"><span class="inc-bar"><span style="width:' + (p.total ? Math.round(100 * p.done / p.total) : 0) + '%"></span></span><b>' + p.done + '/' + p.total + '</b></div>';
+      tr.appendChild(pc);
+      tb.appendChild(tr);
+    });
+    table.appendChild(tb); wrap.appendChild(table); zone.appendChild(wrap);
+  }
+  // Formulaire de validation d'une étape : date (et heure si la colonne est de type Date et heure), proposée à « maintenant ».
+  var incDlg = null;
+  function incDlgEl(id) { return document.getElementById(id); }
+  function incDlgClose() { incDlg = null; incDlgEl('incDialog').hidden = true; }
+  function incDlgError(msg) { var e = incDlgEl('incDlgError'); e.textContent = msg || ''; e.hidden = !msg; }
+  function pad2(n) { return ('0' + n).slice(-2); }
+  function openIncDialog(row, key) {
+    var st = INC_STEPS.filter(function (x) { return x.key === key; })[0], x = inc.steps[key];
+    if (!x || !x.dateCol || !x.stgCol) return;
+    var input = incDlgEl('incDlgDate'), isDT = x.dateCol.type === 'DateTime', cur = incValue(row, key), now = new Date();
+    incDlg = { row: row, key: key, busy: false };
+    incDlgEl('incDlgTitle').textContent = 'Valider l’étape : ' + st.label;
+    incDlgEl('incDlgWho').innerHTML = '<strong>' + escapeHtml(stagiaireDisplayName(row)) + '</strong>' + (settings.col.pon && textOf(row.pon) ? ' · ' + escapeHtml(textOf(row.pon)) : '');
+    incDlgEl('incDlgLabel').textContent = st.field;
+    input.type = isDT ? 'datetime-local' : 'date';
+    var d = typeof cur === 'number' ? new Date(cur * 1000) : now;
+    input.value = isDT ? d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + 'T' + pad2(d.getHours()) + ':' + pad2(d.getMinutes())
+      : (typeof cur === 'number' ? d.toISOString().slice(0, 10) : now.getFullYear() + '-' + pad2(now.getMonth() + 1) + '-' + pad2(now.getDate()));
+    incDlgEl('incDlgRemove').hidden = !incIsDone(row, key);
+    incDlgEl('incDlgSave').textContent = incIsDone(row, key) ? 'Enregistrer' : 'Valider l’étape';
+    incDlgEl('incDlgSave').disabled = !!x.dateCol.formula; incDlgEl('incDlgCancel').disabled = false; incDlgEl('incDlgRemove').disabled = false;
+    incDlgError(x.dateCol.formula ? 'La colonne « ' + st.field + ' » est calculée : elle ne peut pas être modifiée ici.' : '');
+    incDlgEl('incDialog').hidden = false;
+    input.focus();
+  }
+  function incDlgWrite(clear) {
+    if (!incDlg || incDlg.busy) return;
+    var row = incDlg.row, key = incDlg.key, x = inc.steps[key], input = incDlgEl('incDlgDate'), value = null;
+    if (!clear) {
+      if (!input.value) { incDlgError('Renseignez la date.'); return; }
+      value = x.dateCol.type === 'DateTime' ? Math.round(new Date(input.value).getTime() / 1000)
+        : Date.UTC(+input.value.slice(0, 4), +input.value.slice(5, 7) - 1, +input.value.slice(8, 10)) / 1000;
+      if (!isFinite(value)) { incDlgError('Date invalide.'); return; }
+    }
+    var fields = {}, rec = x.byStg[row.id], action;
+    fields[x.dateCol.id] = value;
+    if (rec) action = ['UpdateRecord', x.tableId, rec.rowId, fields];
+    else { fields[x.stgCol.id] = x.stgCol.type === 'Ref' ? row.id : stagiaireDisplayName(row); action = ['AddRecord', x.tableId, null, fields]; }
+    incDlg.busy = true; incDlgError('');
+    ['incDlgSave', 'incDlgCancel', 'incDlgRemove'].forEach(function (id) { incDlgEl(id).disabled = true; });
+    grist.docApi.applyUserActions([action]).then(function () { incDlgClose(); return loadIncorporation(); }).catch(function (e) {
+      if (incDlg) incDlg.busy = false;
+      ['incDlgSave', 'incDlgCancel', 'incDlgRemove'].forEach(function (id) { incDlgEl(id).disabled = false; });
+      incDlgError('Enregistrement impossible : ' + friendlyErrorMessage(e));
+    });
+  }
+  incDlgEl('incDlgSave').addEventListener('click', function () { incDlgWrite(false); });
+  incDlgEl('incDlgRemove').addEventListener('click', function () { incDlgWrite(true); });
+  incDlgEl('incDlgClose').addEventListener('click', incDlgClose);
+  incDlgEl('incDlgCancel').addEventListener('click', incDlgClose);
+  incDlgEl('incDialog').addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); incDlgClose(); } if (e.key === 'Enter' && e.target === incDlgEl('incDlgDate')) { e.preventDefault(); incDlgWrite(false); } });
+  // ---- Barre d'outils, recherche rapide, export ----
+  document.getElementById('navIncorporation').addEventListener('click', function () { showPage('incorporation'); renderIncorporation(); loadIncorporation(); });
+  document.getElementById('incBackBtn').addEventListener('click', function () { showPage('stagiaires'); });
+  document.getElementById('incReloadBtn').addEventListener('click', loadIncorporation);
+  document.getElementById('incSortBtn').addEventListener('click', function () { incSortByProgress = !incSortByProgress; renderIncorporation(); });
+  document.getElementById('incSearchInput').addEventListener('input', function () { incSearch = this.value; renderIncorporation(); });
+  document.getElementById('incResetBtn').addEventListener('click', function () {
+    incSearch = ''; document.getElementById('incSearchInput').value = ''; incFlags = { complete: false, incomplete: false, todo: {}, pon: [] }; renderIncorporation();
+  });
+  attachSearchPanel(document.getElementById('incSearchInput'), function () {
+    var out = [], base = incBase();
+    function count(skipKey, test) { return base.filter(function (r) { return incPasses(r, skipKey) && test(r); }).length; }
+    function complete(r) { var p = incProgress(r); return p.total > 0 && p.done === p.total; }
+    out.push({ sec: 'Avancement', l: 'Parcours complets (' + count('complete', complete) + ')', keep: true, on: function () { return incFlags.complete; }, run: function () { incFlags.complete = !incFlags.complete; if (incFlags.complete) incFlags.incomplete = false; renderIncorporation(); } });
+    out.push({ sec: 'Avancement', l: 'Parcours incomplets (' + count('incomplete', function (r) { return !complete(r); }) + ')', keep: true, on: function () { return incFlags.incomplete; }, run: function () { incFlags.incomplete = !incFlags.incomplete; if (incFlags.incomplete) incFlags.complete = false; renderIncorporation(); } });
+    incActive().forEach(function (st) {
+      out.push({ sec: 'Étape à valider', l: st.label + ' (' + count(st.key, function (r) { return !incIsDone(r, st.key); }) + ')', keep: true, on: function () { return !!incFlags.todo[st.key]; }, run: function () { incFlags.todo[st.key] = !incFlags.todo[st.key]; renderIncorporation(); } });
+    });
+    if (settings.col.pon) {
+      var pons = {}; base.forEach(function (r) { var v = textOf(r.pon); if (v) pons[v] = (pons[v] || 0) + (incPasses(r) ? 1 : 0); });
+      incFlags.pon.forEach(function (v) { if (pons[v] === undefined) pons[v] = 0; });
+      Object.keys(pons).sort(function (a, b) { return nameCollator.compare(a, b); }).forEach(function (v) {
+        out.push({ sec: 'Peloton', l: v + ' (' + pons[v] + ')', keep: true, on: function () { return incFlags.pon.indexOf(v) !== -1; },
+          run: function () { var on = incFlags.pon.indexOf(v) !== -1; incFlags.pon = on ? incFlags.pon.filter(function (x) { return x !== v; }) : incFlags.pon.concat([v]); renderIncorporation(); } });
+      });
+    }
+    return out;
+  }, function () { document.getElementById('incResetBtn').click(); });
+  document.getElementById('incExportBtn').addEventListener('click', function () {
+    var rows = incVisible(); if (!rows.length) return;
+    var cols = ['Stagiaire', 'Peloton'].concat(INC_STEPS.map(function (st) { return st.label; }), ['Avancement']);
+    var lines = [cols.map(csvCell).join(';')];
+    rows.forEach(function (r) {
+      var p = incProgress(r);
+      lines.push([stagiaireDisplayName(r), settings.col.pon ? textOf(r.pon) : ''].concat(INC_STEPS.map(function (st) { return incFmt(r, st.key); }), [p.done + '/' + p.total]).map(csvCell).join(';'));
+    });
+    saveBlob(new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' }), 'parcours-incorporation.csv');
+  });
+
   // ==== Page « Encadrement » ==================================================
   //
   // Source EN DUR : table « Encadrement ». Même principe que la page Stagiaires : une bande par
@@ -13424,6 +13749,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     { title: 'eTuteur', items: [
       ['Comment filtrer les listes ?', 'Cliquez dans la barre de recherche (vide) : un panneau propose les filtres en un clic (sur la page Stagiaires : peloton, affectation, fonction et affichage des partis ; sur Encadrement : groupe, fonction et regroupement par groupe). Les choix se cumulent ; « Réinitialiser les filtres » les efface. Sur eTuteur, les filtres rapides isolent les dossiers à traiter : complets, documents rejetés, à valider ou manquants, e-mail EAD non envoyé, « N° CAND renseigné, email non envoyé », EAD non validé, doublons, sans N° CAND, usage RS et droit à l’image manquants. Le nombre de candidats concernés est indiqué à côté de chaque filtre.'],
       ['Que fait un clic sur la légende ou sur une barre du graphique ?', 'Il filtre la liste. <strong>Validé</strong> affiche les candidats dont <em>toutes</em> les pièces sont validées ; <strong>À valider</strong>, <strong>Refusé</strong> et <strong>Manquant</strong> affichent ceux qui ont <em>au moins une</em> pièce dans cet état. Un clic sur un segment d’une barre filtre sur cette pièce précise. Un second clic, ou « Réinitialiser les filtres », lève le filtre.'],
+      ['Comment suivre le parcours d’incorporation ?', 'Sur la page Stagiaires, le bouton <strong>Incorporation</strong> ouvre le parcours : une ligne par stagiaire (hors partis) et trois étapes, <strong>Arrivée au poste</strong>, <strong>Habillement</strong> et <strong>Contrat signé</strong>, lues dans les tables Incorporation_Poste, Incorporation_Habillement et Incorporation_Trombi. Un clic sur l’étape d’un stagiaire ouvre le formulaire de validation (date proposée : maintenant) ; il permet aussi de corriger la date ou de retirer la validation. Les compteurs du haut affichent, d’un clic, les stagiaires pour qui une étape reste à valider ; la recherche propose aussi les filtres par avancement et par peloton, et l’export .csv reprend la vue affichée.'],
       ['Comment mettre à jour les N° CAND depuis un fichier ?', 'Bouton <strong>Mettre à jour les N° CAND (fichier)</strong>, puis déposez le fichier. Il doit contenir une colonne N° CAND et, pour retrouver chaque stagiaire, l’adresse e-mail et/ou le nom et le prénom. La recherche se fait d’abord par e-mail, à défaut par nom et prénom ; l’aperçu indique pour chaque ligne par quoi le stagiaire a été retrouvé. Les lignes d’en-tête avant les titres sont acceptées.'],
       ['Comment sait-on qu’un e-mail a été envoyé ?', 'Lors de l’envoi des identifiants (icône enveloppe de la fiche), le widget ajoute une mention dans la colonne « Blocages / Infos ». Les filtres « Email EAD non envoyé » se basent sur cette mention.']
     ] },
