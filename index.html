@@ -3322,8 +3322,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       <p class="cand-count cand-count--push" id="trombiCount" aria-live="polite"></p>
       <div class="tb-actions">
         <button class="fr-btn fr-btn--secondary fr-icon-refresh-line fr-btn--icon-left tb-ghost" id="trombiReloadBtn" type="button" title="Recharger les photos">Actualiser</button>
-        <button class="fr-btn fr-btn--secondary fr-icon-download-line fr-btn--icon-left tb-ghost" id="trombiPdfBtn" type="button" title="Générer un PDF (les photos peuvent y être remplacées par des initiales selon les règles d’accès de Grist)">Générer un PDF</button>
-        <button class="fr-btn fr-icon-printer-line fr-btn--icon-left" id="trombiPrintBtn" type="button" title="Imprimer les pages affichées (ou les enregistrer au format PDF depuis la fenêtre d’impression)">Imprimer</button>
+        <button class="fr-btn fr-icon-printer-line fr-btn--icon-left" id="trombiPrintBtn" type="button" title="Imprime exactement les pages affichées ; dans la fenêtre d’impression, « Enregistrer au format PDF » exporte le fichier avec les photos">Imprimer / Exporter en PDF</button>
       </div>
     </div>
     <div id="trombiStatus" class="trombi-bar" aria-live="polite"></div>
@@ -4659,11 +4658,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
           <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line" id="bulkGenClose" type="button" title="Fermer">Fermer</button>
         </div>
         <p class="fr-text--sm">Un exemplaire du document est généré pour chaque stagiaire sélectionné : les variables du modèle sont remplacées par ses données.</p>
-        <fieldset class="fr-fieldset" id="bulkGenOutputGroup" style="margin:0 0 0.8rem" hidden>
-          <legend class="fr-fieldset__legend fr-text--bold">Sortie</legend>
-          <div class="fr-fieldset__element"><div class="fr-radio-group"><input type="radio" id="bulkGenOutDownload" name="bulkGenOutput" value="download" checked><label class="fr-label" for="bulkGenOutDownload">Télécharger en PDF</label></div></div>
-          <div class="fr-fieldset__element"><div class="fr-radio-group"><input type="radio" id="bulkGenOutPrint" name="bulkGenOutput" value="print"><label class="fr-label" for="bulkGenOutPrint">Imprimer</label></div></div>
-        </fieldset>
         <fieldset class="fr-fieldset" id="bulkGenModeGroup" style="margin:0 0 0.8rem">
           <legend class="fr-fieldset__legend fr-text--bold">Format</legend>
           <div class="fr-fieldset__element">
@@ -5801,7 +5795,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.103.2</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.104.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -11320,7 +11314,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     { t: 'eTuteur : le suivi des pièces', html: '<ul><li>Chaque candidat a ses pièces (attestation RS, droit à l’image, EAD - Bloc 1) : déposez, validez ou refusez ; un refus prépare un courriel pré-rempli.</li><li>Les <strong>filtres rapides</strong> isolent les dossiers à traiter (manquants, à valider, doublons, paiement manquant…).</li><li>Le bouton <strong>Rapport</strong> prépare un point d’étape ou un rapport final en PDF, avec un message court à envoyer.</li></ul>', go: 'etuteur', goLabel: 'Ouvrir eTuteur' },
     { t: 'Le parcours d’incorporation', html: '<ul><li>Une ligne par stagiaire, trois étapes : <strong>Présence</strong>, <strong>Habillement</strong>, <strong>Contrat signé</strong>.</li><li>Un <strong>cercle vide</strong> est une étape à valider, une <strong>coche verte</strong> une étape faite (date et heure au survol). Cliquez sur un cercle pour valider ; la ligne passe en vert quand le parcours est complet.</li><li>Pour la <strong>Présence</strong>, un formulaire s’ouvre : vous pouvez aussi indiquer que le stagiaire <strong>ne s’est pas présenté</strong> (le départ est alors préparé).</li><li>Le bouton <strong>QR code</strong> de chaque étape affiche le formulaire Grist externe, à scanner ou à envoyer par e-mail ou SMS.</li></ul>', go: 'incorporation', goLabel: 'Ouvrir l’incorporation' },
     { t: 'La cérémonie de fin de stage', html: '<ul><li>Les <strong>invités</strong> sont regroupés par stagiaire ; un avertissement signale un nombre d’invitations dépassé.</li><li>Les tags indiquent <strong>VIP</strong>, <strong>En tenue</strong> et <strong>-12 ans</strong>.</li><li>Le bouton <strong>QR code Présence</strong> affiche le formulaire externe : chaque présence validée teinte la ligne de l’invité en vert, avec une coche.</li></ul>', go: 'ceremonie', goLabel: 'Ouvrir la cérémonie' },
-    { t: 'Encadrement et trombinoscope', html: '<ul><li>La page <strong>Encadrement</strong> liste les cadres avec leur fiche (heures par type d’activité, prochain cours, permanences).</li><li>Le <strong>Trombinoscope</strong>, dans le menu Gestion des personnels, présente une page par groupe avec les photos ; <strong>Imprimer</strong> ouvre l’impression (ou l’enregistrement en PDF), <strong>Générer un PDF</strong> reste disponible.</li></ul>', go: 'encadrement', goLabel: 'Ouvrir l’encadrement' },
+    { t: 'Encadrement et trombinoscope', html: '<ul><li>La page <strong>Encadrement</strong> liste les cadres avec leur fiche (heures par type d’activité, prochain cours, permanences).</li><li>Le <strong>Trombinoscope</strong>, dans le menu Gestion des personnels, présente une page par groupe avec les photos ; <strong>Imprimer / Exporter en PDF</strong> imprime exactement ce qui est affiché (ou l’enregistre en PDF).</li></ul>', go: 'encadrement', goLabel: 'Ouvrir l’encadrement' },
     { t: 'Les ressources', html: '<ul><li><strong>Réservations</strong> : demandes de véhicules et de matériels, avec leurs décisions.</li><li><strong>Hébergement</strong> : une carte par chambre ; glissez un occupant vers une autre carte, ou <strong>double-cliquez</strong> sur une carte pour choisir tous les occupants (filtres par sexe et par peloton).</li><li><strong>Documents</strong> : documents stockés et génération en lot.</li><li>Les modules inutilisés pour le stage peuvent être désactivés dans la Configuration.</li></ul>', go: 'res', goLabel: 'Ouvrir les ressources' },
     { t: 'Le planning et les absences', html: '<ul><li><strong>Progression</strong> : le planning de la semaine par peloton, l’ajout d’occurrences, l’export PDF et, en dessous, le total d’heures de cours et de permanences SOP par cadre.</li><li><strong>Feuille de service journalier</strong> : génération du document d’un jour, après désignation des permanences.</li><li><strong>Gestion des absences</strong> : demandes, décisions et règles de conflit.</li></ul>', go: 'fsj', goLabel: 'Ouvrir le planning' },
     { t: 'Les statistiques', html: '<p>Une synthèse chiffrée de la formation : effectifs et attrition, féminisation, âge, départements, encadrement, suivi des pièces. Le sélecteur « Population » distingue acculturation et PMG ; la synthèse s’imprime en une page.</p>', go: 'stats', goLabel: 'Ouvrir les statistiques' },
@@ -12471,8 +12465,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       var actions = row.builtin === 'rationnaire' ?
         [['Télécharger', 'fr-icon-download-line', function () { openRationDialog(); }]] :
         row.builtin === 'trombi' ?
-        [['Télécharger', 'fr-icon-download-line', function () { openGenDialog(TROMBI_ROW, 'download'); }],
-         ['Imprimer', 'fr-icon-printer-line', function () { openGenDialog(TROMBI_ROW, 'print'); }]] :
+        [['Ouvrir le trombinoscope', 'fr-icon-eye-line', function () { openTrombiPage(); }]] :
         [['Télécharger', 'fr-icon-download-line', function () { openGenDialog(row, 'download'); }],
          ['Imprimer', 'fr-icon-printer-line', function () { openGenDialog(row, 'print'); }],
          ['Modifier le document', 'fr-icon-edit-line', function () { openBulkDialog(row); }]];
@@ -14295,9 +14288,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       ['Comment imprimer la synthèse ?', 'Bouton <strong>Imprimer la synthèse</strong> en haut de la page : seule la synthèse (une page) est imprimée, pas le « Détail par rubrique ».']
     ] },
     { title: 'Documents', items: [
-      ['Où trouver le trombinoscope et que contient-il ?', 'Menu <strong>Gestion des personnels</strong>, ligne « Trombinoscope » : une page présente les pages du trombinoscope (un groupe affiché, ou tous). Le bouton <strong>Imprimer</strong> ouvre l’impression du navigateur (A4 paysage) ; choisissez « Enregistrer au format PDF » pour obtenir un fichier avec les photos. <strong>Générer un PDF</strong> ouvre l’ancienne fenêtre de génération (choix des groupes, un PDF ou une archive .zip). Une page par groupe : les cadres du groupe, puis les stagiaires du peloton correspondant. Une page <strong>Acculturation</strong> regroupe les cadres du groupe « Acculturation » et les stagiaires en acculturation. Les stagiaires partis sont placés à la fin de leur liste, photo estompée et barrée d’une croix rouge.'],
-      ['Un seul PDF ou un PDF par groupe pour le trombinoscope ?', 'Dans la fenêtre du trombinoscope, choisissez <strong>Un seul PDF avec toutes les pages (un exemplaire par groupe)</strong> ou <strong>Un PDF par groupe (regroupés dans une archive .zip)</strong>. Pour le second format, le nom de chaque fichier se règle avec la variable {{GROUPE}}.'],
-      ['Pourquoi les photos sont-elles remplacées par des initiales ?', 'Le navigateur peut bloquer la lecture des photos (règles d’accès de Grist, CORS). Le bouton « Tester l’accès aux photos » de la Configuration (Sources de données) indique la cause. Les initiales remplacent alors uniquement les photos illisibles. Si les photos s’affichent à l’écran mais ne peuvent pas être lues (CORS), utilisez la page Trombinoscope : elle affiche les photos telles quelles et le bouton <strong>Imprimer</strong> permet d’« Enregistrer au format PDF » depuis la fenêtre d’impression.'],
+      ['Où trouver le trombinoscope et que contient-il ?', 'Menu <strong>Gestion des personnels</strong>, ligne « Trombinoscope » : une page présente le trombinoscope, une page par groupe (les cadres du groupe, puis les stagiaires du peloton correspondant ; une page <strong>Acculturation</strong> regroupe les cadres et stagiaires en acculturation). Le sélecteur choisit un groupe ou tous. Les stagiaires partis sont placés à la fin de leur liste, photo estompée et barrée d’une croix rouge. Le bouton <strong>Imprimer / Exporter en PDF</strong> imprime exactement ce qui est affiché ; dans la fenêtre d’impression, choisissez « Enregistrer au format PDF » pour obtenir un fichier avec les photos.'],
+      ['Pourquoi une photo est-elle remplacée par des initiales ?', 'Le widget n’a pas pu charger l’image (règles d’accès de Grist, photo absente ou illisible). La page Trombinoscope l’indique en haut, avec le nombre de photos concernées ; le bouton « Tester l’accès aux photos » de la Configuration (Sources de données) en donne la cause. Seules les photos illisibles sont remplacées.'],
       ['À quoi sert l’état rationnaire ?', 'Il liste, par affectation, les repas des cadres et stagiaires. À l’édition, le widget propose de confirmer les repas des cadres en repos, la veille et le lendemain du repos, d’après la table « Gestion des absences ».']
     ] },
     { title: 'Configuration', items: [
@@ -15544,18 +15536,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     return groups;
   }
 
-  // Photo d'une personne pour le trombinoscope : réduite (JPEG 160 px max) et intégrée au document (data URI).
-  // Trois essais : lecture du fichier (fetch), puis chargement en image « CORS » ; si Grist ne les autorise pas
-  // mais que l'image s'affiche normalement, son URL (à jeton) sert pour l'impression seulement (un PDF ne peut pas
-  // lire une image inter-origine). Résultat : { data, url, reason } — reason décrit l'échec éventuel.
-  function trombiShrink(img) {
-    var scale = Math.min(1, 160 / Math.max(img.width, img.height));
-    var c = document.createElement('canvas');
-    c.width = Math.max(1, Math.round(img.width * scale));
-    c.height = Math.max(1, Math.round(img.height * scale));
-    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-    return c.toDataURL('image/jpeg', 0.85); // lève une erreur si le canvas est « souillé » (image sans CORS)
-  }
   function trombiLoadImage(url, cors) {
     return new Promise(function (resolve, reject) {
       var img = new Image();
@@ -15564,69 +15544,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       img.onerror = function () { reject(new Error('image illisible')); };
       img.src = url;
     });
-  }
-  function trombiPhotoData(row) {
-    if (!extractAttachmentIds(row.portrait).length && !/^https?:\/\//i.test(textOf(row.portrait))) return Promise.resolve({ none: true });
-    return portraitSource(row).then(function (src) {
-      if (!src) return { none: true };
-      var reasons = [];
-      // 1. lecture du fichier. Grist n'autorise la lecture inter-origine (CORS) avec un jeton que pour les requêtes qui
-      //    déclenchent un pré-contrôle : si la requête simple est bloquée, on la renvoie avec « X-Requested-With »
-      //    (comme l'envoi de fichiers, voir uploadAttachment, et « Tester l'accès aux photos »).
-      return fetch(src.url).catch(function () {
-        return fetch(src.url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-      }).then(function (resp) {
-        if (!resp.ok) throw new Error('HTTP ' + resp.status + (resp.status === 404 || resp.status === 403 ? ' (accès refusé par les règles d’accès de Grist)' : ''));
-        return resp.blob();
-      }).then(function (blob) {
-        var objUrl = URL.createObjectURL(blob);
-        return trombiLoadImage(objUrl, false).then(function (img) { var d = trombiShrink(img); URL.revokeObjectURL(objUrl); return d; }, function (e) { URL.revokeObjectURL(objUrl); throw e; });
-      }).then(function (data) { return { data: data }; }, function (e) {
-        reasons.push(e && /^HTTP/.test(e.message) ? e.message : 'lecture bloquée par le navigateur (CORS)');
-        // 2. image chargée avec CORS
-        return trombiLoadImage(src.url, true).then(function (img) { return { data: trombiShrink(img) }; }).catch(function () {
-          // 3. l'image s'affiche-t-elle simplement ? (utile pour l'impression)
-          return trombiLoadImage(src.url, false).then(function () { return { url: src.url, reason: reasons[0] }; }, function () { return { reason: reasons[0] === 'lecture bloquée par le navigateur (CORS)' ? 'image inaccessible (règles d’accès de Grist ?)' : reasons[0] }; });
-        });
-      });
-    }).catch(function (e) { return { reason: friendlyErrorMessage(e) }; });
-  }
-  // Charge les photos de tous les membres des groupes (6 en parallèle). Renvoie des statistiques :
-  // { withPhoto, embedded, urlOnly, failed, reasons } (person.__trombiPhoto = data URI, __trombiPhotoUrl = URL).
-  function trombiLoadPhotos(groups, onProgress) {
-    var people = [];
-    groups.forEach(function (g) {
-      g.members.forEach(function (r) { people.push({ row: r }); });
-      g.trainees.forEach(function (r) { people.push({ row: r }); });
-    });
-    var index = 0, done = 0, cache = {};
-    var stats = { withPhoto: 0, embedded: 0, urlOnly: 0, failed: 0, reasons: {} };
-    function worker() {
-      if (index >= people.length) return Promise.resolve();
-      var p = people[index++];
-      var key = (p.row.f ? 'e' : 's') + p.row.id;
-      var job = cache[key];
-      var first = !job;
-      if (!job) job = cache[key] = trombiPhotoData(p.row);
-      return job.then(function (res) {
-        p.row.__trombiPhoto = res.data || null;
-        p.row.__trombiPhotoUrl = res.url || null;
-        if (first && !res.none) {
-          stats.withPhoto++;
-          if (res.data) stats.embedded++;
-          else {
-            if (res.url) stats.urlOnly++; else stats.failed++;
-            if (res.reason) stats.reasons[res.reason] = (stats.reasons[res.reason] || 0) + 1;
-          }
-        }
-        done++;
-        if (onProgress) onProgress(done, people.length);
-        return worker();
-      });
-    }
-    var workers = [];
-    for (var i = 0; i < Math.min(6, people.length); i++) workers.push(worker());
-    return Promise.all(workers).then(function () { return stats; });
   }
 
   // ---- Mise en page : tout un groupe (cadres + stagiaires) sur UNE page ----
@@ -15722,12 +15639,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     '.n1{margin-top:3px;overflow:hidden;font-weight:700}' +
     '.n2,.n3{overflow:hidden;color:#3a3a3a;white-space:nowrap;text-overflow:ellipsis}' +
     '@media print{.tpage{break-inside:avoid}}</style>';
-  // Document complet : une page par groupe. allowUrl : pour l'impression, les photos non intégrables sont
-  // référencées par leur URL (un PDF, lui, ne peut pas les lire).
-  function buildTrombiHtml(groups, title, allowUrl) {
-    return '<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>' + escapeHtml(title) + '</title>' + TROMBI_CSS +
-      '</head><body>' + groups.map(function (g) { return trombiGroupPagesHtml(g, !!allowUrl); }).join('\n') + '</body></html>';
-  }
 
   // ==== Page « Trombinoscope » : les pages (une par groupe) s'affichent dans le widget, l'impression se fait depuis la page ====
   // Les photos sont de simples images (adresse à jeton de Grist) : elles s'affichent comme dans la liste des stagiaires, sans passer par la lecture
@@ -15774,7 +15685,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var token = ++trombiPage.token, groups = trombiPage.groups, people = [], idx = 0, done = 0;
     groups.forEach(function (g) { g.members.concat(g.trainees).forEach(function (r) { r.__trombiPhoto = null; r.__trombiPhotoUrl = null; people.push(r); }); });
     var withAtt = people.filter(function (r) { return extractAttachmentIds(r.portrait).length || /^https?:\/\//i.test(textOf(r.portrait)); });
-    var btns = ['trombiPrintBtn', 'trombiPdfBtn', 'trombiReloadBtn'].map(function (id) { return document.getElementById(id); });
+    var btns = ['trombiPrintBtn', 'trombiReloadBtn'].map(function (id) { return document.getElementById(id); });
     function setBusy(b) { trombiPage.busy = b; btns.forEach(function (x) { x.disabled = b; }); }
     trombiRenderSheet();
     if (!withAtt.length) { document.getElementById('trombiStatus').innerHTML = ''; return; }
@@ -15810,7 +15721,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   document.getElementById('trombiBackBtn').addEventListener('click', function () { showPage('stagiaires'); });
   document.getElementById('trombiGroupSel').addEventListener('change', function () { trombiRenderSheet(); });
   document.getElementById('trombiReloadBtn').addEventListener('click', function () { trombiLoadAndRender(); });
-  document.getElementById('trombiPdfBtn').addEventListener('click', function () { openGenDialog(TROMBI_ROW, 'download'); });
   document.getElementById('trombiPrintBtn').addEventListener('click', trombiPrint);
   window.addEventListener('resize', function () { if (!document.getElementById('panelTrombi').hidden) trombiFitZoom(); });
 
@@ -15819,54 +15729,36 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var boxes = genDialog.querySelectorAll('.bulk-gen__item input:checked');
     var ids = {};
     Array.prototype.forEach.call(boxes, function (b) { ids[b.value] = true; });
-    if (genState.trombi) return genState.groups.filter(function (g) { return ids[g.key]; });
     return candidates.rows.filter(function (r) { return ids[r.id]; }).sort(compareCandidatesByName);
   }
-  function genDocName(row) { return row.builtin === 'trombi' ? TROMBI_NAME : textOf(row.values[bulk.nameCol.id]); }
+  function genDocName(row) { return textOf(row.values[bulk.nameCol.id]); }
   function genMode() { return genDialog.querySelector('input[name="bulkGenMode"]:checked').value; }
   function genUpdateUi() {
     var download = genState.action === 'download';
-    var trombi = !!genState.trombi;
     document.getElementById('bulkGenModeGroup').hidden = !download;
-    document.getElementById('bulkGenModeStore').closest('.fr-fieldset__element').hidden = trombi; // pas d'enregistrement dans les pièces
-    if (trombi && download && genMode() === 'store') genDialog.querySelector('input[name="bulkGenMode"][value="single"]').checked = true;
-    // Libellés du format : un exemplaire par groupe pour le trombinoscope, par stagiaire pour les autres documents.
-    document.querySelector('label[for="bulkGenModeSingle"]').textContent = trombi ? 'Un seul PDF avec toutes les pages (un exemplaire par groupe)' : 'Un seul PDF avec toutes les pages (un exemplaire par stagiaire)';
-    document.querySelector('label[for="bulkGenModeMulti"]').textContent = trombi ? 'Un PDF par groupe (regroupés dans une archive .zip)' : 'Un PDF par stagiaire (regroupés dans une archive .zip)';
     var mode = download ? genMode() : 'print';
     var nameEl = document.getElementById('bulkGenName');
     var docName = genDocName(genState.row);
-    var variable = trombi ? '{{GROUPE}}' : '{{STAGIAIRE}}';
-    if (nameEl.dataset.auto !== 'false') nameEl.value = mode === 'multi' ? docName + ' - ' + variable : docName;
+    if (nameEl.dataset.auto !== 'false') nameEl.value = mode === 'multi' ? docName + ' - {{STAGIAIRE}}' : docName;
     document.getElementById('bulkGenNameHint').textContent =
-      mode === 'multi' ? 'Nom de chaque PDF (extension .pdf ajoutée). Il doit contenir une variable qui distingue les ' + (trombi ? 'groupes, par exemple {{GROUPE}}.' : 'stagiaires, par exemple {{STAGIAIRE}} ou {{' + settings.table + '.NID}}.') :
+      mode === 'multi' ? 'Nom de chaque PDF (extension .pdf ajoutée). Il doit contenir une variable qui distingue les stagiaires, par exemple {{STAGIAIRE}}.' :
       mode === 'store' ? 'Nom de la pièce dans la colonne Pièces (et du fichier .pdf). Les variables sont possibles, par exemple {{STAGIAIRE}}. Une pièce déjà enregistrée sous ce nom est remplacée.' :
       mode === 'single' ? 'Nom du fichier (extension .pdf ajoutée).' :
       'Titre du document imprimé (proposé comme nom de fichier si vous l’enregistrez en PDF).';
     var n = genSelectedRows().length;
-    var total = trombi ? genState.groups.length : candidates.rows.length;
-    document.getElementById('bulkGenCount').textContent = n + (trombi ? ' groupe(s)' : ' stagiaire(s)') + ' sélectionné(s) sur ' + total;
-    document.getElementById('bulkGenAllLabel').textContent = trombi ? 'Tous les groupes' : 'Tous les stagiaires';
+    var total = candidates.rows.length;
+    document.getElementById('bulkGenCount').textContent = n + ' stagiaire(s) sélectionné(s) sur ' + total;
+    document.getElementById('bulkGenAllLabel').textContent = 'Tous les stagiaires';
     document.getElementById('bulkGenAll').checked = n === total && n > 0;
     var go = document.getElementById('bulkGenGo');
     go.textContent = { single: 'Télécharger le PDF', multi: 'Télécharger les PDF', store: 'Enregistrer dans les pièces', print: 'Imprimer' }[mode];
     go.disabled = n === 0 || genBusy;
   }
   function openGenDialog(row, action) {
-    var trombi = row.builtin === 'trombi';
-    var groups = trombi ? trombiGroups() : null;
-    if (trombi) {
-      if (!enc.loaded) { window.alert('La table « Encadrement » n’est pas disponible : impossible de générer le trombinoscope.'); return; }
-      if (!groups.length) { window.alert('Aucun groupe renseigné dans la table « Encadrement » : impossible de générer le trombinoscope.'); return; }
-    } else {
-      if (!bulkDocHtml(row)) { window.alert('Ce document n’a pas de modèle HTML.'); return; }
-      if (!candidates.rows.length) { window.alert('Aucun stagiaire : les données des stagiaires ne sont pas chargées.'); return; }
-    }
-    genState = { row: row, action: action, trombi: trombi, groups: groups };
+    if (!bulkDocHtml(row)) { window.alert('Ce document n’a pas de modèle HTML.'); return; }
+    if (!candidates.rows.length) { window.alert('Aucun stagiaire : les données des stagiaires ne sont pas chargées.'); return; }
+    genState = { row: row, action: action };
     document.getElementById('bulkGenTitle').textContent = (action === 'download' ? 'Télécharger' : 'Imprimer') + ' : ' + genDocName(row);
-    var outGroup = document.getElementById('bulkGenOutputGroup');
-    outGroup.hidden = !trombi; // le trombinoscope n'a plus de boutons Télécharger / Imprimer dans la liste : le choix se fait ici
-    if (trombi) outGroup.querySelector('input[value="' + action + '"]').checked = true;
     genDialog.querySelector('input[name="bulkGenMode"][value="single"]').checked = true;
     var nameEl = document.getElementById('bulkGenName');
     nameEl.dataset.auto = 'true';
@@ -15874,9 +15766,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     document.getElementById('bulkGenProgress').hidden = true;
     var list = document.getElementById('bulkGenList');
     list.innerHTML = '';
-    var items = trombi ?
-      groups.map(function (g) { return { value: g.key, text: groupDisplayLabel(g.label) + ' — ' + g.members.length + ' cadre(s), ' + g.trainees.length + ' stagiaire(s)' }; }) :
-      candidates.rows.slice().sort(compareCandidatesByName).map(function (r) { return { value: r.id, text: stagiaireDisplayName(r) }; });
+    var items = candidates.rows.slice().sort(compareCandidatesByName).map(function (r) { return { value: r.id, text: stagiaireDisplayName(r) }; });
     items.forEach(function (it) {
       var label = document.createElement('label');
       label.className = 'bulk-gen__item';
@@ -15897,14 +15787,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function closeGenDialog() { if (genBusy) return; genDialog.hidden = true; }
   Array.prototype.forEach.call(genDialog.querySelectorAll('input[name="bulkGenMode"]'), function (r) { r.addEventListener('change', function () { document.getElementById('bulkGenName').dataset.auto = 'true'; genUpdateUi(); }); });
   document.getElementById('bulkGenName').addEventListener('input', function () { this.dataset.auto = 'false'; });
-  Array.prototype.forEach.call(genDialog.querySelectorAll('input[name="bulkGenOutput"]'), function (r) {
-    r.addEventListener('change', function () {
-      genState.action = r.value;
-      document.getElementById('bulkGenTitle').textContent = (r.value === 'download' ? 'Télécharger' : 'Imprimer') + ' : ' + genDocName(genState.row);
-      document.getElementById('bulkGenName').dataset.auto = 'true';
-      genUpdateUi();
-    });
-  });
   document.getElementById('bulkGenAll').addEventListener('change', function () {
     var on = this.checked;
     Array.prototype.forEach.call(genDialog.querySelectorAll('.bulk-gen__item input'), function (b) { b.checked = on; });
@@ -15920,19 +15802,17 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
   document.getElementById('bulkGenGo').addEventListener('click', function () {
     var rows = genSelectedRows();
-    var trombi = !!genState.trombi;
-    var template = trombi ? '' : bulkDocHtml(genState.row);
-    // Construction du HTML : trombinoscope (un jeu de pages par groupe) ou modèle du tableau (un exemplaire par stagiaire).
-    var build = trombi ? function (rs, t) { return buildTrombiHtml(rs, t, false); } : function (rs, t) { return buildGeneratedHtml(template, rs, t); };
+    var template = bulkDocHtml(genState.row);
+    var build = function (rs, t) { return buildGeneratedHtml(template, rs, t); }; // modèle du tableau : un exemplaire par stagiaire
     var pattern = document.getElementById('bulkGenName').value.trim();
     var progress = document.getElementById('bulkGenProgress');
     var goBtn = document.getElementById('bulkGenGo');
     document.getElementById('bulkGenError').hidden = true;
     if (!pattern) { showGenError('Indiquez le nom du fichier.'); return; }
     var mode = genState.action === 'download' ? genMode() : 'print';
-    if (!rows.length) { showGenError(trombi ? 'Sélectionnez au moins un groupe.' : 'Sélectionnez au moins un stagiaire.'); return; }
+    if (!rows.length) { showGenError('Sélectionnez au moins un stagiaire.'); return; }
     if ((mode === 'single' || mode === 'print') && /\{\{/.test(pattern)) { showGenError('Les variables ne sont possibles dans le nom que pour un PDF par stagiaire ou pour les pièces.'); return; }
-    if (mode === 'multi' && !/\{\{/.test(pattern)) { showGenError('Le nom doit contenir une variable (par exemple ' + (trombi ? '{{GROUPE}}' : '{{STAGIAIRE}}') + ') pour que chaque PDF ait un nom différent.'); return; }
+    if (mode === 'multi' && !/\{\{/.test(pattern)) { showGenError('Le nom doit contenir une variable (par exemple {{STAGIAIRE}}) pour que chaque PDF ait un nom différent.'); return; }
     if (mode === 'store' && !candidates.hasPieces) {
       showGenError('Les colonnes « ' + PIECES_COL + ' » et « ' + PIECES_NOMS_COL + ' » sont absentes de la table « ' + settings.table + ' » : créez-les depuis l’onglet Documents d’une fiche Stagiaire.');
       return;
@@ -15945,16 +15825,14 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     progress.hidden = false;
     var step = function (i, n) { progress.textContent = 'Génération du PDF ' + i + ' / ' + n + '…'; };
     step(0, rows.length);
-    var pdfName = function (r) { return safeFileName(trombi ? pattern.replace(/\{\{\s*(?:GROUPE|GPE)\s*\}\}/gi, r.label) : renderTemplateFor(pattern, r, false)) || 'document'; };
+    var pdfName = function (r) { return safeFileName(renderTemplateFor(pattern, r, false)) || 'document'; };
     var withExt = function (n) { return /\.pdf$/i.test(n) ? n : n + '.pdf'; };
     var work;
-    // Trombinoscope : photos chargées d'abord (une fois pour tous les groupes).
-    var photoStats = null;
-    var ready = trombi ? trombiLoadPhotos(rows, function (i, n) { progress.textContent = 'Chargement des photos ' + i + ' / ' + n + '…'; }).then(function (st) { photoStats = st; }) : Promise.resolve();
+    var ready = Promise.resolve();
     if (mode === 'print') {
-      work = ready.then(function () { printGenerated(trombi ? buildTrombiHtml(rows, pattern, true) : build(rows, pattern)); });
+      work = ready.then(function () { printGenerated(build(rows, pattern)); });
     } else if (mode === 'single') {
-      work = ready.then(function () { return generatePdf(build, rows, pattern, step, { landscape: trombi }); }).then(function (bytes) {
+      work = ready.then(function () { return generatePdf(build, rows, pattern, step); }).then(function (bytes) {
         saveBlob(new Blob([bytes], { type: 'application/pdf' }), withExt(safeFileName(pattern) || 'document'));
       });
     } else if (mode === 'multi') {
@@ -15965,7 +15843,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
           var base = withExt(pdfName(r)), name = base, n = 1;
           while (used[name.toLowerCase()]) { n++; name = base.replace(/(\.pdf)$/i, ' (' + n + ')$1'); }
           used[name.toLowerCase()] = true;
-          return generatePdf(build, [r], name.replace(/\.pdf$/i, ''), null, { landscape: trombi }).then(function (bytes) { files.push({ name: name, content: bytes }); });
+          return generatePdf(build, [r], name.replace(/\.pdf$/i, ''), null).then(function (bytes) { files.push({ name: name, content: bytes }); });
         });
       }, ready).then(function () {
         if (files.length === 1) saveBlob(new Blob([files[0].content], { type: 'application/pdf' }), files[0].name);
@@ -15993,18 +15871,6 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       document.getElementById('bulkGenCancel').disabled = false;
       progress.hidden = true;
       closeGenDialog();
-      // Trombinoscope : signale les photos qui n'ont pas pu être intégrées (initiales à leur place) et pourquoi.
-      if (photoStats && photoStats.withPhoto && (photoStats.failed || (photoStats.urlOnly && mode !== 'print'))) {
-        var n = photoStats.failed + (mode === 'print' ? 0 : photoStats.urlOnly);
-        var why = Object.keys(photoStats.reasons).map(function (r) { return r + ' (' + photoStats.reasons[r] + ')'; }).join(' ; ');
-        var msg = n + ' photo(s) sur ' + photoStats.withPhoto + ' n’ont pas pu être intégrées au ' + (mode === 'print' ? 'document' : 'PDF') + ' ; les initiales les remplacent.\n\nCause : ' + why +
-          '\n\nUtilisez « Tester l’accès aux photos » dans la Configuration (Sources de données) pour diagnostiquer les règles d’accès.';
-        if (mode !== 'print' && !photoStats.failed && photoStats.urlOnly) {
-          // Les photos s'affichent mais ne peuvent pas être lues (CORS) : l'impression, elle, les affiche ; « Enregistrer au format PDF » donne alors un PDF avec photos.
-          var ask = window.fsjConfirm ? window.fsjConfirm(msg + '\n\nLes photos s’affichent pourtant à l’écran : l’impression peut les inclure. Ouvrir la fenêtre d’impression pour enregistrer le trombinoscope en PDF avec les photos ?', 'Imprimer / enregistrer en PDF') : Promise.resolve(false);
-          ask.then(function (yes) { if (yes) openGenDialog(TROMBI_ROW, 'print'); });
-        } else window.alert(msg);
-      }
     }, function (e) {
       genBusy = false;
       goBtn.disabled = false;
