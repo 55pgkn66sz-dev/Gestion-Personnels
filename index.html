@@ -3393,6 +3393,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       <button class="fr-btn fr-btn--secondary fr-icon-close-circle-line fr-btn--icon-left tb-icon" id="cerResetBtn" type="button" disabled title="Réinitialiser la recherche et les filtres">Réinitialiser les filtres</button>
       <p class="cand-count cand-count--push" id="cerCount"></p>
       <div class="tb-actions">
+        <button class="fr-btn fr-btn--secondary fr-icon-delete-line fr-btn--icon-left tb-ghost" id="cerDupBtn" type="button" disabled title="Supprime les invités en doublon en gardant un exemplaire de chacun">Supprimer les doublons</button>
         <button class="fr-btn fr-btn--secondary fr-icon-flag-line icon-qr fr-btn--icon-left tb-ghost" id="cerQrBtn" type="button" title="QR code et lien du formulaire de présence des invités">QR code Présence</button>
         <button class="fr-btn fr-btn--secondary fr-icon-refresh-line fr-btn--icon-left tb-ghost" id="cerReloadBtn" type="button" title="Recharger les invités depuis la table Grist">Actualiser</button>
         <button class="fr-btn fr-btn--secondary fr-icon-download-line fr-btn--icon-left tb-ghost" id="cerExportBtn" type="button" title="Exporter les invités affichés en .csv">Exporter en .csv</button>
@@ -5795,7 +5796,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.104.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.106.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -10849,30 +10850,44 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var age = ageOn(b, ref);
     return age >= 0 && age < 12;
   }
-  // Doublons parmi les invités : même nom et prénom (dans l'ordre que l'on veut), ou même e-mail, que l'invité vienne du même stagiaire ou d'un autre.
+  // Doublons parmi les invités : même nom, même prénom (dans n'importe quel ordre) et même date de naissance ; sans date de naissance, un invité n'est jamais
+  // signalé (des homonymes ne sont pas forcément la même personne).
   var cerDupCache = { rows: null, map: {} };
+  function cerBirthKey(row) { // date de naissance au format AAAA-MM-JJ (colonne de type date ou texte JJ/MM/AAAA), ou ''
+    var c = cer.cols.ddn; if (!c) return '';
+    var d = dayOfValue(row.v.ddn, c.fullType);
+    if (d) return d.toISOString().slice(0, 10);
+    var m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(cerText(row, 'ddn'));
+    return m ? m[3] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[1]).slice(-2) : '';
+  }
+  function cerDupKey(row) {
+    var nom = cerText(row, 'nom'), pre = cerText(row, 'prenom'), b = cerBirthKey(row);
+    return nom && pre && b ? incNameKey(nom + ' ' + pre) + '|' + b : '';
+  }
   function cerDupMap() {
     if (cerDupCache.rows === cer.rows) return cerDupCache.map;
-    var byName = {}, byMail = {}, map = {};
-    cer.rows.forEach(function (r) {
-      var nom = cerText(r, 'nom'), pre = cerText(r, 'prenom');
-      if (nom && pre) { var k = incNameKey(nom + ' ' + pre); (byName[k] = byName[k] || []).push(r); }
-      var em = normalizeKey(cerText(r, 'email')).replace(/\s+/g, '');
-      if (em) (byMail[em] = byMail[em] || []).push(r);
-    });
-    function mark(groups, why) {
-      Object.keys(groups).forEach(function (k) {
-        var g = groups[k]; if (g.length < 2) return;
-        g.forEach(function (r) {
-          var e = map[r.id] || (map[r.id] = { reasons: [], others: [] });
-          if (e.reasons.indexOf(why) === -1) e.reasons.push(why);
-          g.forEach(function (o) { if (o !== r) { var l = cerStagiaire(o).label; if (e.others.indexOf(l) === -1) e.others.push(l); } });
-        });
+    var groups = {}, map = {}, list = [];
+    cer.rows.forEach(function (r) { var k = cerDupKey(r); if (k) (groups[k] = groups[k] || []).push(r); });
+    Object.keys(groups).forEach(function (k) {
+      var g = groups[k]; if (g.length < 2) return;
+      list.push(g);
+      g.forEach(function (r) {
+        var e = map[r.id] = { reasons: ['même nom, prénom et date de naissance'], others: [] };
+        g.forEach(function (o) { if (o !== r) { var l = cerStagiaire(o).label; if (e.others.indexOf(l) === -1) e.others.push(l); } });
       });
-    }
-    mark(byName, 'même nom et prénom'); mark(byMail, 'même e-mail');
-    cerDupCache = { rows: cer.rows, map: map };
+    });
+    cerDupCache = { rows: cer.rows, map: map, groups: list };
     return map;
+  }
+  // Lignes à supprimer pour ne garder qu'un exemplaire par personne : on garde celle dont la présence est validée, à défaut la plus ancienne (identifiant le plus petit).
+  function cerDupToRemove() {
+    cerDupMap();
+    var out = [];
+    (cerDupCache.groups || []).forEach(function (g) {
+      var keep = g.slice().sort(function (a, b) { return (cerIsPresent(b) - cerIsPresent(a)) || (a.id - b.id); })[0];
+      g.forEach(function (r) { if (r !== keep) out.push(r); });
+    });
+    return out;
   }
   function cerIsDup(row) { return !!cerDupMap()[row.id]; }
   function cerDupTitle(row) { var e = cerDupMap()[row.id]; return e ? 'Doublon (' + e.reasons.join(', ') + ') : invité aussi pour ' + e.others.join(', ') : ''; }
@@ -10903,6 +10918,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (cer.error) { var al = document.createElement('div'); al.className = 'fr-alert fr-alert--warning fr-alert--sm fr-mb-2w'; al.innerHTML = '<p>' + escapeHtml(cer.error) + '</p>'; cerZone.appendChild(al); }
     document.getElementById('cerAddBtn').disabled = !cer.loaded || !cer.cols.stagiaire;
     document.getElementById('cerExportBtn').disabled = !cer.rows.length;
+    document.getElementById('cerDupBtn').disabled = !cer.loaded || !cerDupToRemove().length;
     var quotas = cerQuotas(), rows = cer.rows.filter(function (r) { return cerPasses(r, quotas); }), groups = cerGroups(rows);
     count.textContent = rows.length + ' invité(s) affiché(s) sur ' + cer.rows.length + ' · ' + groups.length + ' stagiaire(s)' + (cerPoste.loaded ? ' · ' + cer.rows.filter(cerIsPresent).length + ' présent(s)' : '') + (cer.rows.some(cerIsDup) ? ' · ' + cer.rows.filter(cerIsDup).length + ' en doublon' : '');
     if (cerPoste.error && !cerPoste.loaded) { var pal = document.createElement('div'); pal.className = 'fr-alert fr-alert--warning fr-alert--sm fr-mb-2w'; pal.innerHTML = '<p>Présence : ' + escapeHtml(cerPoste.error) + '</p>'; cerZone.appendChild(pal); }
@@ -10997,14 +11013,14 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }
     [['tenue', 'cerTenue'], ['vip', 'cerVip']].forEach(function (p) { var c = cer.cols[p[0]]; if (c) put(p[0], c.type === 'Bool' ? g(p[1]).checked : (g(p[1]).checked ? 'Oui' : '')); });
     var action = cerEditing ? ['UpdateRecord', cer.tableId, cerEditing.id, fields] : ['AddRecord', cer.tableId, null, fields];
-    var nomV = g('cerNom').value.trim(), preV = g('cerPrenom').value.trim();
-    var same = nomV && preV ? cer.rows.filter(function (r) { return (!cerEditing || r.id !== cerEditing.id) && cerText(r, 'nom') && cerText(r, 'prenom') && incNameKey(cerText(r, 'nom') + ' ' + cerText(r, 'prenom')) === incNameKey(nomV + ' ' + preV); }) : [];
+    var nomV = g('cerNom').value.trim(), preV = g('cerPrenom').value.trim(), ddnV = cer.cols.ddn ? g('cerDdn').value : '';
+    var same = nomV && preV && ddnV ? cer.rows.filter(function (r) { return (!cerEditing || r.id !== cerEditing.id) && cerDupKey(r) === incNameKey(nomV + ' ' + preV) + '|' + ddnV; }) : [];
     function proceed() {
       var btn = g('cerDlgSave'); btn.disabled = true; cerShowError('');
       grist.docApi.applyUserActions([action]).then(function () { closeCerDialog(); return loadCeremonie(); }).catch(function (e) { btn.disabled = false; cerShowError('Enregistrement impossible : ' + friendlyErrorMessage(e)); });
     }
     if (same.length) { // même invité déjà enregistré : on demande confirmation avant de créer un doublon
-      var msg = 'Un invité nommé « ' + cerNomFmt(nomV) + ' ' + cerPrenomFmt(preV) + ' » existe déjà (invité pour ' + same.map(function (r) { return cerStagiaire(r).label; }).filter(function (x, i, a) { return a.indexOf(x) === i; }).join(', ') + '). L’enregistrer quand même ?';
+      var msg = 'Un invité nommé « ' + cerNomFmt(nomV) + ' ' + cerPrenomFmt(preV) + ' », né(e) le ' + ddnV.split('-').reverse().join('/') + ', existe déjà (invité pour ' + same.map(function (r) { return cerStagiaire(r).label; }).filter(function (x, i, a) { return a.indexOf(x) === i; }).join(', ') + '). L’enregistrer quand même ?';
       (window.fsjConfirm ? window.fsjConfirm(msg, 'Enregistrer') : Promise.resolve(window.confirm(msg))).then(function (ok) { if (ok) proceed(); });
     } else proceed();
   });
@@ -11022,6 +11038,19 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   document.getElementById('cerAddBtn').addEventListener('click', function () { openCerDialog(null); });
   document.getElementById('cerReloadBtn').addEventListener('click', function () { loadCeremonie(); loadCeremoniePoste(); });
   document.getElementById('cerQrBtn').addEventListener('click', function () { openIncQr('ceremonie'); });
+  document.getElementById('cerDupBtn').addEventListener('click', function () {
+    var rows = cerDupToRemove(); if (!rows.length) return;
+    var names = rows.slice(0, 8).map(function (r) { return '• ' + [cerNomFmt(cerText(r, 'nom')), cerPrenomFmt(cerText(r, 'prenom'))].filter(Boolean).join(' ') + ' (invité pour ' + cerStagiaire(r).label + ')'; }).join('\n') + (rows.length > 8 ? '\n… et ' + (rows.length - 8) + ' autre(s)' : '');
+    var msg = 'Supprimer ' + rows.length + ' invité(s) en doublon ?\n\nUn exemplaire de chaque personne est conservé (celui dont la présence est validée, à défaut le plus ancien).\n\n' + names + '\n\nCette action est irréversible.';
+    (window.fsjConfirm ? window.fsjConfirm(msg, 'Supprimer') : Promise.resolve(window.confirm(msg))).then(function (ok) {
+      if (!ok) return;
+      var btn = document.getElementById('cerDupBtn'); btn.disabled = true;
+      return grist.docApi.applyUserActions(rows.map(function (r) { return ['RemoveRecord', cer.tableId, r.id]; })).then(function () { return loadCeremonie(); }).catch(function (e) {
+        btn.disabled = false;
+        window.alert('Suppression impossible : ' + friendlyErrorMessage(e));
+      });
+    });
+  });
   document.getElementById('cerBackBtn').addEventListener('click', function () { showPage('stagiaires'); });
   document.getElementById('navCeremonie').addEventListener('click', function () { showPage('ceremonie'); renderCeremonie(); loadCeremonie(); loadCeremoniePoste(); });
   document.getElementById('cerSearchInput').addEventListener('input', function () { cerSearch = this.value; renderCeremonie(); });
@@ -14255,7 +14284,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       ['Comment utiliser les QR codes des formulaires ?', 'Dans l’en-tête de chaque étape du parcours d’incorporation, et sur la page Cérémonie (bouton <strong>QR code Présence</strong>), l’icône QR code ouvre une fenêtre avec le QR code du formulaire Grist externe, son lien (affiché, non modifiable ici) et les boutons <strong>Copier le lien</strong>, <strong>Envoyer par e-mail</strong> et <strong>Envoyer par SMS</strong>. Les adresses se règlent dans la Configuration, rubrique <strong>Général</strong>, carte « Formulaires externes (QR codes) » ; sans adresse, la fenêtre l’indique.'],
       ['Comment gérer les invités de la cérémonie ?', 'La page Cérémonie (bouton-icône du drapeau, sur la page Stagiaires) liste les invités regroupés par stagiaire, avec le compteur « n invité(s) » et un avertissement si le maximum d’invitations est dépassé. <strong>Ajouter un invité</strong> (nom et prénom obligatoires, le stagiaire qui invite est facultatif) ; le crayon modifie ou supprime. Les tags indiquent <strong>VIP</strong> (or), <strong>En tenue</strong> (bleu) et <strong>-12 ans</strong> (invité de moins de douze ans à la date de fin de formation, à défaut à ce jour). Les filtres rapides et l’export .csv reprennent ces critères.'],
       ['Comment suivre la présence des invités à la cérémonie ?', 'Chaque présence validée par le formulaire externe est enregistrée dans la table Ceremonie_Poste : sur la page Cérémonie, la ligne de l’invité se teinte alors de vert, avec une coche en filigrane, et le compteur indique le nombre de présents. La page se relit seule toutes les 15 secondes ; la recherche propose aussi les filtres « Présents » et « Pas encore présents ».'],
-      ['Comment repérer les doublons parmi les invités ?', 'Sur la page Cérémonie, un tag rouge <strong>Doublon</strong> est posé sur les invités enregistrés plusieurs fois : même nom et prénom (dans n’importe quel ordre), ou même e-mail, y compris quand ils sont invités par des stagiaires différents. Le survol du tag indique la raison et le ou les stagiaires concernés ; le compteur du haut donne le nombre d’invités en doublon et la recherche propose le filtre « Doublons ». À l’ajout ou à la modification d’un invité, une confirmation est demandée si le même nom et prénom existe déjà.'],
+      ['Comment repérer les doublons parmi les invités ?', 'Sur la page Cérémonie, un tag rouge <strong>Doublon</strong> est posé sur les invités enregistrés plusieurs fois : même nom, même prénom (dans n’importe quel ordre) <strong>et même date de naissance</strong>, y compris quand ils sont invités par des stagiaires différents. Un invité sans date de naissance n’est jamais signalé. Le survol du tag indique le ou les stagiaires concernés ; le compteur du haut donne le nombre d’invités en doublon et la recherche propose le filtre « Doublons ». À l’ajout ou à la modification d’un invité, une confirmation est demandée si la même personne (nom, prénom et date de naissance) existe déjà. Le bouton <strong>Supprimer les doublons</strong> (grisé s’il n’y en a pas) supprime les exemplaires en trop après confirmation : il garde un exemplaire par personne, celui dont la présence est validée, à défaut le plus ancien.'],
       ['Que signifie le tag « -12 ans » ?', 'Il est posé sur les invités de moins de douze ans, d’après leur date de naissance, à la date de fin de formation (jour de la cérémonie) ou, si elle n’est pas renseignée, à la date du jour. Sans date de naissance, aucun tag n’est affiché.']
     ] },
     { title: 'Encadrement', items: [
@@ -15589,7 +15618,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   }
   function trombiCardHtml(it, d, m) {
     var ph = it.photo ?
-      '<div class="ph" style="width:' + d.cw + 'px;height:' + d.ph + 'px;background-image:url(' + it.photo + ')"></div>' :
+      '<div class="ph" style="width:' + d.cw + 'px;height:' + d.ph + 'px"><img src="' + escapeHtml(it.photo) + '" alt=""></div>' : // une vraie image : les « arrière-plans » ne sont pas imprimés par défaut
       '<div class="ph ph--none" style="width:' + d.cw + 'px;height:' + d.ph + 'px;font-size:' + Math.round(d.ph * 0.28) + 'px">' + escapeHtml(it.ini) + '</div>';
     var line = function (cls, text) { return '<div class="' + cls + '" style="height:' + d.lh + 'px;font-size:' + Math.max(6, d.fs - 1) + 'px;line-height:' + d.lh + 'px">' + escapeHtml(text) + '</div>'; };
     // Stagiaire parti : photo estompée et barrée d'une croix.
@@ -15634,7 +15663,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     'h2{margin:0;height:' + TROMBI_HEAD_H + 'px;font-size:12px;font-weight:700;line-height:' + TROMBI_HEAD_H + 'px;text-transform:uppercase;letter-spacing:.04em;color:#5c5a2b}' +
     '.row{display:flex;overflow:hidden}.card{box-sizing:border-box;text-align:center;overflow:hidden;position:relative}' +
     '.xl{position:absolute;left:0;top:0}.card--left .ph{opacity:.4;filter:grayscale(1)}.card--left .n1,.card--left .n2,.card--left .n3{color:#777}' +
-    '.ph{border-radius:5px;background:#dcd8b4 center 20%/cover no-repeat}' +
+    '.ph{border-radius:5px;overflow:hidden;background:#dcd8b4}.ph img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 20%}' +
+    '.tpage,.tpage *{-webkit-print-color-adjust:exact;print-color-adjust:exact}' +
     '.ph--none{display:flex;align-items:center;justify-content:center;font-weight:500;color:#5c5a2b}' +
     '.n1{margin-top:3px;overflow:hidden;font-weight:700}' +
     '.n2,.n3{overflow:hidden;color:#3a3a3a;white-space:nowrap;text-overflow:ellipsis}' +
