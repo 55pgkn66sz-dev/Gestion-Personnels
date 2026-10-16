@@ -1373,12 +1373,6 @@
   /* Page Trombinoscope : les pages A4 paysage (mêmes règles que le PDF, préfixées par #trombiSheet) sont affichées réduites à la largeur disponible et imprimées à taille réelle. */
   #trombiSheet { zoom: var(--tz, 1); }
   #trombiSheet .tpage { background: #fff; margin: 0 auto 1rem; box-shadow: 0 1px 6px rgba(0, 0, 0, 0.25); }
-  @media print {
-    body.print-trombi header.fr-header, body.print-trombi footer, body.print-trombi .widget-footer, body.print-trombi .trombi-bar, body.print-trombi .fr-skiplinks { display: none !important; }
-    body.print-trombi { background: #fff !important; }
-    body.print-trombi #trombiSheet { zoom: 1 !important; }
-    body.print-trombi #trombiSheet .tpage { margin: 0; box-shadow: none; }
-  }
   /* Tutoriel (visite guidée en étapes) */
   .tuto { width: min(44rem, 100%) !important; }
   .tuto__count { margin: 0 0 0.3rem; font-size: 0.8125rem; color: var(--text-mention-grey); }
@@ -3322,7 +3316,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       <p class="cand-count cand-count--push" id="trombiCount" aria-live="polite"></p>
       <div class="tb-actions">
         <button class="fr-btn fr-btn--secondary fr-icon-refresh-line fr-btn--icon-left tb-ghost" id="trombiReloadBtn" type="button" title="Recharger les photos">Actualiser</button>
-        <button class="fr-btn fr-icon-printer-line fr-btn--icon-left" id="trombiPrintBtn" type="button" title="Imprime exactement les pages affichées ; dans la fenêtre d’impression, « Enregistrer au format PDF » exporte le fichier avec les photos">Imprimer / Exporter en PDF</button>
+        <button class="fr-btn fr-btn--secondary fr-icon-download-line fr-btn--icon-left" id="trombiDownloadBtn" type="button" title="Télécharge les pages affichées en PDF : dans la fenêtre qui s’ouvre, choisissez « Enregistrer au format PDF »">Télécharger</button>
+        <button class="fr-btn fr-icon-printer-line fr-btn--icon-left" id="trombiPrintBtn" type="button" title="Imprime les pages affichées (A4 paysage, sans en-tête ni pied de page)">Imprimer</button>
       </div>
     </div>
     <div id="trombiStatus" class="trombi-bar" aria-live="polite"></div>
@@ -5796,7 +5791,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.106.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.107.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -11343,7 +11338,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     { t: 'eTuteur : le suivi des pièces', html: '<ul><li>Chaque candidat a ses pièces (attestation RS, droit à l’image, EAD - Bloc 1) : déposez, validez ou refusez ; un refus prépare un courriel pré-rempli.</li><li>Les <strong>filtres rapides</strong> isolent les dossiers à traiter (manquants, à valider, doublons, paiement manquant…).</li><li>Le bouton <strong>Rapport</strong> prépare un point d’étape ou un rapport final en PDF, avec un message court à envoyer.</li></ul>', go: 'etuteur', goLabel: 'Ouvrir eTuteur' },
     { t: 'Le parcours d’incorporation', html: '<ul><li>Une ligne par stagiaire, trois étapes : <strong>Présence</strong>, <strong>Habillement</strong>, <strong>Contrat signé</strong>.</li><li>Un <strong>cercle vide</strong> est une étape à valider, une <strong>coche verte</strong> une étape faite (date et heure au survol). Cliquez sur un cercle pour valider ; la ligne passe en vert quand le parcours est complet.</li><li>Pour la <strong>Présence</strong>, un formulaire s’ouvre : vous pouvez aussi indiquer que le stagiaire <strong>ne s’est pas présenté</strong> (le départ est alors préparé).</li><li>Le bouton <strong>QR code</strong> de chaque étape affiche le formulaire Grist externe, à scanner ou à envoyer par e-mail ou SMS.</li></ul>', go: 'incorporation', goLabel: 'Ouvrir l’incorporation' },
     { t: 'La cérémonie de fin de stage', html: '<ul><li>Les <strong>invités</strong> sont regroupés par stagiaire ; un avertissement signale un nombre d’invitations dépassé.</li><li>Les tags indiquent <strong>VIP</strong>, <strong>En tenue</strong> et <strong>-12 ans</strong>.</li><li>Le bouton <strong>QR code Présence</strong> affiche le formulaire externe : chaque présence validée teinte la ligne de l’invité en vert, avec une coche.</li></ul>', go: 'ceremonie', goLabel: 'Ouvrir la cérémonie' },
-    { t: 'Encadrement et trombinoscope', html: '<ul><li>La page <strong>Encadrement</strong> liste les cadres avec leur fiche (heures par type d’activité, prochain cours, permanences).</li><li>Le <strong>Trombinoscope</strong>, dans le menu Gestion des personnels, présente une page par groupe avec les photos ; <strong>Imprimer / Exporter en PDF</strong> imprime exactement ce qui est affiché (ou l’enregistre en PDF).</li></ul>', go: 'encadrement', goLabel: 'Ouvrir l’encadrement' },
+    { t: 'Encadrement et trombinoscope', html: '<ul><li>La page <strong>Encadrement</strong> liste les cadres avec leur fiche (heures par type d’activité, prochain cours, permanences).</li><li>Le <strong>Trombinoscope</strong>, dans le menu Gestion des personnels, présente une page par groupe avec les photos ; <strong>Imprimer</strong> et <strong>Télécharger</strong> reprennent exactement ce qui est affiché (A4 paysage, sans en-tête ni pied de page).</li></ul>', go: 'encadrement', goLabel: 'Ouvrir l’encadrement' },
     { t: 'Les ressources', html: '<ul><li><strong>Réservations</strong> : demandes de véhicules et de matériels, avec leurs décisions.</li><li><strong>Hébergement</strong> : une carte par chambre ; glissez un occupant vers une autre carte, ou <strong>double-cliquez</strong> sur une carte pour choisir tous les occupants (filtres par sexe et par peloton).</li><li><strong>Documents</strong> : documents stockés et génération en lot.</li><li>Les modules inutilisés pour le stage peuvent être désactivés dans la Configuration.</li></ul>', go: 'res', goLabel: 'Ouvrir les ressources' },
     { t: 'Le planning et les absences', html: '<ul><li><strong>Progression</strong> : le planning de la semaine par peloton, l’ajout d’occurrences, l’export PDF et, en dessous, le total d’heures de cours et de permanences SOP par cadre.</li><li><strong>Feuille de service journalier</strong> : génération du document d’un jour, après désignation des permanences.</li><li><strong>Gestion des absences</strong> : demandes, décisions et règles de conflit.</li></ul>', go: 'fsj', goLabel: 'Ouvrir le planning' },
     { t: 'Les statistiques', html: '<p>Une synthèse chiffrée de la formation : effectifs et attrition, féminisation, âge, départements, encadrement, suivi des pièces. Le sélecteur « Population » distingue acculturation et PMG ; la synthèse s’imprime en une page.</p>', go: 'stats', goLabel: 'Ouvrir les statistiques' },
@@ -14317,7 +14312,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       ['Comment imprimer la synthèse ?', 'Bouton <strong>Imprimer la synthèse</strong> en haut de la page : seule la synthèse (une page) est imprimée, pas le « Détail par rubrique ».']
     ] },
     { title: 'Documents', items: [
-      ['Où trouver le trombinoscope et que contient-il ?', 'Menu <strong>Gestion des personnels</strong>, ligne « Trombinoscope » : une page présente le trombinoscope, une page par groupe (les cadres du groupe, puis les stagiaires du peloton correspondant ; une page <strong>Acculturation</strong> regroupe les cadres et stagiaires en acculturation). Le sélecteur choisit un groupe ou tous. Les stagiaires partis sont placés à la fin de leur liste, photo estompée et barrée d’une croix rouge. Le bouton <strong>Imprimer / Exporter en PDF</strong> imprime exactement ce qui est affiché ; dans la fenêtre d’impression, choisissez « Enregistrer au format PDF » pour obtenir un fichier avec les photos.'],
+      ['Où trouver le trombinoscope et que contient-il ?', 'Menu <strong>Gestion des personnels</strong>, ligne « Trombinoscope » : une page présente le trombinoscope, une page par groupe (les cadres du groupe, puis les stagiaires du peloton correspondant ; une page <strong>Acculturation</strong> regroupe les cadres et stagiaires en acculturation). Le sélecteur choisit un groupe ou tous. Les stagiaires partis sont placés à la fin de leur liste, photo estompée et barrée d’une croix rouge. Les boutons <strong>Imprimer</strong> (A4 paysage, sans en-tête ni pied de page) et <strong>Télécharger</strong> reprennent exactement ce qui est affiché ; pour <strong>Télécharger</strong>, choisissez « Enregistrer au format PDF » comme destination dans la fenêtre qui s’ouvre : le fichier contient les photos.'],
       ['Pourquoi une photo est-elle remplacée par des initiales ?', 'Le widget n’a pas pu charger l’image (règles d’accès de Grist, photo absente ou illisible). La page Trombinoscope l’indique en haut, avec le nombre de photos concernées ; le bouton « Tester l’accès aux photos » de la Configuration (Sources de données) en donne la cause. Seules les photos illisibles sont remplacées.'],
       ['À quoi sert l’état rationnaire ?', 'Il liste, par affectation, les repas des cadres et stagiaires. À l’édition, le widget propose de confirmer les repas des cadres en repos, la veille et le lendemain du repos, d’après la table « Gestion des absences ».']
     ] },
@@ -15712,13 +15707,13 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     document.getElementById('trombiCount').textContent = groups.length + ' groupe(s) · ' + people + ' personne(s) · ' + withPhoto + ' photo(s)';
   }
   function trombiLoadAndRender() {
-    var token = ++trombiPage.token, groups = trombiPage.groups, people = [], idx = 0, done = 0;
+    var token = ++trombiPage.token, groups = trombiPage.groups, people = [], idx = 0, done = 0; // renvoie une promesse (photos chargées)
     groups.forEach(function (g) { g.members.concat(g.trainees).forEach(function (r) { r.__trombiPhoto = null; r.__trombiPhotoUrl = null; people.push(r); }); });
     var withAtt = people.filter(function (r) { return extractAttachmentIds(r.portrait).length || /^https?:\/\//i.test(textOf(r.portrait)); });
-    var btns = ['trombiPrintBtn', 'trombiReloadBtn'].map(function (id) { return document.getElementById(id); });
+    var btns = ['trombiPrintBtn', 'trombiDownloadBtn', 'trombiReloadBtn'].map(function (id) { return document.getElementById(id); });
     function setBusy(b) { trombiPage.busy = b; btns.forEach(function (x) { x.disabled = b; }); }
     trombiRenderSheet();
-    if (!withAtt.length) { document.getElementById('trombiStatus').innerHTML = ''; return; }
+    if (!withAtt.length) { document.getElementById('trombiStatus').innerHTML = ''; return Promise.resolve(); }
     setBusy(true);
     function status() { document.getElementById('trombiStatus').innerHTML = '<div class="fr-alert fr-alert--info fr-alert--sm fr-mb-2w"><p>Chargement des photos : ' + done + ' sur ' + withAtt.length + '…</p></div>'; }
     status();
@@ -15739,19 +15734,29 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       document.getElementById('trombiStatus').innerHTML = missing ? '<div class="fr-alert fr-alert--warning fr-alert--sm fr-mb-2w"><p>' + missing + ' photo(s) sur ' + withAtt.length + ' n’ont pas pu être chargées (règles d’accès de Grist) : leurs initiales les remplacent. Le bouton « Tester l’accès aux photos » de la Configuration en indique la cause.</p></div>' : '';
     });
   }
-  function trombiPrint() {
+  // Document autonome des pages affichées (même mise en page que la page : A4 paysage, marge nulle donc sans en-tête ni pied de page du navigateur).
+  function trombiDocumentHtml(groups, title) {
+    return '<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>' + escapeHtml(title) + '</title>' + TROMBI_CSS + '</head><body>' +
+      groups.map(function (g) { return trombiGroupPagesHtml(g, true); }).join('\n') + '</body></html>';
+  }
+  // Imprimer / Télécharger : même document, imprimé dans un cadre masqué. Les photos sont d'abord rechargées (leur adresse à jeton expire), puis
+  // l'impression s'ouvre une fois les images chargées. « Télécharger » rappelle de choisir « Enregistrer au format PDF » comme destination.
+  function trombiOutput(download) {
     if (trombiPage.busy) return;
-    var pageRule = document.createElement('style'); pageRule.id = 'trombiPageRule'; pageRule.textContent = '@page{size:A4 landscape;margin:0}';
-    document.head.appendChild(pageRule);
-    document.body.classList.add('print-trombi');
-    function cleanup() { document.body.classList.remove('print-trombi'); if (pageRule.parentNode) pageRule.parentNode.removeChild(pageRule); window.removeEventListener('afterprint', cleanup); }
-    window.addEventListener('afterprint', cleanup);
-    try { window.print(); } catch (e) { cleanup(); window.alert('L’impression n’est pas disponible dans cet affichage : ' + friendlyErrorMessage(e)); }
+    var groups = trombiSelectedGroups();
+    if (!groups.length) return;
+    var label = groups.length === 1 ? groupDisplayLabel(groups[0].label) : 'tous les groupes';
+    var title = 'Trombinoscope - ' + label;
+    trombiLoadAndRender().then(function () {
+      if (download) document.getElementById('trombiStatus').innerHTML = '<div class="fr-alert fr-alert--info fr-alert--sm fr-mb-2w"><p>Dans la fenêtre qui s’ouvre, choisissez « Enregistrer au format PDF » comme destination. Le fichier proposé s’appelle « ' + escapeHtml(title) + ' ».</p></div>';
+      printGenerated(trombiDocumentHtml(groups, title));
+    });
   }
   document.getElementById('trombiBackBtn').addEventListener('click', function () { showPage('stagiaires'); });
   document.getElementById('trombiGroupSel').addEventListener('change', function () { trombiRenderSheet(); });
   document.getElementById('trombiReloadBtn').addEventListener('click', function () { trombiLoadAndRender(); });
-  document.getElementById('trombiPrintBtn').addEventListener('click', trombiPrint);
+  document.getElementById('trombiPrintBtn').addEventListener('click', function () { trombiOutput(false); });
+  document.getElementById('trombiDownloadBtn').addEventListener('click', function () { trombiOutput(true); });
   window.addEventListener('resize', function () { if (!document.getElementById('panelTrombi').hidden) trombiFitZoom(); });
 
   // --- Fenêtre de génération ---
