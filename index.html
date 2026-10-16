@@ -1370,6 +1370,15 @@
   /* Icône « contrat signé » (parcours d'incorporation), monochrome comme les autres pictogrammes. */
   .fr-btn.icon-signed::before { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M6 3h8l4 4v14H6z'/%3E%3Cpath d='M14 3v4h4'/%3E%3Cpath d='M8.6 15.2c1-2.2 1.7-3.4 2.4-3.4.9 0-.1 3.2.8 3.2.7 0 1.1-1.6 1.7-1.6.5 0 .4 1.1.9 1.1.6 0 1-.6 1.6-1.6'/%3E%3Cpath d='M8.6 18.6h6.8'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M6 3h8l4 4v14H6z'/%3E%3Cpath d='M14 3v4h4'/%3E%3Cpath d='M8.6 15.2c1-2.2 1.7-3.4 2.4-3.4.9 0-.1 3.2.8 3.2.7 0 1.1-1.6 1.7-1.6.5 0 .4 1.1.9 1.1.6 0 1-.6 1.6-1.6'/%3E%3Cpath d='M8.6 18.6h6.8'/%3E%3C/svg%3E"); }
   /* Page Cérémonie */
+  /* Page Trombinoscope : les pages A4 paysage (mêmes règles que le PDF, préfixées par #trombiSheet) sont affichées réduites à la largeur disponible et imprimées à taille réelle. */
+  #trombiSheet { zoom: var(--tz, 1); }
+  #trombiSheet .tpage { background: #fff; margin: 0 auto 1rem; box-shadow: 0 1px 6px rgba(0, 0, 0, 0.25); }
+  @media print {
+    body.print-trombi header.fr-header, body.print-trombi footer, body.print-trombi .widget-footer, body.print-trombi .trombi-bar, body.print-trombi .fr-skiplinks { display: none !important; }
+    body.print-trombi { background: #fff !important; }
+    body.print-trombi #trombiSheet { zoom: 1 !important; }
+    body.print-trombi #trombiSheet .tpage { margin: 0; box-shadow: none; }
+  }
   /* Tutoriel (visite guidée en étapes) */
   .tuto { width: min(44rem, 100%) !important; }
   .tuto__count { margin: 0 0 0.3rem; font-size: 0.8125rem; color: var(--text-mention-grey); }
@@ -3298,6 +3307,27 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         <button class="fr-btn fr-btn--sm fr-icon-arrow-right-s-line fr-btn--icon-right" id="tutoNext" type="button">Suivant</button>
       </div>
     </div>
+  </div>
+
+  <div id="panelTrombi" hidden>
+    <div class="bulk-head trombi-bar">
+      <h2 class="fr-h6">Trombinoscope</h2>
+      <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-arrow-left-line fr-btn--icon-left" id="trombiBackBtn" type="button">Retour aux stagiaires</button>
+    </div>
+    <div class="cand-toolbar trombi-bar">
+      <div class="fr-select-group tb-field">
+        <label class="fr-label tb-lbl" for="trombiGroupSel">Groupe affiché</label>
+        <select class="fr-select" id="trombiGroupSel"></select>
+      </div>
+      <p class="cand-count cand-count--push" id="trombiCount" aria-live="polite"></p>
+      <div class="tb-actions">
+        <button class="fr-btn fr-btn--secondary fr-icon-refresh-line fr-btn--icon-left tb-ghost" id="trombiReloadBtn" type="button" title="Recharger les photos">Actualiser</button>
+        <button class="fr-btn fr-btn--secondary fr-icon-download-line fr-btn--icon-left tb-ghost" id="trombiPdfBtn" type="button" title="Générer un PDF (les photos peuvent y être remplacées par des initiales selon les règles d’accès de Grist)">Générer un PDF</button>
+        <button class="fr-btn fr-icon-printer-line fr-btn--icon-left" id="trombiPrintBtn" type="button" title="Imprimer les pages affichées (ou les enregistrer au format PDF depuis la fenêtre d’impression)">Imprimer</button>
+      </div>
+    </div>
+    <div id="trombiStatus" class="trombi-bar" aria-live="polite"></div>
+    <div id="trombiSheet"></div>
   </div>
 
   <div id="panelIncorporation" hidden>
@@ -5771,7 +5801,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.102.3</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.103.2</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -6216,6 +6246,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     document.getElementById('panelReferent').hidden = settingsOpen || currentPage !== 'referent';
     document.getElementById('panelCeremonie').hidden = settingsOpen || currentPage !== 'ceremonie';
     document.getElementById('panelIncorporation').hidden = settingsOpen || currentPage !== 'incorporation';
+    document.getElementById('panelTrombi').hidden = settingsOpen || currentPage !== 'trombi';
     document.getElementById('panelWelcome').hidden = settingsOpen || currentPage !== 'welcome';
     panelStagiaires.hidden = settingsOpen || currentPage !== 'stagiaires';
     panelEncadrement.hidden = settingsOpen || currentPage !== 'encadrement';
@@ -6243,7 +6274,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       if (currentPage === pair[1]) pair[0].setAttribute('aria-current', 'page');
       else pair[0].removeAttribute('aria-current');
     });
-    if (['stagiaires', 'etuteur', 'referent', 'ceremonie', 'incorporation', 'encadrement', 'stats'].indexOf(currentPage) !== -1) navStgMenu.setAttribute('aria-current', 'true'); else navStgMenu.removeAttribute('aria-current');
+    if (['stagiaires', 'etuteur', 'referent', 'ceremonie', 'incorporation', 'trombi', 'encadrement', 'stats'].indexOf(currentPage) !== -1) navStgMenu.setAttribute('aria-current', 'true'); else navStgMenu.removeAttribute('aria-current');
   }
   var fsjView = 'progression', fsjStarted = false;
   function openFsj(view) {
@@ -6272,7 +6303,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   document.getElementById('navWelcome').addEventListener('click', function () { showPage('welcome'); renderWelcome(); });
   navStagiaires.addEventListener('click', function () { showPage('stagiaires'); });
   document.getElementById('navStgHome').addEventListener('click', function () { showPage('stagiaires'); });
-  document.getElementById('navTrombi').addEventListener('click', function () { openGenDialog(TROMBI_ROW, 'download'); });
+  document.getElementById('navTrombi').addEventListener('click', function () { openTrombiPage(); });
   navEncadrement.addEventListener('click', function () { showPage('encadrement'); });
   navStats.addEventListener('click', function () { showPage('stats'); renderStats(); });
   navFaq.addEventListener('click', function () { showPage('faq'); buildFaq(); });
@@ -8876,7 +8907,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         dFieldStg(row, 'nomUrgence', 'Nom'), dFieldStg(row, 'prenomUrgence', 'Prénom'), dFieldStg(row, 'telUrgence', 'Tél.', { phone: true })
       ]),
       dGroup('Hébergement', [dFieldStg(row, 'batiment', 'Bât.', { editable: true }), dFieldStg(row, 'chambre', 'Ch.', { editable: true }), (function () {
-        var n = housingNode(textOf(row.batiment), textOf(row.chambre), stagiaireDisplayName(row));
+        var n = housingNode(textOf(row.batiment), textOf(row.chambre), stagiaireDisplayName(row), 'ce stagiaire');
         return n ? dCustomSpec('Chambre', n, { wide: true }) : null;
       })()]),
       dGroup('Qualifications', [dFieldStg(row, 'qualifSecourisme', 'Secourisme', { wide: true })]),
@@ -11289,7 +11320,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     { t: 'eTuteur : le suivi des pièces', html: '<ul><li>Chaque candidat a ses pièces (attestation RS, droit à l’image, EAD - Bloc 1) : déposez, validez ou refusez ; un refus prépare un courriel pré-rempli.</li><li>Les <strong>filtres rapides</strong> isolent les dossiers à traiter (manquants, à valider, doublons, paiement manquant…).</li><li>Le bouton <strong>Rapport</strong> prépare un point d’étape ou un rapport final en PDF, avec un message court à envoyer.</li></ul>', go: 'etuteur', goLabel: 'Ouvrir eTuteur' },
     { t: 'Le parcours d’incorporation', html: '<ul><li>Une ligne par stagiaire, trois étapes : <strong>Présence</strong>, <strong>Habillement</strong>, <strong>Contrat signé</strong>.</li><li>Un <strong>cercle vide</strong> est une étape à valider, une <strong>coche verte</strong> une étape faite (date et heure au survol). Cliquez sur un cercle pour valider ; la ligne passe en vert quand le parcours est complet.</li><li>Pour la <strong>Présence</strong>, un formulaire s’ouvre : vous pouvez aussi indiquer que le stagiaire <strong>ne s’est pas présenté</strong> (le départ est alors préparé).</li><li>Le bouton <strong>QR code</strong> de chaque étape affiche le formulaire Grist externe, à scanner ou à envoyer par e-mail ou SMS.</li></ul>', go: 'incorporation', goLabel: 'Ouvrir l’incorporation' },
     { t: 'La cérémonie de fin de stage', html: '<ul><li>Les <strong>invités</strong> sont regroupés par stagiaire ; un avertissement signale un nombre d’invitations dépassé.</li><li>Les tags indiquent <strong>VIP</strong>, <strong>En tenue</strong> et <strong>-12 ans</strong>.</li><li>Le bouton <strong>QR code Présence</strong> affiche le formulaire externe : chaque présence validée teinte la ligne de l’invité en vert, avec une coche.</li></ul>', go: 'ceremonie', goLabel: 'Ouvrir la cérémonie' },
-    { t: 'Encadrement et trombinoscope', html: '<ul><li>La page <strong>Encadrement</strong> liste les cadres avec leur fiche (heures par type d’activité, prochain cours, permanences).</li><li>Le <strong>Trombinoscope</strong>, dans le menu Gestion des personnels, produit un PDF avec toutes les pages ou un PDF par groupe dans une archive .zip.</li></ul>', go: 'encadrement', goLabel: 'Ouvrir l’encadrement' },
+    { t: 'Encadrement et trombinoscope', html: '<ul><li>La page <strong>Encadrement</strong> liste les cadres avec leur fiche (heures par type d’activité, prochain cours, permanences).</li><li>Le <strong>Trombinoscope</strong>, dans le menu Gestion des personnels, présente une page par groupe avec les photos ; <strong>Imprimer</strong> ouvre l’impression (ou l’enregistrement en PDF), <strong>Générer un PDF</strong> reste disponible.</li></ul>', go: 'encadrement', goLabel: 'Ouvrir l’encadrement' },
     { t: 'Les ressources', html: '<ul><li><strong>Réservations</strong> : demandes de véhicules et de matériels, avec leurs décisions.</li><li><strong>Hébergement</strong> : une carte par chambre ; glissez un occupant vers une autre carte, ou <strong>double-cliquez</strong> sur une carte pour choisir tous les occupants (filtres par sexe et par peloton).</li><li><strong>Documents</strong> : documents stockés et génération en lot.</li><li>Les modules inutilisés pour le stage peuvent être désactivés dans la Configuration.</li></ul>', go: 'res', goLabel: 'Ouvrir les ressources' },
     { t: 'Le planning et les absences', html: '<ul><li><strong>Progression</strong> : le planning de la semaine par peloton, l’ajout d’occurrences, l’export PDF et, en dessous, le total d’heures de cours et de permanences SOP par cadre.</li><li><strong>Feuille de service journalier</strong> : génération du document d’un jour, après désignation des permanences.</li><li><strong>Gestion des absences</strong> : demandes, décisions et règles de conflit.</li></ul>', go: 'fsj', goLabel: 'Ouvrir le planning' },
     { t: 'Les statistiques', html: '<p>Une synthèse chiffrée de la formation : effectifs et attrition, féminisation, âge, départements, encadrement, suivi des pièces. Le sélecteur « Population » distingue acculturation et PMG ; la synthèse s’imprime en une page.</p>', go: 'stats', goLabel: 'Ouvrir les statistiques' },
@@ -11975,7 +12006,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       ]),
       dGroup('Hébergement', [
         dFieldEnc(row, 'batiment', 'Bâtiment', { editable: true }), dFieldEnc(row, 'chambre', 'Chambre', { editable: true }), (function () {
-          var n = housingNode(encText(row, 'batiment'), encText(row, 'chambre'), encDisplayName(row));
+          var n = housingNode(encText(row, 'batiment'), encText(row, 'chambre'), encDisplayName(row), 'ce cadre');
           return n ? dCustomSpec('Occupants', n, { wide: true }) : null;
         })()
       ]),
@@ -12929,7 +12960,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       if (['Attachments', 'Ref', 'RefList'].indexOf(type) !== -1) return;
       if ((columnFormulaMap[tableId] || {})[colId] && role !== 'nid' && role !== 'stagiaire') return; // colonne calculée (ex. « Autorisé ») : Grist refuse d'y écrire
       out.push({ role: role, label: ROLE_LABELS[role] || role, colId: colId, table: tableId, type: type || 'Text', fullType: full,
-        choices: (columnChoicesMap[tableId] || {})[colId] || [], doc: doc, keyOnly: role === 'nid' || role === 'stagiaire' });
+        choices: (columnChoicesMap[tableId] || {})[colId] || [], doc: doc, keyOnly: role === 'nid' || role === 'stagiaire',
+        alias: role === 'pon' ? ['PELOTON', 'GROUPE'] : undefined }); // le PON est aussi reconnu sous « Peloton » ou « Groupe »
     });
     var ncType = String((columnTypesMap[settings.table] || {})[NUM_CAND_COL] || 'Text');
     out.push({ role: 'numCand', label: ROLE_LABELS.numCand, colId: NUM_CAND_COL, table: settings.table, type: ncType.split(':')[0], fullType: ncType, choices: (columnChoicesMap[settings.table] || {})[NUM_CAND_COL] || [], doc: false, keyOnly: false, alias: ['NUMCAND', 'NCAND', 'NUMEROCAND', 'NCANDIDATURE', 'NUMEROCANDIDATURE', 'NUMCANDIDATURE', 'NUMERODECANDIDATURE', 'NDECANDIDATURE', 'NUMEROCANDIDAT', 'NCANDIDAT'] });
@@ -14213,7 +14245,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       ['À quoi servent les boutons de la page Stagiaires ?', 'De gauche à droite : <strong>eTuteur</strong> (suivi des pièces du dossier), <strong>Référent pédagogique</strong> (notes, moyennes et classement), <strong>Incorporation</strong> (parcours d’arrivée, d’habillement et de contrat), <strong>Cérémonie</strong> (invités de la cérémonie de fin de stage), <strong>Actualiser</strong>, <strong>Exporter en .csv</strong> et <strong>Mettre à jour depuis un fichier</strong>. « Afficher les stagiaires partis » est proposé dans la barre de recherche.'],
       ['Comment filtrer les listes ?', 'Cliquez dans la barre de recherche (vide) : un panneau propose les filtres en un clic. Sur la page Stagiaires : peloton, affectation, fonction, mode de transport et affichage des partis ; sur Encadrement : groupe, fonction et regroupement par groupe. Les choix se cumulent ; « Réinitialiser les filtres » les efface. Le nombre de personnes concernées est indiqué à côté de chaque filtre.'],
       ['Comment exporter la liste ?', 'Bouton <strong>Exporter en .csv</strong> : il exporte la vue active (recherche et filtres compris) et vous laisse choisir les colonnes. Le fichier est lisible par Excel (séparateur « ; », dates JJ/MM/AAAA, cases à cocher en Oui/Non).'],
-      ['Comment mettre à jour plusieurs stagiaires depuis un fichier ?', 'Bouton <strong>Mettre à jour depuis un fichier</strong>. Déposez un fichier .csv, Excel (.xlsx, .xls) ou Calc (.ods) : les titres de colonnes sont reconnus (mêmes libellés que l’export), puis vous choisissez la colonne qui identifie les stagiaires (NID, N° CAND, Nigend, e-mail, nom + prénom). Un aperçu « actuel → nouveau » s’affiche : rien n’est écrit avant « Appliquer ». Une cellule vide laisse la valeur actuelle, sauf si vous cochez l’option contraire. Les colonnes calculées par une formule Grist (par exemple « Autorisé ») sont ignorées : le widget n’y écrit jamais.'],
+      ['Comment mettre à jour plusieurs stagiaires depuis un fichier ?', 'Bouton <strong>Mettre à jour depuis un fichier</strong>. Déposez un fichier .csv, Excel (.xlsx, .xls) ou Calc (.ods) : les titres de colonnes sont reconnus (mêmes libellés que l’export), puis vous choisissez la colonne qui identifie les stagiaires (NID, N° CAND, Nigend, e-mail, nom + prénom). Un aperçu « actuel → nouveau » s’affiche : rien n’est écrit avant « Appliquer ». Une cellule vide laisse la valeur actuelle, sauf si vous cochez l’option contraire. Les colonnes calculées par une formule Grist (par exemple « Autorisé ») sont ignorées : le widget n’y écrit jamais. Le peloton (PON) est reconnu sous les titres « PON », « Peloton » ou « Groupe ».'],
       ['Comment mettre à jour les N° CAND depuis un fichier ?', 'Bouton <strong>Mettre à jour les N° CAND (fichier)</strong>, puis déposez le fichier. Il doit contenir une colonne N° CAND et, pour retrouver chaque stagiaire, l’adresse e-mail et/ou le nom et le prénom. La recherche se fait d’abord par e-mail, à défaut par nom et prénom ; l’aperçu indique pour chaque ligne par quoi le stagiaire a été retrouvé. Les lignes d’en-tête avant les titres sont acceptées.'],
       ['Comment supprimer un stagiaire ou un cadre ?', 'En bas à gauche de sa fiche, le lien discret <strong>Supprimer ce stagiaire</strong> (ou <strong>ce cadre</strong>) demande une confirmation (pour un stagiaire, il demande d’abord s’il ne s’agit pas plutôt d’un <strong>départ de la formation</strong> et ouvre alors la fenêtre « Gérer le départ ») puis supprime définitivement sa ligne de la table Grist. Seule cette ligne est supprimée : ses éventuelles lignes liées (documents eTuteur, départs, appréciations) restent dans leurs tables.'],
       ['Où saisir les notes des stagiaires ?', 'Sur la page cachée <strong>Référent pédagogique</strong>, accessible par l’icône « Référent pédagogique » à droite d’eTuteur dans la page Stagiaires. « Ajouter des notes » ouvre une fenêtre à deux onglets : <strong>Fichier CSV</strong> (cliquer ou déposer le fichier ; les colonnes stagiaire, note, matière, note max et coefficient sont reconnues automatiquement, et la note maximale et le coefficient de l’évaluation sont demandés) ou <strong>Saisie par peloton</strong>. Les notes alimentent l’onglet Notation de chaque fiche (moyenne générale, classement général, par sexe et dans le peloton) et le classement de la page, qui tient compte des filtres.']
@@ -14263,9 +14295,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       ['Comment imprimer la synthèse ?', 'Bouton <strong>Imprimer la synthèse</strong> en haut de la page : seule la synthèse (une page) est imprimée, pas le « Détail par rubrique ».']
     ] },
     { title: 'Documents', items: [
-      ['Où trouver le trombinoscope et que contient-il ?', 'Menu <strong>Gestion des personnels</strong>, ligne « Trombinoscope » : une fenêtre propose les groupes à produire, le téléchargement en PDF ou l’impression. Une page par groupe : les cadres du groupe, puis les stagiaires du peloton correspondant. Une page <strong>Acculturation</strong> regroupe les cadres du groupe « Acculturation » et les stagiaires en acculturation. Les stagiaires partis sont placés à la fin de leur liste, photo estompée et barrée d’une croix rouge.'],
+      ['Où trouver le trombinoscope et que contient-il ?', 'Menu <strong>Gestion des personnels</strong>, ligne « Trombinoscope » : une page présente les pages du trombinoscope (un groupe affiché, ou tous). Le bouton <strong>Imprimer</strong> ouvre l’impression du navigateur (A4 paysage) ; choisissez « Enregistrer au format PDF » pour obtenir un fichier avec les photos. <strong>Générer un PDF</strong> ouvre l’ancienne fenêtre de génération (choix des groupes, un PDF ou une archive .zip). Une page par groupe : les cadres du groupe, puis les stagiaires du peloton correspondant. Une page <strong>Acculturation</strong> regroupe les cadres du groupe « Acculturation » et les stagiaires en acculturation. Les stagiaires partis sont placés à la fin de leur liste, photo estompée et barrée d’une croix rouge.'],
       ['Un seul PDF ou un PDF par groupe pour le trombinoscope ?', 'Dans la fenêtre du trombinoscope, choisissez <strong>Un seul PDF avec toutes les pages (un exemplaire par groupe)</strong> ou <strong>Un PDF par groupe (regroupés dans une archive .zip)</strong>. Pour le second format, le nom de chaque fichier se règle avec la variable {{GROUPE}}.'],
-      ['Pourquoi les photos sont-elles remplacées par des initiales ?', 'Le navigateur peut bloquer la lecture des photos (règles d’accès de Grist, CORS). Le bouton « Tester l’accès aux photos » de la Configuration (Sources de données) indique la cause. Les initiales remplacent alors uniquement les photos illisibles. Si les photos s’affichent à l’écran mais ne peuvent pas être lues (CORS), choisissez <strong>Imprimer</strong> puis « Enregistrer au format PDF » dans la fenêtre d’impression : le document imprimé inclut les photos ; le widget le propose après un PDF sans photos.'],
+      ['Pourquoi les photos sont-elles remplacées par des initiales ?', 'Le navigateur peut bloquer la lecture des photos (règles d’accès de Grist, CORS). Le bouton « Tester l’accès aux photos » de la Configuration (Sources de données) indique la cause. Les initiales remplacent alors uniquement les photos illisibles. Si les photos s’affichent à l’écran mais ne peuvent pas être lues (CORS), utilisez la page Trombinoscope : elle affiche les photos telles quelles et le bouton <strong>Imprimer</strong> permet d’« Enregistrer au format PDF » depuis la fenêtre d’impression.'],
       ['À quoi sert l’état rationnaire ?', 'Il liste, par affectation, les repas des cadres et stagiaires. À l’édition, le widget propose de confirmer les repas des cadres en repos, la veille et le lendemain du repos, d’après la table « Gestion des absences ».']
     ] },
     { title: 'Configuration', items: [
@@ -14783,7 +14815,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     renderModalContent();
     candModalOverlay.scrollTop = 0;
   }
-  function housingNode(bat, ch, selfName) {
+  function housingNode(bat, ch, selfName, selfLabel) { // selfLabel : « ce stagiaire » / « ce cadre » (la fiche ouverte, marquée dans la liste des occupants)
     var room = window.RES && window.RES.roomOf ? window.RES.roomOf(bat, ch) : null;
     if (!room) return null;
     function nk(v) { return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9]+/g, ' ').trim().toUpperCase(); }
@@ -14804,7 +14836,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       var hits = isSelf ? [] : candFindByName(name);
       var el = document.createElement(hits.length === 1 ? 'button' : 'span');
       el.className = 'fr-tag fr-tag--sm housing-room__tag' + (isSelf ? ' is-self' : '');
-      el.textContent = fmtNomPrenom(name) + (isSelf ? ' (vous)' : '');
+      el.textContent = fmtNomPrenom(name) + (isSelf ? ' (' + (selfLabel || 'cette fiche') + ')' : '');
       if (hits.length === 1) {
         el.type = 'button';
         el.title = 'Ouvrir la fiche de ' + name;
@@ -15696,6 +15728,91 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     return '<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>' + escapeHtml(title) + '</title>' + TROMBI_CSS +
       '</head><body>' + groups.map(function (g) { return trombiGroupPagesHtml(g, !!allowUrl); }).join('\n') + '</body></html>';
   }
+
+  // ==== Page « Trombinoscope » : les pages (une par groupe) s'affichent dans le widget, l'impression se fait depuis la page ====
+  // Les photos sont de simples images (adresse à jeton de Grist) : elles s'affichent comme dans la liste des stagiaires, sans passer par la lecture
+  // inter-origine (CORS) que demande un PDF. « Imprimer » ouvre la fenêtre d'impression du navigateur (A4 paysage) : on peut y choisir
+  // « Enregistrer au format PDF ». Même mise en page que le PDF (voir trombiGroupPagesHtml).
+  var trombiPage = { groups: [], busy: false, token: 0 };
+  function trombiScopedCss() { // règles du PDF préfixées par #trombiSheet (sans html / body / @page, propres au document autonome)
+    var css = TROMBI_CSS.replace(/^<style>|<\/style>$/g, ''), out = '', i = 0;
+    while (i < css.length) {
+      var b = css.indexOf('{', i); if (b < 0) break;
+      var sel = css.slice(i, b).trim(), depth = 0, k = b;
+      for (; k < css.length; k++) { if (css[k] === '{') depth++; else if (css[k] === '}') { depth--; if (!depth) break; } }
+      var body = css.slice(b, k + 1);
+      i = k + 1;
+      if (/^@font-face/.test(sel)) out += sel + body;
+      else if (/^@page/.test(sel) || /^(html|body)/.test(sel) || /^html,body/.test(sel)) continue;
+      else if (/^@media/.test(sel)) out += sel + '{' + body.slice(1, -1).replace(/(^|\})\s*([^{}@]+)\{/g, function (m, p1, s2) { return p1 + s2.split(',').map(function (x) { return '#trombiSheet ' + x.trim(); }).join(',') + '{'; }) + '}';
+      else out += sel.split(',').map(function (x) { return '#trombiSheet ' + x.trim(); }).join(',') + body;
+    }
+    return out;
+  }
+  function openTrombiPage() {
+    if (!document.getElementById('trombiScopedStyle')) { var st = document.createElement('style'); st.id = 'trombiScopedStyle'; st.textContent = trombiScopedCss(); document.head.appendChild(st); }
+    showPage('trombi');
+    var sel = document.getElementById('trombiGroupSel'), keep = sel.value;
+    trombiPage.groups = (enc.loaded ? trombiGroups() : []);
+    sel.innerHTML = '<option value="">Tous les groupes (' + trombiPage.groups.length + ')</option>' + trombiPage.groups.map(function (g, i) { return '<option value="' + i + '">' + escapeHtml(groupDisplayLabel(g.label)) + '</option>'; }).join('');
+    if (keep && trombiPage.groups[Number(keep)]) sel.value = keep;
+    trombiLoadAndRender();
+  }
+  function trombiSelectedGroups() { var v = document.getElementById('trombiGroupSel').value; return v === '' ? trombiPage.groups : [trombiPage.groups[Number(v)]].filter(Boolean); }
+  function trombiFitZoom() {
+    var host = document.getElementById('trombiSheet'), w = host.parentNode.clientWidth || TROMBI_W;
+    host.style.setProperty('--tz', Math.max(0.3, Math.min(1, (w - 4) / TROMBI_W)).toFixed(3));
+  }
+  function trombiRenderSheet() {
+    var groups = trombiSelectedGroups(), host = document.getElementById('trombiSheet'), people = 0, withPhoto = 0;
+    groups.forEach(function (g) { g.members.concat(g.trainees).forEach(function (r) { people++; if (r.__trombiPhotoUrl) withPhoto++; }); });
+    host.innerHTML = groups.length ? groups.map(function (g) { return trombiGroupPagesHtml(g, true); }).join('\n') : '<p class="cand-empty-state">Aucun groupe à afficher : l’Encadrement n’est pas chargé ou ne renseigne aucun groupe (colonne Gpe).</p>';
+    trombiFitZoom();
+    document.getElementById('trombiCount').textContent = groups.length + ' groupe(s) · ' + people + ' personne(s) · ' + withPhoto + ' photo(s)';
+  }
+  function trombiLoadAndRender() {
+    var token = ++trombiPage.token, groups = trombiPage.groups, people = [], idx = 0, done = 0;
+    groups.forEach(function (g) { g.members.concat(g.trainees).forEach(function (r) { r.__trombiPhoto = null; r.__trombiPhotoUrl = null; people.push(r); }); });
+    var withAtt = people.filter(function (r) { return extractAttachmentIds(r.portrait).length || /^https?:\/\//i.test(textOf(r.portrait)); });
+    var btns = ['trombiPrintBtn', 'trombiPdfBtn', 'trombiReloadBtn'].map(function (id) { return document.getElementById(id); });
+    function setBusy(b) { trombiPage.busy = b; btns.forEach(function (x) { x.disabled = b; }); }
+    trombiRenderSheet();
+    if (!withAtt.length) { document.getElementById('trombiStatus').innerHTML = ''; return; }
+    setBusy(true);
+    function status() { document.getElementById('trombiStatus').innerHTML = '<div class="fr-alert fr-alert--info fr-alert--sm fr-mb-2w"><p>Chargement des photos : ' + done + ' sur ' + withAtt.length + '…</p></div>'; }
+    status();
+    function worker() {
+      if (token !== trombiPage.token || idx >= withAtt.length) return Promise.resolve();
+      var r = withAtt[idx++];
+      return portraitSource(r).then(function (src) {
+        if (!src || !src.url) return;
+        return trombiLoadImage(src.url, false).then(function () { r.__trombiPhotoUrl = src.url; }, function () { /* photo illisible : initiales */ });
+      }).catch(function () { /* initiales */ }).then(function () { done++; if (token === trombiPage.token) status(); return worker(); });
+    }
+    var ws = []; for (var i = 0; i < Math.min(6, withAtt.length); i++) ws.push(worker());
+    return Promise.all(ws).then(function () {
+      if (token !== trombiPage.token) return;
+      setBusy(false);
+      trombiRenderSheet();
+      var missing = withAtt.filter(function (r) { return !r.__trombiPhotoUrl; }).length;
+      document.getElementById('trombiStatus').innerHTML = missing ? '<div class="fr-alert fr-alert--warning fr-alert--sm fr-mb-2w"><p>' + missing + ' photo(s) sur ' + withAtt.length + ' n’ont pas pu être chargées (règles d’accès de Grist) : leurs initiales les remplacent. Le bouton « Tester l’accès aux photos » de la Configuration en indique la cause.</p></div>' : '';
+    });
+  }
+  function trombiPrint() {
+    if (trombiPage.busy) return;
+    var pageRule = document.createElement('style'); pageRule.id = 'trombiPageRule'; pageRule.textContent = '@page{size:A4 landscape;margin:0}';
+    document.head.appendChild(pageRule);
+    document.body.classList.add('print-trombi');
+    function cleanup() { document.body.classList.remove('print-trombi'); if (pageRule.parentNode) pageRule.parentNode.removeChild(pageRule); window.removeEventListener('afterprint', cleanup); }
+    window.addEventListener('afterprint', cleanup);
+    try { window.print(); } catch (e) { cleanup(); window.alert('L’impression n’est pas disponible dans cet affichage : ' + friendlyErrorMessage(e)); }
+  }
+  document.getElementById('trombiBackBtn').addEventListener('click', function () { showPage('stagiaires'); });
+  document.getElementById('trombiGroupSel').addEventListener('change', function () { trombiRenderSheet(); });
+  document.getElementById('trombiReloadBtn').addEventListener('click', function () { trombiLoadAndRender(); });
+  document.getElementById('trombiPdfBtn').addEventListener('click', function () { openGenDialog(TROMBI_ROW, 'download'); });
+  document.getElementById('trombiPrintBtn').addEventListener('click', trombiPrint);
+  window.addEventListener('resize', function () { if (!document.getElementById('panelTrombi').hidden) trombiFitZoom(); });
 
   // --- Fenêtre de génération ---
   function genSelectedRows() {
