@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Les URL de pièces jointes portent un jeton d'accès temporaire (?auth=…) : on n'envoie jamais l'adresse de la page
+     (ni ces URL) en Referer aux sites tiers ouverts depuis le widget. -->
+<meta name="referrer" content="no-referrer">
 <title>Gestion PMG</title>
 
 <!--
@@ -74,6 +77,210 @@
     x.addEventListener('click', function () { n.remove(); });
     n.appendChild(t); n.appendChild(x); box.appendChild(n);
   };
+})();
+
+// Confirmation par une modale DSFR : window.confirm() est ignoré (renvoie false sans rien afficher) dans un cadre isolé
+// sans « allow-modals », ce qui rendait les boutons concernés muets. Définie ici, avant tout autre script, pour que
+// chaque module puisse s'en servir. Renvoie une promesse (true = confirmé). Un libellé commençant par « Supprimer »
+// (ou opts.danger) affiche le bouton de validation en rouge ; le focus revient à l'élément d'origine à la fermeture.
+(function () {
+  var dlg = null;
+  window.uiConfirm = function (message, okLabel, opts) {
+    opts = opts || {};
+    return new Promise(function (resolve) {
+      if (!dlg) {
+        dlg = document.createElement('dialog');
+        dlg.id = 'fsjConfirmModal';
+        dlg.className = 'fr-modal fsj-dlg';
+        dlg.setAttribute('aria-labelledby', 'fsjConfirmTitle');
+        dlg.setAttribute('aria-describedby', 'fsjConfirmMsg');
+        dlg.innerHTML = '<div class="fr-container fr-container--fluid fr-container-md"><div class="fr-grid-row fr-grid-row--center"><div class="fr-col-12 fr-col-md-6 fr-col-lg-5">' +
+          '<div class="fr-modal__body"><div class="fr-modal__content">' +
+          '<h1 id="fsjConfirmTitle" class="fr-modal__title"></h1><p id="fsjConfirmMsg"></p>' +
+          '<ul class="fr-btns-group fr-btns-group--inline-md fr-btns-group--right fr-mt-2w"><li><button type="button" class="fr-btn fr-btn--secondary" id="fsjConfirmNo">Annuler</button></li>' +
+          '<li><button type="button" class="fr-btn" id="fsjConfirmYes">OK</button></li></ul></div></div></div></div></div>';
+        document.body.appendChild(dlg);
+      }
+      var yes = dlg.querySelector('#fsjConfirmYes'), no = dlg.querySelector('#fsjConfirmNo'), back = document.activeElement;
+      var danger = opts.danger !== undefined ? !!opts.danger : /^(Supprimer|Retirer|Rétablir)/.test(okLabel || '');
+      dlg.querySelector('#fsjConfirmTitle').textContent = opts.title || (danger ? 'Action irréversible' : 'Confirmation');
+      dlg.querySelector('#fsjConfirmMsg').textContent = String(message).replace(/« /g, '« ').replace(/ »/g, ' »'); // pas de guillemet isolé en fin de ligne
+      yes.textContent = okLabel || 'OK';
+      yes.classList.toggle('ui-btn--danger', danger);
+      function done(v) {
+        dlg.classList.remove('fr-modal--opened');
+        dlg.open = false;
+        yes.removeEventListener('click', onYes); no.removeEventListener('click', onNo); document.removeEventListener('keydown', onKey, true);
+        if (back && typeof back.focus === 'function' && document.contains(back)) back.focus();
+        resolve(v);
+      }
+      function onYes() { done(true); }
+      function onNo() { done(false); }
+      function onKey(e) { if (e.key === 'Escape') { e.stopPropagation(); done(false); } }
+      yes.addEventListener('click', onYes); no.addEventListener('click', onNo); document.addEventListener('keydown', onKey, true);
+      dlg.open = true;
+      dlg.classList.add('fr-modal--opened');
+      no.focus();
+    });
+  };
+  window.fsjConfirm = window.uiConfirm;
+})();
+
+// Cache des métadonnées du document (listTables, _grist_Tables, _grist_Tables_column). Chaque module les relisait
+// à chaque chargement : une douzaine d'allers-retours identiques à l'ouverture. Les promesses sont partagées pendant
+// META_TTL ms ; gristMetaInvalidate() les oublie (après un ajout de colonne, ou avant un rechargement explicite).
+(function () {
+  var META_TTL = 15000, cache = {};
+  function cached(key, load) {
+    var c = cache[key];
+    if (c && Date.now() - c.at < META_TTL) return c.p;
+    var p = load();
+    cache[key] = { at: Date.now(), p: p };
+    p.catch(function () { if (cache[key] && cache[key].p === p) delete cache[key]; });
+    return p;
+  }
+  window.gristMetaTable = function (tableId) { return cached('t:' + tableId, function () { return grist.docApi.fetchTable(tableId); }); };
+  window.gristListTables = function () { return cached('list', function () { return grist.docApi.listTables(); }); };
+  window.gristMetaInvalidate = function () { cache = {}; };
+  // Un clic sur un bouton « Actualiser » relit toujours le schéma à jour.
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.closest && e.target.closest('button[id$="ReloadBtn"]')) cache = {};
+  }, true);
+})();
+
+// États communs des panneaux. uiErrorHtml(htmlDejaEchappe) : alerte d'erreur de chargement avec un bouton
+// « Réessayer », qui relance le bouton « Actualiser » du panneau où elle se trouve (même logique partout).
+(function () {
+  window.uiErrorHtml = function (msgHtml) {
+    return '<div class="fr-alert fr-alert--error fr-alert--sm ui-state ui-state--error" role="alert"><p>' + msgHtml + '</p>' +
+      '<button type="button" class="fr-btn fr-btn--sm fr-btn--secondary fr-icon-refresh-line fr-btn--icon-left fr-mt-1w" data-ui-retry>Réessayer</button></div>';
+  };
+  window.uiEmptyHtml = function (title, hintHtml) {
+    return '<div class="ui-state ui-state--empty"><span class="fr-icon-search-line" aria-hidden="true"></span><p class="ui-state__title">' + title + '</p>' +
+      (hintHtml ? '<p class="ui-state__hint">' + hintHtml + '</p>' : '') + '</div>';
+  };
+  document.addEventListener('click', function (e) {
+    var b = e.target && e.target.closest && e.target.closest('[data-ui-retry]');
+    if (!b) return;
+    var pnl = b.closest('[id^="panel"]');
+    var rel = pnl && pnl.querySelector('button[id$="ReloadBtn"]:not([data-legacy])');
+    if (rel) { b.disabled = true; rel.click(); }
+  });
+})();
+
+// Recherches mémorisées : le texte des champs de recherche des panneaux est conservé dans ce navigateur (par
+// widget) et rétabli à la réouverture. Simple confort : sans stockage disponible, les champs repartent vides.
+(function () {
+  var KEY = 'pmg.searches:' + location.pathname + location.search;
+  var IDS = ['incSearchInput', 'cerSearchInput', 'refSearchInput', 'candSearchInput', 'vehSearchInput', 'matSearchInput', 'occSearchInput',
+    'docSearchInput', 'gvSearchInput', 'gmSearchInput', 'docsSearchInput', 'progressionSearchInput', 'absSearchInput', 'reglagesSearchInput',
+    'encSearchInput', 'stgSearchInput'];
+  function read() { try { return JSON.parse(window.localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function write(o) { try { window.localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) { /* stockage indisponible */ } }
+  document.addEventListener('DOMContentLoaded', function () {
+    var saved = read();
+    IDS.forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      if (saved[id] && !el.value) {
+        el.value = saved[id];
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      el.addEventListener('input', function () {
+        var o = read();
+        if (el.value) o[id] = el.value; else delete o[id];
+        write(o);
+      });
+    });
+    // Les boutons « Réinitialiser » vident les champs sans événement « input » : on resynchronise après eux.
+    function saveAll() {
+      var o = {};
+      IDS.forEach(function (id) { var el = document.getElementById(id); if (el && el.value) o[id] = el.value; });
+      write(o);
+    }
+    document.addEventListener('click', function (e) {
+      if (e.target && e.target.closest && e.target.closest('button[id$="ResetBtn"]')) setTimeout(saveAll, 0);
+    });
+    window.addEventListener('pagehide', saveAll);
+  });
+})();
+
+// Accessibilité clavier : les éléments non-<button> portant role="button" (vignettes de pièces jointes, etc.)
+// s'activent aussi avec Entrée et Espace, comme un vrai bouton.
+document.addEventListener('keydown', function (e) {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  var t = e.target;
+  if (!t || t.tagName === 'BUTTON' || t.tagName === 'A' || t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT') return;
+  if (t.getAttribute && t.getAttribute('role') === 'button' && !t.hasAttribute('aria-disabled')) { e.preventDefault(); t.click(); }
+});
+
+// Rafraîchissement automatique : quand les données de la table du widget changent dans Grist (message
+// « dataChange »), ou quand on revient sur le widget après une absence, le panneau affiché est rechargé via son
+// propre bouton « Actualiser ». Rien n'est rechargé pendant une saisie (champ actif, modale ouverte) : le
+// rafraîchissement est alors simplement reporté.
+(function () {
+  var MIN_GAP = 20000, AWAY = 60000, lastRun = Date.now(), leftAt = 0, pending = false, timer = null;
+  function busy() {
+    if (document.querySelector('dialog[open], .fr-modal--opened')) return true;
+    var a = document.activeElement;
+    return !!(a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.tagName === 'SELECT' || a.isContentEditable));
+  }
+  function reloadButton() {
+    var panels = document.querySelectorAll('[id^="panel"]');
+    for (var i = 0; i < panels.length; i++) {
+      var pnl = panels[i];
+      if (pnl.hidden || pnl.offsetParent === null || pnl.id === 'panelSettings') continue;
+      var btns = pnl.querySelectorAll('button[id$="ReloadBtn"]');
+      for (var j = 0; j < btns.length; j++) if (!btns[j].hidden && !btns[j].disabled && !btns[j].hasAttribute('data-legacy')) return btns[j];
+    }
+    return null;
+  }
+  function run() {
+    timer = null;
+    if (document.hidden) { pending = true; return; }
+    if (busy()) { pending = true; timer = setTimeout(run, 5000); return; }
+    var btn = reloadButton();
+    pending = false;
+    if (!btn) return;
+    lastRun = Date.now();
+    window.gristMetaInvalidate();
+    btn.click();
+  }
+  window.uiScheduleRefresh = function (delay) {
+    pending = true;
+    if (timer) return;
+    timer = setTimeout(run, Math.max(delay || 1500, MIN_GAP - (Date.now() - lastRun)));
+  };
+  if (window.grist && grist.on) grist.on('message', function (msg) { if (msg && msg.dataChange) window.uiScheduleRefresh(); });
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { leftAt = Date.now(); return; }
+    if (pending || (leftAt && Date.now() - leftAt > AWAY)) window.uiScheduleRefresh(500);
+  });
+  // Dans Grist, le widget ne passe pas « caché » quand on travaille ailleurs dans le document : on se fie donc
+  // aussi au focus de la fenêtre du widget.
+  window.addEventListener('blur', function () { leftAt = Date.now(); });
+  window.addEventListener('focus', function () { if (pending || (leftAt && Date.now() - leftAt > AWAY)) window.uiScheduleRefresh(500); });
+})();
+
+// Gabarit HTML sûr par défaut : html`<p>${valeur}</p>` échappe chaque valeur insérée (texte saisi dans Grist,
+// noms de fichiers…). Pour insérer un fragment HTML déjà construit et sûr, l'envelopper dans html.raw(…) ;
+// un tableau de fragments est joint sans séparateur. À utiliser pour tout nouveau code plutôt que la
+// concaténation + escapeHtml(), où un oubli suffit à injecter du HTML.
+(function () {
+  function Raw(s) { this.s = String(s); }
+  Raw.prototype.toString = function () { return this.s; };
+  function esc(v) {
+    if (v === null || v === undefined || v === false) return '';
+    if (v instanceof Raw) return v.s;
+    if (Array.isArray(v)) return v.map(esc).join('');
+    return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  window.html = function (strings) {
+    var out = strings[0];
+    for (var i = 1; i < strings.length; i++) out += esc(arguments[i]) + strings[i];
+    return new Raw(out);
+  };
+  window.html.raw = function (s) { return new Raw(s); };
 })();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
@@ -1540,6 +1747,17 @@
   #panelSettings .cfg-header h2 { font-size: 1.15rem; line-height: 1.3; }
   #panelSettings .cfg-header p { margin: 0.1rem 0 0; font-size: 0.8rem; }
   #panelSettings .cfg-header__actions { display: flex; align-items: center; gap: 0.4rem; flex: none; }
+  /* Espace administration : identité visuelle distincte du front-office. */
+  #panelSettings .cfg-eyebrow { display: inline-flex; align-items: center; gap: 0.35rem; margin: 0 0 0.15rem; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-action-high-blue-france); }
+  #panelSettings .cfg-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0.25rem 0 0; font-size: 0.78rem; color: var(--text-mention-grey); }
+  #panelSettings .cfg-meta:empty { display: none; }
+  #panelSettings .cfg-access-warn { cursor: pointer; border: 0; font: inherit; font-size: 0.75rem; font-weight: 700; }
+  #panelSettings .cfg-access-help { margin: 0 0 1rem; padding: 0.75rem 1rem; font-size: 0.85rem; background: var(--background-contrast-warning); border-left: 4px solid var(--border-plain-warning); border-radius: 0.25rem; }
+  #panelSettings .cfg-access-help summary { cursor: pointer; font-weight: 700; }
+  #panelSettings .cfg-access-help ol { margin: 0.5rem 0 0; }
+  #panelSettings .cfg-header__actions { flex-wrap: wrap; justify-content: flex-end; }
+  body.is-admin .fr-header__menu { display: none; }
+  body.is-admin .fr-header { box-shadow: inset 0 -3px 0 var(--border-action-high-blue-france); }
   #panelSettings .cfg-tabs { margin: 0 0 0.6rem; flex-wrap: nowrap; overflow-x: auto; }
   #panelSettings .cfg-tabs .stg-tab { padding: 0.45rem 0.9rem; font-size: 0.875rem; white-space: nowrap; }
   #panelSettings .cfg-summary { gap: 0.3rem; margin-bottom: 0.6rem; }
@@ -1547,7 +1765,7 @@
   /* Back office : navigation par rubriques à gauche (sous 56 rem : onglets défilants), titre et description, vue d'ensemble. */
   #panelSettings .cfg-header { flex-wrap: wrap; row-gap: 0.5rem; }
   #panelSettings .cfg-header > div:first-child { flex: 1 1 20rem; }
-  #panelSettings .cfg-header .cfg-find { flex: 0 1 17rem; margin: 0 0 0 auto; }
+  #panelSettings .cfg-header .cfg-find { flex: 0 1 21rem; margin: 0 0 0 auto; }
   #panelSettings .cfg-shell { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.75rem; align-items: start; }
   #panelSettings .cfg-main { min-width: 0; }
   #panelSettings .cfg-nav { display: flex; flex-direction: row; gap: 0.15rem; overflow-x: auto; padding: 0.35rem; border: 1px solid var(--border-default-grey); border-radius: 0.5rem; background: var(--background-default-grey); }
@@ -2965,6 +3183,16 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 #fsjConfirmModal .fr-btns-group { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: flex-end; gap: 0.5rem; margin: 1.5rem 0 0; }
 #fsjConfirmModal .fr-btns-group > li { width: auto; padding: 0; }
 #fsjConfirmModal .fr-btns-group .fr-btn { width: auto; margin: 0; }
+/* États communs des panneaux (voir window.uiErrorHtml / uiEmptyHtml). */
+.ui-state--error [data-ui-retry] { margin-top: 0.5rem; }
+.ui-state--empty { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; padding: 2.5rem 1rem; text-align: center; color: var(--text-mention-grey); }
+.ui-state--empty > [class*="fr-icon-"]::before { --icon-size: 2rem; }
+.ui-state__title { margin: 0; font-weight: 700; color: var(--text-title-grey); }
+.ui-state__hint { margin: 0; font-size: 0.875rem; }
+/* Bouton de validation d'une action destructrice (voir window.uiConfirm). */
+.fr-btn.ui-btn--danger { background-color: var(--background-action-high-error, #ce0500); color: var(--text-inverted-error, #fff); }
+.fr-btn.ui-btn--danger:hover { background-color: var(--background-action-high-error-hover, #ff2725); }
+.fr-btn.ui-btn--danger:active { background-color: var(--background-action-high-error-active, #ff4140); }
 #fsjConfirmModal .fr-modal__content > :last-child { margin-bottom: 0; }
 /* Fenêtres centrées (le style du DSFR les plaque en bas de l'écran sur petit écran). */
 #fsjConfirmModal::before, #fsjConfirmModal::after, .fsj-dlg::before, .fsj-dlg::after { display: none !important; }
@@ -4885,13 +5113,26 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   <div class="cfg">
     <div class="cfg-header">
       <div>
+        <p class="cfg-eyebrow"><span class="fr-icon-settings-5-line fr-icon--sm" aria-hidden="true"></span>Espace administration</p>
         <h2 class="fr-h5">Configuration</h2>
+        <p class="cfg-meta"><span id="cfgAccessBadge"></span><span id="cfgMetaLine"></span></p>
       </div>
       <div class="cfg-header__actions">
         <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm" id="cfgCollapseBtn" type="button" aria-pressed="false">Tout replier</button>
-        <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-close-line fr-btn--icon-left" id="closeConfigBtn" type="button">Fermer</button>
+        <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-download-line fr-btn--icon-left" id="cfgExportBtn" type="button" title="Télécharger une sauvegarde de toute la configuration (fichier .json)">Exporter</button>
+        <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-upload-line fr-btn--icon-left" id="cfgImportBtn" type="button" title="Restaurer une configuration depuis une sauvegarde (.json)">Importer</button>
+        <input type="file" id="cfgImportFile" accept=".json,application/json" hidden>
+        <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-arrow-left-line fr-btn--icon-left" id="closeConfigBtn" type="button" title="Fermer la configuration (Échap)">Retour à l’application</button>
       </div>
     </div>
+    <details class="cfg-access-help" id="cfgAccessHelp" hidden>
+      <summary>Comment réserver la Configuration aux administrateurs ?</summary>
+      <ol>
+        <li>Dans le document Grist, créer une table <code>Admins_Widget</code> avec une colonne <code>Email</code>, et y saisir l’adresse de chaque administrateur.</li>
+        <li>Dans <em>Règles d’accès</em>, ajouter pour cette table : condition <code>user.Access == OWNER or rec.Email == user.Email</code> → tout autoriser ; puis « Toutes les autres » → tout refuser.</li>
+        <li>Rouvrir la Configuration : le statut passe à « Accès réservé ». Les autres utilisateurs ne peuvent plus l’ouvrir.</li>
+      </ol>
+    </details>
 
     <div class="cfg-find" id="cfgFind">
       <input type="search" id="cfgFindInput" class="cfg-find__input" placeholder="Rechercher un réglage dans toute la configuration…" aria-label="Rechercher un réglage dans toute la configuration" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="cfgFindList" aria-autocomplete="list">
@@ -5791,7 +6032,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.107.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.109.1</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -5805,7 +6046,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   // saisie à la main dans la Configuration, voir settings.dateDebutFormation.)
   var ROLES = ['nid', 'stagiaire', 'email', 'telephone', 'dateNaissance',
     'pon', 'civilite', 'nom', 'prenom', 'grade', 'affectation', 'lieuNaissance', 'dpt', 'nigend', 'fonction', 'batiment', 'chambre',
-    'autorise', 'identiteComplete', 'droitImage', 'qualifSecourisme', 'regimeAlimentaire', 'motifDepart', 'dateDepart',
+    'autorise', 'identiteComplete', 'droitImage', 'qualifSecourisme', 'profession', 'niveauScolaire', 'regimeAlimentaire', 'motifDepart', 'dateDepart',
     'nomUrgence', 'prenomUrgence', 'telUrgence', 'allergies', 'traitements', 'precisionsMedicales', 'lateralite', 'modeTransport', 'immatriculation',
     'usageRS', 'validationUsageRS', 'formImage', 'validationFormImage', 'ead', 'validationEAD',
     'photos', 'inscriptionBande', 'qteBandes', 'du', 'encaisse', 'blocagesInfos'];
@@ -5818,7 +6059,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     nid: 'NID', stagiaire: 'Stagiaire', email: 'E-mail', telephone: 'Téléphone',
     pon: 'PON', civilite: 'Civilité', nom: 'Nom', prenom: 'Prénom', grade: 'Grade', affectation: 'Affectation', lieuNaissance: 'Lieu de naissance',
     dpt: 'Dpt', nigend: 'Nigend', fonction: 'Fonction', batiment: 'Bât.', chambre: 'Ch.', autorise: 'Autorisé',
-    identiteComplete: 'Identité complète', droitImage: 'Droit à l\'image', qualifSecourisme: 'Qualif. secourisme',
+    identiteComplete: 'Identité complète', droitImage: 'Droit à l\'image', qualifSecourisme: 'Qualif. secourisme', profession: 'Profession', niveauScolaire: 'Niveau scolaire',
     regimeAlimentaire: 'Régime alimentaire', motifDepart: 'Motif de départ', dateDepart: 'Date de départ', nomUrgence: 'Nom contact urgence', prenomUrgence: 'Prénom contact urgence',
     telUrgence: 'Tél. contact urgence', allergies: 'Allergies', traitements: 'Traitements / Maladies', precisionsMedicales: 'Précisions médicales', lateralite: 'Latéralité',
     modeTransport: 'Mode de transport', immatriculation: 'Immatriculation',
@@ -6358,8 +6599,119 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   }
   new MutationObserver(updateCfgResBadge).observe(cfgResGroup, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['class'] });
   showCfgTab('stg');
+
+  // ---- Métadonnées, sauvegarde et restauration de la configuration ------------
+  // Toute la configuration vit dans les options du widget (grist.setOption), partagées par tous les
+  // utilisateurs. « Exporter » en télécharge une copie horodatée ; « Importer » la restaure, clé par clé,
+  // après confirmation. Utile avant une modification importante, ou pour dupliquer le widget dans un autre
+  // document.
+  var CFG_EXPORT_FORMAT = 'gestion-pmg-config', CFG_EXPORT_VERSION = 1;
+  var allOptions = {}, cfgMeta = null;
+  function renderCfgMeta() {
+    var el = document.getElementById('cfgMetaLine');
+    if (!el) return;
+    var at = cfgMeta && cfgMeta.savedAt ? new Date(cfgMeta.savedAt) : null;
+    el.textContent = at && !isNaN(at) ? 'Dernière modification le ' + at.toLocaleDateString('fr-FR') + ' à ' +
+      at.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : 'Jamais enregistrée depuis ce widget';
+  }
+  function downloadText(name, text, type) {
+    var url = URL.createObjectURL(new Blob([text], { type: type }));
+    var a = document.createElement('a');
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+  }
+  document.getElementById('cfgExportBtn').addEventListener('click', function () {
+    var d = new Date(), pad = function (n) { return (n < 10 ? '0' : '') + n; };
+    var payload = { format: CFG_EXPORT_FORMAT, version: CFG_EXPORT_VERSION, exportedAt: d.toISOString(), options: allOptions };
+    downloadText('configuration-gestion-pmg-' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '-' + pad(d.getHours()) + pad(d.getMinutes()) + '.json',
+      JSON.stringify(payload, null, 2), 'application/json');
+    showSettingsStatus('success', 'Sauvegarde téléchargée (' + Object.keys(allOptions).length + ' rubrique(s)).');
+  });
+  var cfgImportFile = document.getElementById('cfgImportFile');
+  document.getElementById('cfgImportBtn').addEventListener('click', function () { cfgImportFile.value = ''; cfgImportFile.click(); });
+  cfgImportFile.addEventListener('change', function () {
+    var file = cfgImportFile.files && cfgImportFile.files[0];
+    if (!file) return;
+    file.text().then(function (txt) {
+      var data;
+      try { data = JSON.parse(txt); } catch (e) { throw new Error('le fichier n’est pas un JSON valide.'); }
+      if (!data || data.format !== CFG_EXPORT_FORMAT || !data.options || typeof data.options !== 'object') throw new Error('ce fichier n’est pas une sauvegarde de configuration de ce widget.');
+      if (data.version > CFG_EXPORT_VERSION) throw new Error('cette sauvegarde provient d’une version plus récente du widget.');
+      var keys = Object.keys(data.options).filter(function (k) { return k !== 'cfgMeta'; });
+      var when = data.exportedAt ? new Date(data.exportedAt) : null;
+      return window.uiConfirm('Remplacer la configuration actuelle par celle de la sauvegarde' + (when && !isNaN(when) ? ' du ' + when.toLocaleString('fr-FR') : '') +
+        ' (' + keys.length + ' rubrique(s)) ? Pensez à exporter la configuration actuelle avant, si besoin.', 'Remplacer la configuration', { danger: true, title: 'Restaurer une sauvegarde' })
+        .then(function (ok) {
+          if (!ok) return;
+          cfgMeta = { savedAt: new Date().toISOString(), version: CFG_EXPORT_VERSION, restoredFrom: data.exportedAt || null };
+          return keys.reduce(function (p, k) { return p.then(function () { return grist.setOption(k, data.options[k]); }); }, Promise.resolve())
+            .then(function () { return grist.setOption('cfgMeta', cfgMeta); })
+            .then(function () { setConfigDirty(false); showSettingsStatus('success', 'Configuration restaurée. Les pages se rechargent avec les réglages importés.'); renderCfgMeta(); });
+        });
+    }).catch(function (e) { showSettingsStatus('error', 'Import impossible : ' + friendlyErrorMessage(e)); });
+  });
+  // Raccourcis de la Configuration : ⌘/Ctrl+S enregistre, Échap ferme (hors modale et hors champ en cours de saisie).
+  document.addEventListener('keydown', function (e) {
+    if (!settingsOpen) return;
+    if ((e.metaKey || e.ctrlKey) && (e.key === 's' || e.key === 'S')) {
+      e.preventDefault();
+      if (!saveSettingsBtn.disabled) saveSettingsBtn.click();
+    } else if (e.key === 'Escape' && !document.querySelector('dialog[open], .fr-modal--opened') &&
+        !(document.activeElement && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName))) {
+      closeSettings();
+    }
+  });
+
+  // ---- Contrôle d'accès à la Configuration ----------------------------------
+  // Le geste caché n'est qu'un raccourci, pas une protection. La protection réelle s'appuie sur les règles
+  // d'accès du document Grist : si une table CONFIG_ADMIN_TABLE existe, seuls les utilisateurs qui y voient au
+  // moins une ligne peuvent ouvrir la Configuration. Mise en place côté Grist (une seule fois) :
+  //   1. créer la table « Admins_Widget » avec une colonne « Email » et y saisir les adresses des administrateurs ;
+  //   2. dans Règles d'accès, pour cette table : « user.Access == OWNER or rec.Email == user.Email » → tout autoriser,
+  //      puis « Toutes les autres » → tout refuser.
+  // Un administrateur voit donc sa ligne, les autres ne voient rien. Sans cette table, le comportement reste celui
+  // d'origine (accès par le seul geste) et la Configuration affiche un avertissement.
+  var CONFIG_ADMIN_TABLE = 'Admins_Widget';
+  var configAccess = null; // { protected: bool, allowed: bool }
+  function checkConfigAccess() {
+    return window.gristListTables().then(function (tables) {
+      if ((tables || []).indexOf(CONFIG_ADMIN_TABLE) < 0) return { protected: false, allowed: true };
+      return grist.docApi.fetchTable(CONFIG_ADMIN_TABLE).then(function (data) {
+        return { protected: true, allowed: !!(data && data.id && data.id.length) };
+      }, function () { return { protected: true, allowed: false }; });
+    }).catch(function () { return { protected: false, allowed: true }; }).then(function (r) { configAccess = r; return r; });
+  }
+  function renderConfigAccessNotice() {
+    var badge = document.getElementById('cfgAccessBadge'), help = document.getElementById('cfgAccessHelp');
+    if (!badge) return;
+    var prot = !!(configAccess && configAccess.protected);
+    badge.innerHTML = prot
+      ? '<span class="fr-badge fr-badge--sm fr-badge--success fr-badge--no-icon"><span class="fr-icon-lock-line fr-icon--xs" aria-hidden="true"></span>&nbsp;Accès réservé aux administrateurs</span>'
+      : '<button type="button" class="fr-badge fr-badge--sm fr-badge--warning fr-badge--no-icon cfg-access-warn" aria-controls="cfgAccessHelp" title="Afficher la marche à suivre"><span class="fr-icon-lock-unlock-line fr-icon--xs" aria-hidden="true"></span>&nbsp;Accès non protégé</button>';
+    if (help && prot) help.hidden = true;
+    var warn = badge.querySelector('.cfg-access-warn');
+    if (warn && help) warn.addEventListener('click', function () {
+      var show = help.hidden;
+      help.hidden = !show; help.open = show;
+      warn.setAttribute('aria-expanded', show ? 'true' : 'false');
+      if (show) help.scrollIntoView({ block: 'nearest' });
+    });
+  }
   function openSettings() {
+    checkConfigAccess().then(function (acc) {
+      if (!acc.allowed) {
+        window.alert('La Configuration est réservée aux administrateurs du widget. Demandez au propriétaire du document de vous ajouter à la table « ' + CONFIG_ADMIN_TABLE + ' ».');
+        return;
+      }
+      openSettingsNow();
+      renderConfigAccessNotice();
+    });
+  }
+  function openSettingsNow() {
     settingsOpen = true;
+    document.body.classList.add('is-admin');
+    renderCfgMeta();
     applyPageVisibility();
     settingsStatusZone.innerHTML = '';
     if (cfgBarSaved) cfgBarSaved.hidden = true;
@@ -6373,11 +6725,10 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     Promise.resolve(refreshTableList()).then(function () { if (!welDirty) welAdminOpen(); });
   }
   function closeSettings() {
-    function doClose() { setConfigDirty(false); settingsOpen = false; applyPageVisibility(); }
+    function doClose() { setConfigDirty(false); settingsOpen = false; document.body.classList.remove('is-admin'); applyPageVisibility(); }
     if (!configDirty) { doClose(); return; }
     var msg = 'Des modifications ne sont pas enregistrées. Fermer sans enregistrer ?';
-    if (window.fsjConfirm) window.fsjConfirm(msg, 'Fermer sans enregistrer').then(function (ok) { if (ok) doClose(); }); // confirm() natif ignoré dans l'iframe Grist
-    else if (window.confirm(msg)) doClose();
+    window.uiConfirm(msg, 'Fermer sans enregistrer').then(function (ok) { if (ok) doClose(); }); // confirm() natif ignoré dans l'iframe Grist
   }
   cancelSettingsBtn.addEventListener('click', closeSettings);
   closeConfigBtn.addEventListener('click', closeSettings);
@@ -6607,8 +6958,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function loadColumnTypes() {
     if (!columnTypesPromise) {
       columnTypesPromise = Promise.all([
-        grist.docApi.fetchTable('_grist_Tables'),
-        grist.docApi.fetchTable('_grist_Tables_column')
+        window.gristMetaTable('_grist_Tables'),
+        window.gristMetaTable('_grist_Tables_column')
       ]).then(function (res) {
         var tables = res[0], cols = res[1];
         var tableNameById = {};
@@ -6681,7 +7032,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     lieuNaissance: ['LIEU DE NAISSANCE'], dpt: ['DPT'], nigend: ['NIGEND'], fonction: ['FONCTION'],
     batiment: ['BAT.', 'BAT'], chambre: ['CH.', 'CH'], autorise: ['AUTORISE'],
     identiteComplete: ['IDENTITE COMPLETE'], droitImage: ['DROIT A L\'IMAGE'],
-    qualifSecourisme: ['QUALIF. SECOURISME'], regimeAlimentaire: ['REGIME ALIMENTAIRE'],
+    qualifSecourisme: ['QUALIF. SECOURISME'], profession: ['PROFESSION'], niveauScolaire: ['NIVEAU SCOLAIRE'], regimeAlimentaire: ['REGIME ALIMENTAIRE'],
     motifDepart: ['MOTIF DE DEPART', 'MOTIF DEPART'], dateDepart: ['DATE DE DEPART', 'DATE DEPART'],
     nomUrgence: ['NOM CONTACT URGENCE'], prenomUrgence: ['PRENOM CONTACT URGENCE'], telUrgence: ['TEL CONTACT URGENCE'],
     allergies: ['ALLERGIES'], traitements: ['TRAITEMENTS/MALADIES', 'TRAITEMENTS MALADIES', 'TRAITEMENTS'], precisionsMedicales: ['PRECISIONS MEDICALES', 'PRECISION MEDICALE', 'PRECISIONS MEDICALE'],
@@ -6743,7 +7094,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   }
 
   function refreshTableList() {
-    return grist.docApi.listTables().then(function (tables) {
+    return window.gristListTables().then(function (tables) {
       allTableIds = tables || [];
       fillSelectWithOptions(candTableEl, allTableIds, settings.table, 'Choisir une table…');
       fillSelectWithOptions(docsTableEl, allTableIds, settings.docsTable, 'Choisir une table…');
@@ -6951,7 +7302,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     pon: 'PON', civilite: 'Civilité', nom: 'Nom', prenom: 'Prénom', affectation: 'Affectation',
     lieuNaissance: 'Lieu de naissance', dpt: 'Dpt', nigend: 'Nigend', fonction: 'Fonction',
     batiment: 'Bât.', chambre: 'Ch.', autorise: 'Autorisé', identiteComplete: 'Identité complète',
-    droitImage: 'Droit à l\'image', qualifSecourisme: 'Qualif. secourisme', regimeAlimentaire: 'Régime alimentaire',
+    droitImage: 'Droit à l\'image', qualifSecourisme: 'Qualif. secourisme', profession: 'Profession', niveauScolaire: 'Niveau scolaire', regimeAlimentaire: 'Régime alimentaire',
     motifDepart: 'Motif de départ', dateDepart: 'Date de départ',
     nomUrgence: 'Nom contact urgence', prenomUrgence: 'Prenom contact urgence', telUrgence: 'Tel contact urgence',
     allergies: 'Allergies', traitements: 'Traitements/Maladies', precisionsMedicales: 'Précisions médicales', lateralite: 'Lateralite',
@@ -7167,6 +7518,10 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }
     saveSettingsBtn.disabled = true;
     grist.setOption('candidatsStageConfig', next).then(function () {
+      cfgMeta = { savedAt: new Date().toISOString(), version: CFG_EXPORT_VERSION };
+      return grist.setOption('cfgMeta', cfgMeta);
+    }).then(function () {
+      renderCfgMeta();
       return window.FSJ ? window.FSJ.saveConfig() : null;
     }).then(function () {
       return window.RES ? window.RES.saveConfig() : null;
@@ -7221,7 +7576,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var HARD_TABLE_DOCS = 'ETUTEUR';
   var hardTablesError = '';
   function resolveHardTables() {
-    return grist.docApi.listTables().then(function (tables) {
+    return window.gristListTables().then(function (tables) {
       var find = function (name) { var f = null; (tables || []).forEach(function (t) { if (!f && bulkKey(t) === name) f = t; }); return f; };
       var cand = find(HARD_TABLE_CANDIDATES), docs = find(HARD_TABLE_DOCS);
       hardTablesError = '';
@@ -7264,6 +7619,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   grist.onOptions(function (options) {
     if (!lastPageRestored) { lastPageRestored = true; restoreLastPage(); }
     settings = mergeConfig(options && options.candidatsStageConfig);
+    allOptions = options || {};
+    cfgMeta = (options && options.cfgMeta) || null;
+    if (settingsOpen) renderCfgMeta();
     welOpts = (options && options.welcome) || null;
     incForms = (options && options.incorporationForms) || {};
     renderIncorporation();
@@ -7353,7 +7711,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var EAD_LINK_COL_KEYS = ['NID'];
   var eadSource = null; // dernier résultat de loadEadSource : { tableId, data, docCol, linkCol, cols } ou { error }
   function loadEadSource() {
-    return Promise.all([grist.docApi.listTables(), grist.docApi.fetchTable('_grist_Tables'), grist.docApi.fetchTable('_grist_Tables_column')]).then(function (res) {
+    return Promise.all([window.gristListTables(), window.gristMetaTable('_grist_Tables'), window.gristMetaTable('_grist_Tables_column')]).then(function (res) {
       var tableId = null;
       res[0].forEach(function (t) { if (!tableId && bulkKey(t) === EAD_TABLE) tableId = t; });
       if (!tableId) return { error: 'Table « Alimentation EAD » introuvable : la pièce EAD - Bloc 1 ne peut pas être lue.' };
@@ -7817,7 +8175,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     candZone.innerHTML = '';
     renderDocStats();
     if (candidates.error) {
-      candZone.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm"><p>' + escapeHtml(candidates.error) + '</p></div>';
+      candZone.innerHTML = window.uiErrorHtml(escapeHtml(candidates.error));
       candCount.textContent = '';
       return;
     }
@@ -8070,7 +8428,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     activeViewRows.stagiaires = [];
     stgExportBtn.disabled = true;
     if (candidates.error) {
-      stgZone.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm"><p>' + escapeHtml(candidates.error) + '</p></div>';
+      stgZone.innerHTML = window.uiErrorHtml(escapeHtml(candidates.error));
       stgCount.textContent = '';
       return;
     }
@@ -8320,7 +8678,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   // HARD_STG_ROLES), sans réglage dans la Configuration.
 
   var HARD_STG_ROLES = ['pon', 'civilite', 'nom', 'prenom', 'grade', 'affectation', 'lieuNaissance', 'dpt', 'nigend', 'fonction',
-    'batiment', 'chambre', 'autorise', 'identiteComplete', 'droitImage', 'qualifSecourisme', 'regimeAlimentaire', 'motifDepart', 'dateDepart',
+    'batiment', 'chambre', 'autorise', 'identiteComplete', 'droitImage', 'qualifSecourisme', 'profession', 'niveauScolaire', 'regimeAlimentaire', 'motifDepart', 'dateDepart',
     'nomUrgence', 'prenomUrgence', 'telUrgence', 'allergies', 'traitements', 'precisionsMedicales', 'lateralite', 'modeTransport', 'immatriculation'];
   // Colonnes EN DUR par identifiant Grist (identité, documents et validations, bande
   // patronymique, suivi). Plusieurs valeurs = essais successifs : identifiant exact, puis
@@ -8901,6 +9259,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         return n ? dCustomSpec('Chambre', n, { wide: true }) : null;
       })()]),
       dGroup('Qualifications', [dFieldStg(row, 'qualifSecourisme', 'Secourisme', { wide: true })]),
+      dGroup('Profession et niveau scolaire', [
+        dFieldStg(row, 'profession', 'Profession', { editable: true }), dFieldStg(row, 'niveauScolaire', 'Niveau scolaire', { editable: true })
+      ]),
       dGroup('Infos pratiques', [dFieldTransport(row), dFieldPlate(row), dFieldInfosLibre(row)])
     ].forEach(function (g) { if (g) right.appendChild(g); });
 
@@ -8934,7 +9295,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     return hit || label;
   }
   function loadAppreciations() {
-    return Promise.all([grist.docApi.listTables(), grist.docApi.fetchTable('_grist_Tables'), grist.docApi.fetchTable('_grist_Tables_column')]).then(function (res) {
+    return Promise.all([window.gristListTables(), window.gristMetaTable('_grist_Tables'), window.gristMetaTable('_grist_Tables_column')]).then(function (res) {
       var tableId = null;
       res[0].forEach(function (t) { if (!tableId && bulkKey(t) === APPR_TABLE) tableId = t; });
       if (!tableId) throw new Error('Table « Appréciation stagiaires » introuvable dans ce document.');
@@ -9032,7 +9393,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var DEP_LABELS = { 'PAQUETAGE 1': 'Cochez les éléments de paquetage réintégrés', 'PAQUETAGE 2': 'Cochez les éléments de paquetage réintégrés', 'LITERIE': 'Le stagiaire a réintégré sa literie', 'PASSANT COMPAGNIE': 'Le stagiaire a réintégré son passant (ou départ avant la marche au passant)' }; // libellé affiché à la place de celui de la colonne
   var dep = { loaded: false, error: '', tableId: '', stagiaireCol: null, fields: [], refs: {}, byStagiaire: {} };
   function loadDeparts() {
-    return Promise.all([grist.docApi.listTables(), grist.docApi.fetchTable('_grist_Tables'), grist.docApi.fetchTable('_grist_Tables_column')]).then(function (res) {
+    return Promise.all([window.gristListTables(), window.gristMetaTable('_grist_Tables'), window.gristMetaTable('_grist_Tables_column')]).then(function (res) {
       var tableId = null;
       res[0].forEach(function (t) { if (!tableId && bulkKey(t) === DEP_TABLE) tableId = t; });
       if (!tableId) throw new Error('Table « Gestion des départs » introuvable dans ce document.');
@@ -9763,11 +10124,13 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     trash.innerHTML = '<span class="fr-icon-delete-line" aria-hidden="true"></span>';
     trash.addEventListener('click', function (e) {
       e.stopPropagation();
-      if (!window.confirm(confirmText)) return;
-      trash.disabled = true;
-      action().catch(function (err) {
-        trash.disabled = false;
-        window.alert('Impossible de supprimer le fichier : ' + friendlyErrorMessage(err));
+      window.uiConfirm(confirmText, 'Supprimer').then(function (ok) {
+        if (!ok) return;
+        trash.disabled = true;
+        action().catch(function (err) {
+          trash.disabled = false;
+          window.alert('Impossible de supprimer le fichier : ' + friendlyErrorMessage(err));
+        });
       });
     });
     item.appendChild(trash);
@@ -9816,14 +10179,16 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       create.className = 'fr-btn fr-btn--secondary fr-btn--sm';
       create.textContent = 'Créer les colonnes manquantes';
       create.addEventListener('click', function () {
-        if (!window.confirm('Ajouter la ou les colonne(s) « ' + missing.join('», «') + ' » à la table « ' + settings.table + ' » ?')) return;
-        var actions = missing.map(function (c) {
-          return ['AddColumn', settings.table, c, c === PIECES_COL ? { type: 'Attachments', label: 'Pièces' } : { type: 'Text', label: 'Pièces (noms)' }];
-        });
-        create.disabled = true;
-        grist.docApi.applyUserActions(actions).then(function () { loadCandidates(); }).catch(function (e) {
-          create.disabled = false;
-          window.alert('Impossible de créer les colonnes : ' + friendlyErrorMessage(e));
+        window.uiConfirm('Ajouter la ou les colonne(s) « ' + missing.join(' », « ') + ' » à la table « ' + settings.table + ' » ?', 'Créer les colonnes').then(function (ok) {
+          if (!ok) return;
+          var actions = missing.map(function (c) {
+            return ['AddColumn', settings.table, c, c === PIECES_COL ? { type: 'Attachments', label: 'Pièces' } : { type: 'Text', label: 'Pièces (noms)' }];
+          });
+          create.disabled = true;
+          grist.docApi.applyUserActions(actions).then(function () { window.gristMetaInvalidate(); loadCandidates(); }).catch(function (e) {
+            create.disabled = false;
+            window.alert('Impossible de créer les colonnes : ' + friendlyErrorMessage(e));
+          });
         });
       });
       card.appendChild(create);
@@ -10307,7 +10672,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     });
   }
 
-  document.getElementById('mailAllSend').addEventListener('click', function () {
+  document.getElementById('mailAllSend').addEventListener('click', function mailAllSendClick(e, confirmed) {
     var v = {
       subject: document.getElementById('mailAllSubject').value.trim(),
       replyTo: document.getElementById('mailAllReply').value.trim(),
@@ -10320,8 +10685,12 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var rc = mailAllRecipients();
     if (!rc.emails.length) { showMailAllError('Aucun destinataire : aucun candidat de l’affichage actuel n’a d’adresse e-mail.'); return; }
     var comment = v.comment.replace(/\{\{\s*DATE\s*\}\}/gi, todayFr()).trim();
-    if (!window.confirm('Préparer le message pour ' + rc.emails.length + ' destinataire(s) en copie cachée' +
-        (comment ? ', et ajouter le commentaire « ' + comment + ' » dans Infos de ' + rc.withMail.length + ' fiche(s)' : '') + ' ?')) return;
+    if (confirmed !== true) {
+      window.uiConfirm('Préparer le message pour ' + rc.emails.length + ' destinataire(s) en copie cachée' +
+        (comment ? ', et ajouter le commentaire « ' + comment + ' » dans Infos de ' + rc.withMail.length + ' fiche(s)' : '') + ' ?', 'Préparer le message')
+        .then(function (ok) { if (ok) mailAllSendClick(e, true); });
+      return;
+    }
     mailAllSave(v);
     // 1. le message : lien « mailto » (adresse de réponse en destinataire et en Reply-To, candidats en Bcc)
     var url = 'mailto:' + encodeURIComponent(v.replyTo).replace(/%40/g, '@') + '?bcc=' + rc.emails.map(encodeURIComponent).join(',').replace(/%40/g, '@') +
@@ -10673,7 +11042,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (to && !to.split(/[,;]\s*/).every(function (a) { return /^[^\s@,;]+@[^\s@,;]+$/.test(a); })) { fail('Une adresse de destinataire n’est pas valide.'); return; }
     var final = etuRep.kind === 'final', carry = final ? etuReportCarryChosen() : [];
     var msg = 'Télécharger le rapport en PDF et préparer le message' + (to ? ' pour ' + to : '') + (carry.length ? ', puis reporter ' + carry.reduce(function (n, c) { return n + c.add.length; }, 0) + ' ligne(s) dans « Infos » de ' + carry.length + ' fiche(s)' : '') + ' ?';
-    var ask = window.fsjConfirm ? window.fsjConfirm(msg, 'Préparer le message') : Promise.resolve(window.confirm(msg)); // confirm() natif ignoré dans l'iframe Grist
+    var ask = window.uiConfirm(msg, 'Préparer le message'); // confirm() natif ignoré dans l'iframe Grist
     ask.then(function (ok) {
       if (!ok) return;
       try { window.localStorage.setItem('etuReportTo', to); } catch (e) { /* stockage indisponible */ }
@@ -10728,7 +11097,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var panelCeremonie = document.getElementById('panelCeremonie'), cerZone = document.getElementById('cerZone');
   function cerKey(v) { return String(v === null || v === undefined ? '' : v).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]/g, '').toUpperCase(); }
   function loadCeremonie() {
-    return Promise.all([grist.docApi.listTables(), grist.docApi.fetchTable('_grist_Tables'), grist.docApi.fetchTable('_grist_Tables_column')]).then(function (res) {
+    return Promise.all([window.gristListTables(), window.gristMetaTable('_grist_Tables'), window.gristMetaTable('_grist_Tables_column')]).then(function (res) {
       var tid = null;
       (res[0] || []).forEach(function (t) { var k = cerKey(t); if (!tid && (k === 'CEREMONIE' || /CEREMONIE$/.test(k))) tid = t; });
       if (!tid) throw new Error('Table « Ceremonie » introuvable dans ce document.');
@@ -10762,7 +11131,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var cerPoste = { loaded: false, error: '', tableId: '', byInvite: {}, sig: '' };
   var CERP_DATE = ['ARRIVELE', 'PRESENTLE', 'PRESENTELE', 'PRESENCELE', 'PRESENCE', 'ARRIVEE', 'ARRIVE', 'PRESENT'];
   function loadCeremoniePoste() {
-    return Promise.all([grist.docApi.listTables(), grist.docApi.fetchTable('_grist_Tables'), grist.docApi.fetchTable('_grist_Tables_column')]).then(function (res) {
+    return Promise.all([window.gristListTables(), window.gristMetaTable('_grist_Tables'), window.gristMetaTable('_grist_Tables_column')]).then(function (res) {
       var tid = null;
       (res[0] || []).forEach(function (t) { if (!tid && /CEREMONIEPOSTE$/.test(cerKey(t))) tid = t; });
       if (!tid) throw new Error('Table « Ceremonie_Poste » introuvable dans ce document.');
@@ -10909,7 +11278,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var count = document.getElementById('cerCount');
     cerZone.innerHTML = '';
     document.getElementById('cerResetBtn').disabled = !cerSearch.trim() && !Object.keys(cerFlags).some(function (k) { return cerFlags[k]; });
-    if (cer.error && !cer.loaded) { cerZone.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm"><p>' + escapeHtml(cer.error) + '</p></div>'; count.textContent = ''; return; }
+    if (cer.error && !cer.loaded) { cerZone.innerHTML = window.uiErrorHtml(escapeHtml(cer.error)); count.textContent = ''; return; }
     if (cer.error) { var al = document.createElement('div'); al.className = 'fr-alert fr-alert--warning fr-alert--sm fr-mb-2w'; al.innerHTML = '<p>' + escapeHtml(cer.error) + '</p>'; cerZone.appendChild(al); }
     document.getElementById('cerAddBtn').disabled = !cer.loaded || !cer.cols.stagiaire;
     document.getElementById('cerExportBtn').disabled = !cer.rows.length;
@@ -11016,13 +11385,13 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }
     if (same.length) { // même invité déjà enregistré : on demande confirmation avant de créer un doublon
       var msg = 'Un invité nommé « ' + cerNomFmt(nomV) + ' ' + cerPrenomFmt(preV) + ' », né(e) le ' + ddnV.split('-').reverse().join('/') + ', existe déjà (invité pour ' + same.map(function (r) { return cerStagiaire(r).label; }).filter(function (x, i, a) { return a.indexOf(x) === i; }).join(', ') + '). L’enregistrer quand même ?';
-      (window.fsjConfirm ? window.fsjConfirm(msg, 'Enregistrer') : Promise.resolve(window.confirm(msg))).then(function (ok) { if (ok) proceed(); });
+      window.uiConfirm(msg, 'Enregistrer').then(function (ok) { if (ok) proceed(); });
     } else proceed();
   });
   document.getElementById('cerDlgDelete').addEventListener('click', function () {
     if (!cerEditing) return;
     var row = cerEditing, msg = 'Supprimer définitivement l’invité « ' + [cerNomFmt(cerText(row, 'nom')), cerPrenomFmt(cerText(row, 'prenom'))].filter(Boolean).join(' ') + ' » ?';
-    var ask = window.fsjConfirm ? window.fsjConfirm(msg, 'Supprimer') : Promise.resolve(window.confirm(msg));
+    var ask = window.uiConfirm(msg, 'Supprimer');
     ask.then(function (ok) {
       if (!ok) return;
       return grist.docApi.applyUserActions([['RemoveRecord', cer.tableId, row.id]]).then(function () { closeCerDialog(); return loadCeremonie(); })
@@ -11037,7 +11406,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var rows = cerDupToRemove(); if (!rows.length) return;
     var names = rows.slice(0, 8).map(function (r) { return '• ' + [cerNomFmt(cerText(r, 'nom')), cerPrenomFmt(cerText(r, 'prenom'))].filter(Boolean).join(' ') + ' (invité pour ' + cerStagiaire(r).label + ')'; }).join('\n') + (rows.length > 8 ? '\n… et ' + (rows.length - 8) + ' autre(s)' : '');
     var msg = 'Supprimer ' + rows.length + ' invité(s) en doublon ?\n\nUn exemplaire de chaque personne est conservé (celui dont la présence est validée, à défaut le plus ancien).\n\n' + names + '\n\nCette action est irréversible.';
-    (window.fsjConfirm ? window.fsjConfirm(msg, 'Supprimer') : Promise.resolve(window.confirm(msg))).then(function (ok) {
+    window.uiConfirm(msg, 'Supprimer').then(function (ok) {
       if (!ok) return;
       var btn = document.getElementById('cerDupBtn'); btn.disabled = true;
       return grist.docApi.applyUserActions(rows.map(function (r) { return ['RemoveRecord', cer.tableId, r.id]; })).then(function () { return loadCeremonie(); }).catch(function (e) {
@@ -11099,7 +11468,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function incNameKey(v) { return String(v || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, ' ').trim().toUpperCase().split(' ').filter(Boolean).sort().join(' '); }
   function incStatus(type, msg) { var z = document.getElementById('incStatus'); z.innerHTML = msg ? '<div class="fr-alert fr-alert--' + type + ' fr-alert--sm fr-mb-2w"><p>' + escapeHtml(msg) + '</p></div>' : ''; }
   function loadIncorporation(silent) { // silent : relecture automatique, sans réafficher si rien n'a changé
-    return Promise.all([grist.docApi.listTables(), grist.docApi.fetchTable('_grist_Tables'), grist.docApi.fetchTable('_grist_Tables_column')]).then(function (res) {
+    return Promise.all([window.gristListTables(), window.gristMetaTable('_grist_Tables'), window.gristMetaTable('_grist_Tables_column')]).then(function (res) {
       var tables = res[1], meta = res[2], byName = {};
       candidates.rows.forEach(function (r) { var k = incNameKey(stagiaireDisplayName(r)); if (k) byName[k] = byName[k] === undefined ? r.id : -1; });
       return Promise.all(INC_STEPS.map(function (st) {
@@ -11692,7 +12061,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   }
 
   function loadEncadrement() {
-    Promise.all([grist.docApi.listTables(), grist.docApi.fetchTable('_grist_Tables'), grist.docApi.fetchTable('_grist_Tables_column')]).then(function (res) {
+    Promise.all([window.gristListTables(), window.gristMetaTable('_grist_Tables'), window.gristMetaTable('_grist_Tables_column')]).then(function (res) {
       var tableId = null;
       res[0].forEach(function (t) { if (!tableId && bulkKey(t) === ENC_TABLE) tableId = t; });
       if (!tableId) throw new Error('Table « Encadrement » introuvable dans ce document.');
@@ -11834,7 +12203,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     activeViewRows.encadrement = [];
     encExportBtn.disabled = true;
     if (enc.error) {
-      encZone.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm"><p>' + escapeHtml(enc.error) + '</p></div>';
+      encZone.innerHTML = window.uiErrorHtml(escapeHtml(enc.error));
       encCount.textContent = '';
       return;
     }
@@ -12118,7 +12487,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   // retrouvée par sa colonne de référence vers Encadrement (à défaut, par son nom). Une case cochée = souhaité.
   var encRens = { loaded: false, error: '', tableId: '', cadreCol: null, dinerCols: [], nuitCols: [], data: null };
   function loadEncRens() {
-    return Promise.all([grist.docApi.listTables(), grist.docApi.fetchTable('_grist_Tables'), grist.docApi.fetchTable('_grist_Tables_column')]).then(function (res) {
+    return Promise.all([window.gristListTables(), window.gristMetaTable('_grist_Tables'), window.gristMetaTable('_grist_Tables_column')]).then(function (res) {
       var tid = null;
       (res[0] || []).forEach(function (t) { var k = normalizeKey(t).replace(/[^A-Z]/g, ''); if (!tid && k.indexOf('RENSEIGNEMENTS') !== -1 && k.indexOf('CADRE') !== -1) tid = t; });
       if (!tid) throw new Error('Table « Renseignements cadres » introuvable dans ce document.');
@@ -12346,7 +12715,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   }
 
   function loadBulk() {
-    Promise.all([grist.docApi.listTables(), grist.docApi.fetchTable('_grist_Tables'), grist.docApi.fetchTable('_grist_Tables_column')]).then(function (res) {
+    Promise.all([window.gristListTables(), window.gristMetaTable('_grist_Tables'), window.gristMetaTable('_grist_Tables_column')]).then(function (res) {
       var tableId = null;
       res[0].forEach(function (t) { if (!tableId && bulkKey(t) === BULK_TABLE) tableId = t; });
       if (!tableId) throw new Error('Table « Editeur de documents » introuvable dans ce document.');
@@ -12435,7 +12804,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (sharedSearch && sharedSearch.value !== bulkSearchText) { sharedSearch.value = bulkSearchText; document.getElementById('docsSearchReset').disabled = !bulkSearchText; }
     zone.innerHTML = '';
     if (bulk.error) {
-      zone.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm"><p>' + escapeHtml(bulk.error) + '</p></div>';
+      zone.innerHTML = window.uiErrorHtml(escapeHtml(bulk.error));
       countEl.textContent = '';
       return;
     }
@@ -12520,7 +12889,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   }
   function deleteBulkDoc(row) {
     var msg = 'Supprimer définitivement le document « ' + textOf(row.values[bulk.nameCol.id]) + ' » ?';
-    var ask = window.fsjConfirm ? window.fsjConfirm(msg, 'Supprimer') : Promise.resolve(window.confirm(msg)); // confirm() natif ignoré dans l'iframe Grist
+    var ask = window.uiConfirm(msg, 'Supprimer'); // confirm() natif ignoré dans l'iframe Grist
     return ask.then(function (ok) {
       if (!ok) return false;
       return grist.docApi.applyUserActions([['RemoveRecord', bulk.tableId, row.id]]).then(function () {
@@ -13783,6 +14152,16 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var date = settings.col.dateDepart ? dayOfValue(row.dateDepart, (columnTypesMap[settings.table] || {})[settings.col.dateDepart]) : null;
     return motif || date ? { motif: motif, date: date } : null;
   }
+  // Départ au motif « Ne s'est pas présenté » : le stagiaire n'a jamais commencé le stage. Il est exclu de
+  // l'attrition (ni départ, ni effectif de référence), mais reste compté dans les départs enregistrés.
+  function statsIsNoShow(d) {
+    return !!(d && normalizeKey(d.motif).replace(/[^A-Z]/g, '').indexOf('NESESTPASPRESENT') === 0);
+  }
+  // Attrition = départs (hors non-présentés) / effectif ayant commencé le stage (hors non-présentés).
+  function statsAttrition(list) {
+    var deps = list.map(statsDeparture), noShow = deps.filter(statsIsNoShow).length;
+    return { dep: deps.filter(Boolean).length - noShow, base: list.length - noShow, noShow: noShow };
+  }
   // Cadre pris en compte pour le ratio d'encadrement : hors formateurs secourisme, renforts mess et DRJ (repérés dans le groupe, la fonction ou l'affectation).
   function statsCadreCounted(r) {
     var texts = encGroupTags(r).concat([encText(r, 'groupe'), encText(r, 'fonction'), encText(r, 'affectation')]);
@@ -13987,6 +14366,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var ages = rows.map(function (r) { return statsAge(r, j1); }).filter(function (a) { return a !== null; });
     var departs = rows.map(statsDeparture);
     var nDep = departs.filter(Boolean).length, nPresent = n - nDep;
+    var att = statsAttrition(rows), attrPct = att.base ? att.dep * 100 / att.base : 0;
     var refRaw = parseFloat(String(settings.attritionRef || '').replace(',', '.'));
     var attrRef = isFinite(refRaw) ? refRaw : null;
     var extras = statsExtraCols(rows), prof = [];
@@ -13997,7 +14377,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     syn.appendChild(statEl('p', 'stat-section__hint', n + ' stagiaire(s)' + (rows.dups ? ' (' + rows.dups + ' fiche(s) en doublon écartée(s))' : '') +
       (statsScope !== 'all' ? ' · population : ' + (statsScope === 'accul' ? 'Acculturation' : 'PMG (hors acculturation)') : '') + (settings.dateDebutFormation ? ' · début de formation le ' + settings.dateDebutFormation : '') + ' · situation au ' + fmtDateFr(new Date())));
     var ind = [['Stagiaires', String(n), nPresent + ' présent(s)'],
-      ['Départs enregistrés', String(nDep), 'Attrition : ' + statPct(nDep, n), attrRef !== null && nDep * 100 / n > attrRef]];
+      ['Départs enregistrés', String(nDep), ['Attrition : ' + statPct(att.dep, att.base)].concat(att.noShow ? ['hors ' + att.noShow + ' non présenté(s)'] : []),
+        attrRef !== null && attrPct > attrRef]];
     if (enc.loaded && encRows.length) {
       var cadresOk = encRows.filter(statsCadreCounted).length;
       ind.push(['Cadres', String(encRows.length), cadresOk ? ['1 cadre pour ' + statNum(nPresent / cadresOk) + ' stagiaires', 'hors renforts Mess et formateurs ponctuels'] : 'Aucun cadre permanent identifié']);
@@ -14014,14 +14395,14 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       var acc = allRows.filter(statsIsAcc), pmg = allRows.filter(function (r) { return !statsIsAcc(r); });
       var cmp = statEl('table', 'stat-table stat-table--cmp');
       var thead = statEl('thead'), htr = statEl('tr');
-      ['Population', 'Effectif', 'Départs', 'Femmes', 'Âge moyen'].forEach(function (h, i) { var th = statEl('th', i ? 'stat-n' : '', h); th.setAttribute('scope', 'col'); htr.appendChild(th); });
+      ['Population', 'Effectif', 'Départs (attrition)', 'Femmes', 'Âge moyen'].forEach(function (h, i) { var th = statEl('th', i ? 'stat-n' : '', h); th.setAttribute('scope', 'col'); htr.appendChild(th); });
       thead.appendChild(htr); cmp.appendChild(thead);
       var tbc = statEl('tbody');
       [['Acculturation', acc], ['PMG (tout le reste)', pmg]].forEach(function (g) {
-        var list = g[1], dn = list.filter(statsDeparture).length, sx = list.map(statsSex), fm = sx.filter(function (x) { return x === 'F'; }).length, known = sx.filter(Boolean).length;
+        var list = g[1], ga = statsAttrition(list), sx = list.map(statsSex), fm = sx.filter(function (x) { return x === 'F'; }).length, known = sx.filter(Boolean).length;
         var ag = list.map(function (r) { return statsAge(r, j1); }).filter(function (a) { return a !== null; });
         var tr = statEl('tr'), th = statEl('th', '', g[0]); th.setAttribute('scope', 'row'); tr.appendChild(th);
-        [String(list.length), dn + ' (' + statPct(dn, list.length) + ')', known ? fm + ' (' + statPct(fm, known) + ')' : '—', ag.length ? statNum(ag.reduce(function (sum, a) { return sum + a; }, 0) / ag.length) + ' ans' : '—'].forEach(function (t) { tr.appendChild(statEl('td', 'stat-n', t)); });
+        [String(list.length), ga.dep + ' (' + statPct(ga.dep, ga.base) + ')', known ? fm + ' (' + statPct(fm, known) + ')' : '—', ag.length ? statNum(ag.reduce(function (sum, a) { return sum + a; }, 0) / ag.length) + ' ans' : '—'].forEach(function (t) { tr.appendChild(statEl('td', 'stat-n', t)); });
         tbc.appendChild(tr);
       });
       cmp.appendChild(tbc);
@@ -14039,8 +14420,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }
     // Attrition (avec référence)
     var attr = statEl('div');
-    attr.appendChild(statMeter(n ? nDep * 100 / n : 0, attrRef));
-    sg.appendChild(statCard('Attrition', 'Départs enregistrés sur le total des stagiaires', attr));
+    attr.appendChild(statMeter(attrPct, attrRef));
+    if (att.noShow) attr.appendChild(statEl('p', 'stat-sub', att.dep + ' départ(s) sur ' + att.base + ' stagiaire(s) ayant commencé le stage · ' + att.noShow + ' « Ne s’est pas présenté » non compté(s)'));
+    sg.appendChild(statCard('Attrition', 'Départs sur l’effectif ayant commencé le stage (hors « Ne s’est pas présenté »)', attr));
     var dated = departs.filter(function (d) { return d && d.date; });
     // Départs par jour et par motif (au-delà de 6 motifs, les moins fréquents sont regroupés dans « Autres motifs »).
     var byDate = {}, motifTotals = {};
@@ -14306,7 +14688,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     ] },
     { title: 'Statistiques', items: [
       ['Comment sont distinguées l’acculturation et la PMG ?', 'Un stagiaire est en <strong>acculturation</strong> si son PON contient « Acculturation » ; tous les autres sont en <strong>PMG</strong>. Le sélecteur « Population » (Tous / Acculturation / PMG) recalcule toute la page, encadrement compris (cadres du groupe « Acculturation » ou non).'],
-      ['Qu’est-ce que l’attrition de référence ?', 'Le taux d’attrition habituel d’un stage, à saisir dans la Configuration (« Attrition de référence (%) »). Il sert de repère sur la jauge : l’écart s’affiche en rouge au-dessus de la référence, en vert en dessous.'],
+      ['Qu’est-ce que l’attrition de référence ?', 'Le taux d’attrition habituel d’un stage, à saisir dans la Configuration (« Attrition de référence (%) »). Il sert de repère sur la jauge : l’écart s’affiche en rouge au-dessus de la référence, en vert en dessous. L’attrition se calcule sur les stagiaires ayant commencé le stage : les départs au motif « Ne s’est pas présenté » ne sont comptés ni dans les départs, ni dans l’effectif.'],
       ['Comment est calculé le nombre de cadres par stagiaire ?', 'Le nombre en grand est le total des cadres. La ligne dessous donne « 1 cadre pour X stagiaires » en excluant les <strong>renforts Mess</strong>, les <strong>formateurs ponctuels</strong> (secourisme) et la <strong>DRJ</strong>, repérés dans le groupe, la fonction ou l’affectation. Les stagiaires comptés sont les présents (partis exclus).'],
       ['Pourquoi une carte de statistiques est-elle vide ou absente ?', 'Chaque carte dépend d’une colonne : Civilité (féminisation), Date de naissance (âge), Dpt (départements), PON (pelotons), Affectation (unités). Si la colonne est absente ou vide, la carte l’indique. Les cartes « Profession » et « Diplôme » apparaissent seulement si la table des stagiaires contient une colonne dont le nom évoque une profession, un diplôme ou une situation.'],
       ['Comment imprimer la synthèse ?', 'Bouton <strong>Imprimer la synthèse</strong> en haut de la page : seule la synthèse (une page) est imprimée, pas le « Détail par rubrique ».']
@@ -14626,12 +15008,14 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     });
     document.getElementById('faqAdminCancel').addEventListener('click', function () { faqAdminOpen(); });
     document.getElementById('faqAdminReset').addEventListener('click', function () {
-      if (!window.confirm('Rétablir la FAQ d’origine ? La FAQ personnalisée sera perdue.')) return;
-      var msg = document.getElementById('faqAdminMsg');
-      grist.setOption('faq', []).then(function () {
-        faqOpts = null; faqAdminOpen(); buildFaq();
-        msg.textContent = 'FAQ d’origine rétablie.'; msg.className = 'fr-valid-text';
-      }).catch(function (e) { msg.textContent = 'Impossible de rétablir : ' + friendlyErrorMessage(e); msg.className = 'fr-error-text'; });
+      window.uiConfirm('Rétablir la FAQ d’origine ? La FAQ personnalisée sera perdue.', 'Rétablir').then(function (ok) {
+        if (!ok) return;
+        var msg = document.getElementById('faqAdminMsg');
+        grist.setOption('faq', []).then(function () {
+          faqOpts = null; faqAdminOpen(); buildFaq();
+          msg.textContent = 'FAQ d’origine rétablie.'; msg.className = 'fr-valid-text';
+        }).catch(function (e) { msg.textContent = 'Impossible de rétablir : ' + friendlyErrorMessage(e); msg.className = 'fr-error-text'; });
+      });
     });
     document.getElementById('faqAdminSave').addEventListener('click', function () {
       var msg = document.getElementById('faqAdminMsg'), err = '';
@@ -15119,7 +15503,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var ABSENCE_FIELDS = { militaire: ['MILITAIRE'], type: ['TYPE DE DEMANDE'], debut: ['DATE DE DEBUT'], fin: ['DATE DE FIN'], decision: ['DECISION'] };
   var absences = { loaded: false, error: '', tableId: '', rows: [] }; // rows déjà filtrées (Repos + Validée)
   function loadAbsences() {
-    return Promise.all([grist.docApi.listTables(), grist.docApi.fetchTable('_grist_Tables'), grist.docApi.fetchTable('_grist_Tables_column')]).then(function (res) {
+    return Promise.all([window.gristListTables(), window.gristMetaTable('_grist_Tables'), window.gristMetaTable('_grist_Tables_column')]).then(function (res) {
       var tableId = null;
       res[0].forEach(function (t) { if (!tableId && bulkKey(t) === ABSENCE_TABLE) tableId = t; });
       if (!tableId) throw new Error('Table « Gestion des absences » introuvable dans ce document.');
@@ -15835,7 +16219,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   genDialog.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); closeGenDialog(); } });
   function showGenError(msg) { var el = document.getElementById('bulkGenError'); el.textContent = msg; el.hidden = false; }
 
-  document.getElementById('bulkGenGo').addEventListener('click', function () {
+  document.getElementById('bulkGenGo').addEventListener('click', function bulkGenGoClick(e, confirmed) {
     var rows = genSelectedRows();
     var template = bulkDocHtml(genState.row);
     var build = function (rs, t) { return buildGeneratedHtml(template, rs, t); }; // modèle du tableau : un exemplaire par stagiaire
@@ -15852,7 +16236,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       showGenError('Les colonnes « ' + PIECES_COL + ' » et « ' + PIECES_NOMS_COL + ' » sont absentes de la table « ' + settings.table + ' » : créez-les depuis l’onglet Documents d’une fiche Stagiaire.');
       return;
     }
-    if (mode === 'store' && !window.confirm('Enregistrer un PDF dans la colonne « ' + PIECES_COL + ' » de ' + rows.length + ' stagiaire(s) ?\n\nUne pièce déjà enregistrée sous le même nom est remplacée.')) return;
+    if (mode === 'store' && confirmed !== true) {
+      window.uiConfirm('Enregistrer un PDF dans la colonne « ' + PIECES_COL + ' » de ' + rows.length + ' stagiaire(s) ? Une pièce déjà enregistrée sous le même nom est remplacée.', 'Enregistrer')
+        .then(function (ok) { if (ok) bulkGenGoClick(e, true); });
+      return;
+    }
 
     genBusy = true;
     goBtn.disabled = true;
@@ -17323,7 +17711,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
   // Courriel « EAD - Bloc 1 » : objet et corps rédigés dans la
   // Configuration (settings.eadMail), adressé à l'e-mail du candidat.
-  function openEadMail(row) {
+  function openEadMail(row, confirmed) {
     var email = settings.col.email ? textOf(row.email) : '';
     if (!email) {
       window.alert('Aucune adresse e-mail n’est renseignée pour ce candidat (ou la colonne « E-mail » n’est pas réglée dans la Configuration).');
@@ -17331,8 +17719,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }
     var tpl = settings.eadMail;
     var usesNumCand = /\{\{\s*N_CAND\s*\}\}/i.test(tpl.subject + tpl.body);
-    if (usesNumCand && !textOf(row.numCand) &&
-        !window.confirm('Le N° CAND n’est pas renseigné pour ce candidat : le courriel s’ouvrira sans numéro. Continuer ?')) return;
+    if (usesNumCand && !textOf(row.numCand) && confirmed !== true) {
+      window.uiConfirm('Le N° CAND n’est pas renseigné pour ce candidat : le courriel s’ouvrira sans numéro. Continuer ?', 'Continuer')
+        .then(function (ok) { if (ok) openEadMail(row, true); });
+      return;
+    }
     openMailto(email, fillMailTemplate(tpl.subject, row), fillMailTemplate(tpl.body, row));
     logGendFormSent(row);
   }
@@ -17649,7 +18040,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     delBtn.title = 'Supprimer ce fichier';
     delBtn.addEventListener('click', function (e) {
       e.stopPropagation();
-      if (window.confirm('Supprimer ce fichier ?')) removeDocument(row, role);
+      window.uiConfirm('Supprimer ce fichier ?', 'Supprimer').then(function (ok) { if (ok) removeDocument(row, role); });
     });
     card.appendChild(delBtn);
 
@@ -18008,6 +18399,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     });
     el.addEventListener('focus', function () { showAttachPreview(el, attachmentId, cell); });
     el.addEventListener('blur', hideAttachPreview);
+    el.addEventListener('keydown', function (e) { if (e.key === 'Escape') hideAttachPreview(); });
   }
   attachPreview.addEventListener('mouseenter', function () {
     if (previewHideTimer) { clearTimeout(previewHideTimer); previewHideTimer = null; }
@@ -18338,7 +18730,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function refOrdinal(n, tie) { return (n === 1 ? '1er' : n + 'e') + (tie ? ' ex æquo' : ''); }
 
   function loadNotes() {
-    return grist.docApi.listTables().then(function (tables) {
+    return window.gristListTables().then(function (tables) {
       var tid = null;
       (tables || []).forEach(function (t) { if (!tid && refKey(t) === NOTES_TABLE_KEY) tid = t; });
       if (!tid) { notes = { loaded: false, error: 'Table « Notation stagiaires » introuvable dans ce document.', tableId: '', cols: {}, rows: [], version: notes.version + 1 }; return; }
@@ -19521,7 +19913,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   // de table, puis, pour la table déjà choisie (le cas échéant),
   // rafraîchit aussi la liste des colonnes disponibles.
   function refreshTableList() {
-    grist.docApi.listTables().then(function (tables) {
+    window.gristListTables().then(function (tables) {
       allTableIds = tables || [];
       ALL_PAGES.forEach(function (pageKey) {
         var sel = document.getElementById(PAGE_FORM_PREFIX[pageKey] + 'table');
@@ -19698,7 +20090,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var hardResState = { loaded: false, error: '', pages: {} };
   function hardKey(v) { return String(v || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, '').toUpperCase(); }
   function resolveHardReservations() {
-    return Promise.all([grist.docApi.listTables(), grist.docApi.fetchTable('_grist_Tables'), grist.docApi.fetchTable('_grist_Tables_column')]).then(function (res) {
+    return Promise.all([window.gristListTables(), window.gristMetaTable('_grist_Tables'), window.gristMetaTable('_grist_Tables_column')]).then(function (res) {
       var tableIds = res[0] || [], tables = res[1], meta = res[2], rowOf = {}, pages = {};
       for (var i = 0; i < tables.id.length; i++) rowOf[tables.tableId[i]] = tables.id[i];
       ALL_PAGES.forEach(function (pageKey) {
@@ -19793,8 +20185,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function loadGristMeta() {
     if (gristMetaPromise) return gristMetaPromise;
     gristMetaPromise = Promise.all([
-      grist.docApi.fetchTable('_grist_Tables'),
-      grist.docApi.fetchTable('_grist_Tables_column')
+      window.gristMetaTable('_grist_Tables'),
+      window.gristMetaTable('_grist_Tables_column')
     ]).then(function (results) {
       var tablesData = results[0];
       var columnsData = results[1];
@@ -20136,7 +20528,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }
     if (pageData[pageKey].error) {
       countEl.textContent = '';
-      zone.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm"><p>Erreur de chargement : ' + escapeHtml(pageData[pageKey].error) + '</p></div>';
+      zone.innerHTML = window.uiErrorHtml('Erreur de chargement : ' + escapeHtml(pageData[pageKey].error));
       return;
     }
     if (!pageData[pageKey].loaded) {
@@ -20509,7 +20901,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }
     if (pageData[pageKey].error) {
       countEl.textContent = '';
-      zone.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm"><p>Erreur de chargement : ' + escapeHtml(pageData[pageKey].error) + '</p></div>';
+      zone.innerHTML = window.uiErrorHtml('Erreur de chargement : ' + escapeHtml(pageData[pageKey].error));
       return;
     }
     if (!pageData[pageKey].loaded) {
@@ -20705,9 +21097,12 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   }
   function deleteParcRow(pageKey, rowId) {
     var cfg = settings[pageKey], row = pageData[pageKey].rows.filter(function (r) { return r.id === rowId; })[0];
-    if (!row || !window.confirm('Supprimer définitivement « ' + textOf(row.identifiant) + ' » du parc ? Cette action est irréversible.')) return;
-    grist.docApi.applyUserActions([['RemoveRecord', cfg.table, rowId]]).then(function () { loadPageData(pageKey); }).catch(function (e) {
-      window.alert('Impossible de supprimer : ' + friendlyErrorMessage(e));
+    if (!row) return;
+    window.uiConfirm('Supprimer définitivement « ' + textOf(row.identifiant) + ' » du parc ? Cette action est irréversible.', 'Supprimer').then(function (ok) {
+      if (!ok) return;
+      grist.docApi.applyUserActions([['RemoveRecord', cfg.table, rowId]]).then(function () { loadPageData(pageKey); }).catch(function (e) {
+        window.alert('Impossible de supprimer : ' + friendlyErrorMessage(e));
+      });
     });
   }
 
@@ -20851,7 +21246,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }
     if (pageData[pageKey].error) {
       countEl.textContent = '';
-      zone.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm"><p>Erreur de chargement : ' + escapeHtml(pageData[pageKey].error) + '</p></div>';
+      zone.innerHTML = window.uiErrorHtml('Erreur de chargement : ' + escapeHtml(pageData[pageKey].error));
       return;
     }
     if (!pageData[pageKey].loaded) {
@@ -21096,7 +21491,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     }
     if (pageData[pageKey].error) {
       countEl.textContent = '';
-      zone.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm"><p>Erreur de chargement : ' + escapeHtml(pageData[pageKey].error) + '</p></div>';
+      zone.innerHTML = window.uiErrorHtml('Erreur de chargement : ' + escapeHtml(pageData[pageKey].error));
       return;
     }
     if (legendEl) legendEl.hidden = !cfg.col.capacite;
@@ -21568,7 +21963,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
     if (pageData[pageKey].error) {
       countEl.textContent = '';
-      zone.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm"><p>Erreur de chargement : ' + escapeHtml(pageData[pageKey].error) + '</p></div>';
+      zone.innerHTML = window.uiErrorHtml('Erreur de chargement : ' + escapeHtml(pageData[pageKey].error));
       return;
     }
     if (!pageData[pageKey].loaded) {
@@ -21665,11 +22060,13 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   }
 
   function deleteDocument(row) {
-    if (!window.confirm('Supprimer définitivement le document « ' + row.titre + ' » ?')) return;
-    grist.docApi.applyUserActions([['RemoveRecord', DOCUMENTS_TABLE, row.id]]).then(function () {
-      loadDocuments();
-    }).catch(function (e) {
-      window.alert('Suppression impossible : ' + friendlyErrorMessage(e));
+    window.uiConfirm('Supprimer définitivement le document « ' + row.titre + ' » ?', 'Supprimer').then(function (ok) {
+      if (!ok) return;
+      grist.docApi.applyUserActions([['RemoveRecord', DOCUMENTS_TABLE, row.id]]).then(function () {
+        loadDocuments();
+      }).catch(function (e) {
+        window.alert('Suppression impossible : ' + friendlyErrorMessage(e));
+      });
     });
   }
 
@@ -22251,14 +22648,16 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var pageKey = currentNewRequestPage;
     var rowId = currentNewRequestRowId;
     var cfg = settings[pageKey];
-    if (!window.confirm('Supprimer définitivement cette demande ? Cette action est irréversible.')) return;
-    newRequestStatus.textContent = 'Suppression…';
-    grist.docApi.applyUserActions([['RemoveRecord', cfg.table, rowId]]).then(function () {
-      closeNewRequestModal();
-      loadPageData(pageKey);
-    }).catch(function (e) {
-      newRequestStatus.textContent = '';
-      window.alert('Impossible de supprimer la demande : ' + friendlyErrorMessage(e));
+    window.uiConfirm('Supprimer définitivement cette demande ? Cette action est irréversible.', 'Supprimer').then(function (ok) {
+      if (!ok) return;
+      newRequestStatus.textContent = 'Suppression…';
+      grist.docApi.applyUserActions([['RemoveRecord', cfg.table, rowId]]).then(function () {
+        closeNewRequestModal();
+        loadPageData(pageKey);
+      }).catch(function (e) {
+        newRequestStatus.textContent = '';
+        window.alert('Impossible de supprimer la demande : ' + friendlyErrorMessage(e));
+      });
     });
   }
 
@@ -22391,11 +22790,13 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   // modale dédiée, à la différence des demandes (deleteCurrentRequest).
   function deleteInfraRow(rowId) {
     var cfg = settings.gestionHebergement;
-    if (!window.confirm('Supprimer définitivement cette infrastructure ? Cette action est irréversible.')) return;
-    grist.docApi.applyUserActions([['RemoveRecord', cfg.table, rowId]]).then(function () {
-      loadPageData('gestionHebergement');
-    }).catch(function (e) {
-      window.alert('Impossible de supprimer l’infrastructure : ' + friendlyErrorMessage(e));
+    window.uiConfirm('Supprimer définitivement cette infrastructure ? Cette action est irréversible.', 'Supprimer').then(function (ok) {
+      if (!ok) return;
+      grist.docApi.applyUserActions([['RemoveRecord', cfg.table, rowId]]).then(function () {
+        loadPageData('gestionHebergement');
+      }).catch(function (e) {
+        window.alert('Impossible de supprimer l’infrastructure : ' + friendlyErrorMessage(e));
+      });
     });
   }
 
@@ -22840,8 +23241,18 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var stream = new Blob([b64ToBytes(gzB64)]).stream().pipeThrough(new DecompressionStream('gzip'));
     return new Response(stream).arrayBuffer().then(function (buf) { return bytesToB64(new Uint8Array(buf)); });
   }
-  gunzipToB64(GZ.regular).then(function (b64) { window.__MARIANNE_REGULAR_B64 = b64; }).catch(function () {});
-  gunzipToB64(GZ.bold).then(function (b64) { window.__MARIANNE_BOLD_B64 = b64; }).catch(function () {});
+  // Décompression différée : la police (≈ 480 Ko une fois décompressée) ne sert qu'aux exports PDF ; elle est
+  // préparée quand le navigateur est inactif plutôt qu'au chargement, pour ne pas ralentir l'ouverture du widget.
+  // (Elle reste embarquée : jsPDF exige un fichier TTF, que le CDN du DSFR ne fournit pas — seulement du WOFF2.)
+  var started = false;
+  window.loadMarianne = function () {
+    if (started) return;
+    started = true;
+    gunzipToB64(GZ.regular).then(function (b64) { window.__MARIANNE_REGULAR_B64 = b64; GZ.regular = null; }).catch(function () {});
+    gunzipToB64(GZ.bold).then(function (b64) { window.__MARIANNE_BOLD_B64 = b64; GZ.bold = null; }).catch(function () {});
+  };
+  if (window.requestIdleCallback) window.requestIdleCallback(window.loadMarianne, { timeout: 8000 });
+  else setTimeout(window.loadMarianne, 3000);
 })();
 </script>
 <script>
@@ -23082,8 +23493,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     GEN_ROLES.forEach(function (r) { if (genColumnsConfig[r.key]) required.push(genColumnsConfig[r.key]); });
     if (!required.length) return Promise.resolve(null);
     return Promise.all([
-      grist.docApi.fetchTable('_grist_Tables'),
-      grist.docApi.fetchTable('_grist_Tables_column')
+      window.gristMetaTable('_grist_Tables'),
+      window.gristMetaTable('_grist_Tables_column')
     ]).then(function (res) {
       var tables = columnarToRows(res[0]);
       var cols = columnarToRows(res[1]);
@@ -23116,8 +23527,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (!tid) return Promise.resolve({});
     if (formulaColsCache[tid]) return Promise.resolve(formulaColsCache[tid]);
     return Promise.all([
-      grist.docApi.fetchTable('_grist_Tables'),
-      grist.docApi.fetchTable('_grist_Tables_column')
+      window.gristMetaTable('_grist_Tables'),
+      window.gristMetaTable('_grist_Tables_column')
     ]).then(function (res) {
       var tableRow = columnarToRows(res[0]).filter(function (t) { return t.tableId === tid; })[0];
       var result = {};
@@ -23336,7 +23747,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   // s'enregistrent avec elle (voir window.FSJ plus bas) ; les numéros des permanences sont dans la page Réglages des activités.
   function fillOccTableSelect() {
     var sel = document.getElementById('configOccTable');
-    grist.docApi.listTables().then(function (tables) {
+    window.gristListTables().then(function (tables) {
       sel.innerHTML = '<option value="">Détection automatique</option>' + (tables || []).map(function (t) { return '<option value="' + t + '">' + t + '</option>'; }).join('');
       sel.value = occTableOption || '';
     }).catch(function () { /* liste indisponible : la détection automatique reste proposée */ });
@@ -23524,8 +23935,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
   function findAbsMilitaireRefColumn(tableId) {
     return Promise.all([
-      grist.docApi.fetchTable('_grist_Tables'),
-      grist.docApi.fetchTable('_grist_Tables_column')
+      window.gristMetaTable('_grist_Tables'),
+      window.gristMetaTable('_grist_Tables_column')
     ]).then(function (res) {
       var tables = columnarToRows(res[0]);
       var cols = columnarToRows(res[1]);
@@ -23543,8 +23954,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function loadColumnChoicesInfo(tableId, colId) {
     if (!tableId || !colId) return Promise.resolve(null);
     return Promise.all([
-      grist.docApi.fetchTable('_grist_Tables'),
-      grist.docApi.fetchTable('_grist_Tables_column')
+      window.gristMetaTable('_grist_Tables'),
+      window.gristMetaTable('_grist_Tables_column')
     ]).then(function (res) {
       var tables = columnarToRows(res[0]);
       var cols = columnarToRows(res[1]);
@@ -23664,7 +24075,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       return applyConflictRules().then(function () { renderAbsencesList(); });
     }).catch(function (e) {
       absCount.textContent = '';
-      absZone.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm"><p>Impossible de charger les données : ' + escapeHtml(friendlyErrorMessage(e)) + '</p></div>';
+      absZone.innerHTML = window.uiErrorHtml('Impossible de charger les données : ' + escapeHtml(friendlyErrorMessage(e)));
     });
   }
 
@@ -24402,8 +24813,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
   function loadVolunteerRows() {
     return Promise.all([
-      grist.docApi.fetchTable('_grist_Tables'),
-      grist.docApi.fetchTable('_grist_Tables_column')
+      window.gristMetaTable('_grist_Tables'),
+      window.gristMetaTable('_grist_Tables_column')
     ]).then(function (res) {
       var tables = columnarToRows(res[0]);
       var cols = columnarToRows(res[1]);
@@ -25820,7 +26231,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       renderReglagesList();
     }).catch(function (e) {
       reglagesCount.textContent = '';
-      reglagesZone.innerHTML = '<div class="fr-alert fr-alert--error fr-alert--sm"><p>Impossible de charger les données : ' + escapeHtml(friendlyErrorMessage(e)) + '</p></div>';
+      reglagesZone.innerHTML = window.uiErrorHtml('Impossible de charger les données : ' + escapeHtml(friendlyErrorMessage(e)));
     });
   }
 
@@ -28020,42 +28431,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     renderPreview();
   });
 
-  // Confirmation par une modale DSFR : window.confirm() est ignoré (renvoie false sans rien afficher) dans un cadre isolé
-  // sans « allow-modals », ce qui rendait les boutons concernés muets. Renvoie une promesse (true = confirmé).
-  var fsjConfirmDlg = null;
-  function fsjConfirm(message, okLabel) {
-    return new Promise(function (resolve) {
-      if (!fsjConfirmDlg) {
-        fsjConfirmDlg = document.createElement('dialog');
-        fsjConfirmDlg.id = 'fsjConfirmModal';
-        fsjConfirmDlg.className = 'fr-modal fsj-dlg';
-        fsjConfirmDlg.setAttribute('aria-labelledby', 'fsjConfirmTitle');
-        fsjConfirmDlg.innerHTML = '<div class="fr-container fr-container--fluid fr-container-md"><div class="fr-grid-row fr-grid-row--center"><div class="fr-col-12 fr-col-md-6 fr-col-lg-5">' +
-          '<div class="fr-modal__body"><div class="fr-modal__content">' +
-          '<h1 id="fsjConfirmTitle" class="fr-modal__title">Confirmation</h1><p id="fsjConfirmMsg"></p>' +
-          '<ul class="fr-btns-group fr-btns-group--inline-md fr-btns-group--right fr-mt-2w"><li><button type="button" class="fr-btn fr-btn--secondary" id="fsjConfirmNo">Annuler</button></li>' +
-          '<li><button type="button" class="fr-btn" id="fsjConfirmYes">OK</button></li></ul></div></div></div></div></div>';
-        document.body.appendChild(fsjConfirmDlg);
-      }
-      var dlg = fsjConfirmDlg, yes = dlg.querySelector('#fsjConfirmYes'), no = dlg.querySelector('#fsjConfirmNo');
-      dlg.querySelector('#fsjConfirmMsg').textContent = String(message).replace(/« /g, '«\u00a0').replace(/ »/g, '\u00a0»'); // pas de guillemet isolé en fin de ligne
-      yes.textContent = okLabel || 'OK';
-      function done(v) {
-        dlg.classList.remove('fr-modal--opened');
-        dlg.open = false;
-        yes.removeEventListener('click', onYes); no.removeEventListener('click', onNo); document.removeEventListener('keydown', onKey, true);
-        resolve(v);
-      }
-      function onYes() { done(true); }
-      function onNo() { done(false); }
-      function onKey(e) { if (e.key === 'Escape') { e.stopPropagation(); done(false); } }
-      yes.addEventListener('click', onYes); no.addEventListener('click', onNo); document.addEventListener('keydown', onKey, true);
-      dlg.open = true;
-      dlg.classList.add('fr-modal--opened');
-      no.focus();
-    });
-  }
-  window.fsjConfirm = fsjConfirm;
+  // Confirmation par une modale DSFR : voir window.uiConfirm, défini en tête de fichier.
+  var fsjConfirm = window.uiConfirm;
 
   // ---- Permanences du jour affiché : affecter, changer ou retirer le cadre de chaque permanence, et choisir qui la reprend à 19 h ----
   var fsjPermDlg = null;
