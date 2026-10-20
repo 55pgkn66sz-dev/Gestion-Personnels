@@ -2828,6 +2828,26 @@ table.req-table th { font-size: 0.95em; }
     margin: 0;
     white-space: nowrap;
   }
+/* Vue de la semaine (Progression), comme dans SERVIR : règle horaire, une carte par jour, une ligne par peloton. */
+#fsjRoot .pg-count { align-self: center; margin: 0 auto 0 0.5rem; font-size: 0.8rem; color: var(--text-mention-grey); }
+#fsjRoot .pg-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin: 0 0 1rem; }
+#fsjRoot .pg-bar .fr-btn { margin: 0; }
+#fsjRoot .pg-week { margin: 0 0.5rem; font-weight: 700; }
+#fsjRoot .pg-ruler { position: relative; height: 1rem; margin-left: 4rem; font-size: 0.7rem; color: var(--text-mention-grey); }
+#fsjRoot .pg-ruler span { position: absolute; transform: translateX(-50%); }
+#fsjRoot .pg-day { margin: 0 0 0.75rem; background: var(--background-default-grey); border: 1px solid var(--border-default-grey); border-radius: 4px; overflow: hidden; }
+#fsjRoot .pg-day.is-today { border-color: var(--border-action-high-blue-france); }
+#fsjRoot .pg-day__h { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; padding: 0.4rem 0.75rem; font-size: 0.85rem; font-weight: 700; background: var(--background-alt-grey); }
+#fsjRoot .pg-day.is-today .pg-day__h { color: var(--text-action-high-blue-france); background: var(--background-alt-blue-france); }
+#fsjRoot .pg-day__h small { font-weight: 400; color: var(--text-mention-grey); }
+#fsjRoot .pg-perm { padding: 0; font: inherit; color: inherit; text-decoration: underline; text-underline-offset: 2px; background: none; border: 0; cursor: pointer; }
+#fsjRoot .pg-perm:hover { color: var(--text-action-high-blue-france); }
+#fsjRoot .pg-grid { position: relative; }
+#fsjRoot .pg-lane { display: flex; border-top: 1px solid var(--border-default-grey); }
+#fsjRoot .pg-lane__l { flex: 0 0 4rem; padding: 0.3rem 0.5rem; font-size: 0.75rem; font-weight: 700; color: var(--text-mention-grey); }
+#fsjRoot .pg-lane__t { position: relative; flex: 1 1 auto; }
+#fsjRoot .pg-ovl { position: absolute; top: 0; left: 4rem; right: 0; }
+#fsjRoot .pg-empty { margin: 0; padding: 0.3rem 0.75rem; font-size: 0.8rem; color: var(--text-mention-grey); }
 #fsjRoot .week-event-wrap { position: absolute; pointer-events: auto; }
 #fsjRoot .week-event {
     display: flex;
@@ -2837,16 +2857,17 @@ table.req-table th { font-size: 0.95em; }
     width: 100%;
     height: 100%;
     /* Fond : la couleur du type d'occurrence (--ev-color) mélangée au fond de la page, donc claire ou sombre selon le thème. */
-    background: color-mix(in srgb, var(--ev-color, #5a5a5a) 14%, var(--background-default-grey));
+    background: color-mix(in srgb, var(--ev-color, #5a5a5a) 16%, var(--background-default-grey));
     color: var(--text-default-grey);
-    border-left: 3px solid var(--ev-color, var(--border-plain-grey, #5a5a5a));
-    border-radius: 2px;
+    border: 1px solid color-mix(in srgb, var(--ev-color, #5a5a5a) 35%, transparent);
+    border-radius: 3px;
     padding: 0 4px;
     font-size: 0.72em;
     line-height: 1.15;
     overflow: hidden;
     white-space: nowrap;
-    cursor: default;
+    text-overflow: ellipsis;
+    cursor: pointer;
   }
 #fsjRoot .week-event:hover,
 #fsjRoot .week-event:focus {
@@ -4275,10 +4296,10 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
     <div class="cand-toolbar">
       <div class="tb-field tb-search">
-        <span class="tb-lbl" aria-hidden="true">Rechercher une occurrence (code ou intitulé)</span>
+        <span class="tb-lbl" aria-hidden="true">Rechercher une occurrence</span>
         <div class="fr-search-bar fr-search-bar--sm" role="search">
-          <label class="fr-label" for="progressionSearchInput">Rechercher une occurrence (code ou intitulé)</label>
-          <input class="fr-input" type="search" id="progressionSearchInput" placeholder="Rechercher (code ou intitulé)…">
+          <label class="fr-label" for="progressionSearchInput">Rechercher une occurrence</label>
+          <input class="fr-input" type="search" id="progressionSearchInput" placeholder="Code, intitulé, lieu, cadre…">
           <button class="fr-btn fr-btn--sm" id="progressionSearchBtn" type="button" title="Rechercher">Rechercher</button>
         </div>
       </div>
@@ -4291,30 +4312,29 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       <button data-legacy hidden class="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-close-line fr-btn--icon-left" id="progressionResetFiltersBtn" type="button">
         Réinitialiser le(s) filtre(s)
       </button>
+      <span class="pg-count" id="progressionCount" aria-live="polite"></span>
       <div class="tb-actions">
-        <button class="fr-btn fr-btn--secondary fr-icon-download-line fr-btn--icon-left tb-ghost" id="generateProgressionPdfBtn" type="button" disabled title="Progression en PDF">Progression en PDF</button>
-        <button class="fr-btn fr-btn--secondary fr-icon-list-unordered fr-btn--icon-left tb-ghost" id="progressionSettingsBtn" type="button" title="Réglages des activités (codes, durées, consignes)">Réglages des activités</button>
-        <button class="fr-btn fr-icon-add-line fr-btn--icon-left" id="progressionAddBtn" type="button">Ajouter une occurrence</button>
+        <button class="fr-btn fr-btn--secondary fr-icon-download-line fr-btn--icon-left tb-ghost" id="generateProgressionPdfBtn" type="button" disabled title="Télécharger la progression en PDF">Télécharger la progression (PDF)</button>
+        <button class="fr-btn fr-btn--secondary fr-btn--sm" id="progressionFsjBtn" type="button" title="Feuille de service journalier : impression ou PDF d’une journée">Imprimer la FSJ</button>
+        <button class="fr-btn fr-btn--secondary fr-btn--sm" id="progressionSettingsBtn" type="button" title="Réglages des activités (codes, durées, consignes)">Activités</button>
+        <button class="fr-btn fr-btn--sm fr-icon-add-line fr-btn--icon-left" id="progressionAddBtn" type="button">Ajouter une occurrence</button>
       </div>
       <span class="fr-tooltip fr-placement" id="progressionPdfTooltip" role="tooltip"><strong>Impossible de générer ce PDF.</strong><br>Les données ne sont pas encore chargées.</span>
     </div>
 
-    <div class="week-nav fr-mb-2w">
-      <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-arrow-left-s-line fr-btn--icon-left" id="weekPrevBtn" type="button">
-        Semaine précédente
-      </button>
-      <p class="week-label fr-text--bold" id="weekLabel"></p>
-      <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-arrow-right-s-line fr-btn--icon-right" id="weekNextBtn" type="button">
-        Semaine suivante
-      </button>
-    </div>
-
-    <div id="weekGrid" class="week-timegrid"></div>
-
-    <details class="cadre-hours" open>
-      <summary>Permanences SOP et heures de cours par cadre <span class="cadre-hours__sub"></span></summary>
+    <details class="cadre-hours">
+      <summary>Heures de cours et permanences SOP par cadre <span class="cadre-hours__sub"></span></summary>
       <div class="cadre-hours__body"></div>
     </details>
+
+    <div class="pg-bar">
+      <button class="fr-btn fr-btn--secondary fr-btn--sm" id="weekPrevBtn" type="button" aria-label="Semaine précédente" title="Semaine précédente">‹</button>
+      <p class="pg-week" id="weekLabel" aria-live="polite"></p>
+      <button class="fr-btn fr-btn--secondary fr-btn--sm" id="weekNextBtn" type="button" aria-label="Semaine suivante" title="Semaine suivante">›</button>
+      <button class="fr-btn fr-btn--secondary fr-btn--sm" id="weekTodayBtn" type="button">Cette semaine</button>
+    </div>
+
+    <div id="weekGrid" class="pg-week-view"></div>
 
   </div>
 
@@ -6236,7 +6256,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.112.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.114.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -9041,15 +9061,17 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function dSpec(role, label, node, meta) {
     meta = meta || {};
     return { role: role, label: label, node: node, wide: !!meta.wide, empty: !!meta.empty, pre: !!meta.pre,
-      editable: !!meta.editable, buildControl: meta.buildControl || null, commit: meta.commit || null };
+      editable: !!meta.editable, buildControl: meta.buildControl || null, commit: meta.commit || null, onEdit: meta.onEdit || null };
   }
   function dCustomSpec(label, node, meta) { return dSpec(null, label, node, meta); }
+  // Champ modifiable dont l'affichage diffère de la valeur brute (ex. âge à côté de la date de naissance).
+  function stgShown(spec, node, empty) { if (spec) { spec.node = node; spec.empty = empty; } return spec; }
   function dCellFor(spec) {
     var th = document.createElement('th');
     th.scope = 'row';
     th.textContent = spec.label;
     var td;
-    if (spec.editable && dEditRole === spec.role) {
+    if (spec.editable && spec.role && dEditRole === spec.role && spec.buildControl) {
       td = document.createElement('td');
       td.className = 'is-editing';
       var box = document.createElement('div');
@@ -9094,8 +9116,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         icon.className = 'fr-icon-edit-line d-editicon';
         icon.setAttribute('aria-hidden', 'true');
         td.appendChild(icon);
-        td.addEventListener('click', function (e) { if (e.target.closest('a, button')) return; dStartEdit(spec.role); });
-        td.addEventListener('keydown', function (e) { if (e.target === td && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); dStartEdit(spec.role); } });
+        var startEdit = function () { if (spec.onEdit) spec.onEdit(); else dStartEdit(spec.role); }; // onEdit : champ modifié dans sa propre fenêtre (ex. départ)
+        td.addEventListener('click', function (e) { if (e.target.closest('a, button')) return; startEdit(); });
+        td.addEventListener('keydown', function (e) { if (e.target === td && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); startEdit(); } });
       }
     }
     return [th, td];
@@ -9171,15 +9194,36 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var colId = settings.col[role];
     opts = opts || {};
     var current = textOf(row[role]);
-    var tableId = (DOC_TABLE_ROLES.indexOf(role) !== -1 && role !== 'ead') ? settings.docsTable : settings.table;
+    var tableId = stgRoleTable(role);
     var type = String((columnTypesMap[tableId] || {})[colId] || '').split(':')[0];
+    var el;
+    // Case à cocher Grist : liste Oui / Non ; date : calendrier ; nombre : saisie numérique (virgule acceptée).
+    if (type === 'Bool' || (!type && isBoolLike(row[role]))) {
+      el = document.createElement('select');
+      el.className = 'fr-select';
+      [['', '—'], ['true', 'Oui'], ['false', 'Non']].forEach(function (o) { var op = document.createElement('option'); op.value = o[0]; op.textContent = o[1]; el.appendChild(op); });
+      el.value = row[role] === true ? 'true' : row[role] === false ? 'false' : '';
+    } else if (type === 'Date') {
+      el = document.createElement('input');
+      el.type = 'date';
+      el.className = 'fr-input';
+      var dd = dateOf(row[role]);
+      el.value = dd ? dd.toISOString().slice(0, 10) : '';
+    } else if (type === 'Int' || type === 'Numeric') {
+      el = document.createElement('input');
+      el.type = 'text';
+      el.inputMode = 'decimal';
+      el.className = 'fr-input';
+      el.autocomplete = 'off';
+      el.value = current;
+    }
+    if (el) { el.dataset.initial = el.value; el.dataset.kind = type === 'Date' ? 'date' : (type === 'Int' || type === 'Numeric') ? 'number' : 'bool'; el.setAttribute('aria-label', ROLE_LABELS[role] || role); return el; }
     var choices = (type === 'Choice') ? ((columnChoicesMap[tableId] || {})[colId] || []) : [];
     if (!choices.length && opts.list) {
       var seen = {};
       candidates.rows.forEach(function (r) { var v = textOf(r[role]).trim(); if (v) seen[v] = true; });
       choices = Object.keys(seen).sort(function (a, b) { return nameCollator.compare(a, b); });
     }
-    var el;
     if (choices.length) {
       el = document.createElement('select');
       el.className = 'fr-select';
@@ -9192,7 +9236,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         el.appendChild(o);
       });
       el.value = current;
-    } else if (opts.textarea) {
+    } else if (opts.textarea || opts.pre) {
       el = document.createElement('textarea');
       el.className = 'fr-input';
       el.rows = 4;
@@ -9204,13 +9248,21 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       el.autocomplete = 'off';
       el.value = current;
     }
+    el.dataset.initial = el.value;
     el.setAttribute('aria-label', ROLE_LABELS[role] || role);
     return el;
+  }
+  // Table où vit la colonne d'un rôle : table Documents (ETuteur) pour ses rôles, sinon table des stagiaires.
+  function stgRoleTable(role) { return (DOC_TABLE_ROLES.indexOf(role) !== -1 && role !== 'ead') ? settings.docsTable : settings.table; }
+  // Modifiable depuis la fiche : colonne réglée, réelle (pas technique) et non calculée par une formule Grist.
+  function stgRoleWritable(role) {
+    var colId = settings.col[role];
+    return !!colId && isWritableColId(colId) && !(columnFormulaMap[stgRoleTable(role)] || {})[colId];
   }
   function dStgCommit(role, row, previousValue) {
     return function (ctl, buttons) {
       if (role === 'immatriculation') ctl.value = formatPlate(ctl.value);
-      var p = saveFieldEdit(role, row, ctl, 'text', previousValue);
+      var p = saveFieldEdit(role, row, ctl, ctl.dataset.kind || 'text', ctl.dataset.initial !== undefined ? ctl.dataset.initial : previousValue);
       // saveFieldEdit gère elle-même l'échec (message + restauration) ; ce .then (succès ou échec,
       // puisque saveFieldEdit absorbe son propre rejet) réactive juste les boutons si la fiche n'a pas
       // été reconstruite entre-temps (cas du succès, où les boutons n'existent de toute façon plus).
@@ -9241,10 +9293,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       empty = !t2;
       node = stgTextValue(t2, opts.pre);
     }
+    var editable = opts.editable !== false && stgRoleWritable(role); // tous les champs, sauf colonnes calculées
     return dSpec(role, label, node, {
-      wide: !!opts.wide, empty: empty, pre: !!opts.pre, editable: !!opts.editable,
-      buildControl: opts.editable ? function () { return dBuildControlStg(row, role, opts); } : null,
-      commit: opts.editable ? dStgCommit(role, row, textOf(v)) : null
+      wide: !!opts.wide, empty: empty, pre: !!opts.pre, editable: editable,
+      buildControl: editable ? function () { return dBuildControlStg(row, role, opts); } : null,
+      commit: editable ? dStgCommit(role, row, textOf(v)) : null
     });
   }
   // Immatriculation (voir formatPlate/stgParksInside) : texte simple, au format attendu « AB-123-CD » (SIV) ou « 123 AB 45 » (ancien FNI) ; la valeur saisie est mise en forme à l'enregistrement.
@@ -9407,15 +9460,16 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     [
       dGroup('Identité', [
         dFieldStg(row, 'nom', 'Nom'), dFieldStg(row, 'prenom', 'Prénom'),
-        settings.col.civilite ? dCustomSpec('Sexe', stgTextValue(sexText), { empty: !sexText }) : null,
-        settings.col.dateNaissance ? dCustomSpec('Date de naissance (âge)', bornNode, { wide: true, empty: !born }) : null,
+        stgShown(dFieldStg(row, 'civilite', 'Sexe'), stgTextValue(sexText), !sexText), // modifié via la civilité (Madame / Monsieur)
+        stgShown(dFieldStg(row, 'dateNaissance', 'Date de naissance (âge)', { wide: true }), bornNode, !born),
         dFieldStg(row, 'lieuNaissance', 'Lieu de naissance', { wide: true })
       ]),
       stgStageWithDepartFlag(dGroup('Stage', [
         dFieldStg(row, 'pon', 'Peloton', { editable: true, tag: true, tagClass: 'stg-tag--pon' }),
         dFieldStg(row, 'fonction', 'Fonction', { editable: true, tag: true, tagClass: 'stg-tag--fonction', list: true }),
-        dFieldStg(row, 'motifDepart', 'Motif de départ', { wide: true }), // lecture seule (demandé explicitement)
-        settings.col.dateDepart ? dCustomSpec('Date de départ', stgTextValue(departText), { empty: !departText }) : null // lecture seule
+        // Départ : modifié dans la fenêtre « Gérer le départ » (motif, date et suites du départ restent cohérents).
+        settings.col.motifDepart ? dCustomSpec('Motif de départ', stgTextValue(textOf(row.motifDepart)), { wide: true, empty: !textOf(row.motifDepart), editable: true, onEdit: function () { openDepartDialog(row); } }) : null,
+        settings.col.dateDepart ? dCustomSpec('Date de départ', stgTextValue(departText), { empty: !departText, editable: true, onEdit: function () { openDepartDialog(row); } }) : null
       ]), row),
       dGroup('Renseignements militaires', [
         dFieldStg(row, 'grade', 'Grade', { editable: true }),
@@ -18306,6 +18360,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         }
         newValue = n;
       }
+    } else if (kind === 'bool') {
+      newValue = rawValue === 'true' ? true : rawValue === 'false' ? false : null;
+    } else if (kind === 'date') { // AAAA-MM-JJ du calendrier → date Grist (secondes depuis 1970, minuit UTC)
+      var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(rawValue);
+      newValue = m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) / 1000 : null;
     } else {
       newValue = rawValue;
     }
@@ -23982,21 +24041,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var panelProgression = document.getElementById('panelProgression');
   var weekPrevBtn = document.getElementById('weekPrevBtn');
   var weekNextBtn = document.getElementById('weekNextBtn');
+  var progressionCount = document.getElementById('progressionCount');
   var weekLabel = document.getElementById('weekLabel');
   var weekGrid = document.getElementById('weekGrid');
-  // Largeur de la page modifiée (fenêtre, panneau Grist redimensionné) : la grille de la semaine se recalcule.
-  (function () {
-    var lastW = 0, t = null;
-    window.addEventListener('resize', function () {
-      clearTimeout(t);
-      t = setTimeout(function () {
-        var w = weekGrid.clientWidth;
-        if (!w || Math.abs(w - lastW) < 8) return;
-        lastW = w;
-        if (typeof renderWeekView === 'function') renderWeekView();
-      }, 150);
-    });
-  })();
   var weekReferenceDate = null; // le jour affiché en vue Jour, ou un jour quelconque de la semaine affichée en vue Semaine
   var weekReferenceDateIsDefault = true;
   var progressionPdfBtn = document.getElementById('generateProgressionPdfBtn');
@@ -26373,8 +26420,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (e.key === 'Escape' && occModalIsOpen()) closeOccEditModal();
   });
 
-  weekGrid.addEventListener('dblclick', function (e) {
-    var el = e.target.closest ? e.target.closest('.week-event[data-occ-id]') : null;
+  weekGrid.addEventListener('click', function (e) {
+    var el = e.target.closest ? e.target.closest('.week-event[data-occ-id], .pg-perm[data-occ-id]') : null;
     if (!el) return;
     var id = Number(el.getAttribute('data-occ-id'));
     if (!isNaN(id)) openOccEditForm(id);
@@ -26405,7 +26452,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   weekGrid.addEventListener('mouseout', function (e) { var el = weekEventOf(e.target); if (el && el !== weekEventOf(e.relatedTarget)) hideWeekTip(); });
   weekGrid.addEventListener('focusin', function (e) { var el = weekEventOf(e.target); if (el) showWeekTip(el); });
   weekGrid.addEventListener('focusout', hideWeekTip);
-  weekGrid.addEventListener('dblclick', hideWeekTip);
+  weekGrid.addEventListener('click', hideWeekTip);
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hideWeekTip(); });
   window.addEventListener('scroll', hideWeekTip, true);
 
@@ -28305,6 +28352,10 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (!queryNorm) return true;
     if (normalizeNameKey(o.code).indexOf(queryNorm) !== -1) return true;
     if (normalizeNameKey(o.intitule).indexOf(queryNorm) !== -1) return true;
+    // Comme dans SERVIR : aussi le lieu, l'encadrement et les apprenants.
+    if (normalizeNameKey(o.lieu).indexOf(queryNorm) !== -1) return true;
+    if (normalizeNameKey(o.encadrement).indexOf(queryNorm) !== -1) return true;
+    if (normalizeNameKey((o.apprenants || []).join(' ')).indexOf(queryNorm) !== -1) return true;
     return false;
   }
 
@@ -28368,6 +28419,15 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     weekReferenceDateIsDefault = false;
     weekReferenceDate = new Date(weekReferenceDate.getFullYear(), weekReferenceDate.getMonth(), weekReferenceDate.getDate() - 7);
     renderWeekView();
+  });
+  document.getElementById('weekTodayBtn').addEventListener('click', function () {
+    weekReferenceDateIsDefault = false;
+    weekReferenceDate = new Date();
+    renderWeekView();
+  });
+  document.getElementById('progressionFsjBtn').addEventListener('click', function () {
+    var nav = document.getElementById('navFsjGenerer'); // page « Feuille de service journalier »
+    if (nav) nav.click();
   });
   weekNextBtn.addEventListener('click', function () {
     if (!weekReferenceDate) weekReferenceDate = defaultProgressionReferenceDate();
@@ -28487,7 +28547,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (o.consignes) groups.push('<span class="week-tooltip__consignes">Consignes : ' + escapeHtml(o.consignes) + '</span>');
     var borderColor = colorForType(o.type);
     return {
-      visibleContent: escapeHtml(label),
+      visibleContent: escapeHtml((o.debut ? fmtHM(o.debut) + ' ' : '') + label), // « 08:00 Intitulé », comme dans SERVIR
       tooltipContent: groups.join('<br><br>'),
       borderColor: borderColor
     };
@@ -28497,7 +28557,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var info = weekEventInfo(o);
     var tooltipId = 'weekTooltip' + (weekTooltipSeq++);
     var colorStyle = '--ev-color:' + rgbCss(info.borderColor) + ';';
-    return '<div class="week-event-wrap" style="left:' + left + 'px; width:' + width + 'px; top:' + top + 'px; height:' + height + 'px;">' +
+    return '<div class="week-event-wrap" style="left:' + left + '; width:' + width + '; top:' + top + 'px; height:' + height + 'px;">' +
       '<div class="week-event' + (extraClass ? ' ' + extraClass : '') + '" style="' + colorStyle + '" tabindex="0" aria-describedby="' + tooltipId + '" data-occ-id="' + o.id + '">' +
       info.visibleContent +
       '</div>' +
@@ -28535,8 +28595,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         occ = occ.filter(function (o) { return matchesCadre(o.encadrement, activeFilter.name); });
       }
       occ = applyProgressionSearch(occ);
-      var sopCadre = activeFilter ? null : findPermanenceCadre(sections.permanences, 'SOP');
-      days.push({ date: d, occ: occ, isToday: sameDay(d, today), sopCadre: sopCadre });
+      days.push({ date: d, occ: occ, isToday: sameDay(d, today), perms: activeFilter ? [] : sections.permanences });
     }
 
     var minStart = null, maxEnd = null;
@@ -28554,130 +28613,79 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var gridEnd = Math.ceil(maxEnd / 60) * 60;
     if (gridEnd <= gridStart) gridEnd = gridStart + 60;
 
-    // Échelle horaire : au moins 1,2 px par minute ; sur un écran plus large, la grille s'étire pour occuper toute
-    // la largeur de la page (comme les listes de la page Stagiaires) au lieu de s'arrêter à mi-largeur. La largeur
-    // disponible est celle de la zone horaire déjà affichée (sinon une estimation, corrigée après le premier rendu),
-    // moins une marge pour l'étiquette de la dernière heure, qui dépasse à droite.
-    var prevScroll = weekGrid.querySelector('.week-timegrid__scroll');
-    var gridAvail = (prevScroll ? prevScroll.clientWidth : weekGrid.clientWidth - 152 - 43) - WEEK_LAST_LABEL;
-    var PX_PER_MIN = Math.max(1.2, gridAvail > 0 ? gridAvail / (gridEnd - gridStart) : 1.2);
+    // Vue de la semaine, comme la Progression de SERVIR : une règle horaire en haut, puis une carte par jour (date, permanences
+    // à droite), une ligne par peloton ; les occurrences sont placées en % de la largeur (la vue suit la largeur de la page).
     var SUBROW_H = 22;   // hauteur d'une sous-ligne (occurrences simultanées sur un même peloton)
     var ROW_PAD = 6;     // marge haut/bas dans la ligne d'un peloton
-    var AXIS_H = 24;      // hauteur de la ligne d'en-tête (heures)
-    var totalWidth = (gridEnd - gridStart) * PX_PER_MIN;
+    var span = gridEnd - gridStart;
+    function pct(min) { return Math.max(0, Math.min(100, (min - gridStart) / span * 100)) + '%'; }
+    function wpct(s, e) { return Math.max(1.5, (e - s) / span * 100) + '%'; }
 
+    var weekCount = 0;
     days.forEach(function (day) {
+      weekCount += day.occ.length;
       var layout = computeDayPelotonLayout(day.date, day.occ);
       if (activeFilter && activeFilter.type === 'peloton') {
         layout = restrictLayoutToPeloton(layout, activeFilter.code);
       }
-
       day.rows = layout.rows.map(function (row) {
         return { code: row.code, events: row.events, rowHeight: row.maxCols * SUBROW_H + ROW_PAD };
       });
       day.totalHeight = day.rows.reduce(function (sum, row) { return sum + row.rowHeight; }, 0);
-
-      var rowTop = {};
-      var offset = 0;
-      day.rows.forEach(function (row) {
-        rowTop[row.code] = offset;
-        offset += row.rowHeight;
-      });
-
+      var rowTop = {}, offset = 0;
+      day.rows.forEach(function (row) { rowTop[row.code] = offset; offset += row.rowHeight; });
+      day.rowTop = rowTop;
       day.mergedGroups = layout.mergedGroups.map(function (g) {
-        var top = rowTop[g.rowCodes[0]];
         var height = g.rowCodes.reduce(function (sum, rc) {
           var row = day.rows.filter(function (r) { return r.code === rc; })[0];
           return sum + (row ? row.rowHeight : 0);
         }, 0);
-        return { top: top, height: height, events: g.events, isAll: g.isAll };
+        return { top: rowTop[g.rowCodes[0]], height: height, events: g.events, isAll: g.isAll };
       });
-
       day.isEmpty = (day.occ.length === 0);
     });
+    if (progressionCount) progressionCount.textContent = weekCount + ' occurrence(s) cette semaine';
 
-    var labelsHtml = '<div class="week-timegrid__label-spacer" style="height:' + AXIS_H + 'px"></div>';
-    var pelotonsHtml = '<div class="week-timegrid__label-spacer" style="height:' + AXIS_H + 'px"></div>';
+    var ruler = '<div class="pg-ruler" aria-hidden="true">';
+    for (var h = gridStart; h <= gridEnd; h += 60) ruler += '<span style="left:' + pct(h) + '">' + Math.floor(h / 60) + 'h</span>';
+    ruler += '</div>';
+
+    var html = '';
     days.forEach(function (day, i) {
-      var sopLineHtml = day.sopCadre
-        ? '<div class="week-timegrid__daylabel-sop"><strong>SOP&nbsp;:</strong> <span class="week-timegrid__daylabel-sop-name">' + escapeHtml(day.sopCadre) + '</span></div>'
-        : '';
-      labelsHtml += '<div class="week-timegrid__daylabel' + (day.isToday ? ' week-timegrid__daylabel--today' : '') + '" style="height:' + day.totalHeight + 'px">' +
-        '<div class="week-timegrid__daylabel-date">' + dayNameFor(day.date) + '&nbsp;' + escapeHtml(fmtDayTitle(day.date)) + '</div>' +
-        sopLineHtml +
-        '</div>';
-
-      var rowBadgesHtml = day.rows.map(function (row) {
-        return '<div class="week-timegrid__pelotonrow" style="height:' + row.rowHeight + 'px">' +
-          '<span class="fr-badge fr-badge--sm">' + escapeHtml(rowLabel(row.code)) + '</span>' +
-          '</div>';
-      }).join('');
-      pelotonsHtml += '<div class="week-timegrid__pelotonday' + (day.isToday ? ' week-timegrid__pelotonday--today' : '') + '" style="height:' + day.totalHeight + 'px">' +
-        rowBadgesHtml +
-        '</div>';
-    });
-
-    var axisHtml = '';
-    for (var h = gridStart; h <= gridEnd; h += 60) {
-      var hh = String(Math.floor(h / 60)).padStart(2, '0');
-      axisHtml += '<div class="week-timegrid__hour" style="left:' + ((h - gridStart) * PX_PER_MIN) + 'px">' + hh + ':00</div>';
-    }
-    var scrollHtml = '<div class="week-timegrid__axis" style="width:' + totalWidth + 'px; height:' + AXIS_H + 'px">' + axisHtml + '</div>';
-
-    days.forEach(function (day) {
-      var gridlinesTpl = '';
-      for (var h2 = gridStart; h2 <= gridEnd; h2 += 60) {
-        gridlinesTpl += '<div class="week-timegrid__gridline" style="left:' + ((h2 - gridStart) * PX_PER_MIN) + 'px"></div>';
-      }
-
-      var lanesHtml = day.rows.map(function (row) {
-        var eventsHtml = row.events.map(function (ev) {
-          var left = Math.max(0, (ev.start - gridStart) * PX_PER_MIN);
-          var width = Math.max(6, (ev.end - ev.start) * PX_PER_MIN);
-          var top = ROW_PAD / 2 + ev.col * SUBROW_H;
-          return weekEventWrapHtml(ev.o, left, width, top, SUBROW_H - 2);
+      if (day.isEmpty && !day.perms.length && i >= 5) return; // week-end vide : masqué
+      var perms = day.perms.map(function (o) {
+        var code = codesOf(o.code).map(normalizeCode).join(' / ') || String(o.code || '');
+        var who = o.encadrement ? fmtCadresStar(o.encadrement) : (o.apprenants.length ? o.apprenants.join(', ') : 'à désigner');
+        return '<button type="button" class="pg-perm" data-occ-id="' + o.id + '" title="Permanence ' + escapeHtml(code) + ' : ' + escapeHtml(who) + ' (cliquer pour modifier)">' +
+          escapeHtml(code) + '&nbsp;: ' + escapeHtml(who) + '</button>';
+      }).join(' · ');
+      var head = '<div class="pg-day__h"><span class="pg-day__d">' + dayNameFor(day.date) + ' ' + escapeHtml(fmtDayTitle(day.date)) + '</span>' +
+        (perms ? '<small>' + perms + '</small>' : '') + '</div>';
+      var body;
+      if (day.isEmpty) body = '<p class="pg-empty">Aucune occurrence.</p>';
+      else {
+        var lanes = day.rows.map(function (row) {
+          return '<div class="pg-lane" style="height:' + row.rowHeight + 'px"><div class="pg-lane__l">' + escapeHtml(rowLabel(row.code)) + '</div><div class="pg-lane__t"></div></div>';
         }).join('');
-        return '<div class="week-timegrid__lane' + (day.isToday ? ' week-timegrid__lane--today' : '') + '" style="width:' + totalWidth + 'px; height:' + row.rowHeight + 'px">' +
-          gridlinesTpl + eventsHtml +
-          '</div>';
-      }).join('');
-
-      function renderMergedGroup(group) {
-        var cols = group.events.reduce(function (m, ev) { return Math.max(m, ev.cols); }, 1);
-        return group.events.map(function (ev) {
-          var left = Math.max(0, (ev.start - gridStart) * PX_PER_MIN);
-          var width = Math.max(6, (ev.end - ev.start) * PX_PER_MIN);
-          var slice = group.height / cols;
-          var top = group.top + ev.col * slice + 1;
-          var height = Math.max(6, slice - 2);
-          return weekEventWrapHtml(ev.o, left, width, top, height, 'week-event--all');
+        var evs = day.rows.map(function (row) {
+          return row.events.map(function (ev) {
+            return weekEventWrapHtml(ev.o, pct(ev.start), wpct(ev.start, ev.end), day.rowTop[row.code] + ROW_PAD / 2 + ev.col * SUBROW_H, SUBROW_H - 2);
+          }).join('');
         }).join('');
+        // Occurrence commune à plusieurs pelotons voisins : une seule bande, haute des lignes concernées.
+        var merged = day.mergedGroups.map(function (group) {
+          var cols = group.events.reduce(function (m, ev) { return Math.max(m, ev.cols); }, 1), slice = group.height / cols;
+          return group.events.map(function (ev) {
+            return weekEventWrapHtml(ev.o, pct(ev.start), wpct(ev.start, ev.end), group.top + ev.col * slice + 2, Math.max(6, slice - 4), 'week-event--all');
+          }).join('');
+        }).join('');
+        body = '<div class="pg-grid">' + lanes + '<div class="pg-ovl" style="height:' + day.totalHeight + 'px">' + merged + evs + '</div></div>';
       }
-      var allGroupsHtml = day.mergedGroups.filter(function (g) { return g.isAll; }).map(renderMergedGroup).join('');
-      var partialGroupsHtml = day.mergedGroups.filter(function (g) { return !g.isAll; }).map(renderMergedGroup).join('');
-
-      var emptyHtml = day.isEmpty ? '<p class="week-day__empty">Aucune occurrence</p>' : '';
-
-      scrollHtml += '<div class="week-day-block" style="width:' + totalWidth + 'px; height:' + day.totalHeight + 'px">' +
-        allGroupsHtml + partialGroupsHtml + lanesHtml + emptyHtml +
-        '</div>';
+      html += '<div class="pg-day' + (day.isToday ? ' is-today' : '') + '">' + head + body + '</div>';
     });
-
-    weekGrid.innerHTML =
-      '<div class="week-timegrid__labels">' + labelsHtml + '</div>' +
-      '<div class="week-timegrid__pelotons">' + pelotonsHtml + '</div>' +
-      '<div class="week-timegrid__scroll">' + scrollHtml + '</div>';
-    // Estimation de la largeur disponible erronée (premier rendu) : un second rendu avec la largeur réelle.
-    var sc = weekGrid.querySelector('.week-timegrid__scroll');
-    if (!weekRerendering && sc && Math.abs((sc.clientWidth - WEEK_LAST_LABEL) - gridAvail) > 4 && sc.clientWidth - WEEK_LAST_LABEL > (gridEnd - gridStart) * 1.2) {
-      weekRerendering = true;
-      try { renderWeekView(); } finally { weekRerendering = false; }
-      return;
-    }
+    weekGrid.innerHTML = (weekCount ? ruler : '') + (html || '<p class="pg-empty">Aucune occurrence cette semaine.</p>');
     renderCadreHours();
   }
-  var WEEK_LAST_LABEL = 40; // place réservée à droite pour l'étiquette de la dernière heure (« 19:00 »)
-  var weekRerendering = false;
 
   // Récapitulatif des heures de cours par cadre (sous la grille de la Progression) : toute la période du stage, permanences exclues.
   // Chaque séance compte en entier pour chacun des cadres désignés ; les heures se répartissent par type (Cours, Secourisme, Instruction IP, Examens).
