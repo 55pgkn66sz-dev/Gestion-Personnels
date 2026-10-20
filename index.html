@@ -1979,6 +1979,7 @@ document.addEventListener('keydown', function (e) {
   .ds-tag--stg { background: var(--background-alt-blue-france); color: var(--text-action-high-blue-france); }
   .ds-tag--cad { background: var(--background-contrast-purple-glycine, #fee7fc); color: var(--text-label-purple-glycine, #6e445a); }
   .stg-divers__empty { margin: 0; padding: 0.6rem 0.75rem; font-size: 0.8rem; color: var(--text-mention-grey); }
+  .ds-flag { margin-left: 0.25rem; font-size: 1rem; line-height: 1; cursor: help; }
   .ds-tag--grey { background: var(--background-contrast-grey); color: var(--text-mention-grey); }
   .ds-sub { margin: 0.15rem 0 0; font-size: 0.85rem; color: var(--text-mention-grey); }
   .ds-modal-foot { justify-content: flex-start !important; gap: 0.5rem; }
@@ -1994,7 +1995,9 @@ document.addEventListener('keydown', function (e) {
   .ds-gen__list .fr-checkbox-group { margin: 0; }
   .ds-gen__save { margin-top: 0.75rem; }
   .ds-gen__foot { display: flex; gap: 0.5rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-default-grey); }
-  .tpl-ed__meta { display: grid; grid-template-columns: minmax(9rem, 12rem) minmax(9rem, 12rem) minmax(0, 1fr); gap: 1rem; margin-top: 1rem; }
+  .tpl-ed__meta { display: grid; grid-template-columns: repeat(3, minmax(8rem, 11rem)) minmax(0, 1fr); gap: 1rem; margin-top: 1rem; }
+  .tpl-ed__sig { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; margin-top: 0.5rem; }
+  .tpl-ed__sig .fr-hint-text { flex: 1 1 18rem; margin: 0; }
   .tpl-ed__meta .fr-select-group, .tpl-ed__meta .fr-input-group { margin: 0; }
   .tpl-ed__bloc { margin-top: 1rem; }
   @media (max-width: 48em) { .tpl-ed__meta { grid-template-columns: minmax(0, 1fr); } .ds-actions { white-space: normal; } }
@@ -5199,6 +5202,10 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
                 <label class="fr-label" for="tplEdFormat">Format</label>
                 <select class="fr-select" id="tplEdFormat"><option value="HTML">HTML</option><option value="Markdown">Markdown</option></select>
               </div>
+              <div class="fr-select-group">
+                <label class="fr-label" for="tplEdOrient">Orientation</label>
+                <select class="fr-select" id="tplEdOrient"><option value="Portrait">Portrait</option><option value="Paysage">Paysage</option></select>
+              </div>
               <div class="fr-input-group tpl-ed__desc">
                 <label class="fr-label" for="tplEdDesc">Description</label>
                 <input class="fr-input" type="text" id="tplEdDesc" autocomplete="off">
@@ -5218,6 +5225,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
             <div class="fr-input-group tpl-ed__code">
               <label class="fr-label" for="bulkAddTemplate">Modèle HTML</label>
               <textarea class="fr-input" id="bulkAddTemplate" rows="16" spellcheck="false"></textarea>
+            </div>
+            <div class="tpl-ed__sig">
+              <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-edit-line fr-btn--icon-left" id="tplEdSigBtn" type="button">Insérer une signature…</button>
+              <span class="fr-hint-text">Image (PNG, JPEG, WebP) d’une signature scannée, insérée à l’emplacement du curseur et enregistrée dans le modèle. Un fond blanc ou transparent donne le meilleur rendu.</span>
+              <input type="file" id="tplEdSigFile" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
             </div>
             <h5 class="tpl-ed__h">Variables disponibles</h5>
             <p class="fr-hint-text">Cliquez sur une variable pour l’insérer à l’emplacement du curseur (survolez-la pour voir sa signification).</p>
@@ -6257,7 +6269,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.115.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.116.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -13468,7 +13480,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
           return window.html2canvas(doc.body, { scale: 2, backgroundColor: '#ffffff', width: W, height: contentH, windowWidth: W, windowHeight: Math.max(H, contentH), useCORS: true });
         }).then(function (canvas) { frame.remove(); resolve(canvas); }, function (e) { frame.remove(); reject(e); });
       };
-      frame.srcdoc = html.replace(/<head[^>]*>/i, function (m) { return m + PDF_PAGE_CSS; });
+      frame.srcdoc = html.replace(/<head[^>]*>/i, function (m) { return m + PDF_PAGE_CSS.replace('width:794px', 'width:' + W + 'px'); }); // paysage : corps à 1123 px
       document.body.appendChild(frame);
     });
   }
@@ -16801,7 +16813,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   // se modifie sur place ; « Enregistrer » (ou ⌘/Ctrl+S) l'écrit dans la table « Editeur de documents » sans
   // fermer l'éditeur. Changer de modèle ou fermer avec des modifications non enregistrées demande confirmation.
   var bulkEditingId = null; // ligne en cours d'édition (null = nouveau modèle, pas encore enregistré)
-  var tplEd = { base: { name: '', collectif: true, html: '', cible: 'Stagiaires', format: 'HTML', desc: '', bloc: false }, isNew: false, open: false, undo: null, pvTimer: null };
+  var tplEd = { base: { name: '', collectif: true, html: '', cible: 'Stagiaires', format: 'HTML', desc: '', bloc: false, orientation: 'Portrait' }, isNew: false, open: false, undo: null, pvTimer: null };
+  var tplEdOrient = document.getElementById('tplEdOrient');
   var tplEdCible = document.getElementById('tplEdCible'), tplEdFormat = document.getElementById('tplEdFormat');
   var tplEdDesc = document.getElementById('tplEdDesc'), tplEdBloc = document.getElementById('tplEdBloc');
   var tplEdItems = document.getElementById('tplEdItems'), tplEdQ = document.getElementById('tplEdQ');
@@ -16811,15 +16824,15 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
   function tplEdCurrent() {
     return { name: bulkAddName.value.trim(), collectif: bulkAddCollectif.checked, html: bulkAddTemplate.value,
-      cible: tplEdCible.value, format: tplEdFormat.value, desc: tplEdDesc.value.trim(), bloc: tplEdBloc.checked };
+      cible: tplEdCible.value, format: tplEdFormat.value, desc: tplEdDesc.value.trim(), bloc: tplEdBloc.checked, orientation: tplEdOrient.value };
   }
   function tplEdDirty() {
     var c = tplEdCurrent(), b = tplEd.base;
-    return ['name', 'collectif', 'html', 'cible', 'format', 'desc', 'bloc'].some(function (k) { return c[k] !== b[k]; });
+    return ['name', 'collectif', 'html', 'cible', 'format', 'desc', 'bloc', 'orientation'].some(function (k) { return c[k] !== b[k]; });
   }
   function tplEdFill(v) {
     bulkAddName.value = v.name; bulkAddCollectif.checked = v.collectif; bulkAddTemplate.value = v.html;
-    tplEdCible.value = v.cible; tplEdFormat.value = v.format; tplEdDesc.value = v.desc; tplEdBloc.checked = v.bloc;
+    tplEdCible.value = v.cible; tplEdFormat.value = v.format; tplEdDesc.value = v.desc; tplEdBloc.checked = v.bloc; tplEdOrient.value = v.orientation || 'Portrait';
   }
   function tplEdRowName(r) { return textOf(r.values[bulk.nameCol.id]) || 'Sans nom'; }
   function tplEdRows() {
@@ -16868,10 +16881,10 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     tplEd.undo = null; tplEd.savedAt = '';
     tplEdImp.hidden = true;
     var t = row ? dsTpl(row) : null, m = (prefill && prefill.meta) || {};
-    tplEd.base = t ? { name: t.titre, collectif: !!row.collectif || isYes(row.values[bulk.filterCol.id]), html: t.html, cible: t.cible, format: t.format, desc: t.desc, bloc: t.bloc }
-      : { name: '', collectif: true, html: prefill && prefill.blank ? prefill.html || '' : '', cible: 'Stagiaires', format: 'HTML', desc: '', bloc: true }; // modèle vide non modifié : rien à protéger
+    tplEd.base = t ? { name: t.titre, collectif: !!row.collectif || isYes(row.values[bulk.filterCol.id]), html: t.html, cible: t.cible, format: t.format, desc: t.desc, bloc: t.bloc, orientation: t.orientation }
+      : { name: '', collectif: true, html: prefill && prefill.blank ? prefill.html || '' : '', cible: 'Stagiaires', format: 'HTML', desc: '', bloc: true, orientation: 'Portrait' }; // modèle vide non modifié : rien à protéger
     tplEdFill(t ? tplEd.base : { name: prefill ? prefill.name || '' : '', collectif: true, html: prefill ? prefill.html || '' : '',
-      cible: m.cible || 'Stagiaires', format: m.format || 'HTML', desc: m.desc || '', bloc: m.bloc !== undefined ? !!m.bloc : true });
+      cible: m.cible || 'Stagiaires', format: m.format || 'HTML', desc: m.desc || '', bloc: m.bloc !== undefined ? !!m.bloc : true, orientation: m.orientation || 'Portrait' });
     renderBulkVariables();
     renderBulkNotes(prefill);
     bulkAddError.hidden = true;
@@ -16922,7 +16935,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     tplEdGuard(function () { tplEdLoad(null, { name: '', html: tplWrap('<p></p>', 'Modèle'), blank: true }); bulkAddName.focus(); });
   });
   [bulkAddName, bulkAddCollectif, tplEdDesc].forEach(function (el) { el.addEventListener('input', tplEdRenderState); el.addEventListener('change', tplEdRenderState); });
-  [tplEdCible, tplEdFormat, tplEdBloc].forEach(function (el) {
+  [tplEdCible, tplEdFormat, tplEdBloc, tplEdOrient].forEach(function (el) {
     el.addEventListener('change', function () { if (el === tplEdCible) { document.getElementById('bulkPreviewWho').dataset.n = ''; renderBulkVariables(); } tplEdRenderState(); tplEdPreview(); });
   });
   bulkAddTemplate.addEventListener('input', function () {
@@ -16935,6 +16948,39 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     renderBulkVariables();
     tplEd.undo = null; tplEdImp.hidden = true; renderBulkNotes(null);
     tplEdRenderState(); tplEdPreview();
+  });
+
+  // Signature depuis un fichier image : réduite (≤ 600 × 240 px, assez pour l'impression) puis insérée dans le modèle à l'emplacement
+  // du curseur, en image intégrée (data:), comme toutes les images des modèles : elle voyage avec le modèle et s'imprime dans le PDF.
+  var tplEdSigFile = document.getElementById('tplEdSigFile');
+  document.getElementById('tplEdSigBtn').addEventListener('click', function () {
+    tplEd.sigAt = [bulkAddTemplate.selectionStart, bulkAddTemplate.selectionEnd]; // curseur mémorisé avant la fenêtre de choix
+    tplEdSigFile.value = '';
+    tplEdSigFile.click();
+  });
+  tplEdSigFile.addEventListener('change', function () {
+    var file = tplEdSigFile.files && tplEdSigFile.files[0];
+    if (!file) return;
+    if (!/^image\//.test(file.type)) { window.alert('Choisissez une image (PNG, JPEG, WebP) de la signature.'); return; }
+    var url = URL.createObjectURL(file), img = new Image();
+    img.onload = function () {
+      var k = Math.min(1, 600 / img.naturalWidth, 240 / img.naturalHeight), w = Math.max(1, Math.round(img.naturalWidth * k)), h = Math.max(1, Math.round(img.naturalHeight * k));
+      var cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+      cv.getContext('2d').drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      var data = cv.toDataURL('image/png'); // PNG : la transparence de la signature est conservée
+      var hcm = (2 * Math.min(1, h / w * 3)).toFixed(1); // environ 2 cm de haut (moins pour une signature très allongée)
+      var tag = tplEdFormat.value === 'Markdown' ? '![Signature](' + data + ')' :
+        '<img src="' + data + '" alt="Signature" style="height:' + hcm + 'cm;width:auto">';
+      var at = tplEd.sigAt || [bulkAddTemplate.value.length, bulkAddTemplate.value.length];
+      bulkAddTemplate.value = bulkAddTemplate.value.slice(0, at[0]) + tag + bulkAddTemplate.value.slice(at[1]);
+      bulkAddTemplate.focus();
+      bulkAddTemplate.setSelectionRange(at[0] + tag.length, at[0] + tag.length);
+      bulkAddTemplate.dispatchEvent(new Event('input', { bubbles: true }));
+      if (!tplEd.open) tplEdSetPreview(true);
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); window.alert('Cette image n’a pas pu être lue.'); };
+    img.src = url;
   });
 
   // Aperçu : page A4 (fond gris, feuille blanche), variables remplacées par les données du stagiaire choisi.
@@ -16960,11 +17006,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var p = ppl.filter(function (x) { return x.key === sel.value; })[0] || ppl[0];
     var t = { html: c.html, format: c.format, bloc: c.bloc }, head = c.format === 'HTML' ? docParts(c.html).head : '';
     var body = p ? dsBody(t, p) : (c.bloc && window.__BLOC_FALLBACK ? window.__BLOC_FALLBACK : '') + docParts(c.html).body.replace(/\{\{\s*([^{}]*?)\s*\}\}/g, function (m) { return '<mark>' + escapeHtml(m) + '</mark>'; });
-    var seq = (tplEd.pvSeq = (tplEd.pvSeq || 0) + 1);
-    dsWithBloc(body).then(function (html) {
+    var seq = (tplEd.pvSeq = (tplEd.pvSeq || 0) + 1), land = c.orientation === 'Paysage';
+    dsWithBloc(body, land).then(function (html) {
       if (seq !== tplEd.pvSeq) return; // un aperçu plus récent a été demandé entre-temps
       frame.srcdoc = '<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">' + head +
-        '<style>mark{background:#fff3b0}html{background:#e9e9ee}body{margin:0;padding:12px 0;font-family:Marianne,Arial,sans-serif}.tpl-page{box-sizing:border-box;width:210mm;min-height:297mm;margin:0 auto;padding:15mm 18mm;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.2)}@media (max-width:230mm){body{padding:8px}.tpl-page{width:auto;min-height:0;margin:0 8px;padding:8mm}}</style>' +
+        '<style>mark{background:#fff3b0}html{background:#e9e9ee}body{margin:0;padding:12px 0;font-family:Marianne,Arial,sans-serif}.tpl-page{box-sizing:border-box;width:' + (land ? '297mm' : '210mm') + ';min-height:' + (land ? '210mm' : '297mm') + ';margin:0 auto;padding:15mm 18mm;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.2)}.tpl-page img[alt^="Ministère"]{max-width:100%;height:auto}@media (max-width:' + (land ? '317mm' : '230mm') + '){body{padding:8px}.tpl-page{width:auto;min-height:0;margin:0 8px;padding:8mm}}</style>' +
         '</head><body><div class="tpl-page">' + html + '</div></body></html>';
     });
   }
@@ -17059,8 +17105,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (!tplCol) { showBulkAddError('Colonne « Modèle HTML » introuvable dans la table « ' + bulk.tableId + ' ».'); return; }
     var cur = tplEdCurrent();
     // Colonnes facultatives (Cible, Format, Description, Bloc marque) : créées dans la table au premier enregistrement qui s'en sert.
-    var extraVal = { cible: cur.cible, format: cur.format, description: cur.desc, bloc: cur.bloc };
-    var extraDefault = { cible: 'Stagiaires', format: 'HTML', description: '', bloc: false };
+    var extraVal = { cible: cur.cible, format: cur.format, description: cur.desc, bloc: cur.bloc, orientation: cur.orientation };
+    var extraDefault = { cible: 'Stagiaires', format: 'HTML', description: '', bloc: false, orientation: 'Portrait' };
     var addCols = Object.keys(DS_EXTRA_DEF).filter(function (k) { return !dsCol(k) && extraVal[k] !== extraDefault[k]; }).map(function (k) {
       var d = DS_EXTRA_DEF[k], o = { type: d[1], label: d[2], isFormula: false };
       if (d[3]) o.widgetOptions = JSON.stringify({ choices: d[3] });
@@ -17545,9 +17591,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   // Variables des modèles : celles de SERVIR ({{NOM}}, {{PRENOM}}, {{IDENTITE}}…), celles déjà connues du widget
   // ({{STAGIAIRE}}, {{Table.Colonne}}, listes) et toute colonne de la fiche par son libellé ({{Libellé de la colonne}}).
 
-  var DS_EXTRA = { cible: ['CIBLE', 'POUR'], format: ['FORMAT'], description: ['DESCRIPTION'], bloc: ['BLOC MARQUE'] };
+  var DS_EXTRA = { cible: ['CIBLE', 'POUR'], format: ['FORMAT'], description: ['DESCRIPTION'], bloc: ['BLOC MARQUE'], orientation: ['ORIENTATION'] };
   var DS_EXTRA_DEF = { cible: ['Cible', 'Choice', 'Cible', ['Stagiaires', 'Cadres']], format: ['Format', 'Choice', 'Format', ['HTML', 'Markdown']],
-    description: ['Description', 'Text', 'Description'], bloc: ['Bloc_marque', 'Bool', 'Bloc marque'] };
+    description: ['Description', 'Text', 'Description'], bloc: ['Bloc_marque', 'Bool', 'Bloc marque'], orientation: ['Orientation', 'Choice', 'Orientation', ['Portrait', 'Paysage']] };
   var DS_VAR_STG = [['NOM', 'nom'], ['PRENOM', 'prenom'], ['CIVILITE', 'civilite'], ['GRADE', 'grade'], ['DDN', 'dateNaissance'], ['LIEU_NAISSANCE', 'lieuNaissance'],
     ['DPT', 'dpt'], ['NID', 'nid'], ['NIGEND', 'nigend'], ['AFFECTATION', 'affectation'], ['PELOTON', 'pon'], ['FONCTION', 'fonction'], ['TELEPHONE', 'telephone'],
     ['EMAIL', 'email'], ['PROFESSION', 'profession'], ['NIVEAU_SCOLAIRE', 'niveauScolaire'], ['BATIMENT', 'batiment'], ['CHAMBRE', 'chambre'],
@@ -17571,7 +17617,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     return {
       id: row.id, row: row, titre: textOf(row.values[bulk.nameCol.id]), html: bulk.tplCol ? textOf(row.values[bulk.tplCol.id]) : '',
       cible: cible === 'Cadres' ? 'Cadres' : 'Stagiaires', format: /markdown/i.test(format) ? 'Markdown' : 'HTML',
-      desc: textOf(v('description')), bloc: v('bloc') === true || isYes(v('bloc')), collectif: !!row.collectif
+      desc: textOf(v('description')), bloc: v('bloc') === true || isYes(v('bloc')), collectif: !!row.collectif,
+      orientation: /paysage/i.test(textOf(v('orientation'))) ? 'Paysage' : 'Portrait'
     };
   }
 
@@ -17632,7 +17679,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     return (t.bloc && window.__BLOC_FALLBACK ? '<div style="margin-bottom:32px">' + window.__BLOC_FALLBACK + '</div>' : '') + body;
   }
   // En-tête du ministère (image composée avec la police Marianne) à la place du repère <!--bloc-marque-->…<!--/bloc-marque-->.
-  function dsWithBloc(html) { return window.__withBloc ? window.__withBloc(html).catch(function () { return html; }) : Promise.resolve(html); }
+  function dsWithBloc(html, landscape) {
+    var re = /<!--bloc-marque-->[\s\S]*?<!--\/bloc-marque-->/;
+    if (!re.test(html) || !window.__docHeader) return Promise.resolve(html);
+    return window.__docHeader(landscape ? 1027 : 698).then(function (h) { return h ? html.replace(re, function () { return h.html; }) : html; }, function () { return html; });
+  }
 
   // Personnes concernées par un modèle : stagiaires présents (partis exclus) groupés par peloton, ou cadres groupés par groupe.
   function dsPeople(kind) {
@@ -17675,7 +17726,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       return '<tr><th scope="row">' + escapeHtml(t.titre || '(sans titre)') + (t.desc ? '<span class="ds-hint">' + escapeHtml(t.desc) + '</span>' : '') + '</th>' +
         // Documents intégrés (trombinoscope, état rationnaire) : pas de badge « Pour », la cellule reste vide.
         '<td>' + (built ? '' : '<span class="fr-tag fr-tag--sm ' + (t.cible === 'Cadres' ? 'ds-tag--cad' : 'ds-tag--stg') + '">' + escapeHtml(t.cible) + '</span>') + '</td>' +
-        '<td>' + escapeHtml(t.format) + (t.bloc ? ' <span class="fr-tag fr-tag--sm ds-tag--grey">bloc marque</span>' : '') + '</td>' +
+        '<td>' + escapeHtml(t.format) + (t.orientation === 'Paysage' ? ' · paysage' : '') + (t.bloc ? ' <span class="ds-flag" title="Bloc marque en tête de chaque document" aria-label="Bloc marque">🇫🇷</span>' : '') + '</td>' +
         '<td class="ds-actions">' + (built
           ? '<button type="button" class="fr-btn fr-btn--sm" data-ds="builtin" data-id="' + t.id + '">' + t.action[0] + '</button>'
           : '<button type="button" class="fr-btn fr-btn--sm" data-ds="gen" data-id="' + t.id + '">Générer en lot</button>' +
@@ -17792,10 +17843,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     dsGen.busy = true; dsGenMsg('', ''); dsGenRender();
     var go = document.getElementById('dsGenGo');
     var bodies;
-    Promise.all(ppl.map(function (p) { return dsWithBloc(dsBody(t, p)); })).then(function (b) {
+    var landscape = t.orientation === 'Paysage';
+    Promise.all(ppl.map(function (p) { return dsWithBloc(dsBody(t, p), landscape); })).then(function (b) {
       bodies = b;
       var build = function (rs, title) { return '<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>' + escapeHtml(title) + '</title>' + head + '</head><body>' + bodies[rs[0]] + '</body></html>'; };
-      return generatePdf(build, ppl.map(function (p, i) { return i; }), t.titre, function (i, n) { go.textContent = 'Génération du PDF ' + i + ' / ' + n + '…'; });
+      return generatePdf(build, ppl.map(function (p, i) { return i; }), t.titre, function (i, n) { go.textContent = 'Génération du PDF ' + i + ' / ' + n + '…'; }, { landscape: landscape });
     }).then(function (bytes) {
       var blob = new Blob([bytes], { type: 'application/pdf' });
       saveBlob(blob, name);
