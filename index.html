@@ -1978,6 +1978,7 @@ document.addEventListener('keydown', function (e) {
   .ds-empty { padding: 1rem; text-align: center; color: var(--text-mention-grey); }
   .ds-tag--stg { background: var(--background-alt-blue-france); color: var(--text-action-high-blue-france); }
   .ds-tag--cad { background: var(--background-contrast-purple-glycine, #fee7fc); color: var(--text-label-purple-glycine, #6e445a); }
+  .ds-tag--both { background: var(--background-contrast-green-emeraude, #e3fdeb); color: var(--text-label-green-emeraude, #00744c); }
   .ds-tag--grey { background: var(--background-contrast-grey); color: var(--text-mention-grey); }
   .ds-sub { margin: 0.15rem 0 0; font-size: 0.85rem; color: var(--text-mention-grey); }
   .ds-modal-foot { justify-content: flex-start !important; gap: 0.5rem; }
@@ -6256,7 +6257,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.114.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.114.1</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -16157,8 +16158,11 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (accKey) accCadres.forEach(function (r) { if (byKey[accKey].members.indexOf(r) === -1) byKey[accKey].members.push(r); });
     candidates.rows.forEach(function (r) {
       if (accKey && statsIsAcc(r)) { byKey[accKey].trainees.push(r); return; }
-      var k = settings.col.pon ? trombiKey(textOf(r.pon)) : '';
-      if (k && byKey[k]) byKey[k].trainees.push(r);
+      // Tout stagiaire figure au trombinoscope : un peloton sans cadre rattaché (Gpe) forme sa propre page ; sans peloton, page « Sans peloton ».
+      var label = settings.col.pon ? textOf(r.pon).trim() : '';
+      var k = trombiKey(label) || trombiKey('Sans peloton');
+      if (!byKey[k]) { byKey[k] = { key: k, label: label || 'Sans peloton', members: [], trainees: [] }; order.push(k); }
+      byKey[k].trainees.push(r);
     });
     // Groupes CDT, AE, SEC, ARM, SAN : un seul trombinoscope, une section par groupe, dans l'ordre demandé.
     var subs = [];
@@ -16313,7 +16317,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     if (!document.getElementById('trombiScopedStyle')) { var st = document.createElement('style'); st.id = 'trombiScopedStyle'; st.textContent = trombiScopedCss(); document.head.appendChild(st); }
     showPage('trombi');
     var sel = document.getElementById('trombiGroupSel'), keep = sel.value;
-    trombiPage.groups = (enc.loaded ? trombiGroups() : []);
+    trombiPage.groups = trombiGroups(); // cadres (Encadrement) et stagiaires : les stagiaires s'affichent même sans Encadrement chargé
     sel.innerHTML = '<option value="">Tous les groupes (' + trombiPage.groups.length + ')</option>' + trombiPage.groups.map(function (g, i) { return '<option value="' + i + '">' + escapeHtml(groupDisplayLabel(g.label)) + '</option>'; }).join('');
     if (keep && trombiPage.groups[Number(keep)]) sel.value = keep;
     trombiLoadAndRender();
@@ -16326,7 +16330,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function trombiRenderSheet() {
     var groups = trombiSelectedGroups(), host = document.getElementById('trombiSheet'), people = 0, withPhoto = 0;
     groups.forEach(function (g) { g.members.concat(g.trainees).forEach(function (r) { people++; if (r.__trombiPhotoUrl) withPhoto++; }); });
-    host.innerHTML = groups.length ? groups.map(function (g) { return trombiGroupPagesHtml(g, true); }).join('\n') : '<p class="cand-empty-state">Aucun groupe à afficher : l’Encadrement n’est pas chargé ou ne renseigne aucun groupe (colonne Gpe).</p>';
+    host.innerHTML = groups.length ? groups.map(function (g) { return trombiGroupPagesHtml(g, true); }).join('\n') : '<p class="cand-empty-state">Aucun stagiaire ni cadre à afficher : les données ne sont pas encore chargées.</p>';
     trombiFitZoom();
     document.getElementById('trombiCount').textContent = groups.length + ' groupe(s) · ' + people + ' personne(s) · ' + withPhoto + ' photo(s)';
   }
@@ -17507,8 +17511,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     return textOf(v);
   }
   var DS_BUILTIN = [
-    { id: 'builtin:trombi', titre: TROMBI_NAME, desc: 'Une page par groupe, avec les photos', cible: 'Stagiaires', format: 'Intégré', action: ['Ouvrir', function () { openTrombiPage(); }] },
-    { id: 'builtin:rationnaire', titre: RATIONNAIRE_NAME, desc: 'Fichier Excel des repas, par FA', cible: 'Cadres', format: 'Intégré', action: ['Générer', function () { openRationDialog(); }] }
+    // Documents intégrés : tous deux portent sur les stagiaires ET les cadres (groupes du trombinoscope, présents du jour pour les repas).
+    { id: 'builtin:trombi', titre: TROMBI_NAME, desc: 'Une page par groupe : cadres et stagiaires, avec les photos', cible: 'Stagiaires et cadres', format: 'Intégré', action: ['Ouvrir', function () { openTrombiPage(); }] },
+    { id: 'builtin:rationnaire', titre: RATIONNAIRE_NAME, desc: 'Fichier Excel des repas du jour, par FA : stagiaires et cadres présents', cible: 'Stagiaires et cadres', format: 'Intégré', action: ['Générer', function () { openRationDialog(); }] }
   ];
   function dsRender() {
     if (!dsBodyEl) return;
@@ -17524,7 +17529,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var tplRows = T.map(function (t) {
       var built = String(t.id).indexOf('builtin:') === 0;
       return '<tr><th scope="row">' + escapeHtml(t.titre || '(sans titre)') + (t.desc ? '<span class="ds-hint">' + escapeHtml(t.desc) + '</span>' : '') + '</th>' +
-        '<td><span class="fr-tag fr-tag--sm ' + (t.cible === 'Cadres' ? 'ds-tag--cad' : 'ds-tag--stg') + '">' + escapeHtml(t.cible) + '</span></td>' +
+        '<td><span class="fr-tag fr-tag--sm ' + (t.cible === 'Cadres' ? 'ds-tag--cad' : t.cible === 'Stagiaires' ? 'ds-tag--stg' : 'ds-tag--both') + '">' + escapeHtml(t.cible) + '</span></td>' +
         '<td>' + escapeHtml(t.format) + (t.bloc ? ' <span class="fr-tag fr-tag--sm ds-tag--grey">bloc marque</span>' : '') + '</td>' +
         '<td class="ds-actions">' + (built
           ? '<button type="button" class="fr-btn fr-btn--sm" data-ds="builtin" data-id="' + t.id + '">' + t.action[0] + '</button>'
