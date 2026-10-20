@@ -1978,7 +1978,7 @@ document.addEventListener('keydown', function (e) {
   .ds-empty { padding: 1rem; text-align: center; color: var(--text-mention-grey); }
   .ds-tag--stg { background: var(--background-alt-blue-france); color: var(--text-action-high-blue-france); }
   .ds-tag--cad { background: var(--background-contrast-purple-glycine, #fee7fc); color: var(--text-label-purple-glycine, #6e445a); }
-  .ds-tag--both { background: var(--background-contrast-green-emeraude, #e3fdeb); color: var(--text-label-green-emeraude, #00744c); }
+  .stg-divers__empty { margin: 0; padding: 0.6rem 0.75rem; font-size: 0.8rem; color: var(--text-mention-grey); }
   .ds-tag--grey { background: var(--background-contrast-grey); color: var(--text-mention-grey); }
   .ds-sub { margin: 0.15rem 0 0; font-size: 0.85rem; color: var(--text-mention-grey); }
   .ds-modal-foot { justify-content: flex-start !important; gap: 0.5rem; }
@@ -6257,7 +6257,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.114.1</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.115.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -7829,6 +7829,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     incForms = (options && options.incorporationForms) || {};
     renderIncorporation();
     faqOpts = (options && options.faq) || null;
+    stgExtraCols = (options && Array.isArray(options.stgExtraCols)) ? options.stgExtraCols : []; // champs de la carte « Divers » (fiche Stagiaire)
     if (currentPage === 'faq') buildFaq();
     renderWelcome();
     welLoadCounts();
@@ -9190,6 +9191,148 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     return section;
   }
 
+  // -- Carte « Divers » de la fiche Stagiaire : champs créés depuis la fiche (bouton « Ajouter un champ ») ----------------
+  // Chaque champ est une vraie colonne de la table des stagiaires, créée par le widget ; la liste de ces colonnes est
+  // mémorisée dans les options du widget (stgExtraCols : [{ colId, long }]), partagées par tous les utilisateurs.
+  var stgExtraCols = [];
+  var STG_EXTRA_TYPES = [['Text', 'Texte'], ['LongText', 'Texte long'], ['Numeric', 'Nombre'], ['Date', 'Date'], ['Bool', 'Oui / Non'], ['Choice', 'Liste de choix']];
+  function stgExtraValue(row, colId) {
+    var data = candidates.mainData, idx = mainIndexById()[row.id];
+    return data && data[colId] && idx !== undefined ? data[colId][idx] : null;
+  }
+  function stgExtraType(colId) { return String((columnTypesMap[settings.table] || {})[colId] || 'Text').split(':')[0]; }
+  function stgExtraSpec(row, x) {
+    var colId = x.colId, type = stgExtraType(colId), v = stgExtraValue(row, colId), label = (columnLabels[settings.table] || {})[colId] || colId;
+    var text = type === 'Date' ? (dateOf(v) ? fmtDateFr(dateOf(v)) : '') : formatVariableValue(v, type);
+    var role = 'x:' + colId; // clé d'édition propre à ce champ (voir dStartEdit)
+    var writable = isWritableColId(colId) && !(columnFormulaMap[settings.table] || {})[colId];
+    return dSpec(role, label, stgTextValue(text, x.long), {
+      wide: !!x.long, empty: !text, pre: !!x.long, editable: writable,
+      buildControl: function () {
+        var el;
+        if (type === 'Bool') {
+          el = document.createElement('select'); el.className = 'fr-select';
+          [['', '—'], ['true', 'Oui'], ['false', 'Non']].forEach(function (o) { var op = document.createElement('option'); op.value = o[0]; op.textContent = o[1]; el.appendChild(op); });
+          el.value = v === true ? 'true' : v === false ? 'false' : '';
+        } else if (type === 'Choice') {
+          el = document.createElement('select'); el.className = 'fr-select';
+          var ch = ((columnChoicesMap[settings.table] || {})[colId] || []).slice();
+          if (textOf(v) && ch.indexOf(textOf(v)) === -1) ch.push(textOf(v));
+          [''].concat(ch).forEach(function (c) { var op = document.createElement('option'); op.value = c; op.textContent = c || '—'; el.appendChild(op); });
+          el.value = textOf(v);
+        } else if (x.long) {
+          el = document.createElement('textarea'); el.className = 'fr-input'; el.rows = 4; el.value = textOf(v);
+        } else {
+          el = document.createElement('input'); el.className = 'fr-input'; el.autocomplete = 'off';
+          if (type === 'Date') { el.type = 'date'; var d = dateOf(v); el.value = d ? d.toISOString().slice(0, 10) : ''; }
+          else { el.type = 'text'; if (type === 'Numeric' || type === 'Int') el.inputMode = 'decimal'; el.value = textOf(v); }
+        }
+        el.setAttribute('aria-label', label);
+        return el;
+      },
+      commit: function (ctl) {
+        var raw = ctl.value, nv;
+        if (type === 'Bool') nv = raw === 'true' ? true : raw === 'false' ? false : null;
+        else if (type === 'Date') { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw); nv = m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) / 1000 : null; }
+        else if (type === 'Numeric' || type === 'Int') {
+          if (!raw.trim()) nv = null;
+          else { nv = Number(raw.replace(/\s/g, '').replace(',', '.')); if (isNaN(nv)) { dNotify('Valeur numérique invalide pour « ' + label + ' ».'); return; } }
+        } else nv = raw;
+        var fields = {}; fields[colId] = nv;
+        ctl.disabled = true;
+        grist.docApi.applyUserActions([['UpdateRecord', settings.table, row.id, fields]]).then(function () {
+          var idx = mainIndexById()[row.id];
+          if (candidates.mainData && candidates.mainData[colId] && idx !== undefined) candidates.mainData[colId][idx] = nv;
+          dEditRole = null;
+          if (currentModalRowId === row.id) renderModalContent();
+        }).catch(function (e) { ctl.disabled = false; dNotify('Impossible d’enregistrer « ' + label + ' » : ' + friendlyErrorMessage(e)); });
+      }
+    });
+  }
+  // Carte toujours affichée (même vide) : c'est là que se trouve le bouton « Ajouter un champ ».
+  function stgDiversGroup(row) {
+    var cols = (candidates.mainData ? stgExtraCols.filter(function (x) { return x && x.colId && candidates.mainData[x.colId]; }) : []);
+    var section = dGroup('Divers', cols.map(function (x) { return stgExtraSpec(row, x); }));
+    if (!section) {
+      section = document.createElement('section');
+      section.className = 'detail-group';
+      section.innerHTML = '<h3 class="detail-title">Divers</h3><p class="stg-divers__empty">Aucun champ pour l’instant. « Ajouter un champ » crée une colonne dans la table des stagiaires ; elle s’affiche ici, sur la fiche de chaque stagiaire.</p>';
+    }
+    var h = section.querySelector('.detail-title');
+    h.classList.add('detail-title--flag');
+    var act = document.createElement('span');
+    act.className = 'detail-actions';
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-add-line fr-btn--icon-left stg-divers__add';
+    btn.textContent = 'Ajouter un champ';
+    btn.title = 'Créer une nouvelle colonne dans la table des stagiaires';
+    btn.addEventListener('click', openStgNewColDialog);
+    act.appendChild(btn);
+    h.appendChild(act);
+    return section;
+  }
+  // Fenêtre « Ajouter un champ » : nom, type (et choix pour une liste), puis création de la colonne dans la table des stagiaires.
+  var stgNewColDlg = null;
+  function openStgNewColDialog() {
+    if (!stgNewColDlg) {
+      stgNewColDlg = document.createElement('dialog');
+      stgNewColDlg.className = 'fr-modal fsj-dlg';
+      stgNewColDlg.setAttribute('aria-labelledby', 'stgNcTitle');
+      stgNewColDlg.innerHTML = '<div class="fr-container fr-container--fluid fr-container-md"><div class="fr-grid-row fr-grid-row--center"><div class="fr-col-12 fr-col-md-8 fr-col-lg-6"><div class="fr-modal__body"><div class="fr-modal__content">' +
+        '<h1 id="stgNcTitle" class="fr-modal__title">Ajouter un champ</h1>' +
+        '<p class="fr-hint-text">Crée une nouvelle colonne dans la table des stagiaires. Le champ apparaît dans la carte « Divers » de chaque fiche, modifiable au clic.</p>' +
+        '<div class="fr-input-group"><label class="fr-label" for="stgNcName">Nom du champ</label><input class="fr-input" id="stgNcName" type="text" autocomplete="off" maxlength="60"></div>' +
+        '<div class="fr-select-group"><label class="fr-label" for="stgNcType">Type</label><select class="fr-select" id="stgNcType">' + STG_EXTRA_TYPES.map(function (t) { return '<option value="' + t[0] + '">' + t[1] + '</option>'; }).join('') + '</select></div>' +
+        '<div class="fr-input-group" id="stgNcChoicesGroup" hidden><label class="fr-label" for="stgNcChoices">Choix proposés<span class="fr-hint-text">Un choix par ligne.</span></label><textarea class="fr-input" id="stgNcChoices" rows="4"></textarea></div>' +
+        '<p class="fr-error-text" id="stgNcErr" hidden></p>' +
+        '<ul class="fr-btns-group fr-btns-group--inline-md fr-btns-group--right fr-mt-2w"><li><button type="button" class="fr-btn fr-btn--secondary" id="stgNcCancel">Annuler</button></li><li><button type="button" class="fr-btn" id="stgNcOk">Créer le champ</button></li></ul>' +
+        '</div></div></div></div></div>';
+      document.body.appendChild(stgNewColDlg);
+      var close = function () { stgNewColDlg.classList.remove('fr-modal--opened'); stgNewColDlg.open = false; };
+      stgNewColDlg.querySelector('#stgNcType').addEventListener('change', function (e) { stgNewColDlg.querySelector('#stgNcChoicesGroup').hidden = e.target.value !== 'Choice'; });
+      stgNewColDlg.querySelector('#stgNcCancel').addEventListener('click', close);
+      stgNewColDlg.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); close(); } });
+      stgNewColDlg.querySelector('#stgNcOk').addEventListener('click', function () { createStgExtraColumn(close); });
+    }
+    stgNewColDlg.querySelector('#stgNcName').value = '';
+    stgNewColDlg.querySelector('#stgNcType').value = 'Text';
+    stgNewColDlg.querySelector('#stgNcChoices').value = '';
+    stgNewColDlg.querySelector('#stgNcChoicesGroup').hidden = true;
+    stgNewColDlg.querySelector('#stgNcErr').hidden = true;
+    stgNewColDlg.querySelector('#stgNcOk').disabled = false;
+    stgNewColDlg.open = true;
+    stgNewColDlg.classList.add('fr-modal--opened');
+    stgNewColDlg.querySelector('#stgNcName').focus();
+  }
+  function createStgExtraColumn(close) {
+    var dlg = stgNewColDlg, err = dlg.querySelector('#stgNcErr'), ok = dlg.querySelector('#stgNcOk');
+    function fail(m) { err.textContent = m; err.hidden = false; ok.disabled = false; }
+    var label = dlg.querySelector('#stgNcName').value.trim(), kind = dlg.querySelector('#stgNcType').value;
+    if (!label) return fail('Indiquez le nom du champ.');
+    var labels = columnLabels[settings.table] || {};
+    if (Object.keys(labels).some(function (c) { return normalizeKey(labels[c] || c) === normalizeKey(label) || normalizeKey(c) === normalizeKey(label); })) return fail('Une colonne porte déjà ce nom dans la table des stagiaires.');
+    var choices = dlg.querySelector('#stgNcChoices').value.split(/\r?\n/).map(function (c) { return c.trim(); }).filter(function (c, i, a) { return c && a.indexOf(c) === i; });
+    if (kind === 'Choice' && !choices.length) return fail('Indiquez au moins un choix.');
+    // Identifiant Grist : lettres, chiffres et « _ », sans accents ; Grist l'ajuste si besoin (identifiant réel renvoyé).
+    var id = label.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'Champ';
+    if (/^\d/.test(id)) id = 'C_' + id;
+    var info = { type: kind === 'LongText' ? 'Text' : kind, label: label, isFormula: false };
+    if (kind === 'Choice') info.widgetOptions = JSON.stringify({ choices: choices });
+    if (kind === 'LongText') info.widgetOptions = JSON.stringify({ wrap: true });
+    ok.disabled = true; err.hidden = true;
+    grist.docApi.applyUserActions([['AddColumn', settings.table, id, info]]).then(function (res) {
+      var r0 = res && res.retValues && res.retValues[0], colId = (r0 && r0.colId) || id;
+      var next = stgExtraCols.filter(function (x) { return x.colId !== colId; }).concat([{ colId: colId, long: kind === 'LongText' }]);
+      return grist.setOption('stgExtraCols', next).then(function () { stgExtraCols = next; });
+    }).then(function () {
+      close();
+      window.gristMetaInvalidate();
+      columnTypesPromise = null; // types et libellés relus : la nouvelle colonne y figure
+      loadCandidates(); // données relues : la fiche affiche le nouveau champ
+    }).catch(function (e) { fail('Création impossible : ' + friendlyErrorMessage(e) + '. Il faut les droits de modification de la structure du document.'); });
+  }
+
   // -- Fiche Stagiaires : lecture dans row[role], écriture via saveFieldEdit (voir plus bas) -------------
   function dBuildControlStg(row, role, opts) {
     var colId = settings.col[role];
@@ -9500,7 +9643,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       dGroup('Profession et niveau scolaire', [
         dFieldStg(row, 'profession', 'Profession', { editable: true }), dFieldStg(row, 'niveauScolaire', 'Niveau scolaire', { editable: true })
       ]),
-      dGroup('Infos pratiques', [dFieldTransport(row), dFieldPlate(row), dFieldInfosLibre(row)])
+      dGroup('Infos pratiques', [dFieldTransport(row), dFieldPlate(row), dFieldInfosLibre(row)]),
+      stgDiversGroup(row)
     ].forEach(function (g) { if (g) right.appendChild(g); });
 
     wrap.appendChild(left);
@@ -17529,7 +17673,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     var tplRows = T.map(function (t) {
       var built = String(t.id).indexOf('builtin:') === 0;
       return '<tr><th scope="row">' + escapeHtml(t.titre || '(sans titre)') + (t.desc ? '<span class="ds-hint">' + escapeHtml(t.desc) + '</span>' : '') + '</th>' +
-        '<td><span class="fr-tag fr-tag--sm ' + (t.cible === 'Cadres' ? 'ds-tag--cad' : t.cible === 'Stagiaires' ? 'ds-tag--stg' : 'ds-tag--both') + '">' + escapeHtml(t.cible) + '</span></td>' +
+        // Documents intégrés (trombinoscope, état rationnaire) : pas de badge « Pour », la cellule reste vide.
+        '<td>' + (built ? '' : '<span class="fr-tag fr-tag--sm ' + (t.cible === 'Cadres' ? 'ds-tag--cad' : 'ds-tag--stg') + '">' + escapeHtml(t.cible) + '</span>') + '</td>' +
         '<td>' + escapeHtml(t.format) + (t.bloc ? ' <span class="fr-tag fr-tag--sm ds-tag--grey">bloc marque</span>' : '') + '</td>' +
         '<td class="ds-actions">' + (built
           ? '<button type="button" class="fr-btn fr-btn--sm" data-ds="builtin" data-id="' + t.id + '">' + t.action[0] + '</button>'
