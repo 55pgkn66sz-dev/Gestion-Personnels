@@ -1980,6 +1980,21 @@ document.addEventListener('keydown', function (e) {
   .ds-tag--cad { background: var(--background-contrast-purple-glycine, #fee7fc); color: var(--text-label-purple-glycine, #6e445a); }
   .stg-divers__empty { margin: 0; padding: 0.6rem 0.75rem; font-size: 0.8rem; color: var(--text-mention-grey); }
   .ds-flag { margin-left: 0.25rem; font-size: 1rem; line-height: 1; cursor: help; }
+  /* Fenêtre « Évaluer un cadre » (fiche d'appréciation) */
+  .eval-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; } /* une seule colonne */
+  .eval-grid > .fr-select-group, .eval-grid > .fr-input-group, .eval-dates .fr-input-group { margin-bottom: 1rem; }
+  .eval-dates { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .eval-full { grid-column: 1 / -1; }
+  .acc-eval__body { padding: 0.75rem 1rem 1rem; }
+  .acc-eval .eval-actions { margin-top: 0.5rem; }
+  .eval-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.5rem; }
+  .eval-actions .fr-btn { margin: 0; gap: 0.5rem; }
+  .eval-notateur { margin-bottom: 1rem; }
+  .eval-notateur .fr-label { margin-bottom: 0.5rem; }
+  .eval-notateur__val { margin: 0; padding-top: 0.5rem; font-weight: 700; } /* texte seul : défini automatiquement, non modifiable */
+  .eval-notateur__val.is-missing { font-weight: 400; color: var(--text-default-error); }
+  .eval-connais { margin: 0 0 1rem; }
+  .eval-connais .fr-fieldset__element { margin-bottom: 0; }
   .ds-tag--grey { background: var(--background-contrast-grey); color: var(--text-mention-grey); }
   .ds-sub { margin: 0.15rem 0 0; font-size: 0.85rem; color: var(--text-mention-grey); }
   .ds-modal-foot { justify-content: flex-start !important; gap: 0.5rem; }
@@ -4977,6 +4992,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       </button>
       <p class="cand-count cand-count--push" id="encCount"></p>
       <div class="tb-actions">
+        <button class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-edit-line fr-btn--icon-left" id="encEvalBtn" type="button" title="Rédiger l’appréciation d’un cadre et générer sa fiche d’évaluation en PDF (rien n’est enregistré)">Évaluer un cadre</button>
         <button class="fr-btn fr-btn--secondary fr-icon-refresh-line fr-btn--icon-left tb-ghost" id="encReloadBtn" type="button" title="Recharger l'encadrement depuis la table Grist">
           Actualiser
         </button>
@@ -6269,7 +6285,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.116.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.118.0</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -10407,6 +10423,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   function buildStgNotationTab(row) {
     var wrap = document.createElement('div');
     wrap.className = 'stg-docs-tab';
+    // Stagiaire d'Acculturation : la fiche d'appréciation (voir buildAccEvalForm) remplace l'affichage habituel de l'onglet.
+    if (statsIsAcc(row)) { wrap.appendChild(buildAccEvalForm(row)); return wrap; }
     var notesCard = buildNotesCard(row); // notes, moyenne et classement : avant les appréciations
     if (notesCard) wrap.appendChild(notesCard);
     if (appr.loaded) {
@@ -13075,6 +13093,252 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     dlg.appendChild(buildDeleteFooter('encadrement', row));
     window.setTimeout(renderSaveInd, 0);
     return dlg;
+  }
+
+  // ==== Page « Encadrement » : évaluation d'un cadre (sans mémoire) ===========================================
+  //
+  // Bouton « Évaluer un cadre » : fenêtre avec le cadre évalué, le notateur (le directeur de stage, repéré dans
+  // l'Encadrement), les mentions du formulaire et une appréciation littérale ; « Générer le PDF » télécharge la fiche,
+  // mise en page comme la « FICHE D'APPRÉCIATION » de la Gendarmerie nationale (modèle tableur fourni : une grille de
+  // 39 colonnes, cases grisées pour les valeurs). Rien n'est enregistré : tout disparaît à la fermeture de la fenêtre.
+
+  // Directeur de stage : Fonction contenant « Directeur », sinon chef du groupe Commandement (CDT), sinon premier cadre du CDT.
+  function evalDirecteur() {
+    var rows = enc.loaded ? enc.rows : [];
+    var dir = rows.filter(function (r) { return /DIRECTEUR/.test(normalizeKey(encText(r, 'fonction'))); })[0];
+    if (dir) return dir;
+    var cdt = rows.filter(function (r) {
+      return encGroupTags(r).concat([encText(r, 'groupe')]).some(function (g) { var k = trombiKeyFull(g); return k === 'CDT' || k === 'COMMANDEMENT'; });
+    });
+    return cdt.length ? sortEncadrementMembers(cdt)[0] : null;
+  }
+  function evalIdentity(r) { var p = encNameParts(r); return [encText(r, 'grade'), String(p.nom || '').toUpperCase(), p.prenom].filter(Boolean).join(' '); }
+  var EVAL_MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+  function evalStageLabel() { // « PMG octobre 2026 », d'après le premier jour de la formation (Configuration)
+    var d = settings.dateDebutFormation ? parseFrDate(settings.dateDebutFormation) : null;
+    return 'PMG' + (d ? ' ' + EVAL_MOIS[d.getUTCMonth()] + ' ' + d.getUTCFullYear() : '');
+  }
+  function evalIso(d) { return d ? new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())).toISOString().slice(0, 10) : ''; }
+  function evalFr(iso) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); return m ? m[3] + '/' + m[2] + '/' + m[1] : ''; }
+  // Période du cadre : début et fin de son détachement (Encadrement) ; une date non renseignée reste vide.
+  function evalPeriod(r) {
+    var d0 = enc.cols.debut ? dayOfValue(r.f.debut, enc.cols.debut.fullType) : null, d1 = enc.cols.fin ? dayOfValue(r.f.fin, enc.cols.fin.fullType) : null;
+    return { du: evalIso(d0), au: evalIso(d1) };
+  }
+
+  // Rubrique 1 : « Grade Prénom NOM, Directeur de stage PMG mois année ».
+  function evalAutorite(r) { var p = encNameParts(r); return [encText(r, 'grade'), p.prenom, String(p.nom || '').toUpperCase()].filter(Boolean).join(' ') + ', Directeur de stage ' + evalStageLabel(); }
+
+  var evalDlg = null;
+  function evalField(id, label, control, hint) {
+    return '<div class="fr-input-group"><label class="fr-label" for="' + id + '">' + label + (hint ? '<span class="fr-hint-text">' + hint + '</span>' : '') + '</label>' + control + '</div>';
+  }
+  function openEvalCadreDialog() {
+    if (!enc.loaded || !enc.rows.length) { window.alert('L’encadrement n’est pas chargé : aucun cadre à évaluer.'); return; }
+    if (!evalDlg) {
+      evalDlg = document.createElement('dialog');
+      evalDlg.className = 'fr-modal fsj-dlg';
+      evalDlg.setAttribute('aria-labelledby', 'evalTitle');
+      evalDlg.innerHTML = '<div class="fr-container fr-container--fluid fr-container-md"><div class="fr-grid-row fr-grid-row--center"><div class="fr-col-12 fr-col-md-10 fr-col-lg-8"><div class="fr-modal__body"><div class="fr-modal__content">' +
+        '<h1 id="evalTitle" class="fr-modal__title">Évaluer un cadre</h1>' +
+        '<p class="fr-hint-text">Fiche d’appréciation générée en PDF (2 exemplaires à imprimer). Rien n’est enregistré : le contenu est perdu à la fermeture de cette fenêtre.</p>' +
+        '<div class="eval-grid">' +
+        '<div class="fr-select-group"><label class="fr-label" for="evalCadre">Cadre évalué</label><select class="fr-select" id="evalCadre"></select></div>' +
+        '<div class="eval-notateur"><p class="fr-label">Notateur et autorité d’emploi</p><p class="eval-notateur__val" id="evalNotateurTxt"></p></div>' +
+        evalField('evalPoste', 'Corps ou service d’affectation (désignation du poste)', '<input class="fr-input" id="evalPoste" type="text" autocomplete="off">') +
+        '<div class="eval-dates">' + evalField('evalDu', 'Période du', '<input class="fr-input" id="evalDu" type="date">') + evalField('evalAu', 'au', '<input class="fr-input" id="evalAu" type="date">') + '</div>' +
+        evalField('evalDepuis', 'Ce militaire sert sous mes ordres depuis le', '<input class="fr-input" id="evalDepuis" type="date">') +
+        '<fieldset class="fr-fieldset eval-connais"><legend class="fr-fieldset__legend fr-text--regular">Je connais personnellement ce militaire</legend>' +
+        '<div class="fr-fieldset__element fr-fieldset__element--inline"><div class="fr-radio-group"><input type="radio" id="evalConnaitOui" name="evalConnait" value="oui"><label class="fr-label" for="evalConnaitOui">Oui</label></div></div>' +
+        '<div class="fr-fieldset__element fr-fieldset__element--inline"><div class="fr-radio-group"><input type="radio" id="evalConnaitNon" name="evalConnait" value="non"><label class="fr-label" for="evalConnaitNon">Non</label></div></div></fieldset>' +
+        '</div>' +
+        '<div class="fr-input-group"><label class="fr-label" for="evalText">Appréciations d’ensemble</label><textarea class="fr-input" id="evalText" rows="9"></textarea>' +
+        '<p class="fr-hint-text" id="evalCount" aria-live="polite"></p></div>' +
+        '<p class="fr-error-text" id="evalErr" hidden></p>' +
+        // Action principale : « Télécharger le PDF » (icône dans le libellé : une classe fr-icon-* sur le bouton le réduit à une icône seule).
+        '<div class="eval-actions"><button type="button" class="fr-btn" id="evalGo"><span class="fr-icon-download-line fr-icon--sm" aria-hidden="true"></span><span class="eval-actions__lbl">Télécharger le PDF</span></button>' +
+        '<button type="button" class="fr-btn fr-btn--secondary" id="evalCancel">Fermer</button></div>' +
+        '</div></div></div></div></div>';
+      document.body.appendChild(evalDlg);
+      var q = function (id) { return evalDlg.querySelector('#' + id); };
+      var close = function () {
+        var doClose = function () { evalDlg.classList.remove('fr-modal--opened'); evalDlg.open = false; q('evalText').value = ''; };
+        if (!q('evalText').value.trim() || evalDlg.__generated) { doClose(); return; }
+        window.uiConfirm('L’appréciation n’a pas été générée en PDF et sera perdue. Fermer quand même ?', 'Fermer sans générer', { danger: true }).then(function (ok) { if (ok) doClose(); });
+      };
+      q('evalCancel').addEventListener('click', close);
+      evalDlg.addEventListener('keydown', function (e) { var cm = document.getElementById('fsjConfirmModal'); if (e.key === 'Escape' && !(cm && cm.open)) { e.preventDefault(); e.stopPropagation(); close(); } });
+      evalDlg.addEventListener('input', function () { evalDlg.__generated = false; });
+      q('evalText').addEventListener('input', function () { var n = this.value.trim().length; q('evalCount').textContent = n ? n + ' caractère' + (n > 1 ? 's' : '') : ''; });
+      // Choix du cadre : poste, période et date « sous mes ordres depuis » préremplis (modifiables).
+      q('evalCadre').addEventListener('change', function () {
+        var r = findEncRow(Number(this.value));
+        if (!r) return;
+        var per = evalPeriod(r);
+        q('evalPoste').value = [encText(r, 'fonction'), evalStageLabel()].filter(Boolean).join(', ');
+        q('evalDu').value = per.du; q('evalAu').value = per.au;
+        q('evalDepuis').value = per.du; // « Sert sous mes ordres depuis le » : début de détachement
+      });
+      q('evalGo').addEventListener('click', runEvalPdf);
+    }
+    var rows = enc.rows.slice().sort(compareEncRows), dir = evalDirecteur();
+    var opts = rows.map(function (r) { var f = encText(r, 'fonction'); return '<option value="' + r.id + '">' + escapeHtml(evalIdentity(r) + (f ? ' — ' + f : '')) + '</option>'; }).join('');
+    var qq = function (id) { return evalDlg.querySelector('#' + id); };
+    qq('evalCadre').innerHTML = '<option value="">Choisir le cadre…</option>' + opts;
+    // Notateur et autorité d'emploi : le directeur de stage, défini automatiquement (pas de champ à remplir).
+    qq('evalNotateurTxt').textContent = dir ? evalAutorite(dir) : 'Aucun directeur de stage repéré dans l’Encadrement (Fonction « Directeur » ou groupe CDT).';
+    qq('evalNotateurTxt').classList.toggle('is-missing', !dir);
+    ['evalPoste', 'evalDu', 'evalAu', 'evalDepuis', 'evalText'].forEach(function (id) { qq(id).value = ''; });
+    qq('evalConnaitNon').checked = true;
+    qq('evalCount').textContent = '';
+    qq('evalErr').hidden = true;
+    evalDlg.__generated = false;
+    evalDlg.open = true;
+    evalDlg.classList.add('fr-modal--opened');
+    qq('evalCadre').focus();
+  }
+
+  // Fiche d'appréciation : grille de 39 colonnes, comme le modèle (hauteurs de lignes et tailles de police en points du tableur).
+  // Police Arial : le PDF est une capture de la page, et la capture colle certains mots écrits en Marianne (espaces perdus).
+  function evalHtml(d) {
+    var B = '1px solid #000', GREY = '#E6E6E6', DARK = '#CCCCCC';
+    var H = [9.75, 13.5, 9.75, 13.5, 9.75, 13.5, 9.75, 13.5, 9.75, 13.5, 9.75, 9.75, 13.5, 13.5, 15.75, 12, 48, 9, 9.75, 9.75, 12.75, 9.75, 12, 9.75, 7.5, 12.75, 29.25, 209.25, 7.5, 9, 9, 43.5, 6.75];
+    function cell(r, c, rs, cs, st, html) {
+      return '<div style="grid-row:' + (r + 1) + ' / span ' + rs + ';grid-column:' + (c + 1) + ' / span ' + cs + ';box-sizing:border-box;overflow:hidden;' + st + '">' + (html || '') + '</div>';
+    }
+    var lbl = 'font-size:6pt;padding:0 3px;display:flex;align-items:center;';
+    var val = 'font-size:11pt;padding:0 4px;display:flex;align-items:center;background:' + GREY + ';border:' + B + ';';
+    var title = 'font-size:8pt;font-weight:bold;padding:0 4px;display:flex;align-items:center;';
+    var e = escapeHtml, cells = [
+      // En-tête gauche
+      cell(0, 0, 1, 11, 'background:#000;color:#fff;font-size:8pt;font-weight:bold;display:flex;align-items:center;justify-content:center;border:' + B, 'GENDARMERIE NATIONALE'),
+      cell(1, 0, 5, 11, 'border-left:' + B + ';border-right:' + B + ';border-top:' + B + ';display:flex;align-items:center;justify-content:center;text-align:center;font-size:12pt;font-weight:bold;line-height:1.25', 'FICHE<br>D’APPRECIATION'),
+      cell(6, 0, 6, 11, 'border-left:' + B + ';border-right:' + B), // cadre conservé, sans la mention « Réservée aux autorités civiles d'emploi »
+      cell(12, 0, 2, 11, 'border-left:' + B + ';border-right:' + B + ';border-bottom:' + B + ';display:flex;align-items:center;justify-content:center;gap:10px;font-size:8pt', '<span style="font-size:11pt">2</span> EXEMPLAIRES'),
+      // En-tête droite
+      cell(0, 12, 1, 22, lbl + 'border-top:' + B, 'GRADE'), cell(0, 34, 1, 5, lbl + 'border-top:' + B + ';border-right:' + B, 'NIGEND :'),
+      cell(1, 12, 1, 21, val, e(d.grade)), cell(1, 34, 1, 5, val, e(d.nigend)),
+      cell(2, 12, 1, 27, lbl, 'NOM DE NAISSANCE'), cell(3, 12, 1, 27, val + 'font-weight:bold', e(d.nom)),
+      cell(4, 12, 1, 27, lbl, 'PRENOM(S)'), cell(5, 12, 1, 27, val, e(d.prenom)),
+      cell(6, 12, 1, 27, lbl, 'CORPS OU SERVICE D’AFFECTATION (DESIGNATION DU POSTE)'),
+      cell(7, 12, 5, 27, val + 'align-items:flex-start;padding-top:2px', e(d.poste)),
+      cell(12, 12, 1, 12, lbl + 'font-size:8pt;font-style:italic', 'PERIODE DU'), cell(12, 24, 1, 15, lbl + 'font-size:8pt;font-style:italic', 'AU'),
+      cell(13, 12, 1, 12, val + 'justify-content:center', e(d.du)), cell(13, 24, 1, 15, val + 'justify-content:center', e(d.au)),
+      // 1 – Autorité d'emploi
+      cell(15, 0, 1, 39, title + 'background:' + GREY + ';border:' + B, '1 – NOM ET QUALITE DE L’AUTORITE D’EMPLOI'),
+      cell(16, 0, 1, 39, 'background:' + GREY + ';border:' + B + ';border-top:0;display:flex;align-items:center;padding:0 6px;font-size:11pt;font-weight:bold', e(d.autorite)),
+      // 2 – Connaissance du militaire
+      cell(18, 0, 1, 39, title + 'background:' + GREY + ';border:' + B, '2 - CONNAISSANCE DU MILITAIRE'),
+      cell(19, 0, 5, 39, 'border-left:' + B + ';border-right:' + B + ';border-bottom:' + B),
+      cell(20, 0, 1, 17, 'font-size:7pt;padding:0 6px;display:flex;align-items:center', 'CE MILITAIRE SERT SOUS MES ORDRES DEPUIS LE :'),
+      cell(20, 17, 1, 14, 'border:' + B + ';font-size:11pt;display:flex;align-items:center;justify-content:center', e(d.depuis)),
+      cell(22, 0, 1, 16, 'font-size:7pt;padding:0 6px;display:flex;align-items:center', 'JE CONNAIS PERSONNELLEMENT CE MILITAIRE'),
+      cell(22, 17, 1, 1, 'border:' + B + ';font-weight:bold;font-size:10pt;display:flex;align-items:center;justify-content:center', d.connait ? 'x' : ''),
+      cell(22, 18, 1, 3, 'border:' + B + ';border-left:0;background:' + GREY + ';font-size:9pt;display:flex;align-items:center;justify-content:center', 'OUI'),
+      cell(22, 23, 1, 1, 'border:' + B + ';font-weight:bold;font-size:10pt;display:flex;align-items:center;justify-content:center', d.connait ? '' : 'x'),
+      cell(22, 24, 1, 3, 'border:' + B + ';border-left:0;background:' + GREY + ';font-size:9pt;display:flex;align-items:center;justify-content:center', 'NON'),
+      // 3 – Appréciations d'ensemble
+      cell(25, 0, 1, 39, title + 'background:' + DARK + ';border:' + B, '3 – APPRECIATIONS D’ENSEMBLE'),
+      cell(26, 0, 2, 39, 'border-left:' + B + ';border-right:' + B + ';border-bottom:' + B + ';padding:10px 12px 10px 22px;font-size:11pt;line-height:1.45;white-space:pre-wrap;text-align:justify', e(d.texte)),
+      // 4 – Communication
+      cell(29, 0, 1, 39, title + 'background:' + DARK + ';border:' + B, '4 – COMMUNICATION'),
+      cell(30, 0, 1, 27, 'border:' + B + ';border-top:0;font-size:5pt;padding:0 4px;display:flex;align-items:center', 'SIGNATURE DU MILITAIRE NOTE PRECEDEE DE LA MENTION ‘PRIS CONNAISSANCE LE ...’ ET OBSERVATIONS EVENTUELLES'),
+      cell(30, 28, 1, 3, 'border:' + B + ';border-top:0;font-size:8pt;font-weight:bold;display:flex;align-items:center;justify-content:center', 'DATE'),
+      cell(30, 31, 1, 8, 'border-bottom:' + B + ';border-right:' + B + ';font-size:8pt;display:flex;align-items:center;justify-content:center', e(d.date)),
+      cell(31, 0, 1, 27, 'border:' + B + ';border-top:0'),
+      cell(31, 27, 1, 12, 'border:' + B + ';border-top:0;background:' + GREY),
+      cell(32, 27, 1, 12, 'border:' + B + ';border-top:0;font-size:6pt;font-style:italic;display:flex;align-items:center;justify-content:center;min-height:12px', 'SIGNATURE DE L’AUTORITE D’EMPLOI')
+    ];
+    var rows = H.map(function (h, i) { return i === 27 ? 'minmax(' + Math.round(h * 4 / 3) + 'px, auto)' : Math.round(h * 4 / 3) + 'px'; }).join(' ');
+    return '<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>Fiche d’appréciation</title></head>' +
+      '<body style="font-family:Arial,Helvetica,sans-serif;color:#000">' +
+      '<div style="display:grid;grid-template-columns:repeat(39, minmax(0, 1fr));grid-template-rows:' + rows + ';width:100%">' + cells.join('') + '</div>' +
+      '</body></html>';
+  }
+  function runEvalPdf() {
+    var dlg = evalDlg, q = function (id) { return dlg.querySelector('#' + id); }, err = q('evalErr'), go = q('evalGo');
+    function fail(m) { err.textContent = m; err.hidden = false; }
+    var cadre = findEncRow(Number(q('evalCadre').value)), notateur = evalDirecteur();
+    var texte = q('evalText').value.trim();
+    if (!cadre) return fail('Choisissez le cadre à évaluer.');
+    if (!notateur) return fail('Aucun directeur de stage repéré dans l’Encadrement : renseignez « Directeur » dans sa Fonction (ou placez-le dans le groupe CDT).');
+    if (!texte) return fail('Rédigez l’appréciation d’ensemble.');
+    err.hidden = true;
+    go.disabled = true; go.querySelector('.eval-actions__lbl').textContent = 'Génération…';
+    var p = encNameParts(cadre);
+    var d = {
+      grade: encText(cadre, 'grade'), nigend: encText(cadre, 'nigend'), nom: String(p.nom || '').toUpperCase(), prenom: p.prenom || '',
+      poste: q('evalPoste').value.trim(), du: evalFr(q('evalDu').value), au: evalFr(q('evalAu').value),
+      autorite: evalAutorite(notateur), depuis: evalFr(q('evalDepuis').value), connait: q('evalConnaitOui').checked,
+      texte: texte, date: todayFr()
+    };
+    var name = safeFileName('Fiche d’appréciation - ' + [d.nom, d.prenom].filter(Boolean).join(' ') + ' - ' + todayFr().replace(/\//g, '-')) + '.pdf';
+    var html = evalHtml(d);
+    generatePdf(function () { return html; }, [0], 'Fiche d’appréciation').then(function (bytes) {
+      saveBlob(new Blob([bytes], { type: 'application/pdf' }), name);
+      dlg.__generated = true;
+    }).catch(function (e) { fail('Génération impossible : ' + friendlyErrorMessage(e) + '.'); })
+      .then(function () { go.disabled = false; go.querySelector('.eval-actions__lbl').textContent = 'Télécharger le PDF'; });
+  }
+  document.getElementById('encEvalBtn').addEventListener('click', openEvalCadreDialog);
+
+  // ---- Stagiaires d'Acculturation : même fiche d'appréciation, dans l'onglet « Notation » de leur fiche --------------
+  // Le formulaire remplace l'affichage habituel de l'onglet (notes, curseurs) pour ces stagiaires uniquement. Rien n'est
+  // enregistré dans Grist : le brouillon reste en mémoire tant que la page est ouverte (la fiche se redessine à chaque
+  // modification d'un champ), puis disparaît.
+  var accEvalDrafts = {}; // id du stagiaire -> { poste, du, au, depuis, connait, texte }
+  function accEvalDefaults() {
+    var d0 = settings.dateDebutFormation ? parseFrDate(settings.dateDebutFormation) : null, d1 = settings.dateFinFormation ? parseFrDate(settings.dateFinFormation) : null;
+    return { poste: 'Stagiaire d’Acculturation' + evalStageLabel().replace(/^PMG/, ''), du: evalIso(d0), au: evalIso(d1), depuis: evalIso(d0), connait: false, texte: '' };
+  }
+  function buildAccEvalForm(row) {
+    var dr = accEvalDrafts[row.id] = accEvalDrafts[row.id] || accEvalDefaults(), dir = evalDirecteur(), px = 'accEval' + row.id;
+    var wrap = document.createElement('section');
+    wrap.className = 'detail-group acc-eval';
+    wrap.innerHTML = '<h3 class="detail-title">Fiche d’appréciation</h3>' +
+      '<div class="acc-eval__body">' +
+      '<p class="fr-hint-text">Stagiaire d’Acculturation : la fiche d’appréciation est générée en PDF (2 exemplaires à imprimer). Rien n’est enregistré.</p>' +
+      '<div class="eval-grid">' +
+      '<div class="eval-notateur"><p class="fr-label">Notateur et autorité d’emploi</p><p class="eval-notateur__val' + (dir ? '' : ' is-missing') + '">' +
+        escapeHtml(dir ? evalAutorite(dir) : 'Aucun directeur de stage repéré dans l’Encadrement (Fonction « Directeur » ou groupe CDT).') + '</p></div>' +
+      evalField(px + 'Poste', 'Corps ou service d’affectation (désignation du poste)', '<input class="fr-input" id="' + px + 'Poste" data-k="poste" type="text" autocomplete="off">') +
+      '<div class="eval-dates">' + evalField(px + 'Du', 'Période du', '<input class="fr-input" id="' + px + 'Du" data-k="du" type="date">') + evalField(px + 'Au', 'au', '<input class="fr-input" id="' + px + 'Au" data-k="au" type="date">') + '</div>' +
+      evalField(px + 'Depuis', 'Ce militaire sert sous mes ordres depuis le', '<input class="fr-input" id="' + px + 'Depuis" data-k="depuis" type="date">') +
+      '<fieldset class="fr-fieldset eval-connais"><legend class="fr-fieldset__legend fr-text--regular">Je connais personnellement ce militaire</legend>' +
+      '<div class="fr-fieldset__element fr-fieldset__element--inline"><div class="fr-radio-group"><input type="radio" id="' + px + 'Oui" name="' + px + 'Connait" value="oui"><label class="fr-label" for="' + px + 'Oui">Oui</label></div></div>' +
+      '<div class="fr-fieldset__element fr-fieldset__element--inline"><div class="fr-radio-group"><input type="radio" id="' + px + 'Non" name="' + px + 'Connait" value="non"><label class="fr-label" for="' + px + 'Non">Non</label></div></div></fieldset>' +
+      '</div>' +
+      '<div class="fr-input-group"><label class="fr-label" for="' + px + 'Texte">Appréciations d’ensemble</label><textarea class="fr-input" id="' + px + 'Texte" data-k="texte" rows="9"></textarea></div>' +
+      '<p class="fr-error-text" hidden></p>' +
+      '<div class="eval-actions"><button type="button" class="fr-btn"><span class="fr-icon-download-line fr-icon--sm" aria-hidden="true"></span><span class="eval-actions__lbl">Télécharger le PDF</span></button></div>' +
+      '</div>';
+    Array.prototype.forEach.call(wrap.querySelectorAll('[data-k]'), function (el) {
+      el.value = dr[el.getAttribute('data-k')] || '';
+      el.addEventListener('input', function () { dr[el.getAttribute('data-k')] = el.value; });
+    });
+    wrap.querySelector('#' + px + (dr.connait ? 'Oui' : 'Non')).checked = true;
+    Array.prototype.forEach.call(wrap.querySelectorAll('input[type=radio]'), function (el) { el.addEventListener('change', function () { dr.connait = el.value === 'oui'; }); });
+    var err = wrap.querySelector('.fr-error-text'), go = wrap.querySelector('.eval-actions .fr-btn');
+    go.addEventListener('click', function () {
+      function fail(m) { err.textContent = m; err.hidden = false; }
+      if (!dir) return fail('Aucun directeur de stage repéré dans l’Encadrement : renseignez « Directeur » dans sa Fonction (ou placez-le dans le groupe CDT).');
+      if (!dr.texte.trim()) return fail('Rédigez l’appréciation d’ensemble.');
+      err.hidden = true;
+      var lbl = go.querySelector('.eval-actions__lbl');
+      go.disabled = true; lbl.textContent = 'Génération…';
+      var d = {
+        grade: textOf(row.grade), nigend: textOf(row.nigend), nom: String(textOf(row.nom)).toUpperCase(), prenom: fmtPrenom(textOf(row.prenom)),
+        poste: dr.poste.trim(), du: evalFr(dr.du), au: evalFr(dr.au), autorite: evalAutorite(dir), depuis: evalFr(dr.depuis), connait: dr.connait,
+        texte: dr.texte.trim(), date: todayFr()
+      };
+      var name = safeFileName('Fiche d’appréciation - ' + [d.nom, d.prenom].filter(Boolean).join(' ') + ' - ' + todayFr().replace(/\//g, '-')) + '.pdf';
+      var html = evalHtml(d);
+      generatePdf(function () { return html; }, [0], 'Fiche d’appréciation').then(function (bytes) {
+        saveBlob(new Blob([bytes], { type: 'application/pdf' }), name);
+      }).catch(function (e) { fail('Génération impossible : ' + friendlyErrorMessage(e) + '.'); })
+        .then(function () { go.disabled = false; lbl.textContent = 'Télécharger le PDF'; });
+    });
+    return wrap;
   }
 
   // ==== Page « Générer doc. en lot » ======================================
