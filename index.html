@@ -6285,7 +6285,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
 
 <!-- Numéro de version X.Y.Z : à mettre à jour ici (#widgetVersion) à chaque livraison. Z pour une petite modification (1.29.1 -> 1.29.2), Y pour une modification structurelle (1.29.x -> 1.30.0). X ne change que sur demande explicite, et Y et Z repartent alors à 0 (1.29.1 -> 2.0.0). -->
 <footer class="widget-footer" role="contentinfo">
-  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.118.0</span></p>
+  <p class="widget-footer__credit">Conçu avec ❤️ par l'ADJ LECLERCQ Gauthier - 2026 · <span id="widgetVersion">Version 1.118.1</span></p>
   <a class="fr-link fr-icon-external-link-line fr-link--icon-right" href="https://grist.numerique.gouv.fr/o/sgr-drj-rgif/forms/ft2KFq6RVvuCGAQadxN8G1/97" target="_blank" rel="noopener external" title="Contacter l'équipe projet - ouvre une nouvelle fenêtre">Contacter l'équipe projet</a>
 </footer>
 
@@ -13119,6 +13119,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     return 'PMG' + (d ? ' ' + EVAL_MOIS[d.getUTCMonth()] + ' ' + d.getUTCFullYear() : '');
   }
   function evalIso(d) { return d ? new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())).toISOString().slice(0, 10) : ''; }
+  function evalToday() { var n = new Date(); return new Date(Date.UTC(n.getFullYear(), n.getMonth(), n.getDate())); }
   function evalFr(iso) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); return m ? m[3] + '/' + m[2] + '/' + m[1] : ''; }
   // Période du cadre : début et fin de son détachement (Encadrement) ; une date non renseignée reste vide.
   function evalPeriod(r) {
@@ -13152,6 +13153,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         '<div class="fr-fieldset__element fr-fieldset__element--inline"><div class="fr-radio-group"><input type="radio" id="evalConnaitOui" name="evalConnait" value="oui"><label class="fr-label" for="evalConnaitOui">Oui</label></div></div>' +
         '<div class="fr-fieldset__element fr-fieldset__element--inline"><div class="fr-radio-group"><input type="radio" id="evalConnaitNon" name="evalConnait" value="non"><label class="fr-label" for="evalConnaitNon">Non</label></div></div></fieldset>' +
         '</div>' +
+        evalField('evalDate', 'Date du document', '<input class="fr-input" id="evalDate" type="date">', 'Par défaut, la date de fin de détachement du cadre (à défaut, la date du jour).') +
         '<div class="fr-input-group"><label class="fr-label" for="evalText">Appréciations d’ensemble</label><textarea class="fr-input" id="evalText" rows="9"></textarea>' +
         '<p class="fr-hint-text" id="evalCount" aria-live="polite"></p></div>' +
         '<p class="fr-error-text" id="evalErr" hidden></p>' +
@@ -13178,6 +13180,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
         q('evalPoste').value = [encText(r, 'fonction'), evalStageLabel()].filter(Boolean).join(', ');
         q('evalDu').value = per.du; q('evalAu').value = per.au;
         q('evalDepuis').value = per.du; // « Sert sous mes ordres depuis le » : début de détachement
+        q('evalDate').value = per.au || evalIso(evalToday()); // date du document : fin de détachement, sinon aujourd'hui
       });
       q('evalGo').addEventListener('click', runEvalPdf);
     }
@@ -13189,6 +13192,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
     qq('evalNotateurTxt').textContent = dir ? evalAutorite(dir) : 'Aucun directeur de stage repéré dans l’Encadrement (Fonction « Directeur » ou groupe CDT).';
     qq('evalNotateurTxt').classList.toggle('is-missing', !dir);
     ['evalPoste', 'evalDu', 'evalAu', 'evalDepuis', 'evalText'].forEach(function (id) { qq(id).value = ''; });
+    qq('evalDate').value = evalIso(evalToday());
     qq('evalConnaitNon').checked = true;
     qq('evalCount').textContent = '';
     qq('evalErr').hidden = true;
@@ -13270,9 +13274,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       grade: encText(cadre, 'grade'), nigend: encText(cadre, 'nigend'), nom: String(p.nom || '').toUpperCase(), prenom: p.prenom || '',
       poste: q('evalPoste').value.trim(), du: evalFr(q('evalDu').value), au: evalFr(q('evalAu').value),
       autorite: evalAutorite(notateur), depuis: evalFr(q('evalDepuis').value), connait: q('evalConnaitOui').checked,
-      texte: texte, date: todayFr()
+      texte: texte, date: evalFr(q('evalDate').value) || todayFr()
     };
-    var name = safeFileName('Fiche d’appréciation - ' + [d.nom, d.prenom].filter(Boolean).join(' ') + ' - ' + todayFr().replace(/\//g, '-')) + '.pdf';
+    var name = safeFileName('Fiche d’appréciation - ' + [d.nom, d.prenom].filter(Boolean).join(' ') + ' - ' + d.date.replace(/\//g, '-')) + '.pdf';
     var html = evalHtml(d);
     generatePdf(function () { return html; }, [0], 'Fiche d’appréciation').then(function (bytes) {
       saveBlob(new Blob([bytes], { type: 'application/pdf' }), name);
@@ -13289,7 +13293,8 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
   var accEvalDrafts = {}; // id du stagiaire -> { poste, du, au, depuis, connait, texte }
   function accEvalDefaults() {
     var d0 = settings.dateDebutFormation ? parseFrDate(settings.dateDebutFormation) : null, d1 = settings.dateFinFormation ? parseFrDate(settings.dateFinFormation) : null;
-    return { poste: 'Stagiaire d’Acculturation' + evalStageLabel().replace(/^PMG/, ''), du: evalIso(d0), au: evalIso(d1), depuis: evalIso(d0), connait: false, texte: '' };
+    return { poste: 'Stagiaire d’Acculturation' + evalStageLabel().replace(/^PMG/, ''), du: evalIso(d0), au: evalIso(d1), depuis: evalIso(d0), connait: false, texte: '',
+      date: evalIso(d1 || evalToday()) }; // date du document : fin du stage (pas de détachement pour un stagiaire), sinon aujourd'hui
   }
   function buildAccEvalForm(row) {
     var dr = accEvalDrafts[row.id] = accEvalDrafts[row.id] || accEvalDefaults(), dir = evalDirecteur(), px = 'accEval' + row.id;
@@ -13308,6 +13313,7 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       '<div class="fr-fieldset__element fr-fieldset__element--inline"><div class="fr-radio-group"><input type="radio" id="' + px + 'Oui" name="' + px + 'Connait" value="oui"><label class="fr-label" for="' + px + 'Oui">Oui</label></div></div>' +
       '<div class="fr-fieldset__element fr-fieldset__element--inline"><div class="fr-radio-group"><input type="radio" id="' + px + 'Non" name="' + px + 'Connait" value="non"><label class="fr-label" for="' + px + 'Non">Non</label></div></div></fieldset>' +
       '</div>' +
+      evalField(px + 'Date', 'Date du document', '<input class="fr-input" id="' + px + 'Date" data-k="date" type="date">', 'Par défaut, la date de fin du stage (à défaut, la date du jour).') +
       '<div class="fr-input-group"><label class="fr-label" for="' + px + 'Texte">Appréciations d’ensemble</label><textarea class="fr-input" id="' + px + 'Texte" data-k="texte" rows="9"></textarea></div>' +
       '<p class="fr-error-text" hidden></p>' +
       '<div class="eval-actions"><button type="button" class="fr-btn"><span class="fr-icon-download-line fr-icon--sm" aria-hidden="true"></span><span class="eval-actions__lbl">Télécharger le PDF</span></button></div>' +
@@ -13329,9 +13335,9 @@ button:disabled[aria-describedby], button:disabled[data-reason] { pointer-events
       var d = {
         grade: textOf(row.grade), nigend: textOf(row.nigend), nom: String(textOf(row.nom)).toUpperCase(), prenom: fmtPrenom(textOf(row.prenom)),
         poste: dr.poste.trim(), du: evalFr(dr.du), au: evalFr(dr.au), autorite: evalAutorite(dir), depuis: evalFr(dr.depuis), connait: dr.connait,
-        texte: dr.texte.trim(), date: todayFr()
+        texte: dr.texte.trim(), date: evalFr(dr.date) || todayFr()
       };
-      var name = safeFileName('Fiche d’appréciation - ' + [d.nom, d.prenom].filter(Boolean).join(' ') + ' - ' + todayFr().replace(/\//g, '-')) + '.pdf';
+      var name = safeFileName('Fiche d’appréciation - ' + [d.nom, d.prenom].filter(Boolean).join(' ') + ' - ' + d.date.replace(/\//g, '-')) + '.pdf';
       var html = evalHtml(d);
       generatePdf(function () { return html; }, [0], 'Fiche d’appréciation').then(function (bytes) {
         saveBlob(new Blob([bytes], { type: 'application/pdf' }), name);
